@@ -1,4 +1,6 @@
 ---
+- hosts: "{{hosts|default('all')}}"
+  roles: [corpusops.humanlog]
 - hosts: all
   tasks:
     - name: "is {{service}} already running?"
@@ -39,4 +41,3 @@
 # VARIABLES:
 #   - service
 #   - process_name (opt)
-# vim:ft=ansible:

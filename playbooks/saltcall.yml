@@ -1,16 +1,6 @@
 ---
-# execute a salt call on a host
-# ansible-playbook  -v  plays/saltcall.yml \
-#       -e "saltargs=makina-states.localsettings.users"
-#
-# ansible-playbook  -v  plays/saltcall.yml \
-#       -e "function=test.ping"
-#
-# ansible-playbook  -v  plays/saltcall.yml \
-#       -e "function=cmd.run saltargs='cmd=\"ls /\" python_shell=True'"
-
 - hosts: "{{hosts|default('all')}}"
-  roles: [makinastates_pillar]
+  roles: [corpusops.humanlog]
 
 - hosts: "{{hosts|default('all')}}"
   tasks:
