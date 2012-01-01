@@ -1,0 +1,97 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.humanlog
+    - role: corpusops.include_jinja_vars
+- hosts: all
+  tasks:
+    - name: SETUP
+      tags: corpusops_provision_server_setup
+      include_jinja_vars:
+        content: |
+          ---
+          {% set corpusops_server_type = corpusops_server_type | default(None) %}
+          {% set vt = ansible_virtualization_type | default(None) %}
+          {% if not corpusops_server_type %}
+          {%  set corpusops_server_type = (vt in ['docker', 'lxc']) | ternary(vt, 'baremetale', foo=vt) %}
+          {% endif %}
+          {% set corpusops_localsettings_git = corpusops_localsettings_git
+                | default(True) %}
+          {% set corpusops_localsettings_screen = corpusops_localsettings_screen
+                | default(True) %}
+          {% set corpusops_localsettings_pkgmgr = corpusops_localsettings_pkgmgr
+                | default(True) %}
+          {% set corpusops_localsettings_dns_servers = corpusops_localsettings_dns_servers
+                | default([]) %}
+          {% set corpusops_localsettings_dns_search = corpusops_localsettings_dns_search
+                | default([]) %}
+          {% set corpusops_localsettings_sudo = corpusops_localsettings_sudo
+                | default(True) %}
+          {% set corpusops_localsettings_etckeeper = vt not in ['docker'] %}
+          {% set corpusops_security = corpusops_security | default(True) %}
+          {% set corpusops_localsettings_apparmor = corpusops_localsettings_apparmor
+              | default(ansible_lsb.id == 'Ubuntu' and corpusops_server_type not in ['lxc', 'docker'])
+              | ternary(True, False) %}
+          {% set corpusops_services_base_ssh_server = corpusops_services_base_ssh_server
+              | default(True) %}
+          {% set corpusops_services_base_ntp = corpusops_services_base_ntp
+              | default(True) %}
+          {% set corpusops_localsettings_autoupgrades = corpusops_localsettings_autoupgrades
+              | default(corpusops_security) %}
+          {% set corpusops_services_firewall_fail2ban = corpusops_services_firewall_fail2ban
+              | default(corpusops_services_base_ssh_server and corpusops_security)
+              | ternary(True, False) %}
+          {% set corpusops_localsettings_golang = corpusops_localsettings_golang
+                | default(False) %}
+          {% set corpusops_localsettings_nscd = vt not in ['docker'] %}
+          {% set corpusops_localsettings_dns = (
+                corpusops_localsettings_dns_servers or corpusops_localsettings_dns_search) | length > 0 %}
+          corpusops_server_type: {{ corpusops_server_type }}
+          corpusops_security: {{ corpusops_security }}
+          corpusops_services_base_ssh_server: {{ corpusops_services_base_ssh_server }}
+          corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
+          corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
+          corpusops_services_firewall_fail2ban: {{ corpusops_services_firewall_fail2ban }}
+          corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
+          corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
+          corpusops_localsettings_etckeeper: {{ corpusops_localsettings_etckeeper }}
+          corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
+          corpusops_localsettings_sudo: {{ corpusops_localsettings_sudo }}
+          corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
+          corpusops_localsettings_git: {{ corpusops_localsettings_git }}
+          corpusops_localsettings_screen: {{ corpusops_localsettings_screen }}
+          corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
+          #
+- hosts: all
+  roles:
+    - role: corpusops.vars
+    - role: corpusops.services_base_ntp_vars
+      when: '{{corpusops_services_base_ntp}}'
+    - role: corpusops.localsettings_apparmor_vars
+      when: '{{corpusops_localsettings_apparmor}}'
+    - role: corpusops.localsettings_autoupgrades_vars
+      when: '{{corpusops_localsettings_autoupgrades}}'
+    - role: corpusops.localsettings_dns_vars
+      when: '{{corpusops_localsettings_dns}}'
+    - role: corpusops.services_base_ntp
+      when: '{{corpusops_services_base_ntp}}'
+    - role: corpusops.localsettings_apparmor
+      when: '{{corpusops_localsettings_apparmor}}'
+    - role: corpusops.localsettings_autoupgrades
+      when: '{{corpusops_localsettings_autoupgrades}}'
+    - role: corpusops.localsettings_dns
+      when: '{{corpusops_localsettings_dns}}'
+    - role: corpusops.localsettings_etckeeper
+      when: '{{corpusops_localsettings_etckeeper}}'
+    - role: corpusops.localsettings_nscd
+      when: '{{corpusops_localsettings_nscd}}'
+    - role: corpusops.localsettings_sudo
+      when: '{{corpusops_localsettings_sudo}}'
+    - role: corpusops.localsettings_pkgmgr
+      when: '{{corpusops_localsettings_pkgmgr}}'
+    - role: corpusops.localsettings_git
+      when: '{{corpusops_localsettings_git}}'
+    - role: corpusops.localsettings_screen
+      when: '{{corpusops_localsettings_screen}}'
+    - role: corpusops.localsettings_golang
+      when: '{{corpusops_localsettings_golang|bool}}'
