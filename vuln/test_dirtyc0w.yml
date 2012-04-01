@@ -1,6 +1,6 @@
 - hosts: all
   roles:
-  - role: corpusops.humanlog
+  - role: corpusops_humanlog
 - hosts: all
   tasks:
   - shell : |
@@ -14,9 +14,11 @@
       test -e "${d}"
       $get https://raw.githubusercontent.com/kiorky/dirtyc0w/master/dirtyc0w/dirtyc0w_asroot.sh>"${d}dirtyc0w_asroot.sh"
       set +ex
-      NODELETE={{NODELETE|default('')}} bash "${d}dirtyc0w_asroot.sh"
+      export DEBUG={{DEBUG|default('')}}
+      export NODELETE={{NODELETE|default('')}}
+      bash "${d}dirtyc0w_asroot.sh"
       ret=$?
-      rm -f "${d}"*
+      rm -fv "${d}"*
       exit $ret
     register: cmdres
     changed_when: False
