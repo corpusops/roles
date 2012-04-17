@@ -54,6 +54,8 @@
                 | default(False) %}
           {% set corpusops_services_base_sshd = corpusops_services_base_sshd
                 | default(not is_docker) %}
+          {% set corpusops_services_virt_docker = corpusops_services_virt_docker
+                | default(not is_docker) %}
           {% set corpusops_services_base_cron = corpusops_services_base_cron
                 | default(True) %}
           {% set corpusops_localsettings_ssh = corpusops_localsettings_ssh
@@ -85,6 +87,7 @@
           corpusops_services_base_cron: {{ corpusops_services_base_cron }}
           corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
           corpusops_services_base_sshd: {{ corpusops_services_base_sshd }}
+          corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
           #
 - hosts: all
   roles:
@@ -127,3 +130,5 @@
       phen: '{{corpusops_services_base_cron}}'
     - role: corpusops.localsettings_golang
       when: '{{corpusops_localsettings_golang|bool}}'
+    - role: corpusops.services_virt_docker
+      phen: '{{corpusops_services_virt_docker}}'
