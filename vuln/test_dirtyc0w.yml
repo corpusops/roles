@@ -1,0 +1,9 @@
+- hosts: all
+  tasks:
+  - shell : |
+      set -x
+      curl -s https://raw.githubusercontent.com/kiorky/dirtyc0w/master/dirtyc0w/dirtyc0w_asroot.sh>dirtyc0w_asroot.sh;
+      bash dirtyc0w_asroot.sh
+    register: cmdres
+    failed_when: "{{'nonvuln' not in cmdres.stderr}}"
+    changed_when: False
