@@ -12,6 +12,7 @@
           ---
           {% set corpusops_server_type = corpusops_server_type | default(None) %}
           {% set vt = ansible_virtualization_type | default(None) %}
+          {% set is_docker = vt  == 'docker' %}
           {% if not corpusops_server_type %}
           {%  set corpusops_server_type = (vt in ['docker', 'lxc']) | ternary(vt, 'baremetale', foo=vt) %}
           {% endif %}
@@ -51,7 +52,11 @@
               | ternary(True, False) %}
           {% set corpusops_localsettings_golang = corpusops_localsettings_golang
                 | default(False) %}
-          {% set corpusops_localsettings_cron = corpusops_localsettings_cron
+          {% set corpusops_services_base_sshd = corpusops_services_base_sshd
+                | default(not is_docker) %}
+          {% set corpusops_services_base_cron = corpusops_services_base_cron
+                | default(True) %}
+          {% set corpusops_localsettings_ssh = corpusops_localsettings_ssh
                 | default(True) %}
           {% set corpusops_localsettings_profile = corpusops_localsettings_profile
                 | default(True) %}
@@ -60,8 +65,6 @@
                 corpusops_localsettings_dns_servers or corpusops_localsettings_dns_search) | length > 0 %}
           corpusops_server_type: {{ corpusops_server_type }}
           corpusops_security: {{ corpusops_security }}
-          corpusops_services_base_ssh_server: {{ corpusops_services_base_ssh_server }}
-          corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
           corpusops_services_firewall_fail2ban: {{ corpusops_services_firewall_fail2ban }}
           corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
@@ -76,9 +79,12 @@
           corpusops_localsettings_sysctls: {{ corpusops_localsettings_sysctls }}
           corpusops_localsettings_git: {{ corpusops_localsettings_git }}
           corpusops_localsettings_screen: {{ corpusops_localsettings_screen }}
-          corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
-          corpusops_localsettings_cron: {{ corpusops_localsettings_cron }}
           corpusops_localsettings_profile: {{ corpusops_localsettings_profile }}
+          corpusops_localsettings_ssh: {{ corpusops_localsettings_ssh }}
+          corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
+          corpusops_services_base_cron: {{ corpusops_services_base_cron }}
+          corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
+          corpusops_services_base_sshd: {{ corpusops_services_base_sshd }}
           #
 - hosts: all
   roles:
@@ -99,6 +105,8 @@
       when: '{{corpusops_localsettings_sudo}}'
     - role: corpusops.localsettings_profile
       when: '{{corpusops_localsettings_profile}}'
+    - role: corpusops.localsettings_ssh
+      when: '{{corpusops_localsettings_ssh}}'
     - role: corpusops.localsettings_sysctls
       when: '{{corpusops_localsettings_sysctls}}'
     - role: corpusops.localsettings_pkgmgr
@@ -113,6 +121,8 @@
       when: '{{corpusops_localsettings_screen}}'
     - role: corpusops.services_base_ntp
       when: '{{corpusops_services_base_ntp}}'
+    - role: corpusops.services_base_sshd
+      phen: '{{corpusops_services_base_sshd}}'
     - role: corpusops.services_base_cron
       phen: '{{corpusops_services_base_cron}}'
     - role: corpusops.localsettings_golang
