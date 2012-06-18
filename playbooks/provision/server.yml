@@ -58,6 +58,8 @@
                 | default(not is_docker) %}
           {% set corpusops_services_base_cron = corpusops_services_base_cron
                 | default(True) %}
+          {% set corpusops_shell_scripts = corpusops_shell_scripts
+                | default(False) %}
           {% set corpusops_localsettings_ssh = corpusops_localsettings_ssh
                 | default(True) %}
           {% set corpusops_localsettings_profile = corpusops_localsettings_profile
@@ -88,10 +90,13 @@
           corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
           corpusops_services_base_sshd: {{ corpusops_services_base_sshd }}
           corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
+          corpusops_shell_scripts: {{ corpusops_shell_scripts }}
           #
 - hosts: all
   roles:
     - role: corpusops.vars
+    - role: corpusops.shell_scripts
+      when: '{{corpusops_shell_scripts}}'
     - role: corpusops.localsettings_apparmor
       when: '{{corpusops_localsettings_apparmor}}'
     - role: corpusops.localsettings_autoupgrades
