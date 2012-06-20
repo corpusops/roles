@@ -27,6 +27,8 @@
                 | default([]) %}
           {% set corpusops_localsettings_dns_search = corpusops_localsettings_dns_search
                 | default([]) %}
+          {% set corpusops_localsettings_editor = corpusops_localsettings_editor
+                | default(False) %}
           {% set corpusops_localsettings_sudo = corpusops_localsettings_sudo
                 | default(True) %}
           {% set corpusops_localsettings_etckeeper = vt not in ['docker'] %}
@@ -59,6 +61,7 @@
           corpusops_localsettings_etckeeper: {{ corpusops_localsettings_etckeeper }}
           corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
           corpusops_localsettings_sudo: {{ corpusops_localsettings_sudo }}
+          corpusops_localsettings_editor: {{ corpusops_localsettings_editor }}
           corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
           corpusops_localsettings_git: {{ corpusops_localsettings_git }}
@@ -88,6 +91,8 @@
       when: '{{corpusops_localsettings_etckeeper}}'
     - role: corpusops.localsettings_nscd
       when: '{{corpusops_localsettings_nscd}}'
+    - role: corpusops.localsettings_editor
+      when: '{{corpusops_localsettings_editor}}'
     - role: corpusops.localsettings_sudo
       when: '{{corpusops_localsettings_sudo}}'
     - role: corpusops.localsettings_pkgmgr
