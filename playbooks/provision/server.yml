@@ -77,14 +77,6 @@
 - hosts: all
   roles:
     - role: corpusops.vars
-    - role: corpusops.services_base_ntp_vars
-      when: '{{corpusops_services_base_ntp}}'
-    - role: corpusops.localsettings_apparmor_vars
-      when: '{{corpusops_localsettings_apparmor}}'
-    - role: corpusops.localsettings_autoupgrades_vars
-      when: '{{corpusops_localsettings_autoupgrades}}'
-    - role: corpusops.localsettings_dns_vars
-      when: '{{corpusops_localsettings_dns}}'
     - role: corpusops.services_base_ntp
       when: '{{corpusops_services_base_ntp}}'
     - role: corpusops.localsettings_apparmor
