@@ -12,9 +12,12 @@
           ---
           {% set corpusops_server_type = corpusops_server_type | default(None) %}
           {% set vt = ansible_virtualization_type | default(None) %}
-          {% set is_docker = vt  == 'docker' %}
+          {% set is_docker = vt == 'docker' %}
+          {% set is_lxc = vt == 'lxc' %}
+          {% set is_container = vt in ['lxc', 'docker'] %}
           {% if not corpusops_server_type %}
-          {%  set corpusops_server_type = (vt in ['docker', 'lxc']) | ternary(vt, 'baremetale', foo=vt) %}
+          {%  set corpusops_server_type = (vt in ['docker', 'lxc'])
+                | ternary(vt, 'baremetal') %}
           {% endif %}
           {% set corpusops_localsettings_git = corpusops_localsettings_git
                 | default(True) %}
@@ -37,14 +40,14 @@
           {% set corpusops_localsettings_sysctls = corpusops_localsettings_sysctls
                 | default(True) %}
           {% set corpusops_localsettings_etckeeper = vt not in ['docker'] %}
-          {% set corpusops_security = corpusops_security | default(True) %}
+          {% set corpusops_security = corpusops_security | default(not is_docker) %}
           {% set corpusops_localsettings_apparmor = corpusops_localsettings_apparmor
               | default(ansible_lsb.id == 'Ubuntu' and corpusops_server_type not in ['lxc', 'docker'])
               | ternary(True, False) %}
           {% set corpusops_services_base_ssh_server = corpusops_services_base_ssh_server
               | default(True) %}
           {% set corpusops_services_base_ntp = corpusops_services_base_ntp
-              | default(True) %}
+              | default(not is_container) %}
           {% set corpusops_localsettings_autoupgrades = corpusops_localsettings_autoupgrades
               | default(corpusops_security) %}
           {% set corpusops_services_firewall_fail2ban = corpusops_services_firewall_fail2ban
