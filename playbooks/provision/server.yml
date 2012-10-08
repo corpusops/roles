@@ -21,6 +21,8 @@
                 | default(True) %}
           {% set corpusops_localsettings_pkgmgr = corpusops_localsettings_pkgmgr
                 | default(True) %}
+          {% set corpusops_localsettings_locales = corpusops_localsettings_locales
+                | default(True) %}
           {% set corpusops_localsettings_basepkgs = corpusops_localsettings_basepkgs
                 | default(True) %}
           {% set corpusops_localsettings_dns_servers = corpusops_localsettings_dns_servers
@@ -66,6 +68,8 @@
           corpusops_localsettings_editor: {{ corpusops_localsettings_editor }}
           corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
+          corpusops_localsettings_locales: {{ corpusops_localsettings_locales }}
+          corpusops_localsettings_sysctls: {{ corpusops_localsettings_sysctls }}
           corpusops_localsettings_git: {{ corpusops_localsettings_git }}
           corpusops_localsettings_screen: {{ corpusops_localsettings_screen }}
           corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
@@ -103,6 +107,8 @@
       when: '{{corpusops_localsettings_pkgmgr}}'
     - role: corpusops.localsettings_basepkgs
       when: '{{corpusops_localsettings_basepkgs|bool}}'
+    - role: corpusops.localsettings_locales
+      when: '{{corpusops_localsettings_locales|bool}}'
     - role: corpusops.localsettings_git
       when: '{{corpusops_localsettings_git}}'
     - role: corpusops.localsettings_screen
