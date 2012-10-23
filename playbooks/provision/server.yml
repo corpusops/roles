@@ -51,6 +51,8 @@
               | ternary(True, False) %}
           {% set corpusops_localsettings_golang = corpusops_localsettings_golang
                 | default(False) %}
+          {% set corpusops_localsettings_cron = corpusops_localsettings_cron
+                | default(True) %}
           {% set corpusops_localsettings_profile = corpusops_localsettings_profile
                 | default(True) %}
           {% set corpusops_localsettings_nscd = vt not in ['docker'] %}
@@ -75,13 +77,12 @@
           corpusops_localsettings_git: {{ corpusops_localsettings_git }}
           corpusops_localsettings_screen: {{ corpusops_localsettings_screen }}
           corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
+          corpusops_localsettings_cron: {{ corpusops_localsettings_cron }}
           corpusops_localsettings_profile: {{ corpusops_localsettings_profile }}
           #
 - hosts: all
   roles:
     - role: corpusops.vars
-    - role: corpusops.services_base_ntp
-      when: '{{corpusops_services_base_ntp}}'
     - role: corpusops.localsettings_apparmor
       when: '{{corpusops_localsettings_apparmor}}'
     - role: corpusops.localsettings_autoupgrades
@@ -110,5 +111,9 @@
       when: '{{corpusops_localsettings_git}}'
     - role: corpusops.localsettings_screen
       when: '{{corpusops_localsettings_screen}}'
+    - role: corpusops.services_base_ntp
+      when: '{{corpusops_services_base_ntp}}'
+    - role: corpusops.services_base_cron
+      phen: '{{corpusops_services_base_cron}}'
     - role: corpusops.localsettings_golang
       when: '{{corpusops_localsettings_golang|bool}}'
