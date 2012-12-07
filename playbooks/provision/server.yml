@@ -90,6 +90,8 @@
       tags: corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: all
   roles:
+    - role: corpusops.localsettings_pkgmgr
+    - role: corpusops.localsettings_basepkgs
     - role: corpusops.localsettings_apparmor
     - role: corpusops.localsettings_autoupgrades
     - role: corpusops.localsettings_dns
@@ -100,8 +102,6 @@
     - role: corpusops.localsettings_profile
     - role: corpusops.localsettings_ssh
     - role: corpusops.localsettings_sysctls
-    - role: corpusops.localsettings_pkgmgr
-    - role: corpusops.localsettings_basepkgs
     - role: corpusops.localsettings_locales
     - role: corpusops.localsettings_git
     - role: corpusops.localsettings_screen
