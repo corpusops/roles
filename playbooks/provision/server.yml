@@ -93,19 +93,19 @@
     - role: corpusops.localsettings_dns
     - role: corpusops.localsettings_sysctls
     - role: corpusops.localsettings_pkgmgr
-    - role: corpusops.localsettings_basepkgs
-    - role: corpusops.localsettings_apparmor
     - role: corpusops.localsettings_autoupgrades
-    - role: corpusops.localsettings_etckeeper
-    - role: corpusops.localsettings_nscd
-    - role: corpusops.localsettings_editor
-    - role: corpusops.localsettings_sudo
-    - role: corpusops.localsettings_profile
-    - role: corpusops.localsettings_ssh
+    - role: corpusops.localsettings_basepkgs
     - role: corpusops.localsettings_locales
+    - role: corpusops.localsettings_profile
+    - role: corpusops.localsettings_apparmor
+    - role: corpusops.localsettings_editor
+    - role: corpusops.localsettings_etckeeper
     - role: corpusops.localsettings_git
-    - role: corpusops.localsettings_screen
     - role: corpusops.localsettings_golang
+    - role: corpusops.localsettings_nscd
+    - role: corpusops.localsettings_screen
+    - role: corpusops.localsettings_ssh
+    - role: corpusops.localsettings_sudo
     - role: corpusops.services_base_ntp
     - role: corpusops.services_base_sshd
     - role: corpusops.services_base_cron
