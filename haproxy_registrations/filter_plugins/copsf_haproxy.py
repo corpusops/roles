@@ -458,7 +458,7 @@ def register_servers_to_backends(data,
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
                      'bind': '{0}:{1}'.format(ip, to_port),
                      'opts': 'check weight {3} {0} {1} {2}'.format(
-                         inter_check, ssl_check, raw_srv, weight=weight,
+                         inter_check, ssl_check, raw_srv, weight,
                          bracket='{', ebracket='}')})
             else:
                 ssl_check_s = ssl_check_forced and ssl_check or ''
