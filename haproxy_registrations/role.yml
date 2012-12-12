@@ -1,3 +1,6 @@
 ---
 - hosts: all
-  roles: [corpusops.roles/haproxy_registrations]
+  roles:
+  - {name: corpusops.roles/services_proxy_haproxy, when: "install_haproxy|default(false)"}
+  - corpusops.roles/haproxy_registrations
+
