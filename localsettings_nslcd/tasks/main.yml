@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_nslcd preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_nslcd | default(True) }}"
+  register: corpusops_localsettings_nslcd_can_run
+  tags: corpusops_localsettings_nslcd
+- include_tasks: run.yml
+  when: 'corpusops_localsettings_nslcd_can_run.msg == True'
+  tags: corpusops_localsettings_nslcd
