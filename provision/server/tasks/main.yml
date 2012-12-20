@@ -17,6 +17,7 @@
       {% set corpusops_localsettings_certbot         = corpusops_localsettings_certbot          | default(False) %}
       {% set corpusops_localsettings_hostname        = corpusops_localsettings_hostname         | default(False) %}
       {% set corpusops_localsettings_dockercompose   = corpusops_localsettings_dockercompose    | default(False) %}
+      {% set corpusops_localsettings_nslcd           = corpusops_localsettings_nslcd            | default(False) %}
       {% set corpusops_localsettings_docker          = corpusops_localsettings_docker           | default(False) %}
       {% set corpusops_localsettings_editor          = corpusops_localsettings_editor           | default(not is_docker) %}
       {% set corpusops_localsettings_etckeeper       = corpusops_localsettings_etckeeper        | default(not is_docker) %}
@@ -103,6 +104,7 @@
       provision_corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
       provision_corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
       provision_corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
+      provision_corpusops_localsettings_nslcd: {{ corpusops_localsettings_nslcd }}
       provision_corpusops_localsettings_docker: {{ corpusops_localsettings_docker }}
       provision_corpusops_localsettings_editor: {{ corpusops_localsettings_editor }}
       provision_corpusops_localsettings_etckeeper: {{ corpusops_localsettings_etckeeper }}
@@ -235,6 +237,9 @@
 - include_role: {public: false, name: corpusops.roles/localsettings_dockercompose}
   tags: [dockercompose]
   when: [provision_corpusops_localsettings_dockercompose]
+- include_role: {public: false, name: corpusops.roles/localsettings_nslcd}
+  tags: [nslcd]
+  when: [provision_corpusops_localsettings_nslcd]
 - include_role: {public: false, name: corpusops.roles/localsettings_kubectl}
   tags: [kubectl]
   when: [provision_corpusops_localsettings_kubectl]

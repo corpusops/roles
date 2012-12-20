@@ -1,0 +1,20 @@
+---
+corpusops_localsettings_nscd_cops_do_format_resolve: false
+corpusops_localsettings_nscd_cops_computed_defaults: []
+corpusops_localsettings_nscd_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_nscd_cops_sub_os_append: {}
+corpusops_localsettings_nscd_cops_lowered: []
+corpusops_localsettings_nscd_cops_knobs: ['mirror', 'comps', 'repo',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_nscd_cops_sub_namespaces:
+  settings: {}
+corpusops_localsettings_nscd_activated: true
+corpusops_localsettings_nscd_packages: []
+corpusops_localsettings_nscd_configs: []
+corpusops_localsettings_nscd_services: []
+corpusops_localsettings_nscd_roles:
+- name: s-hamann.nslcd
+  # fork of https://github.com/s-hamann/ansible-nslcd:w
+  repo: "https://github.com/corpusops/ansible-nslcd"
+  version: master
+cops_nslcd_harden: false

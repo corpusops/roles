@@ -1,0 +1,7 @@
+- include_role: {name: corpusops.roles/checkout}
+  vars:  {checkout_items: "{{corpusops_localsettings_nscd_roles}}"}
+  tags: [checkout_roles]
+
+- include_role: {name: s-hamann.nslcd}
+  tags: [configure_nslcd]
+  vars: {nslcd_harden: "{{cops_nslcd_harden}}"}
