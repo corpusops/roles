@@ -28,8 +28,10 @@
                 | default([]) %}
           {% set corpusops_localsettings_dns_search = corpusops_localsettings_dns_search
                 | default([]) %}
+          {% set corpusops_localsettings_vim = corpusops_localsettings_vim
+                | default(True) %}
           {% set corpusops_localsettings_editor = corpusops_localsettings_editor
-                | default(is_docker or False) %}
+                | default(not is_docker) %}
           {% set corpusops_localsettings_sudo = corpusops_localsettings_sudo
                 | default(True) %}
           {% set corpusops_localsettings_sysctls = corpusops_localsettings_sysctls
@@ -67,6 +69,7 @@
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
           corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
+          corpusops_localsettings_vim: {{ corpusops_localsettings_vim }}
           corpusops_localsettings_editor: {{ corpusops_localsettings_editor }}
           corpusops_localsettings_etckeeper: {{ corpusops_localsettings_etckeeper }}
           corpusops_localsettings_git: {{ corpusops_localsettings_git }}
