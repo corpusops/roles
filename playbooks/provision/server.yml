@@ -31,6 +31,8 @@
                 | default(False) %}
           {% set corpusops_localsettings_sudo = corpusops_localsettings_sudo
                 | default(True) %}
+          {% set corpusops_localsettings_sysctls = corpusops_localsettings_sysctls
+                | default(True) %}
           {% set corpusops_localsettings_etckeeper = vt not in ['docker'] %}
           {% set corpusops_security = corpusops_security | default(True) %}
           {% set corpusops_localsettings_apparmor = corpusops_localsettings_apparmor
@@ -95,6 +97,8 @@
       when: '{{corpusops_localsettings_editor}}'
     - role: corpusops.localsettings_sudo
       when: '{{corpusops_localsettings_sudo}}'
+    - role: corpusops.localsettings_sysctls
+      when: '{{corpusops_localsettings_sysctls}}'
     - role: corpusops.localsettings_pkgmgr
       when: '{{corpusops_localsettings_pkgmgr}}'
     - role: corpusops.localsettings_basepkgs
