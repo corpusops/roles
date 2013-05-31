@@ -19,13 +19,17 @@ with open(os.path.join(__mod, '../api/cops_load.python')) as fic:
 
 
 def ssh_connection_proxy(_, inventory_hostname, hostvars, *args, **kwargs):
-    user = hostvars[inventory_hostname].get(
+    try:
+        hvars = hostvars[inventory_hostname]
+    except KeyError:
+        hvars = {}
+    user = hvars.get(
         'ansible_user', 'root')
-    gw = hostvars[inventory_hostname].get(
+    gw = hvars.get(
         'ansible_fqdn', inventory_hostname)
-    gw_port = hostvars[inventory_hostname].get('ansible_port', None)
+    gw_port = hvars.get('ansible_port', None)
     if (
-        (hostvars[inventory_hostname].get('ansible_connection', '')
+        (hvars.get('ansible_connection', '')
          in ['local']) or (
             inventory_hostname in ['localhost', 'ip6-localhost',
                                    '127.0.0.1', '127.0.1.1', '::1']
