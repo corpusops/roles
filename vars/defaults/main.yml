@@ -26,16 +26,17 @@ corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
   else %}{{corpusops_core_distribution_release}}{%endif%}"
 corpusops_core_facts_path: "/etc/copsfacts"
 corpusops_core_ssh_args: >-
-  {% set k = hostvars[inventory_hostname].get(
+  {% set hvars =  hostvars[inventory_hostname] | default({}) %}
+  {% set k = hvars.get(
                 'ansible_ssh_private_key_file', '') %}
   {% if k%}-o IdentityFile={{k}} -o IdentitiesOnly=yes{%endif%}
   {% if (
-      hostvars[inventory_hostname].ansible_connection|default('ssh')
+      hvars.ansible_connection|default('ssh')
      ) not in [ 'smart', 'local'] %}
-  {{ hostvars[inventory_hostname].ssh_args | default('') }}
-  {{ hostvars[inventory_hostname].ansible_ssh_args | default('') }}
-  {{ hostvars[inventory_hostname].ansible_ssh_common_args | default('') }}
-  {{ hostvars[inventory_hostname].ansible_ssh_extra_args | default('') }}
+  hvars.ssh_args | default('') }}
+  hvars.ansible_ssh_args | default('') }}
+  hvars.ansible_ssh_common_args | default('') }}
+  hvars.ansible_ssh_extra_args | default('') }}
   {% endif %}
 
 # one of : default, kvm, lxccontainer, baremetal, dockercontainer, vagrant
