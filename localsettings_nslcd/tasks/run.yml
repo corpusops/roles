@@ -1,5 +1,5 @@
 - include_role: {name: corpusops.roles/checkout}
-  vars:  {checkout_items: "{{corpusops_localsettings_nscd_roles}}"}
+  vars:  {checkout_items: "{{corpusops_localsettings_nslcd_roles}}"}
   tags: [checkout_roles]
 
 - include_role: {name: s-hamann.nslcd}
