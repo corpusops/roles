@@ -84,7 +84,7 @@ stop_nginx() {
 	start-stop-daemon --stop --quiet --retry=$STOP_SCHEDULE --pidfile $PID --name $NAME
 	RETVAL="$?"
 	sleep 1
-    pids=$(ps aux|awk '{print $11 " " $2}'|egrep ^nginx|awk '{print $2}')
+    pids=$(ps aux|awk '{print $11 " " $2}'|grep -E ^nginx|awk '{print $2}')
     if [ "x${pids}" != "x" ];then
         echo "killing leftover ${pids}"
         for pid in ${pids};do

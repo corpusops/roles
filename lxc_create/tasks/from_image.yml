@@ -23,10 +23,10 @@
     fi
     set -e
     test -e "$gcfg"
-    if egrep -q "^lxc.rootfs *= overlay" "$gcfg";then
-       egrep "^lxc.rootfs *= overlay" "$gcfg" | awk '{print $3}' | awk -F ':' '{print $2}'
-    elif egrep -q "^lxc.rootfs *= " "$gcfg";then
-       egrep "^lxc.rootfs *= " "$gcfg" | awk '{print $3}'
+    if grep -E -q "^lxc.rootfs *= overlay" "$gcfg";then
+       grep -E "^lxc.rootfs *= overlay" "$gcfg" | awk '{print $3}' | awk -F ':' '{print $2}'
+    elif grep -E -q "^lxc.rootfs *= " "$gcfg";then
+       grep -E "^lxc.rootfs *= " "$gcfg" | awk '{print $3}'
     else
       echo "Failed to get ancestor rootfs ($gcfg)" >&2
       exit 6

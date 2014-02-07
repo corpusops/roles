@@ -36,7 +36,7 @@
 - name: disable lang overrides
   shell: |
     if test -e /etc/yum.conf \
-      && egrep -q ^override_install_langs= /etc/yum.conf; then
+      && grep -E -q ^override_install_langs= /etc/yum.conf; then
       echo "YUM: disabling override_install_langs" >&2
       sed -i -re \
         "s/^override_install_langs=/#override_install_langs=/g" \

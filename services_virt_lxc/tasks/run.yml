@@ -41,7 +41,7 @@
     {% set proc_mode=corpusops_services_virt_lxc_vars.proc_mode%}
     p=/usr/share/lxc/config/common.conf
     if test -e $p;then
-    if grep "proc:" "$p"|egrep -vq "proc:{{proc_mode}}";then
+    if grep "proc:" "$p"|grep -E -vq "proc:{{proc_mode}}";then
     sed -i -re "s/proc:(mixed|ro|rw)/proc:{{proc_mode}}/g" $p
     echo "was patched"
     fi

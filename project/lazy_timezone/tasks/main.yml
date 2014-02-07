@@ -8,7 +8,7 @@
       public: true
   - shell: |
       set -ex
-      xxd  /etc/timezone |egrep -iq {{cops_timezone}}
+      xxd  /etc/timezone |grep -E -iq {{cops_timezone}}
     register: cops_timezone_test2
     changed_when: false
     failed_when: false

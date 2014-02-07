@@ -4,10 +4,10 @@
     set -ex
     c="{{cops_burp_sslconf}}"
     if [ -e "$c" ];then
-      if ! ( egrep -q "openssl_conf\s+=\s+default_conf" "$c" );then
+      if ! ( grep -E -q "openssl_conf\s+=\s+default_conf" "$c" );then
         echo topatch1
       fi
-      if ! ( egrep -q "CipherString = DEFAULT:@SECLEVEL=1" "$c" );then
+      if ! ( grep -E -q "CipherString = DEFAULT:@SECLEVEL=1" "$c" );then
         echo topatch2
       fi
     fi

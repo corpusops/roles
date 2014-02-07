@@ -22,6 +22,6 @@ cops_ovhasroot_sudocmd: |-
   {{    pwslug }}{{dryruns}} sudo -u {{cops_ovhasroot_root_login}} {{pwflag}} \
   {{cops_ovhasroot_sudoshell}}
 cops_ovhasroot_disabletimeout: >
-  if (egrep -q "sleep " {{cops_ovhasroot_authorized_files}} );then
+  if (grep -E -q "sleep " {{cops_ovhasroot_authorized_files}} );then
   sed -i -re "s/.*;exit 142\" ssh-/ssh-/g" {{cops_ovhasroot_authorized_files}};
   fi

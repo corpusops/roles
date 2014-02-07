@@ -159,7 +159,7 @@ if [[ -z ${NO_PYC_STRIP} ]];then
     find / -type f -name "*.pyc" -delete
 fi
 if [[ -z ${NO_YUM_CLEANUP} ]];then
-    if echo $DISTRIB_ID|egrep -iq "redhat|red-hat|ol|centos";then
+    if echo $DISTRIB_ID|grep -E -iq "redhat|red-hat|ol|centos";then
         vv rm -rf /usr/lib/firmware/*
         for i in /var/cache/yum;do
             if [ -e "$î" ];then
@@ -193,12 +193,12 @@ if [[ -z $NO_GIT_PACK ]] && [[ -e $COPS_ROOT/bin/git_pack ]];then
     vv $COPS_ROOT/bin/git_pack /
 fi
 if [[ -z $NO_IMAGE_STRIP ]];then
-    if echo $DISTRIB_ID|egrep -iq "redhat|red-hat|ol|centos";then
+    if echo $DISTRIB_ID|grep -E -iq "redhat|red-hat|ol|centos";then
         # remove dev pkgs
         # while manually installing their lib counterpart
         if [[ -n "${DEV_AUTOREMOVE}" ]];then
-            devpkgs=$(rpm -qa|egrep  -- "-devel|-header)")
-            pkgs=$(rpm -qa|egrep  -- "-devel|-header"\
+            devpkgs=$(rpm -qa|grep -E  -- "-devel|-header)")
+            pkgs=$(rpm -qa|grep -E  -- "-devel|-header"\
                    |sed -re "s/(-devel|-header).*//g")
             for i in $(rh_filter_pkg_in_cache $pkgs);do
                 vv yum install -y $i || /bin/true
@@ -210,7 +210,7 @@ if [[ -z $NO_IMAGE_STRIP ]];then
             vv yum autoremove -y  $(rh_filter_pkg_in_cache $PKGS_REMOVES)
         fi
     fi
-    if echo $DISTRIB_ID|egrep -iq "ubuntu|debian|mint";then
+    if echo $DISTRIB_ID|grep -E -iq "ubuntu|debian|mint";then
         # remove dev pkgs
         # while manually installing their lib counterpart
         if [[ -n "${DEV_AUTOREMOVE}" ]];then

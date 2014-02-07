@@ -33,7 +33,7 @@
     set -ex
     {% if ansible_os_family.lower() in ['debian'] %}
     if [ -e /etc/locale.gen ] && ! (
-      egrep -q "^{{lang.lower()}}.*{{variant}}.*{{cp.lower()}}" /etc/locale.gen
+      grep -E -q "^{{lang.lower()}}.*{{variant}}.*{{cp.lower()}}" /etc/locale.gen
     );then
       echo "Adding {{lang}} {{cp}} to gen"
       echo "{{lang}}{% if 'iso' not in cp.lower() %}.{{cp}}{%endif%}{{variant}} {{cp}}">>/etc/locale.gen

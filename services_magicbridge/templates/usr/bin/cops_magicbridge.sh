@@ -22,7 +22,7 @@ if [ "x${DEBUG}" != "x" ];then set -x;fi
 # tata
 get_bridge() {
     sc=${1}
-    if [ "x$(echo "${1}"|egrep -q cops_magicbridge_;echo ${?})" = "x0" ];then
+    if [ "x$(echo "${1}"|grep -E -q cops_magicbridge_;echo ${?})" = "x0" ];then
         br=$(echo "${1}"|sed -re "s/.*cops_magicbridge_(.*)/\1/g")
     else
         br="mgcbr0"

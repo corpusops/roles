@@ -12,7 +12,7 @@
           corpusops_localsettings_dns_vars.configs|length > 0)"
   tags: corpusops_localsettings_dns
 - shell: |
-    debconf-get-selections | egrep -iq "resolvconf/linkify-resolvconf.*true"
+    debconf-get-selections | grep -E -iq "resolvconf/linkify-resolvconf.*true"
   register: corpusops_resolvconf_todo
   failed_when: False
   changed_when: False

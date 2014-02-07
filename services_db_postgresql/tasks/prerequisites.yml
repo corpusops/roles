@@ -20,7 +20,7 @@
 - name: maybe disable cluster creation
   shell: |
     if [ -e /etc/postgresql-common/createcluster.conf ] && (
-       egrep -q '#?(create_main_cluster) ' \
+       grep -E -q '#?(create_main_cluster) ' \
        /etc/postgresql-common/createcluster.conf; );then
       sed -i -re "s/#?(create_main_cluster) .*$/\1 = false/" \
         /etc/postgresql-common/createcluster.conf &&\

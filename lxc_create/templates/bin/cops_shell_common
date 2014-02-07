@@ -10,7 +10,7 @@ DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
 
 # BEGIN: corpusops common glue
 readlinkf() {
-    if ( uname | egrep -iq "darwin|bsd" );then
+    if ( uname | grep -E -iq "darwin|bsd" );then
         if ( which greadlink 2>&1 >/dev/null );then
             greadlink -f "$@"
         elif ( which perl 2>&1 >/dev/null );then
@@ -266,12 +266,12 @@ version_lt() { [ "$1" = "$2" ] && return 1 || version_lte $1 $2; }
 version_gte() { [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_gt() { [ "$1" = "$2" ] && return 1 || version_gte $1 $2; }
 lowcase_distribid() { echo $DISTRIB_ID| awk '{print tolower($0)}'; }
-is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux|arch"; }
-is_debian_like() { echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"; }
-is_suse_like() { echo $DISTRIB_ID | egrep -iq "suse"; }
-is_alpine_like() { echo $DISTRIB_ID | egrep -iq "alpine" || test -e /etc/alpine-release; }
+is_archlinux_like() { echo $DISTRIB_ID | grep -E -iq "archlinux|arch"; }
+is_debian_like() { echo $DISTRIB_ID | grep -E -iq "debian|ubuntu|mint"; }
+is_suse_like() { echo $DISTRIB_ID | grep -E -iq "suse"; }
+is_alpine_like() { echo $DISTRIB_ID | grep -E -iq "alpine" || test -e /etc/alpine-release; }
 is_redhat_like() { echo $DISTRIB_ID \
-        | egrep -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)"; }
+        | grep -E -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)"; }
 set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
 is_darwin () {
     if [ "x${FORCE_DARWIN-}" != "x" ];then return 0;fi
@@ -405,8 +405,8 @@ may_sudo() {
 get_ancestor_from_dockerfile() {
     local dockerfile=${1}
     local ancestor=
-    if [ -e "${dockerfile}" ] && egrep -q ^FROM "${dockerfile}"; then
-        ancestor=$(egrep ^FROM "${dockerfile}"\
+    if [ -e "${dockerfile}" ] && grep -E -q ^FROM "${dockerfile}"; then
+        ancestor=$(grep -E ^FROM "${dockerfile}"\
             | head -n1 | awk '{print $2}' | xargs -n1| sort -u )
     fi
     echo ${ancestor}
@@ -463,7 +463,7 @@ upgrade_wd_to_br() {
         if [ "x${test_branch}" != "x${up_branch}" ];then
             warn "Upgrading $wd to branch: $up_branch"
             git fetch --all || die "git fetch in $wd failed"
-            if get_git_branchs | egrep -q "^${up_branch}$";then
+            if get_git_branchs | grep -E -q "^${up_branch}$";then
                 vv git checkout ${up_branch} &&\
                     vv git reset --hard origin/${up_branch}
             else
@@ -496,7 +496,7 @@ get_python_() {
     local py_bins="$@"
     for i in $py_bins;do
         local lpy=$(get_command $i 2>/dev/null)
-        if [ "x$lpy" != "x" ] && ( ${lpy} -V 2>&1| egrep -qi "python $py_ver" );then
+        if [ "x$lpy" != "x" ] && ( ${lpy} -V 2>&1| grep -E -qi "python $py_ver" );then
             selectedpy=${lpy}
             break
         fi
@@ -704,7 +704,7 @@ export IMAGES \
     BASE_CORE_IMAGES \
     BASE_PREPROVISION_IMAGES
 
-if echo "${0}" | egrep -q 'cops_shell_common$';then
+if echo "${0}" | grep -E -q 'cops_shell_common$';then
     if declare -f "$1" >/dev/null 2>&1; then
         "${@}"
     else
