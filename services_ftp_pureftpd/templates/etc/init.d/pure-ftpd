@@ -74,7 +74,7 @@ fi
 
 start_uploadscript() {
     if [ "$UPLOADSCRIPT" -a "$STANDALONE_OR_INETD" != inetd ] && \
-        egrep -i '^[     ]*(yes|1|on)[     ]*' /etc/pure-ftpd/conf/CallUploadScript > /dev/null 2>&1
+        grep -E -i '^[     ]*(yes|1|on)[     ]*' /etc/pure-ftpd/conf/CallUploadScript > /dev/null 2>&1
     then
         UOPTS=""
         test "$UPLOADUID" && UOPTS="$UOPTS -u $UPLOADUID"

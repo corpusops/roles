@@ -18,7 +18,7 @@
       test -e /etc/nginx/sites-enabled/default
       systemctl status nginx
       test -e /etc/nginx/proxy_params
-      egrep -iq  "Ansible managed" /etc/nginx/nginx.conf
+      grep -E -iq  "Ansible managed" /etc/nginx/nginx.conf
     register: cops_nginx_test2
     changed_when: false
     failed_when: false

@@ -35,7 +35,7 @@ git config user.email 'cert@certs.com'
 git config user.name 'certs'
 if ! ( git diff --exit-code &>/dev/null );then git commit -am "up";fi
 if ! ( git diff --cached --exit-code &>/dev/null );then git commit -am "up";fi
-if ( echo "$GIT_URL" | egrep -q 'ssh://([^/]+)/(.*)' );then
+if ( echo "$GIT_URL" | grep -E -q 'ssh://([^/]+)/(.*)' );then
     ssh_host="$(echo "$GIT_URL" | sed -re 's|^ssh://([^/]+)(/.*)|\1|g' )"
     ssh_path="$(echo "$GIT_URL" | sed -re 's|^ssh://([^/]+)(/.*)|\2|g' )"
     if ! ( ssh $ssh_host test -e "$ssh_path" );then

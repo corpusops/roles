@@ -209,7 +209,7 @@ CLASS_EGRESS_WEB=${CLASS_EGRESS_WEB:-36}
 CLASS_EGRESS_MAIL=${CLASS_EGRESS_MAIL:-37}
 CLASS_EGRESS_DEFAULT=${CLASS_EGRESS_DEFAULT:-38}
 
-# declare |sort -u|egrep -i "CEIL|RATE" ; exit 1
+# declare |sort -u|grep -E -i "CEIL|RATE" ; exit 1
 STRICT_RATES=${STRICT_RATES-}
 if [ "x$STRICT_RATES" = "x" ];then
     #
@@ -663,49 +663,49 @@ do_status() {
     # Check iptables
     #
     ct1=$(iptables -t mangle -L -n -v 2>&1 \
-        | egrep "mark match 0x(16|20|15|18|19|1a|24|17|16|18|22)" \
+        | grep -E "mark match 0x(16|20|15|18|19|1a|24|17|16|18|22)" \
         | sort -u | wc -l)
     if [ $ct1 -ge 16 ];then hint=$(($hint+1));fi
     #
     # Check TC filters
     #
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:1 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:1000 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:2100 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:2200 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:3100 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:3200 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:4100 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:4200 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:5001" ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:1 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:1000 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:2100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:2200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:3100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:3200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:4100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:4200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | grep -E -q "htb .*2:5001" ) ;then hint=$(($hint+1));fi
     #
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "htb .*2: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*2101: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*2201: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*3101: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*3201: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*4101: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*4201: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*5001: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "htb .*2: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*2101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*2201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*3101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*3201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*4101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*4201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | grep -E -q "sfq .*5001: " ) ;then hint=$(($hint+1));fi
     #
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:1 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:1000 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:2100 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:2200 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:3100 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:3200 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:4100 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:4200 " ) ;then hint=$(($hint+1));fi
-    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:5001" ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:1 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:1000 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:2100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:2200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:3100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:3200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:4100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:4200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | grep -E -q "htb .*1:5001" ) ;then hint=$(($hint+1));fi
     #
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "htb .*1: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*2101: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*2201: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*3101: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*3201: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*4101: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*4201: " ) ;then hint=$(($hint+1));fi
-    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*5001: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "htb .*1: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*2101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*2201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*3101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*3201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*4101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*4201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | grep -E -q "sfq .*5001: " ) ;then hint=$(($hint+1));fi
     # with any confidence, we are loaded
     if [ $hint -ge $confidence ];then
         if [ "x$DEBUG" != "x " ];then

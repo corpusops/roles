@@ -27,15 +27,15 @@
     {# fr_FR.utf-8 -> utf.?8 #}
     encoding="{{pgsql_vars.locale.split('.', 1)[1].replace('-', '.?')}}"
     if psql{{v}} -t -A -F';;;' -c'\l'\
-    | egrep '^{{pgsql_vars.db}};;;'\
-    | egrep -i "{{pgsql_vars.locale[0:2]}}"\
-    | egrep -i "$encoding;;;$";then
+    | grep -E '^{{pgsql_vars.db}};;;'\
+    | grep -E -i "{{pgsql_vars.locale[0:2]}}"\
+    | grep -E -i "$encoding;;;$";then
       exit 0
     fi
     # Or database does not exist => skip
     if ! ( psql{{v}} -t -A -F';;;' -c'\l'\
            | awk -F";" '{print $1}'\
-           | egrep -q "^{{pgsql_vars.db}}$"; );then
+           | grep -E -q "^{{pgsql_vars.db}}$"; );then
       exit 0
     fi
     exit 1

@@ -5,7 +5,7 @@ fi
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/sbin:/sbin:/bin:${PATH}
 
 is_container() {
-    if cat -e /proc/1/cgroup 2>/dev/null|egrep -q 'docker|lxc'; then
+    if cat -e /proc/1/cgroup 2>/dev/null|grep -E -q 'docker|lxc'; then
         return 0
     else
         return 1
@@ -17,7 +17,7 @@ filter_host_pids() {
         pids="${pids} $(echo "${@}")"
     else
         for pid in ${@};do
-            if ! egrep -q "/(docker|lxc)/" /proc/${pid}/cgroup 2>/dev/null;then
+            if ! grep -E -q "/(docker|lxc)/" /proc/${pid}/cgroup 2>/dev/null;then
                 pids="${pids} $(echo "${pid}")"
             fi
          done

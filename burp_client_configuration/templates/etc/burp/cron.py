@@ -120,7 +120,7 @@ def get_worker_pids(*args, **kwargs):
     Search worker process
     '''
     ops = popen(
-        'ps aux|egrep \'burp -a\''
+        'ps aux|grep -E \'burp -a\''
         '|grep -v grep'
         '|grep -v \'sh -c\''
         '|awk \'{print $2}\'')[0]
@@ -760,7 +760,7 @@ def test_deploy(*args, **kwargs):
                 " is normal".format(
                     pids,
                     DEPLOY_LOCK=deploy_lock))
-            os.system('ps aufx -C4|egrep \'{0}\'|grep -v grep'.format(
+            os.system('ps aufx -C4|grep -E \'{0}\'|grep -v grep'.format(
                 "|".join(pids)))
             logger.info(
                 "You can attach to and read the log file with:\n"

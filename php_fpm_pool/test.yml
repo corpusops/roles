@@ -65,12 +65,12 @@
         test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
         test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/other.conf
         test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/truc.conf
-        egrep -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/foobar.conf
-        egrep -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
-        egrep -q "include_path.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
-        egrep -q "basedir.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
-        egrep -q "srv/mybar2/public" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
-        egrep -q "9004" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        grep -E -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/foobar.conf
+        grep -E -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        grep -E -q "include_path.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        grep -E -q "basedir.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        grep -E -q "srv/mybar2/public" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        grep -E -q "9004" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
     # disabling a fpm pool
     - include_role: {name: corpusops.roles/php_fpm_pool}
       vars:

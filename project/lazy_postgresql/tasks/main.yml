@@ -22,7 +22,7 @@
   - shell: |
       set -ex
       echo "select 1"| psql-{{corpusops_services_db_postgresql_version}} -v ON_ERROR_STOP=1 -t -A -F",":
-      psql-{{corpusops_services_db_postgresql_version}} -t -A -F';;;' -c'\l'|egrep -iq {{cops_lang}}
+      psql-{{corpusops_services_db_postgresql_version}} -t -A -F';;;' -c'\l'|grep -E -iq {{cops_lang}}
     register: cops_postgresql_test2
     changed_when: false
     failed_when: false

@@ -39,7 +39,7 @@
           corpusops_localsettings_etckeeper_vars.packages is not none and
           corpusops_localsettings_etckeeper_vars.packages|length > 0)"
   tags: corpusops_localsettings_etckeeper
-- shell: test -d /etc/.git && egrep -q "email.*=" /etc/.git/config
+- shell: test -d /etc/.git && grep -E -q "email.*=" /etc/.git/config
   register: corpusops_localsettings_etckeeper_do
   changed_when: false
   failed_when: false

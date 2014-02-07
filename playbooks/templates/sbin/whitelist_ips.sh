@@ -3,7 +3,7 @@ set -xe
 ip="${1}"
 die(){ echo "$@" >&2 ; exit 1; }
 is_container() {
-    if cat -e /proc/1/cgroup 2>/dev/null|egrep -q 'docker|lxc'; then
+    if cat -e /proc/1/cgroup 2>/dev/null|grep -E -q 'docker|lxc'; then
         return 0
     else
         return 1
@@ -15,7 +15,7 @@ filter_host_pids() {
         pids="${pids} $(echo "${@}")"
     else
         for pid in ${@};do
-            if ! egrep -q "/(docker|lxc)/" /proc/${pid}/cgroup 2>/dev/null;then
+            if ! grep -E -q "/(docker|lxc)/" /proc/${pid}/cgroup 2>/dev/null;then
                 pids="${pids} $(echo "${pid}")"
             fi
          done
@@ -30,7 +30,7 @@ else
 fi
 for ip in $@;do
   if [ -e /etc/fail2ban/jail.conf ];then
-      if egrep -q "ignoreip = 127.0.0.1.*${ip}" /etc/fail2ban/jail.conf;then
+      if grep -E -q "ignoreip = 127.0.0.1.*${ip}" /etc/fail2ban/jail.conf;then
           echo "patching ip: $ip" >&2
           sed -i -re \
             "s/ignoreip = 127.0.0.1(.*)/ignoreip = 127.0.0.1\1 $ip/g" \

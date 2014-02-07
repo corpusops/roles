@@ -28,7 +28,7 @@
     shell: |-
       set -e
       f="{{item.key}}/.synced"
-      if [ ! -e "$f" ] && ! ( cat /proc/mounts|awk '{print $2}'|egrep -q '^{{item.value}}$' );then
+      if [ ! -e "$f" ] && ! ( cat /proc/mounts|awk '{print $2}'|grep -E -q '^{{item.value}}$' );then
         rsync -av "{{item.value}}/" "{{item.key}}/" \
           && touch "$f" \
           && echo tchanged >&2

@@ -69,7 +69,7 @@ fixperms() {
 {% else %}
 {% set etcsslc = '#' %}
 {% endif %}
-{{etcsslc}}if ( find "{{d.home}}" -name live -type d | egrep . ) && [ -e "/etc/ssl" ];then
+{{etcsslc}}if ( find "{{d.home}}" -name live -type d | grep -E . ) && [ -e "/etc/ssl" ];then
 {{etcsslc}}while read f;do rsync -aL "$f/" "/etc/ssl/letsencrypt/";done < <(find "{{d.home}}" -name live -type d)
 {{etcsslc}}chown -Rf root:root "/etc/ssl/letsencrypt/"
 {{etcsslc}}while read f;do chmod $([[ -n $DEBUG ]] && echo -v) 0751 "$f";done < <(find "/etc/ssl/letsencrypt" -type d)

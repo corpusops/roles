@@ -6,7 +6,7 @@ After=syslog.target network.target
 
 [Service]
 ExecStart=/bin/sh -c ". {{data.venv}}/bin/activate;supervisord -n -c {{data.config}}"
-ExecStop=/bin/sh -c "if ! {{data.ctl}} $OPTIONS shutdown;then {{data.ctl}} $OPTIONS shutdown 2>&1|egrep -qi authentication;fi"
+ExecStop=/bin/sh -c "if ! {{data.ctl}} $OPTIONS shutdown;then {{data.ctl}} $OPTIONS shutdown 2>&1|grep -E -qi authentication;fi"
 ExecReload=/bin/sh -c "{{data.ctl}} $OPTIONS reload && {{data.ctl}} $OPTIONS restart {{data.restart_target}}"
 Restart={{data.restart}}
 KillMode={{data.killmode}}

@@ -65,7 +65,7 @@ cli_args="{{d.dns_certonly_args.replace('\n', '')}}"
 if [[ -n "$CERTBOT_DOMAINS" ]];then
 exitcode=0
 do_challenge() {
-    if ( echo "$domain" | egrep -q "^*." );then
+    if ( echo "$domain" | grep -E -q "^*." );then
         $CERTBOT certonly $force_args $cli_args --preferred-challenges $i -d "$domain" -d "*.$domain"
     else
         $CERTBOT certonly $force_args $cli_args --preferred-challenges $i -d "$domain"
@@ -75,7 +75,7 @@ do_challenge() {
 while read domain;do
 if [[ -n $domain ]];then
     domain_args="-d $domain"
-    if ( echo "$domain" | egrep -q "^*." );then
+    if ( echo "$domain" | grep -E -q "^*." );then
         domain="${domain:2}"
     fi
 	cert_file="$CERTBOT_CONFIGDIR/live/$domain/fullchain.pem"

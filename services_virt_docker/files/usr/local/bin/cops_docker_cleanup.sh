@@ -9,17 +9,17 @@ cids="
 $( \
     docker ps -a --no-trunc \
     | grep  Exited \
-    | egrep "sh -c '((.*apt-get ((install|remove )|(-y (install|remove))))|.*step_rev.*)" \
+    | grep -E "sh -c '((.*apt-get ((install|remove )|(-y (install|remove))))|.*step_rev.*)" \
     | awk '{print $1}' )
 $( \
     docker ps -a --no-trunc \
     | grep  Exited \
     | grep '"bash"'\
-    | egrep -v "$DATA_FILTER"\
+    | grep -E -v "$DATA_FILTER"\
     | awk '{print $1}' )
 $(\
-    docker ps -a  --no-trunc|egrep 'Exited'\
-    |egrep "(ROLES=.*call_ansible|rm -f local/corpusops.bootstrap|_call_ansible|.ansible/scripts/(download_corpusops.sh|setup_core_variables.sh|setup_ansible.sh))" \
+    docker ps -a  --no-trunc|grep -E 'Exited'\
+    |grep -E "(ROLES=.*call_ansible|rm -f local/corpusops.bootstrap|_call_ansible|.ansible/scripts/(download_corpusops.sh|setup_core_variables.sh|setup_ansible.sh))" \
     | awk '{print $1}' )
 
 "

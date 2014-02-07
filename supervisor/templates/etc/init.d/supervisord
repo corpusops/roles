@@ -72,7 +72,7 @@ filter_host_pids() {
 
 daemon_pids() {
     filter_host_pids $(\
-        ps aux|egrep "$(basename $DAEMON)" \
+        ps aux|grep -E "$(basename $DAEMON)" \
         | grep -v grep | grep -v $(basename $DAEMONCTL) | awk '{print $2}')
 }
 

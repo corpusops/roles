@@ -7,7 +7,7 @@ action=$1
 mainif=eth0
 case $action in
     stop|restart)
-        if lxc-ls --fancy | egrep "^$container " | awk '{print $2}' \
+        if lxc-ls --fancy | grep -E "^$container " | awk '{print $2}' \
             | grep -qi running;then
             lxc-stop -P "$lxcp" -k -n "$container"
         fi
@@ -15,7 +15,7 @@ case $action in
 esac
 case $action in
     start|restart)
-        if ! lxc-ls --fancy | egrep "^$container " | awk '{print $2}' \
+        if ! lxc-ls --fancy | grep -E "^$container " | awk '{print $2}' \
             | grep -qi running;then
             lxc-start -P "$lxcp" -d -n "$container"
             ret=$?

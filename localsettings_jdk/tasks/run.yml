@@ -3,7 +3,7 @@
     path: /etc/apt/sources.list.d/jdk.list.list
     state: absent
 - shell: |
-    if ! ( debconf-get-selections | egrep -iq \
+    if ! ( debconf-get-selections | grep -E -iq \
            "java{{ item }}-installer.*accepted.*license.*true" ); then
       echo oracle-java{{ item }}-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
     fi

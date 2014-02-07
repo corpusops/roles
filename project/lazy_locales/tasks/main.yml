@@ -8,7 +8,7 @@
       public: true
   - shell: |
       set -ex
-      locale -a | egrep -iq {{cops_lang}}
+      locale -a | grep -E -iq {{cops_lang}}
     register: cops_locales_test2
     changed_when: false
     failed_when: false

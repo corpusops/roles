@@ -31,7 +31,7 @@
   shell: |
         set -e
         test -e /etc/apparmor.d/usr.sbin.ntpd
-        if egrep -q '/\*\*/libopts\*.so\* r,' /etc/apparmor.d/usr.sbin.ntpd;then
+        if grep -E -q '/\*\*/libopts\*.so\* r,' /etc/apparmor.d/usr.sbin.ntpd;then
           exit 1
         fi
   register: apparmor_ntp_patch2

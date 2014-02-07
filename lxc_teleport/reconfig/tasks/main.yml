@@ -15,7 +15,7 @@
     while read f;do
         {{edryrun}} sed -i -re "s/{{ofqdn}}|{{fqdn}}/{{fqdn}}/g" "$f"
     done \
-    < <(egrep -r "{{ofqdn}}|{{fqdn}}" etc/|grep : |awk -F: '{print $1}'|grep -v .git|uniq)
+    < <(grep -E -r "{{ofqdn}}|{{fqdn}}" etc/|grep : |awk -F: '{print $1}'|grep -v .git|uniq)
   tags: [reconfig_rootfs]
 - name: config postfix
   args: {executable: bash}
@@ -25,7 +25,7 @@
     while read f;do
         {{edryrun}} sed -i -re "s/{{olxc_h}}|{{lxc_h}}/{{lxc_h}}/g" "$f"
     done \
-    < <(egrep -r "{{olxc_h}}|{{lxc_h}}" etc/|grep : |awk -F: '{print $1}'|grep -v .git|uniq)
+    < <(grep -E -r "{{olxc_h}}|{{lxc_h}}" etc/|grep : |awk -F: '{print $1}'|grep -v .git|uniq)
     while read f;do
         postmap etc/postfix/$(basename $f .db)
     done < <(find etc/postfix/ -type f -name "*.db")

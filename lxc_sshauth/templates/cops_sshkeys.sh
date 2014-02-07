@@ -19,7 +19,7 @@ fi
 lxc-attach -P "${lxcp}" -n $container -- /bin/sh -c "chmod 700 /root/.ssh;chmod 600 /root/.ssh/authorized_keys"
 while read f;do
     while read sshkey;do
-        if echo "$sshkey" | egrep "^\s*$";then
+        if echo "$sshkey" | grep -E "^\s*$";then
             echo empty line >&2
         elif ! ( ( lxc-attach -e -P "${lxcp}" -n $container -- \
                    cat /root/.ssh/authorized_keys ) |\

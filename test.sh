@@ -46,8 +46,8 @@ spawn_controller() {
     vvv sudo "$docker" run -ti -d --name=$runner \
         $( while read v; do echo " -v ${v}:${v}:ro";done < \
           <( ldd "${docker}" \
-              | egrep -v "libc.so|libpthread.so|libdl.so" \
-              | awk '{print $3}'|egrep '^/'; )
+              | grep -E -v "libc.so|libpthread.so|libdl.so" \
+              | awk '{print $3}'|grep -E '^/'; )
         )\
         -v "${docker}:${docker}" \
         -v "/sys/fs/cgroup:/sys/fs/cgroup:ro" \
@@ -196,7 +196,7 @@ fi
 if [[ -z "${ROLES}" ]];then
     if [[ -n "${FROM_HISTORY}" ]];then
         candidates=""
-        if git show -q HEAD | egrep -q "fulltest|alltest";then
+        if git show -q HEAD | grep -E -q "fulltest|alltest";then
             log "Using default (all tests)"
         else
             debug "Searching in diff what did changed: ${FROM_COMMIT}..${TO_COMMIT}"
@@ -222,7 +222,7 @@ if [[ -n "${TEST_VARS_ROLES}" ]];then
     done < <( \
         find -maxdepth 1 -mindepth 1 -type d -name '*vars' \
         | sort \
-        | egrep -v 'include_jinja_vars|lxc_vars': )
+        | grep -E -v 'include_jinja_vars|lxc_vars': )
 fi
 ROLES="$(printf "$ROLES\n"|xargs -n1|awk '!seen[$0]++')"
 ROLES_VARS="$(printf "$ROLES_VARS\n"|xargs -n1|awk '!seen[$0]++')"
