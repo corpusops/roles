@@ -1,0 +1,30 @@
+- name: "checkout/Delegated"
+  git:
+    accept_hostkey: yes
+    repo: '{{checkout_item.repo}}'
+    dest: '{{checkout_item.dest|default(checkout_dest|default(playbook_dir+"/../../"+checkout_item.name))}}'
+    version: '{{checkout_item.version|default(omit)}}'
+    recursive: '{{checkout_item.recursive|default(omit)}}'
+    update: "{{checkout_item.get('update', True)}}"
+    force: '{{checkout_item.force|default(True)}}'
+    key_file: '{{checkout_item.key_file|default(omit)}}'
+  register: checkouted
+  loop: "{{checkout_items}}"
+  loop_control: {loop_var: checkout_item}
+  delegate_to: "{{checkout_host|default('localhost') or ''}}"
+  when: "checkout_host|default('localhost')"
+- name: "checkout/Nondelegated"
+  git:
+    accept_hostkey: yes
+    repo: '{{checkout_item.repo}}'
+    dest: '{{checkout_item.dest|default(checkout_dest|default(playbook_dir+"/../../"+checkout_item.name))}}'
+    version: '{{checkout_item.version|default(omit)}}'
+    recursive: '{{checkout_item.recursive|default(omit)}}'
+    update: "{{checkout_item.get('update', True)}}"
+    force: '{{checkout_item.force|default(True)}}'
+    key_file: '{{checkout_item.key_file|default(omit)}}'
+  register: checkouted
+  loop: "{{checkout_items}}"
+  loop_control: {loop_var: checkout_item}
+  when: "not checkout_host|default('localhost')"
+# vim: set et:
