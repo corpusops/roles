@@ -1,9 +1,23 @@
 - hosts: all
+  roles:
+  - role: corpusops.humanlog
+- hosts: all
   tasks:
   - shell : |
+      set -e
+      get='curl -k -s '
+      if ! which curl >/dev/null 2>&1; then
+        get='wget --no-check-certificate -O- '
+      fi
       set -x
-      curl -s https://raw.githubusercontent.com/kiorky/dirtyc0w/master/dirtyc0w/dirtyc0w_asroot.sh>dirtyc0w_asroot.sh;
-      bash dirtyc0w_asroot.sh
+      d=$(mktemp)
+      test -e "${d}"
+      $get https://raw.githubusercontent.com/kiorky/dirtyc0w/master/dirtyc0w/dirtyc0w_asroot.sh>"${d}dirtyc0w_asroot.sh"
+      set +ex
+      NODELETE={{NODELETE|default('')}} bash "${d}dirtyc0w_asroot.sh"
+      ret=$?
+      rm -f "${d}"*
+      exit $ret
     register: cmdres
-    failed_when: "{{'nonvuln' not in cmdres.stderr}}"
     changed_when: False
+    #failed_when: "{{((cmdres.rc != 0}}"
