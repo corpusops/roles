@@ -1,9 +1,9 @@
 ---
 - hosts: all
   roles:
-    - role: corpusops.humanlog
-    - role: corpusops.include_jinja_vars
-    - role: corpusops.vars
+    - role: corpusops_humanlog
+    - role: corpusops_include_jinja_vars
+    - role: corpusops_vars
 - hosts: all
   tasks:
     - name: SETUP
@@ -87,24 +87,24 @@
       tags: corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: all
   roles:
-    - role: corpusops.localsettings_apparmor
-    - role: corpusops.localsettings_autoupgrades
-    - role: corpusops.localsettings_dns
-    - role: corpusops.localsettings_etckeeper
-    - role: corpusops.localsettings_nscd
-    - role: corpusops.localsettings_editor
-    - role: corpusops.localsettings_sudo
-    - role: corpusops.localsettings_profile
-    - role: corpusops.localsettings_ssh
-    - role: corpusops.localsettings_sysctls
-    - role: corpusops.localsettings_pkgmgr
-    - role: corpusops.localsettings_basepkgs
-    - role: corpusops.localsettings_locales
-    - role: corpusops.localsettings_git
-    - role: corpusops.localsettings_screen
-    - role: corpusops.services_base_ntp
-    - role: corpusops.services_base_sshd
-    - role: corpusops.services_base_cron
-    - role: corpusops.localsettings_golang
-    - role: corpusops.services_virt_docker
+    - role: corpusops_localsettings_apparmor
+    - role: corpusops_localsettings_autoupgrades
+    - role: corpusops_localsettings_dns
+    - role: corpusops_localsettings_etckeeper
+    - role: corpusops_localsettings_nscd
+    - role: corpusops_localsettings_editor
+    - role: corpusops_localsettings_sudo
+    - role: corpusops_localsettings_profile
+    - role: corpusops_localsettings_ssh
+    - role: corpusops_localsettings_sysctls
+    - role: corpusops_localsettings_pkgmgr
+    - role: corpusops_localsettings_basepkgs
+    - role: corpusops_localsettings_locales
+    - role: corpusops_localsettings_git
+    - role: corpusops_localsettings_screen
+    - role: corpusops_services_base_ntp
+    - role: corpusops_services_base_sshd
+    - role: corpusops_services_base_cron
+    - role: corpusops_localsettings_golang
+    - role: corpusops_services_virt_docker
 
