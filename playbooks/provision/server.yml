@@ -51,6 +51,8 @@
               | ternary(True, False) %}
           {% set corpusops_localsettings_golang = corpusops_localsettings_golang
                 | default(False) %}
+          {% set corpusops_localsettings_jdk = corpusops_localsettings_jdk
+                | default(False) %}
           {% set corpusops_services_base_sshd = corpusops_services_base_sshd
                 | default(not is_docker) %}
           {% set corpusops_services_virt_docker = corpusops_services_virt_docker
@@ -74,6 +76,7 @@
           corpusops_localsettings_etckeeper: {{ corpusops_localsettings_etckeeper }}
           corpusops_localsettings_git: {{ corpusops_localsettings_git }}
           corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
+          corpusops_localsettings_jdk: {{ corpusops_localsettings_jdk }}
           corpusops_localsettings_locales: {{ corpusops_localsettings_locales }}
           corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
           corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
@@ -102,6 +105,7 @@
     - role: corpusops.localsettings_etckeeper
     - role: corpusops.localsettings_git
     - role: corpusops.localsettings_golang
+    - role: corpusops.localsettings_jdk
     - role: corpusops.localsettings_nscd
     - role: corpusops.localsettings_screen
     - role: corpusops.localsettings_ssh
