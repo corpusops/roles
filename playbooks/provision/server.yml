@@ -31,7 +31,7 @@
           {% set corpusops_localsettings_dns_search = corpusops_localsettings_dns_search
                 | default([]) %}
           {% set corpusops_localsettings_vim = corpusops_localsettings_vim
-                | default(True) %}
+                | default(not is_docker) %}
           {% set corpusops_localsettings_editor = corpusops_localsettings_editor
                 | default(not is_docker) %}
           {% set corpusops_localsettings_sudo = corpusops_localsettings_sudo
@@ -60,9 +60,9 @@
           {% set corpusops_services_magicbridge = corpusops_services_magicbridge
                 | default(False) %}
           {% set corpusops_services_virt_lxc = corpusops_services_virt_lxc
-                | default(not is_lxc) %}
+                | default(False) %}
           {% set corpusops_services_virt_docker = corpusops_services_virt_docker
-                | default(not is_docker) %}
+                | default(False) %}
           {% set corpusops_services_base_cron = corpusops_services_base_cron
                 | default(True) %}
           {% set corpusops_services_misc_xvfb = corpusops_services_misc_xvfb
