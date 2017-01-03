@@ -26,6 +26,9 @@
       {%- endfor %}
       {%-    set _ = namespaced['packages'].append('python3-distutils') %}
       {%- endif %}
+      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|copsf_looseversion >= '22.04'|copsf_looseversion)) %}
+      {%-    set _ = namespaced['packages'].append('python-is-python3') %}
+      {%- endif %}
       {%- if ansible_virtualization_type in ['docker', 'container', 'virtualpc'] %}
       {%- for i in namespaced.packages_not_in_docker %}
       {%- if i in namespaced.packages %}
