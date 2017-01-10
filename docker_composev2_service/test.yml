@@ -1,0 +1,73 @@
+---
+- hosts: all
+  tasks:
+  - file:
+      state: directory
+      path: /tmp/dtest
+  - set_fact: {c: [a, b, c]}
+  - copy:
+        content: |
+          ---
+          version: 3
+          services:
+            ubuntu:
+              image: "ubuntu:bionic"
+              entrypoint: >
+                sh -c "while true;do echo {{item}};sleep 10;done"
+        dest: "/tmp/dtest/{{item}}.yml"
+    loop: "{{c|flatten(levels=1)}}"
+  - copy:
+        content: |
+          ---
+          version: 3
+          services:
+            ubuntub:
+              image: "ubuntu:bionic"
+              entrypoint: >
+                sh -c "while true;do echo {{item}};sleep 10;done"
+        dest: "/tmp/dtest/{{item}}b.yml"
+    loop: "{{c|flatten(levels=1)}}"
+  - include_role: {name: corpusops.roles/docker_compose_service}
+    loop: [a]
+    vars:
+      _docker_compose_service:
+        docker_compose_file: "{{item}}.yml"
+        path: /tmp/dtest
+        after: "test-{{item}}.service"
+        before: "btest-{{item}}.service"
+        args: testArgs
+        pull_args: pullArgs
+        up_args: upArgs
+        config_args: cfgArgs
+        down_args: downArgs
+        stop_args: stopArgs
+        requires: "rtest-{{item}}.service"
+        wantedby: "wtest-{{item}}.service"
+        state: stopped
+        project: "compose-{{item}}"
+  - include_role: {name: corpusops.roles/docker_compose_service}
+    loop: [b]
+    vars:
+      _docker_compose_service:
+        files: ["{{item}}.yml"]
+        path: /tmp/dtest
+        args: testArgs
+        after: "test-{{item}}.service"
+        before: "btest-{{item}}.service"
+        requires: "rtest-{{item}}.service"
+        wantedby: "wtest-{{item}}.service"
+        state: stopped
+        project: "compose-{{item}}"
+  - include_role: {name: corpusops.roles/docker_compose_service}
+    loop: [c]
+    vars:
+      _docker_compose_service:
+        docker_compose_file: "{{item}}.yml"
+        files: ["{{item}}b.yml"]
+        path: /tmp/dtest
+        after: "test-{{item}}.service"
+        before: "btest-{{item}}.service"
+        requires: "rtest-{{item}}.service"
+        wantedby: "wtest-{{item}}.service"
+        state: stopped
+        project: "compose-{{item}}"
