@@ -20,6 +20,8 @@
                 | default(True) %}
           {% set corpusops_localsettings_pkgmgr = corpusops_localsettings_pkgmgr
                 | default(True) %}
+          {% set corpusops_localsettings_timezone = corpusops_localsettings_timezone
+                | default(True) %}
           {% set corpusops_localsettings_locales = corpusops_localsettings_locales
                 | default(True) %}
           {% set corpusops_localsettings_basepkgs = corpusops_localsettings_basepkgs
@@ -82,6 +84,7 @@
           corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
           corpusops_localsettings_jdk: {{ corpusops_localsettings_jdk }}
           corpusops_localsettings_locales: {{ corpusops_localsettings_locales }}
+          corpusops_localsettings_timezone: {{ corpusops_localsettings_timezone }}
           corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
           corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
           corpusops_localsettings_profile: {{ corpusops_localsettings_profile }}
@@ -103,6 +106,7 @@
     - role: corpusops.localsettings_sysctls
     - role: corpusops.localsettings_pkgmgr
     - role: corpusops.localsettings_locales
+    - role: corpusops.localsettings_timezone
     - role: corpusops.localsettings_autoupgrades
     - role: corpusops.localsettings_basepkgs
     - role: corpusops.localsettings_profile
