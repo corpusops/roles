@@ -1,10 +1,10 @@
 ---
-- hosts: all
+- hosts: "{{provision_host|default('all')}}"
   roles:
     - role: corpusops.humanlog
     - role: corpusops.include_jinja_vars
     - role: corpusops.vars
-- hosts: all
+- hosts: "{{provision_host|default('all')}}"
   tasks:
     - name: SETUP
       include_jinja_vars:
@@ -84,7 +84,6 @@
           corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
           corpusops_localsettings_jdk: {{ corpusops_localsettings_jdk }}
           corpusops_localsettings_locales: {{ corpusops_localsettings_locales }}
-          corpusops_localsettings_timezone: {{ corpusops_localsettings_timezone }}
           corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
           corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
           corpusops_localsettings_profile: {{ corpusops_localsettings_profile }}
@@ -100,7 +99,7 @@
           corpusops_services_virt_lxc: {{ corpusops_services_virt_lxc }}
           corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
       tags: corpusops_vars,corpusops_vars_core,corpusops_vars_provision
-- hosts: all
+- hosts: "{{provision_host|default('all')}}"
   roles:
     - role: corpusops.localsettings_dns
     - role: corpusops.localsettings_sysctls
