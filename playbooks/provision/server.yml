@@ -65,6 +65,10 @@
                 | default(not is_docker) %}
           {% set corpusops_services_base_cron = corpusops_services_base_cron
                 | default(True) %}
+          {% set corpusops_services_misc_xvfb = corpusops_services_misc_xvfb
+                | default(False) %}
+          {% set corpusops_services_misc_robotframework = corpusops_services_misc_robotframework
+                | default(False) %}
           {% set corpusops_localsettings_ssh = corpusops_localsettings_ssh
                 | default(True) %}
           {% set corpusops_localsettings_profile = corpusops_localsettings_profile
@@ -98,6 +102,8 @@
           corpusops_services_magicbridge: {{ corpusops_services_magicbridge }}
           corpusops_services_virt_lxc: {{ corpusops_services_virt_lxc }}
           corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
+          corpusops_services_misc_robotframework: {{ corpusops_services_misc_robotframework }}
+          corpusops_services_misc_xvfb: {{ corpusops_services_misc_xvfb }}
       tags: corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: "{{provision_host|default('all')}}"
   roles:
@@ -125,4 +131,6 @@
     - role: corpusops.services_magicbridge
     - role: corpusops.services_virt_lxc
     - role: corpusops.services_virt_docker
+    - role: corpusops.services_misc_xvfb
+    - role: corpusops.services_misc_robotframework
 
