@@ -1,3 +1,3 @@
 ---
 - hosts: all
-  roles: [corpusops.services_misc_xvfb_vars]
+  roles: [corpusops.roles/services_misc_xvfb_vars]

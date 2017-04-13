@@ -1,3 +1,3 @@
 ---
 - hosts: all
-  roles: [corpusops.lxc_snapshot]
+  roles: [corpusops.roles/lxc_snapshot]

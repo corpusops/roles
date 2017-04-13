@@ -1,5 +1,5 @@
 ---
 - hosts: all
-  roles: [corpusops.debug]
+  roles: [corpusops.roles/debug]
   vars:
     cops_debug_msg: foo
