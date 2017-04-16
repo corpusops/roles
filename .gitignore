@@ -1,0 +1,11 @@
+*.swp
+*.egg-info
+*.retry
+*.log
+*pyc
+.coverage*
+.lint.log
+.pep8.log
+.unit.log
+/src
+/tags.*
