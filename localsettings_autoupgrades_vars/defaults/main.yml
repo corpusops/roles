@@ -1,0 +1,34 @@
+---
+corpusops_localsettings_autoupgrades_packages: null
+corpusops_localsettings_autoupgrades_configs: null
+corpusops_localsettings_autoupgrades_packages_default: []
+corpusops_localsettings_autoupgrades_packages_debian: ['unattended-upgrades']
+corpusops_localsettings_autoupgrades_packages_redhat: ['yum', 'yum-cron']
+corpusops_localsettings_autoupgrades_services: null
+corpusops_localsettings_autoupgrades_services_default: []
+corpusops_localsettings_autoupgrades_services_redhat: ['yum-cron']
+corpusops_localsettings_autoupgrades_services_activated: true
+corpusops_localsettings_autoupgrades_configs_redhat:
+  - name: '/etc/yum/yum-cron.conf'
+corpusops_localsettings_autoupgrades_configs_debian:
+  - name: '/etc/apt/apt.conf.d/50unattended-upgrades'
+  - name: '/etc/apt/apt.conf.d/10periodic'
+corpusops_localsettings_autoupgrades_activated: "1"
+corpusops_localsettings_autoupgrades_autoclean: "7"
+corpusops_localsettings_autoupgrades_DownloadUpgradeablePackages: "1"
+corpusops_localsettings_autoupgrades_UpdatePackageLists: "1"
+corpusops_localsettings_autoupgrades_mail_on_error: "true"
+corpusops_localsettings_autoupgrades_remove_unused: "false"
+corpusops_localsettings_autoupgrades_mail: "root"
+corpusops_localsettings_autoupgrades_autofix: "true"
+corpusops_localsettings_autoupgrades_blacklist: []
+corpusops_localsettings_autoupgrades_origins: null
+corpusops_localsettings_autoupgrades_origins_debian:
+  - 'Debian:stable'
+  - '${distro_id}:${distro_codename}-security'
+corpusops_localsettings_autoupgrades_origins_ubuntu:
+  - '${distro_id}:${distro_codename}-security'
+corpusops_localsettings_autoupgrades_ycron_update_command: security
+corpusops_localsettings_autoupgrades_ycron_download_updates: no
+corpusops_localsettings_autoupgrades_ycron_hourly_update_command: security
+corpusops_localsettings_autoupgrades_ycron_hourly_download_updates: yes
