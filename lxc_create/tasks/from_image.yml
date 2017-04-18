@@ -1,0 +1,46 @@
+---
+- name: lxc {{lxc_from_container}} config test
+  stat:
+    path: "{{lxc_path}}/{{lxc_from_container}}/config"
+  register: lxc_fstab_test
+  tags: corpusops_lxc_create,corpusops_lxc_create_fstab
+- name: "get rootfs of {{lxc_from_container}}"
+  shell: |-
+    cfg="{{lxc_path}}/{{lxc_from_container}}/config"
+    thiscfg="{{lxc_path}}/{{lxc_container_name}}/config"
+    if [ -e "$thiscfg" ] && [ ! -e "$cfg" ]; then
+      gcfg=$thiscfg
+    elif [ -e $cfg ]; then
+      gcfg=$cfg
+    else
+      echo "No container template rootfs config">&2
+      echo "Does '{{lxc_from_container}}' exists ?" >&2
+      exit 5
+    fi
+    set -e
+    test -e "$gcfg"
+    if egrep -q "^lxc.rootfs *= overlay" "$gcfg";then
+       egrep "^lxc.rootfs *= overlay" "$gcfg" | awk '{print $3}' | awk -F ':' '{print $2}'
+    elif egrep -q "^lxc.rootfs *= " "$gcfg";then
+       egrep "^lxc.rootfs *= " "$gcfg" | awk '{print $3}'
+    else
+      echo "Failed to get ancestor rootfs ($gcfg)" >&2
+      exit 6
+    fi
+  register: corpusops_lxc_clone_lxc_rootfs
+  when: "lxc_clone_snapshot in [True, 'true', 'True']"
+  tags: corpusops_lxc_create,corpusops_lxc_clone_lxc
+- name: "lxc clone (from container: {{lxc_from_container}})"
+  shell: |
+    set -ex
+    if which lxc-copy 2>&1 >/dev/null;then
+       lxc-copy -P {{lxc_path}} -n {{lxc_from_container}} -N {{lxc_container_name}} -B {{lxc_backing_store}} -d\
+         {% if lxc_clone_snapshot in [True, 'true', 'True']%}-s{% endif %}\
+         ;
+    else
+       lxc-clone -P {{lxc_path}} -o {{lxc_from_container}} -n {{lxc_container_name}} -B {{lxc_backing_store}}\
+         {% if lxc_clone_snapshot in [True, 'true', 'True']%}-s{% endif %}\
+         ;
+    fi
+  when: 'corpusops_lxc_create_lxc_test.stdout != "0"'
+  tags: corpusops_lxc_create,corpusops_lxc_clone_lxc

@@ -1,0 +1,4 @@
+---
+- name: "Task RestartContainer{{lxc_container_name}}"
+  shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_manage.sh restart"
+  tags: corpusops_lxc_create,corpusops_lxc_create_restart

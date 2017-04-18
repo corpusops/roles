@@ -1,0 +1,15 @@
+---
+- name: lxc manual_lxc_conf init test
+  stat:
+    path: "{{lxc_path}}/{{lxc_container_name}}/manual_lxc_conf"
+  register: lxc_manual_lxc_conf_test
+  tags: corpusops_lxc_create,corpusops_lxc_create_manual_lxc_conf
+- name: lxc manual_lxc_conf init
+  template:
+    src: '../templates/{{item}}'
+    dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
+    mode: 644
+  with_items:
+    - manual_lxc.conf
+  when: not lxc_manual_lxc_conf_test.stat.exists
+  tags: corpusops_lxc_create,corpusops_lxc_create_manual_lxc_conf
