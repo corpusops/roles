@@ -1,0 +1,13 @@
+---
+corpusops_localsettings_timezone_packages: null
+corpusops_localsettings_timezone_packages_default: [tzdata]
+corpusops_localsettings_timezone_configs: null
+corpusops_localsettings_timezone_configs_default:
+  - {name: /etc/profile.d/0_tz.sh, mode: '644'}
+  - {name: /etc/timezone, mode: '644'}
+corpusops_localsettings_timezone_configs_redhat:
+  - {name: /etc/profile.d/0_tz.sh, mode: '644'}
+  - {name: /etc/timezone, mode: '644'}
+  - {name: /etc/sysconfig/clock, mode: '644'}
+corpusops_localsettings_timezone_timezone: null
+corpusops_localsettings_timezone_timezone_default: 'Europe/Paris'
