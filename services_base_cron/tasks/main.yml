@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_base_cron preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_base_cron | default(True) }}"
+  register: corpusops_services_base_cron_can_run
+  tags: corpusops_services_base_cron
+- include: run.yml
+  when: '{{corpusops_services_base_cron_can_run.msg == True}}'
+  tags: corpusops_services_base_cron
