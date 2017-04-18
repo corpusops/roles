@@ -1,0 +1,17 @@
+---
+# one of : default, kvm, lxccontainer, baremetal, dockercontainer, vagrant
+corpusops_core_server_type: null
+
+# try to determine which type of env we are (prod, etc)
+corpusops_core_env: null
+
+# configure to be secure
+corpusops_core_security: false
+
+corpusops_core_vt: null
+corpusops_core_is_lxc: null
+corpusops_core_is_docker: null
+corpusops_core_is_container: null
+
+corpusops_core_has_services_manager: true
+
