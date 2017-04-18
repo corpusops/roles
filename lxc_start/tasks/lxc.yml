@@ -1,0 +1,21 @@
+---
+- name: get lxc status
+  shell: |
+    lxc-ls --fancy -F 'NAME,STATE,AUTOSTART,GROUPS,IPV4,IPV6' \
+    | tail -n +2 | grep "{{lxc_container_name}}"
+  register: corpusops_lxc_start_lxcls
+  tags: corpusops_lxc_start,corpusops_lxc_start_status
+  changed_when: False
+  failed_when: False
+- name: get lxc status - 2
+  debug:
+    msg: "{{corpusops_lxc_start_lxcls|lxc_lxcls_mangle(restrict_ro=lxc_container_name)}}"
+  register: corpusops_lxc_start_lxcs
+  changed_when: False
+- name: Start lxc container
+  shell: "lxc-start -d -n '{{lxc_container_name}}'"
+  tags: corpusops_lxc_start,corpusops_lxc_start_ip
+  when:  |
+    {% set st = corpusops_lxc_start_lxcs.msg.get(
+      lxc_container_name, {}).get('state', 'UNKNOWN') not in ['RUNNING']  %}
+    {{st}}
