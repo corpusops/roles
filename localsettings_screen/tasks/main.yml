@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_screen preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_screen | default(True) }}"
+  register: corpusops_localsettings_screen_can_run
+  tags: corpusops_localsettings_screen
+- include: run.yml
+  when: '{{ corpusops_localsettings_screen_can_run.msg == True }}'
+  tags: corpusops_localsettings_screen
