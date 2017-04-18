@@ -1,0 +1,20 @@
+---
+corpusops_services_misc_xvfb_args: ":99 -screen 0 1920x1080x24 -fbdir /var/run -ac"
+corpusops_services_misc_xvfb_activated: True
+corpusops_services_misc_xvfb_packages: null
+corpusops_services_misc_xvfb_packages_default: [
+  xvfb, python-xvfbwrapper, python3-xvfbwrapper]
+corpusops_services_misc_xvfb_services: null
+corpusops_services_misc_xvfb_services_default: [xvfb]
+corpusops_services_misc_xvfb_files_upstart:
+  - {path: "/etc/init", state: directory, mode: "755"}
+corpusops_services_misc_xvfb_files:
+  - {path: "/etc/systemd.d/system", state: directory, mode: "755"}
+  - {path: "/etc/default", state: directory, mode: "755"}
+corpusops_services_misc_xvfb_filescopy: {}
+#  - {dest: "/etc/default/xvfb", mode: "644"}
+corpusops_services_misc_xvfb_configs:
+  - {name: "/etc/default/xvfb", mode: "644"}
+  - {name: "/etc/systemd/system/xvfb.service", mode: "644"}
+corpusops_services_misc_xvfb_configs_upstart:
+  - {name: "/etc/init/xvfb.conf", mode: "644"}
