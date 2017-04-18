@@ -1,0 +1,182 @@
+---
+corpusops_localsettings_jdk_headers:
+  default: >-
+    Cookie:oraclelicense=accept-securebackup-cookie
+corpusops_localsettings_jdk_system_prefix: '/usr/lib/jvm/java-{version}-oracle'
+corpusops_localsettings_jdk_local_prefix: '/opt/jdk-{version}-{flavor}'
+corpusops_localsettings_jdk_repo: null
+corpusops_localsettings_jdk_repo_ubuntu: 'ppa:webupd8team/java'
+corpusops_localsettings_jdk_packages_default: []
+corpusops_localsettings_jdk_packages: null
+corpusops_localsettings_jdk_packages_ubuntu: ['oracle-java{v}-installer']
+corpusops_localsettings_jdk_urlmap:
+  default: 'http://download.oracle.com/otn-pub/java/jdk/{v}/jdk-{v}-linux-{arch}.tar.gz'
+  8u112: 'http://download.oracle.com/otn-pub/java/jdk/{v}-b15/jdk-{v}-linux-{arch}.tar.gz'
+  8u121: 'http://download.oracle.com/otn-pub/java/jdk/{v}-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-{v}-linux-{arch}.tar.gz'
+  7u80: 'http://download.oracle.com/otn-pub/java/jdk/{v}-b15/jdk-{v}-linux-{arch}.tar.gz'
+corpusops_localsettings_jdk_shas:
+  jdk-7u80-linux-x64.tar.gz: "sha256:bad9a731639655118740bee119139c1ed019737ec802a630dd7ad7aab4309623"
+  jdk-8u112-linux-x64.tar.gz: "sha256:777bd7d5268408a5a94f5e366c2e43e720c6ce4fe8c59d9a71e2961e50d774a5"
+  jdk-8u121-linux-x64.tar.gz: "sha256:97e30203f1aef324a07c94d9d078f5d19bb6c50e638e4492722debca588210bc"
+corpusops_localsettings_jdk_installs: {}
+corpusops_localsettings_jdk_urls: {}
+corpusops_localsettings_jdk_version: null
+corpusops_localsettings_jdk_version_default: '8u121'
+corpusops_localsettings_jdk_version_ubuntu: '8'
+corpusops_localsettings_jdk_versions: null
+corpusops_localsettings_jdk_versions_default: []
+corpusops_localsettings_jdk_versions_ubuntu: []
+corpusops_localsettings_jdk_configs:
+  - {name: "/etc/profile.d/jdk.sh", mode: "0644"}
+  - {name: "/etc/profile.d/jdk.csh", mode: "0644"}
+corpusops_localsettings_jdk_files: []
+corpusops_localsettings_jdk_bins:
+  appletviewer: {name: 'bin/appletviewer', slaves: {
+                  appletviewer.1.gz: {name: 'man/man1/appletviewer.1.gz'}
+                }}
+  ControlPanel: {name: 'jre/bin/ControlPanel', slaves: {
+                }}
+  extcheck: {name: 'bin/extcheck', slaves: {
+              extcheck.1.gz: {name: 'man/man1/extcheck.1.gz'}
+            }}
+  idlj: {name: 'bin/idlj', slaves: {
+          idlj.1.gz: {name: 'man/man1/idlj.1.gz'}
+        }}
+  jar: {name: 'bin/jar', slaves: {
+         jar.1.gz: {name: 'man/man1/jar.1.gz'}
+       }}
+  jarsigner: {name: 'bin/jarsigner', slaves: {
+               jarsigner.1.gz: {name: 'man/man1/jarsigner.1.gz'}
+             }}
+  javac: {name: 'bin/javac', slaves: {
+           javac.1.gz: {name: 'man/man1/javac.1.gz'}
+         }}
+  javadoc: {name: 'bin/javadoc', slaves: {
+             javadoc.1.gz: {name: 'man/man1/javadoc.1.gz'}
+           }}
+  javafxpackager: {name: 'bin/javafxpackager', slaves: {
+                    javafxpackager.1.gz: {name: 'man/man1/javafxpackager.1.gz'}
+                  }}
+  javah: {name: 'bin/javah', slaves: {
+           javah.1.gz: {name: 'man/man1/javah.1.gz'}
+         }}
+  java: {name: 'jre/bin/java', slaves: {
+          java.1.gz: {name: 'man/man1/java.1.gz'}
+        }}
+  javapackager: {name: 'bin/javapackager', slaves: {
+                  javapackager.1.gz: {name: 'man/man1/javapackager.1.gz'}
+                }}
+  javap: {name: 'bin/javap', slaves: {
+           javap.1.gz: {name: 'man/man1/javap.1.gz'}
+         }}
+  javaws: {name: 'jre/bin/javaws', slaves: {
+            javaws.1.gz: {name: 'man/man1/javaws.1.gz'}
+          }}
+  jcmd: {name: 'bin/jcmd', slaves: {
+          jcmd.1.gz: {name: 'man/man1/jcmd.1.gz'}
+        }}
+  jconsole: {name: 'bin/jconsole', slaves: {
+              jconsole.1.gz: {name: 'man/man1/jconsole.1.gz'}
+            }}
+  jcontrol: {name: 'jre/bin/jcontrol', slaves: {
+            }}
+  jdb: {name: 'bin/jdb', slaves: {
+         jdb.1.gz: {name: 'man/man1/jdb.1.gz'}
+       }}
+  jdeps: {name: 'bin/jdeps', slaves: {
+           jdeps.1.gz: {name: 'man/man1/jdeps.1.gz'}
+         }}
+  jexec-binfmt: {name: 'jre/lib/jar.binfmt', slaves: {
+  }}
+  jexec: {name: 'jre/lib/jexec', slaves: {
+         }}
+  jhat: {name: 'bin/jhat', slaves: {
+          jhat.1.gz: {name: 'man/man1/jhat.1.gz'}
+        }}
+  jinfo: {name: 'bin/jinfo', slaves: {
+           jinfo.1.gz: {name: 'man/man1/jinfo.1.gz'}
+         }}
+  jjs: {name: 'jre/bin/jjs', slaves: {
+         jjs.1.gz: {name: 'man/man1/jjs.1.gz'}
+       }}
+  jmap: {name: 'bin/jmap', slaves: {
+          jmap.1.gz: {name: 'man/man1/jmap.1.gz'}
+        }}
+  jmc: {name: 'bin/jmc', slaves: {
+         jmc.1.gz: {name: 'man/man1/jmc.1.gz'}
+       }}
+  jps: {name: 'bin/jps', slaves: {
+         jps.1.gz: {name: 'man/man1/jps.1.gz'}
+       }}
+  jrunscript: {name: 'bin/jrunscript', slaves: {
+                jrunscript.1.gz: {name: 'man/man1/jrunscript.1.gz'}
+              }}
+  jsadebugd: {name: 'bin/jsadebugd', slaves: {
+               jsadebugd.1.gz: {name: 'man/man1/jsadebugd.1.gz'}
+             }}
+  jstack: {name: 'bin/jstack', slaves: {
+            jstack.1.gz: {name: 'man/man1/jstack.1.gz'}
+          }}
+  jstat: {name: 'bin/jstat', slaves: {
+           jstat.1.gz: {name: 'man/man1/jstat.1.gz'}
+         }}
+  jstatd: {name: 'bin/jstatd', slaves: {
+            jstatd.1.gz: {name: 'man/man1/jstatd.1.gz'}
+          }}
+  jvisualvm: {name: 'bin/jvisualvm', slaves: {
+               jvisualvm.1.gz: {name: 'man/man1/jvisualvm.1.gz'}
+             }}
+  keytool: {name: 'jre/bin/keytool', slaves: {
+             keytool.1.gz: {name: 'man/man1/keytool.1.gz'}
+           }}
+  native2ascii: {name: 'bin/native2ascii', slaves: {
+                  native2ascii.1.gz: {name: 'man/man1/native2ascii.1.gz'}
+                }}
+  orbd: {name: 'jre/bin/orbd', slaves: {
+          orbd.1.gz: {name: 'man/man1/orbd.1.gz'}
+        }}
+  pack200: {name: 'jre/bin/pack200', slaves: {
+             pack200.1.gz: {name: 'man/man1/pack200.1.gz'}
+           }}
+  policytool: {name: 'jre/bin/policytool', slaves: {
+                policytool.1.gz: {name: 'man/man1/policytool.1.gz'}
+              }}
+  rmic: {name: 'bin/rmic', slaves: {
+          rmic.1.gz: {name: 'man/man1/rmic.1.gz'}
+        }}
+  rmid: {name: 'jre/bin/rmid', slaves: {
+          rmid.1.gz: {name: 'man/man1/rmid.1.gz'}
+        }}
+  rmiregistry: {name: 'jre/bin/rmiregistry', slaves: {
+                 rmiregistry.1.gz: {name: 'man/man1/rmiregistry.1.gz'}
+               }}
+  schemagen: {name: 'bin/schemagen', slaves: {
+               schemagen.1.gz: {name: 'man/man1/schemagen.1.gz'}
+             }}
+  serialver: {name: 'bin/serialver', slaves: {
+               serialver.1.gz: {name: 'man/man1/serialver.1.gz'}
+             }}
+  servertool: {name: 'jre/bin/servertool', slaves: {
+                servertool.1.gz: {name: 'man/man1/servertool.1.gz'}
+              }}
+  tnameserv: {name: 'jre/bin/tnameserv', slaves: {
+               tnameserv.1.gz: {name: 'man/man1/tnameserv.1.gz'}
+             }}
+  unpack200: {name: 'jre/bin/unpack200', slaves: {
+               unpack200.1.gz: {name: 'man/man1/unpack200.1.gz'}
+             }}
+  wsgen: {name: 'bin/wsgen', slaves: {
+           wsgen.1.gz: {name: 'man/man1/wsgen.1.gz'}
+         }}
+  wsimport: {name: 'bin/wsimport', slaves: {
+              wsimport.1.gz: {name: 'man/man1/wsimport.1.gz'}
+            }}
+  xjc: {name: 'bin/xjc', slaves: {
+         xjc.1.gz: {name: 'man/man1/xjc.1.gz'}
+       }}
+  mozilla-javaplugin.so: {name: 'jre/lib/{arch}/libnpjp2.so'}
+corpusops_localsettings_jdk_flavors: []
+corpusops_localsettings_jdk_flavor: 'linux-{arch}'
+corpusops_localsettings_jdk_arch: 'amd64'
+corpusops_localsettings_jdk_aarch: 'x64'
+
