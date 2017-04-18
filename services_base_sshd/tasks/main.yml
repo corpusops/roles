@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_base_sshd preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_base_sshd | default(True) }}"
+  register: corpusops_services_base_sshd_can_run
+  tags: corpusops_services_base_sshd
+- include: run.yml
+  when: '{{corpusops_services_base_sshd_can_run.msg == True}}'
+  tags: corpusops_services_base_sshd
