@@ -1,0 +1,13 @@
+---
+corpusops_services_misc_robotframework_activated: True
+corpusops_services_misc_robotframework_packages: null
+corpusops_services_misc_robotframework_packages_default: [firefox, firefox-dev, firefox-locale-fr]
+corpusops_services_misc_robotframework_services: null
+corpusops_services_misc_robotframework_services_default: []
+corpusops_services_misc_robotframework_files: {}
+#  - {path: "/etc/systemd.d/system", state: directory, mode: "755"}
+corpusops_services_misc_robotframework_filescopy: {}
+#  - {dest: "/etc/systemd/system/xvfb", mode: "755"}
+corpusops_services_misc_robotframework_configs: {}
+#  - {name: "/etc/apparmor.d/abstractions/robotframework/powercontainer-base", mode: "644"}
+
