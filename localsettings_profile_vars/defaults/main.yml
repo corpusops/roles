@@ -1,0 +1,10 @@
+---
+corpusops_localsettings_profile_packages: null
+corpusops_localsettings_profile_packages_redhat: []
+corpusops_localsettings_profile_packages_debian: []
+corpusops_localsettings_profile_packages_ubuntu: []
+corpusops_localsettings_profile_files:
+  - { path: /etc/profile.d, state: directory,
+      user: root, group: root, mode: 755 }
+corpusops_localsettings_profile_configs: []
+corpusops_localsettings_profile_configs_ubuntu: []
