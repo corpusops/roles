@@ -1,0 +1,9 @@
+---
+# map computation from lxcvar role back to clean variables
+- include: run.yml
+  vars:
+    lxc_path: "{{corpusops_lxc_container_vars.msg['path']}}"
+    lxc_cpath: "{{corpusops_lxc_container_vars.msg['path']}}/{{corpusops_lxc_container_vars.msg['container_name']}}"
+    lxc_container_name: "{{corpusops_lxc_container_vars.msg['container_name']}}"
+    ssh_keys_paths: "{{corpusops_lxc_container_vars.msg['ssh_keys_paths']}}"
+    ssh_keys: "{{corpusops_lxc_container_vars.msg['ssh_keys']}}"
