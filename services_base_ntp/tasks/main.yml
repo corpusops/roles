@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_base_ntp preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_base_ntp | default(True) }}"
+  register: corpusops_services_base_ntp_can_run
+  tags: corpusops_services_base_ntp
+- include: run.yml
+  when: '{{corpusops_services_base_ntp_can_run.msg == True}}'
+  tags: corpusops_services_base_ntp
