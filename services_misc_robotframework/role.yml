@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - corpusops.localsettings_jdk
+    - corpusops.services_misc_xvfb
+    - corpusops.services_misc_robotframework
