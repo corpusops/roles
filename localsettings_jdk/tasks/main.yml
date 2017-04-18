@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_jdk preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_jdk | default(True) }}"
+  register: corpusops_localsettings_jdk_can_run
+  tags: corpusops_localsettings_jdk
+- include: run.yml
+  when: '{{ corpusops_localsettings_jdk_can_run.msg == True }}'
+  tags: corpusops_localsettings_jdk
