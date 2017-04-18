@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_misc_xvfb preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_misc_xvfb | default(True) }}"
+  register: corpusops_services_misc_xvfb_can_run
+  tags: corpusops_services_misc_xvfb
+- include: run.yml
+  when: '{{corpusops_services_misc_xvfb_can_run.msg == True}}'
+  tags: corpusops_services_misc_xvfb
