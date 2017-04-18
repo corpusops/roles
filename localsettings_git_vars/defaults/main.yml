@@ -1,0 +1,6 @@
+---
+corpusops_localsettings_git_packages: [git]
+corpusops_localsettings_git_configs:
+  - {'name': '/etc/gitconfig', 'mode': '644'}
+corpusops_localsettings_git_files: []
+
