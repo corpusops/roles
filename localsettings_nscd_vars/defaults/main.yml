@@ -1,0 +1,5 @@
+---
+corpusops_localsettings_nscd_activated: true
+corpusops_localsettings_nscd_packages: [nscd]
+corpusops_localsettings_nscd_configs: []
+corpusops_localsettings_nscd_services: [nscd]
