@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# MANAGED VIA corpuops
+# {%- set data = corpusops_services_virt_lxc_vars %}
+export ACTIVATED="True"
+export BRIDGE="copslxcbr"
+export ADDR="{{data.gateway}}"
+export NET="{{data.net}}"
+export MAGICBRIDGE=${BRIDGE}
+export MAGICBRIDGE_NET=${MAGICBRIDGE_NET}
+export MAGICBRIDGE_ADDR=${ADDR}
+# vim:set ft=sh et sts=4 ts=4 tw=80:
