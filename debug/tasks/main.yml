@@ -1,0 +1,4 @@
+---
+- debug:
+    msg: '{{cops_debug_msg}}'
+  tags: cops_debug
