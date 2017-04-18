@@ -1,0 +1,40 @@
+---
+corpusops_services_virt_docker_activated: True
+corpusops_services_virt_docker_group: docker
+corpusops_services_virt_docker_repo: null
+corpusops_services_virt_docker_repo_keys: null
+corpusops_services_virt_docker_repo_keys_default: [58118E89F3A912897C070ADBF76221572C52609D]
+corpusops_services_virt_docker_keyserver: "hkp://p80.pool.sks-keyservers.net:80"
+corpusops_services_virt_docker_repo_debian: 'deb https://apt.dockerproject.org/repo {ansible_lsb[id]}-{ansible_lsb[codename]} main'
+corpusops_services_virt_docker_repo_oraclelinux: 'https://docs.docker.com/engine/installation/linux/repo_files/oracle/docker-ol7.repo'
+corpusops_services_virt_docker_repo_centos: 'https://docs.docker.com/engine/installation/linux/repo_files/centos/docker.repo'
+corpusops_services_virt_docker_repo_fedora: 'https://docs.docker.com/engine/installation/linux/repo_files/fedora/docker.repo'
+corpusops_services_virt_docker_packages: null
+corpusops_services_virt_docker_packages_default: [docker-ce]
+corpusops_services_virt_docker_services: null
+corpusops_services_virt_docker_services_default: [docker]
+corpusops_services_virt_docker_files: null
+corpusops_services_virt_docker_filescopy: null
+corpusops_services_virt_docker_filescopy_default: []
+corpusops_services_virt_docker_files_default:
+  - {path: "/etc/systemd/system/docker.service.d",
+     state: directory, mode: "755"}
+corpusops_services_virt_docker_configs: null
+corpusops_services_virt_docker_configs_debian:
+  - {name: "/etc/default/docker" , mode: "644"}
+  - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
+     mode: "644"}
+corpusops_services_virt_docker_configs_redhat:
+  - {name: "/etc/default/docker",
+     dest: "/etc/sysconfig/docker",
+     mode: "644"}
+  - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
+     mode: "644"}
+corpusops_services_virt_docker_settings_DOCKERD: "/usr/bin/dockerd"
+corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
+corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: ""
+corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: ""
+corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
+corpusops_services_virt_docker_settings_INSECURE_REGISTRY: ""
+corpusops_services_virt_docker_settings_http_proxy: ""
+corpusops_services_virt_docker_settings_TMPDIR: ""
