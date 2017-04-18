@@ -1,0 +1,6 @@
+---
+corpusops_localsettings_dns_enabled: false
+corpusops_localsettings_dns_servers: []
+corpusops_localsettings_dns_search: []
+corpusops_localsettings_dns_configs:
+  - {name: /usr/bin/ms-resolv-conf.sh, mode: '755'}
