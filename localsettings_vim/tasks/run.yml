@@ -1,0 +1,50 @@
+---
+- name: update & install prerequisites
+  apt:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{corpusops_localsettings_vim_vars.packages}}'
+    state: present
+  when: "{{ansible_os_family == 'Debian' and
+           corpusops_localsettings_vim_vars.packages is not none and
+           corpusops_localsettings_vim_vars.packages|length > 0}}"
+  tags: corpusops_localsettings_vim
+# do not trigger here changes
+- name: files
+  changed_when: '{{False}}'
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_vim_vars.files}}"
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_vim_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_vim_vars.configs is not none and
+      corpusops_localsettings_vim_vars.configs|length > 0}}
+  tags: corpusops_localsettings_vim
+- name: test which vimrc exists
+  tags: corpusops_localsettings_vim
+  register: corpusops_localsettings_vim_vimrcs
+  stat: {path: "{{item}}"}
+  with_items: "{{corpusops_localsettings_vim_vars.vimrc}}"
+#- debug: {msg: "{{corpusops_localsettings_vim_vimrcs}}"}
+- name: source corusops config in vimrc
+  tags: corpusops_localsettings_vim
+  when: "{{corpusops_localsettings_vim_vimrcs.results[item.0].stat.exists}}"
+  with_indexed_items: "{{corpusops_localsettings_vim_vars.vimrc}}"
+  blockinfile:
+    dest: "{{item.1}}"
+    state: present
+    insertafter: 'EOF'
+    marker: '" {mark} CORPUSOPS ANSIBLE MANAGED BLOCK'
+    block: |
+      source /etc/vim/vimrc.corpusops

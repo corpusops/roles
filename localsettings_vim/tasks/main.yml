@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_vim preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_vim | default(True) }}"
+  register: corpusops_localsettings_vim_can_run
+  tags: corpusops_localsettings_vim
+- include: run.yml
+  when: '{{ corpusops_localsettings_vim_can_run.msg == True }}'
+  tags: corpusops_localsettings_vim
