@@ -1,0 +1,18 @@
+---
+- include_jinja_vars:
+    name: "{{role_name.replace('corpusops.', 'corpusops_')}}"
+  tags: [corpusops_vars, corpusops_lxc_vars]
+- name: lxc - container_var
+  tags: [corpusops_vars, corpusops_lxc_vars]
+  register: corpusops_lxc_container_vars
+  debug:
+    msg: "{{corpusops_lxc_vars.containers.get(
+      corpusops_lxc_vars['container_name']|default(False), {})}}"
+- name: get back some computed values to vars
+  include_jinja_vars:
+    name: __GLOBAL__
+    content: |
+      ---
+      lxc_container_name: {{corpusops_lxc_vars['container_name']}}
+      lxc_from_container: {{corpusops_lxc_vars['from_container']}}
+  tags: [corpusops_vars, corpusops_lxc_vars]
