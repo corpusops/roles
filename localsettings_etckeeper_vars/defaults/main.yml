@@ -1,0 +1,17 @@
+---
+corpusops_localsettings_etckeeper_packages: null
+corpusops_localsettings_etckeeper_packages_default: [git, etckeeper]
+corpusops_localsettings_etckeeper_files:
+  - { path: /etc/etckeeper, state: directory, user: root, group: root, mode: 755 }
+corpusops_localsettings_etckeeper_configs:
+  - {'name': '/etc/cron.daily/etckeeper', 'mode': '750'}
+  - {'name': '/etc/etckeeper/etckeeper.conf', 'mode': '644'}
+corpusops_localsettings_etckeeper_installer: null
+corpusops_localsettings_etckeeper_installer_default: 'dpkg'
+corpusops_localsettings_etckeeper_pm: null
+corpusops_localsettings_etckeeper_pm_default: 'apt'
+corpusops_localsettings_etckeeper_vcs: null
+corpusops_localsettings_etckeeper_vcs_default: 'git'
+corpusops_localsettings_etckeeper_specialfilewarning: False
+corpusops_localsettings_etckeeper_commitbeforeinstall: True
+corpusops_localsettings_etckeeper_autocommit: True
