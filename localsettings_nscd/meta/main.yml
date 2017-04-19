@@ -22,5 +22,5 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.localsettings_nscd_vars
-- role: corpusops.vars
+- role: corpusops.roles/localsettings_nscd_vars
+- role: corpusops.roles/vars

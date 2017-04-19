@@ -23,4 +23,4 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.lxc_vars
+- role: corpusops.roles/lxc_vars

@@ -22,4 +22,4 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.localsettings_sysctls_vars
+- role: corpusops.roles/localsettings_sysctls_vars

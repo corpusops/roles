@@ -22,4 +22,4 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.services_base_cron_vars
+- role: corpusops.roles/services_base_cron_vars

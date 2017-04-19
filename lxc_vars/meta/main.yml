@@ -24,4 +24,4 @@ galaxy_info:
   galaxy_tags: [corpusops, corpusops_roles]
 allow_duplicates: yes
 dependencies:
-- role: corpusops.vars
+- role: corpusops.roles/vars

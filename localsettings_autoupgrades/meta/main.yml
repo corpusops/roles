@@ -22,5 +22,5 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.localsettings_autoupgrades_vars
-- role: corpusops.service
+- role: corpusops.roles/localsettings_autoupgrades_vars
+- role: corpusops.roles/service

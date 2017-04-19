@@ -1,7 +1,7 @@
 galaxy_info:
   author: Mathieu Le Marec - Pasquet <kiorky@cryptelium.net>
   description: |
-    corpusops.humanlog
+    corpusops.roles/humanlog
   company: corpusOps
   issue_tracker_url: |
     https://github.com/corpusops/humanlog/issues/new

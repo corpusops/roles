@@ -22,10 +22,10 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.lsb_release
-- role: corpusops.include_jinja_vars
-- role: corpusops.service
-- role: corpusops.actionhelper
-- role: corpusops.humanlog
-- role: corpusops.saltcall
-- role: corpusops.ansible_plugins
+- role: corpusops.roles/lsb_release
+- role: corpusops.roles/include_jinja_vars
+- role: corpusops.roles/service
+- role: corpusops.roles/actionhelper
+- role: corpusops.roles/humanlog
+- role: corpusops.roles/saltcall
+- role: corpusops.roles/ansible_plugins

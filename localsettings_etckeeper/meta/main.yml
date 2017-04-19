@@ -22,7 +22,7 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.localsettings_etckeeper_vars
+- role: corpusops.roles/localsettings_etckeeper_vars
 - role: geerlingguy.repo-epel
   when: "{{ansible_os_family.lower() in ['redhat']}}"
 

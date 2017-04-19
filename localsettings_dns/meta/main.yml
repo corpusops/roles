@@ -22,5 +22,5 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.vars
-- role: corpusops.localsettings_dns_vars
+- role: corpusops.roles/vars
+- role: corpusops.roles/localsettings_dns_vars

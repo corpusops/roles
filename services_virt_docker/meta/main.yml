@@ -22,4 +22,4 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.services_virt_docker_vars
+- role: corpusops.roles/services_virt_docker_vars

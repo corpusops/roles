@@ -22,5 +22,5 @@ galaxy_info:
     - all
   galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
-- role: corpusops.humanlog
-- role: corpusops.actionhelper
+- role: corpusops.roles/humanlog
+- role: corpusops.roles/actionhelper
