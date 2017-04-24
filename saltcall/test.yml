@@ -1,7 +1,7 @@
 - hosts: all
   roles:
-    - role: corpusops.humanlog
-    - role: corpusops.saltcall
+    - role: corpusops.roles/humanlog
+    - role: corpusops.roles/saltcall
 - hosts: all
   tasks:
     - saltcall:
