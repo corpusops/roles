@@ -1,0 +1,55 @@
+---
+- name: update & install prerequisites
+  apt:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{corpusops_localsettings_editor_vars.packages}}'
+    state: present
+  when: "{{ansible_os_family == 'Debian' and
+           corpusops_localsettings_editor_vars.packages is not none and
+           corpusops_localsettings_editor_vars.packages|length > 0}}"
+  tags: corpusops_localsettings_editor
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_editor_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_editor_vars.configs is not none and
+      corpusops_localsettings_editor_vars.configs|length > 0}}
+  tags: corpusops_localsettings_editor
+- name: find best editor
+  changed_when: '{{False}}'
+  shell: 'update-alternatives --list editor 2>&1'
+  failed_when: |
+    {{corpusops_localsettings_editor_installed_editors.rc != 0 and
+      'no alternatives for editor' not in corpusops_localsettings_editor_installed_editors.stdout}}
+  register: corpusops_localsettings_editor_installed_editors
+  tags: corpusops_localsettings_editor
+- shell: "update-alternatives --query editor|grep Value|awk '{print $2}'"
+  changed_when: '{{False}}'
+  tags: corpusops_localsettings_editor
+  register: corpusops_localsettings_editor_editor
+  when: corpusops_localsettings_editor_installed_editors.rc == 0
+- debug:
+    msg: |
+      {% set editor = {'found': False} %}
+      {% for ed in corpusops_localsettings_editor_vars.editors if not editor.found %}
+      {% if ed in corpusops_localsettings_editor_installed_editors.stdout.split() %}
+      {% set _ = editor.update({'found': ed}) %}
+      {% endif %}
+      {% endfor %}
+      {{ editor.found}}
+  register: corpusops_localsettings_editor_candidate_editor
+  tags: corpusops_localsettings_editor
+  when: corpusops_localsettings_editor_installed_editors.rc == 0
+- shell: "update-alternatives --set editor {{corpusops_localsettings_editor_candidate_editor.msg.strip()}}"
+  when: "{{(corpusops_localsettings_editor_installed_editors.rc == 0) and
+            corpusops_localsettings_editor_candidate_editor and (
+            ( corpusops_localsettings_editor_candidate_editor.msg.strip() !=
+                  corpusops_localsettings_editor_editor.stdout))}}"
+  changed_when: '{{False}}'
+  tags: corpusops_localsettings_editor

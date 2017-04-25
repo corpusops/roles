@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_editor preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_editor | default(True) }}"
+  register: corpusops_localsettings_editor_can_run
+  tags: corpusops_localsettings_editor
+- include: run.yml
+  when: '{{ corpusops_localsettings_editor_can_run.msg == True }}'
+  tags: corpusops_localsettings_editor
