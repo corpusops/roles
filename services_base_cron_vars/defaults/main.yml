@@ -1,0 +1,13 @@
+---
+corpusops_services_base_cron_packages: null
+corpusops_services_base_cron_packages_default: [cron]
+corpusops_services_base_cron_packages_redhat: [cronie, crontabs]
+corpusops_services_base_cron_services: null
+corpusops_services_base_cron_services_default: [cron]
+corpusops_services_base_cron_services_redhat: [crond]
+corpusops_services_base_cron_configs: []
+corpusops_services_base_cron_files:
+  - {path: '/etc/default', mode: '755', state: 'directory'}
+  - {path: '/etc/cron.d', mode: '755', state: 'directory'}
+corpusops_services_base_cron_filescopy: []
+corpusops_services_base_cron_activated: True
