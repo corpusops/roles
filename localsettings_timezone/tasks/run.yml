@@ -1,0 +1,61 @@
+---
+- name: update & install prerequisites
+  apt:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{corpusops_localsettings_timezone_vars.packages}}'
+    state: present
+  when: "{{ansible_os_family == 'Debian' and
+           corpusops_localsettings_timezone_vars.packages is not none and
+           corpusops_localsettings_timezone_vars.packages|length > 0}}"
+  tags: corpusops_localsettings_timezone
+- name: Ensure that specified timezone exist
+  stat:
+    path: "/usr/share/zoneinfo/{{tz}}"
+  register: corpusops_localsettings_timezone_ltd
+  tags: corpusops_localsettings_timezone
+- name: Ensure that specified timezone exist
+  stat:
+    path: "/etc/timezone"
+  register: corpusops_localsettings_timezone_ltzd
+  tags: corpusops_localsettings_timezone
+- name: get locatimeinfo
+  stat:
+    path: "/etc/localtime"
+  register: corpusops_localsettings_timezone_lt
+  tags: corpusops_localsettings_timezone
+  changed_when: False
+- name: localtime
+  file:
+    state: absent
+    path: "{{item.path}}"
+  when: "{{item.exists and item.islnk}}"
+  with_items: |
+    {%  set val = [corpusops_localsettings_timezone_ltzd.stat,
+                   corpusops_localsettings_timezone_ltd.stat] %}
+    {{ val | to_json  }}
+  changed_when: False
+- name: localtime
+  file:
+    state: absent
+    path: "/etc/localtime" 
+  failed_when: "{{not corpusops_localsettings_timezone_ltd.stat.exists }}"
+  changed_when: False
+- name: localtime
+  copy:
+    remote_src: true
+    src: "/usr/share/zoneinfo/{{tz}}"
+    dest: "/etc/localtime" 
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_timezone_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_timezone_vars.configs is not none and
+      corpusops_localsettings_timezone_vars.configs|length > 0}}
+  tags: corpusops_localsettings_timezone
+
