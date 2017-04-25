@@ -1,4 +1,4 @@
-# corpusops.services_base_cron_vars variables role
+# corpusops.roles/services_base_cron_vars variables role
 ## Documentation
 
 ## Role variables

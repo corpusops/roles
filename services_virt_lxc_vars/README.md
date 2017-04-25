@@ -1,4 +1,4 @@
-# corpusops.services_virt_lxc_vars variables role
+# corpusops.roles/services_virt_lxc_vars variables role
 ## Documentation
 
 ## Role variables

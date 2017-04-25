@@ -1,4 +1,4 @@
-# corpusops.services_magicbridge_vars variables role
+# corpusops.roles/services_magicbridge_vars variables role
 ## Documentation
 
 ## Role variables

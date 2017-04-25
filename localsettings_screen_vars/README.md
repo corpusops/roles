@@ -1,4 +1,4 @@
-# corpusops.localsettings_screen_vars variables role
+# corpusops.roles/localsettings_screen_vars variables role
 ## Documentation
 
 ## Role variables

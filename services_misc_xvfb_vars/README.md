@@ -1,4 +1,4 @@
-# corpusops.services_misc_xvfb_vars variables role
+# corpusops.roles/services_misc_xvfb_vars variables role
 ## Documentation
 
 ## Role variables

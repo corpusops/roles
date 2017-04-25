@@ -1,4 +1,4 @@
-# corpusops.localsettings_pkgmgr_vars variables role
+# corpusops.roles/localsettings_pkgmgr_vars variables role
 ## Documentation
 
 ## Role variables

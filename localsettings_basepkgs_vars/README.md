@@ -1,4 +1,4 @@
-# corpusops.localsettings_basepkgs_vars variables role
+# corpusops.roles/localsettings_basepkgs_vars variables role
 ## Documentation
 
 ## Role variables

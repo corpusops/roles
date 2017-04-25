@@ -1,4 +1,4 @@
-# corpusops.lxc_vars ansible role
+# corpusops.roles/lxc_vars ansible role
 
 ## Documentation
 

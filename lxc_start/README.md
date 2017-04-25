@@ -1,4 +1,4 @@
-# corpusops.lxc_start ansible role
+# corpusops.roles/lxc_start ansible role
 ## Documentation
 
 Start completly a lxc container from selected hosts if existing

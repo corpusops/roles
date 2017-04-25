@@ -1,4 +1,4 @@
-# corpusops.localsettings_timezone_vars variables role
+# corpusops.roles/localsettings_timezone_vars variables role
 ## Documentation
 
 ## Role variables

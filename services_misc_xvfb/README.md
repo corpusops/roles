@@ -1,4 +1,4 @@
-# corpusops.services_misc_xvfb ansible role
+# corpusops.roles/services_misc_xvfb ansible role
 ## Documentation
 
 - Installs xvfb && xvfb on your host
@@ -7,5 +7,5 @@
 To see variables for this role, call it directly via
 ```bash
 ansible-playbook -l LIMIT -vvv roles/corpusops.roles/services_misc_xvfb/role.yml \
-   -t corpusops.services_misc_xvfb_vars
+   -t corpusops.roles/services_misc_xvfb_vars
 ```

@@ -1,4 +1,4 @@
-# corpusops.lxc_sshauth ansible role
+# corpusops.roles/lxc_sshauth ansible role
 ## Documentation
 
 Add ssh keys to the root user of a lxc container to allow

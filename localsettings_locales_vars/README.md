@@ -1,4 +1,4 @@
-# corpusops.localsettings_locales_vars variables role
+# corpusops.roles/localsettings_locales_vars variables role
 ## Documentation
 
 ## Role variables

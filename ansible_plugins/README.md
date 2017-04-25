@@ -1,4 +1,4 @@
-# corpusops.lxc_ansible_plugins ansible role
+# corpusops.roles/lxc_ansible_plugins ansible role
 ## Documentation
 
 Collection of filter plugins for corpusops

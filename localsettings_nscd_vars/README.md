@@ -1,4 +1,4 @@
-# corpusops.localsettings_nscd_vars variables role
+# corpusops.roles/localsettings_nscd_vars variables role
 ## Documentation
 
 ## Role variables

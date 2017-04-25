@@ -1,4 +1,4 @@
-# corpusops.vars variables role
+# corpusops.roles/vars variables role
 ## Documentation
 
 ## Role variables

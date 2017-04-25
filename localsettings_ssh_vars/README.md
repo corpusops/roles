@@ -1,4 +1,4 @@
-# corpusops.localsettings_ssh_vars variables role
+# corpusops.roles/localsettings_ssh_vars variables role
 ## Documentation
 
 ## Role variables

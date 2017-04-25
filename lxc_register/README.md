@@ -1,4 +1,4 @@
-# corpusops.lxc_register ansible role
+# corpusops.roles/lxc_register ansible role
 ## Documentation
 
 Add dynamically a lxc container to the ansible inventory
@@ -16,7 +16,7 @@ execute in the context of that specific container.
 foo.yml
 ```yaml
 - hosts: all
-  roles: [corpusops.lxc_register]
+  roles: [corpusops.roles/lxc_register]
 
 - hosts: "{{lxc_container_name}}"
   tasks:

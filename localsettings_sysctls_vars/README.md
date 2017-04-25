@@ -1,4 +1,4 @@
-# corpusops.localsettings_sysctls_vars variables role
+# corpusops.roles/localsettings_sysctls_vars variables role
 ## Documentation
 
 ## Role variables

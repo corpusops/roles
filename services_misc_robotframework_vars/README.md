@@ -1,4 +1,4 @@
-# corpusops.services_misc_robotframework_vars variables role
+# corpusops.roles/services_misc_robotframework_vars variables role
 ## Documentation
 
 ## Role variables

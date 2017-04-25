@@ -1,4 +1,4 @@
-# corpusops.lxc_drop ansible role
+# corpusops.roles/lxc_drop ansible role
 ## Documentation
 
 Delete completly a lxc container from selected hosts if existing

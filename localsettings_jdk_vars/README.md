@@ -1,4 +1,4 @@
-# corpusops.localsettings_jdk_vars variables role
+# corpusops.roles/localsettings_jdk_vars variables role
 ## Documentation
 
 ## Role variables

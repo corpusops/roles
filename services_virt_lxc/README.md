@@ -1,4 +1,4 @@
-# corpusops.services_virt_lxc ansible role
+# corpusops.roles/services_virt_lxc ansible role
 ## Documentation
 
 - Installs lxc on your host
@@ -8,5 +8,5 @@
 To see variables for this role, call it directly via
 ```bash
 ansible-playbook -l LIMIT -vvv roles/corpusops.roles/services_virt_lxc/role.yml \
-   -t corpusops.services_virt_lxc_vars
+   -t corpusops.roles/services_virt_lxc_vars
 ```

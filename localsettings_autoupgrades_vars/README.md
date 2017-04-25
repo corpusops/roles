@@ -1,4 +1,4 @@
-# corpusops.localsettings_autoupgrades_vars variables role
+# corpusops.roles/localsettings_autoupgrades_vars variables role
 ## Documentation
 
 ## Role variables

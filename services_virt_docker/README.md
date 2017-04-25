@@ -1,4 +1,4 @@
-# corpusops.services_virt_docker ansible role
+# corpusops.roles/services_virt_docker ansible role
 ## Documentation
 
 Installs docker on your host
@@ -7,5 +7,5 @@ Installs docker on your host
 To see variables for this role, call it directly via
 ```bash
 ansible-playbook -l LIMIT -vvv roles/corpusops.roles/services_virt_docker/role.yml \
-   -t corpusops.services_virt_docker_vars
+   -t corpusops.roles/services_virt_docker_vars
 ```

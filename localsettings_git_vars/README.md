@@ -1,4 +1,4 @@
-# corpusops.localsettings_git_vars variables role
+# corpusops.roles/localsettings_git_vars variables role
 ## Documentation
 
 ## Role variables

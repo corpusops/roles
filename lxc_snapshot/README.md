@@ -1,4 +1,4 @@
-# corpusops.lxc_snapshot ansible role
+# corpusops.roles/lxc_snapshot ansible role
 ## Documentation
 Remove and impersonate a lxc container from running personnal bits (ssh keys and etc)
 See [templates/bin/cops_container_snapshot.sh](./templates/bin/cops_container_snapshot.sh)

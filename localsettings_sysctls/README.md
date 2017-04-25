@@ -1,4 +1,4 @@
-# corpusops.localsettings_sysctls ansible role
+# corpusops.roles/localsettings_sysctls ansible role
 ## Documentation
 
 Set optimized but sane defaults for the linux kernel & limits.
@@ -7,5 +7,5 @@ Set optimized but sane defaults for the linux kernel & limits.
 To see variables for this role, call it directly via
 ```bash
 ansible-playbook -l LIMIT -vvv roles/corpusops.roles/localsettings_sysctls/role.yml \
-   -t corpusops.localsettings_sysctls_vars
+   -t corpusops.roles/localsettings_sysctls_vars
 ```

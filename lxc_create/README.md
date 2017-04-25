@@ -1,4 +1,4 @@
-# corpusops.lxc_create ansible role
+# corpusops.roles/lxc_create ansible role
 ## Documentation
 
 Create  lxc container
@@ -7,14 +7,14 @@ Create  lxc container
 To see variables for this role, call it directly via
 ```bash
 ansible-playbook -l LIMIT -vvv roles/corpusops.roles/lxc_vars/role.yml \
-   -t corpusops.lxc_vars
+   -t corpusops.roles/lxc_vars
 ```
 
 ## Example
-You may better use though corpusops.bootstrap via [this playbook](https://github.com/corpusops/playbooks/blob/master/provision/lxc_container.yml)
+You may better use though corpusops.roles/bootstrap via [this playbook](https://github.com/corpusops/playbooks/blob/master/provision/lxc_container.yml)
 
 ```
-cd /srv/corpusops/corpusops.bootstrap
+cd /srv/corpusops/corpusops.roles/bootstrap
 bin/ansible-playbook playbooks/corpusops/provision/lxc_container.yml -l myhost -e "lxc_container_name=foo"
 ```
 

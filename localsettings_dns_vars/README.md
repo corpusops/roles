@@ -1,4 +1,4 @@
-# corpusops.localsettings_dns_vars variables role
+# corpusops.roles/localsettings_dns_vars variables role
 ## Documentation
 
 ## Role variables

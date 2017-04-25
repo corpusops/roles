@@ -1,4 +1,4 @@
-# corpusops.lxc_stop ansible role
+# corpusops.roles/lxc_stop ansible role
 ## Documentation
 
 Stop completly a lxc container from selected hosts if existing
