@@ -1,0 +1,19 @@
+---
+corpusops_localsettings_locales_packages: null
+corpusops_localsettings_locales_packages_debian: [
+  'locales']
+corpusops_localsettings_locales_packages_ubuntu: []
+corpusops_localsettings_locales_configs: null
+corpusops_localsettings_locales_configs_default:
+  - {name: /etc/profile.d/0_lang.sh, mode: '644'}
+corpusops_localsettings_locales_configs_redhat:
+  - {name: /etc/profile.d/0_lang.sh, mode: '644'}
+  - {name: /etc/sysconfig/i18n, mode: '644'}
+corpusops_localsettings_locales_locales: null
+corpusops_localsettings_locales_locales_default: [
+  'fr_FR.UTF-8',
+  'de_DE.UTF-8',
+  'fr_BE.UTF-8',
+  'en_US.UTF-8']
+corpusops_localsettings_locales_locale: null
+corpusops_localsettings_locales_locale_default: 'fr_FR.UTF-8'
