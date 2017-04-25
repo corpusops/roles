@@ -144,16 +144,16 @@ silent_run_post() {
 silent_run_() {
     tmpf=$(mktemp)
     do_trap silent_run_post EXIT TERM QUIT INT
-    if test_silent_log;then
-        log "Logging command output to ${tmpf}"
-    fi
     if [[ -n "${NO_SILENT-}" ]];then
         "${@}"
     else
+        if test_silent_log;then
+            log "Logging command output to ${tmpf}"
+        fi
         "${@}" >"${tmpf}" 2>&1
     fi
     local ret=${?}
-    if [ "x${rc}" != "x0" ] && [ -e "${tmpf}" ]; then
+    if [ "x${ret}" != "x0" ] && [ -e "${tmpf}" ]; then
         cat "${tmpf}"
     fi
     return ${ret}
@@ -287,6 +287,12 @@ do_tmp_cleanup() {
             docker rmi "${test_tagid}"
         fi
     done
+}
+
+set_lang() {
+    locale=${1:-C}
+    export LANG=${locale}
+    export LC_ALL=${locale}
 }
 
 detect_os() {
@@ -437,7 +443,7 @@ version_lte() {
 }
 
 version_lt() {
-    [ "$1" = "$2" ] && return 1 || verlte $1 $2
+    [ "$1" = "$2" ] && return 1 || version_lte $1 $2
 }
 
 version_gte() {
@@ -445,7 +451,7 @@ version_gte() {
 }
 
 version_gt() {
-    [ "$1" = "$2" ] && return 1 || verlte $1 $2
+    [ "$1" = "$2" ] && return 1 || version_gte $1 $2
 }
 
 detect_os no_fail

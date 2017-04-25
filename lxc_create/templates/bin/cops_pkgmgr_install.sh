@@ -14,6 +14,7 @@ usage() {
 Universal shell wrapper to manage OS package manager
 OS SUPPORT: debian(& ubuntu) / archlinux / red-hat (centos/rh/fedora)
 
+[NONINTERACTIVE="y"] \
 [WANTED_EXTRA_PACKAGES="vim"] \
 [WANTED_EXTRA_PACKAGES="nano"] \
 [DO_SETUP=y] [SKIP_SETUP=y] \
@@ -269,19 +270,17 @@ parse_cli() {
             *) WANTED_PACKAGES="${WANTED_PACKAGES} ${i}";;
         esac
     done
-    WANTED_PACKAGES="$(echo "$(echo "${WANTED_PACKAGES}" | xargs -n1 | sort -u)")"
-    WANTED_EXTRA_PACKAGES="$(echo "$(echo "${WANTED_EXTRA_PACKAGES}" | xargs -n1 | sort -u)")"
     if echo ${DISTRIB_ID} | egrep -iq "ubuntu|debian";then
         INSTALLER=aptget
     elif echo ${DISTRIB_ID} | egrep -iq "archlinux";then
         INSTALLER=pacman
-    elif echo ${DISTRIB_ID} | egrep -iq "redhat|red-hat|centos|fedora";then
+    elif echo ${DISTRIB_ID} | egrep -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)";then
         INSTALLER=yum
         if has_command dnf;then
             INSTALLER=dnf
         fi
     else
-        die "Not supported os"
+        die "Not supported os ${DISTRIB_ID}"
     fi
     debug "INSTALLER: ${INSTALLER}"
 }
@@ -396,6 +395,9 @@ setup() {
     else
         debug "Skip setup"
     fi
+    # be sure to use xargs only after we installed it
+    WANTED_PACKAGES="$(echo "$(echo "${WANTED_PACKAGES}" | xargs -n1 | sort -u)")"
+    WANTED_EXTRA_PACKAGES="$(echo "$(echo "${WANTED_EXTRA_PACKAGES}" | xargs -n1 | sort -u)")"
 }
 
 upgrade() {
