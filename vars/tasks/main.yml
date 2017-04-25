@@ -14,5 +14,5 @@
   register: cops_test_services_mgr
   tags: [corpusops_vars, corpusops_vars_core]
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.', 'corpusops_')}}"
+    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
   tags: [corpusops_vars, corpusops_vars_core]
