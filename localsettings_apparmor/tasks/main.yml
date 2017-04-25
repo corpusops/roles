@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_apparmor preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_apparmor | default(True) }}"
+  register: corpusops_localsettings_apparmor_can_run
+  tags: corpusops_localsettings_apparmor
+- include: run.yml
+  when: '{{ corpusops_localsettings_apparmor_can_run.msg == True }}'
+  tags: corpusops_localsettings_apparmor
