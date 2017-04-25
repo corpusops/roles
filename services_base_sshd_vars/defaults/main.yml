@@ -1,0 +1,31 @@
+---
+corpusops_services_base_sshd_packages: null
+corpusops_services_base_sshd_packages_default: [openssh-server]
+corpusops_services_base_sshd_services: null
+corpusops_services_base_sshd_services_default: [ssh]
+corpusops_services_base_sshd_services_redhat: [sshd]
+corpusops_services_base_sshd_filescopy: []
+corpusops_services_base_sshd_files:
+  - {path: '/etc/ssh', mode: '755', state: 'directory'}
+  - {path: '/etc/default', mode: '755', state: 'directory'}
+corpusops_services_base_sshd_configs:
+  - {name: '/etc/ssh/sshd_config', 'mode': '640'}
+  - {name: '/etc/ssh/banner', 'mode': '644'}
+  - {name: '/usr/bin/sshd_wrapper.sh', 'mode': '755'}
+corpusops_services_base_sshd_activated: True
+corpusops_services_base_sshd_group: sshusers
+corpusops_services_base_sshd_settings_AuthorizedKeysFile: >-
+  .ssh/authorized_keys .ssh/authorized_keys2
+corpusops_services_base_sshd_settings_AllowUsers: []
+corpusops_services_base_sshd_settings_AllowGroups: null
+corpusops_services_base_sshd_settings_AllowGroups_default: [
+ 'sftponly', 'root', 'sudo', 'wheel', 'admin']
+corpusops_services_base_sshd_settings_AllowGroups_ubuntu: [
+ 'sftponly', 'root', 'sudo', 'wheel', 'admin', 'ubuntu']
+corpusops_services_base_sshd_settings_ChallengeResponseAuthentication: 'no'
+corpusops_services_base_sshd_settings_X11Forwarding: 'yes'
+corpusops_services_base_sshd_settings_PrintMotd: 'no'
+corpusops_services_base_sshd_settings_UsePrivilegeSeparation: sandbox
+corpusops_services_base_sshd_settings_UsePAM: 'yes'
+corpusops_services_base_sshd_settings_PermitRootLogin: 'without-password'
+corpusops_services_base_sshd_chroot_sftp: False
