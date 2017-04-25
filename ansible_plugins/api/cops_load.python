@@ -1,0 +1,16 @@
+# unmark this as python not to be found and
+# scanned by ansible loader
+import sys
+import os
+try:
+    __pmod = globals()['__pmod']
+except:
+    from pdb_clone import pdb as pdbc;pdbc.set_trace_remote()  ## Breakpoint ##
+    raise
+[sys.path.insert(0, os.path.join(__pmod, a))
+ for a in [
+     'filter_plugins',
+     'lookup_plugins',
+ ]
+ if os.path.join(__pmod, a) not in sys.path]
+# vim:set et sts=4 ts=4 tw=80 ft=python:
