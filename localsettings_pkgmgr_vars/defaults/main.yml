@@ -1,0 +1,96 @@
+---
+corpusops_localsettings_pkgmgr_packages: null
+corpusops_localsettings_pkgmgr_packages_debian: [software-properties-common]
+corpusops_localsettings_pkgmgr_packages_ubuntu: [
+  software-properties-common]
+corpusops_localsettings_pkgmgr_configs: null
+corpusops_localsettings_pkgmgr_configs_ubuntu:
+  - {'name': '/etc/apt/sources.list', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99confhold', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99gzip', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99notrad', 'mode': '644'}
+  - {'name': '/etc/apt/preferences.d/00_proposed.pref', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99netfamily', 'mode': '644'}
+corpusops_localsettings_pkgmgr_configs_debian:
+  - {'name': '/etc/apt/sources.list', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99confhold', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99gzip', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99notrad', 'mode': '644'}
+  - {'name': '/etc/apt/apt.conf.d/99netfamily', 'mode': '644'}
+  - {'name': '/etc/apt/preferences.d/sid.pref', 'mode': '644'}
+corpusops_localsettings_pkgmgr_apt_clean: false
+corpusops_localsettings_pkgmgr_apt_clean_configs:
+  - {'name': '/etc/apt/apt.conf.d/99clean', 'mode': '644'}
+corpusops_localsettings_pkgmgr_files: []
+corpusops_localsettings_pkgmgr_dist: '<CODENAME_MUST_BE_REPLACED>'
+corpusops_localsettings_pkgmgr_force_apt_ipv4: true
+corpusops_localsettings_pkgmgr_force_apt_ipv6: false
+corpusops_localsettings_pkgmgr_comps: null
+corpusops_localsettings_pkgmgr_comps_debian: main contrib non-free
+corpusops_localsettings_pkgmgr_comps_ubuntu: main restricted universe multiverse
+corpusops_localsettings_pkgmgr_mirror: null
+corpusops_localsettings_pkgmgr_mirror_debian: 'http://mirror.ovh.net/ftp.debian.org/'
+corpusops_localsettings_pkgmgr_mirror_debian_archive: 'http://archive.debian.org/debian/'
+corpusops_localsettings_pkgmgr_mirror_ubuntu: 'http://mirror.ovh.net/ftp.ubuntu.com/'
+corpusops_localsettings_pkgmgr_sources_lists: null
+corpusops_localsettings_pkgmgr_sources_lists_ubuntu:
+ - 'deb {mirror} {dist} {comps}'
+ - 'deb-src {mirror} {dist} {comps}'
+ - 'deb {mirror} {dist}-proposed {comps}'
+ - 'deb-src {mirror} {dist}-proposed {comps}'
+ - 'deb {mirror} {dist}-updates {comps}'
+ - 'deb-src {mirror} {dist}-updates {comps}'
+ - 'deb {mirror} {dist}-security {comps}'
+ - 'deb-src {mirror} {dist}-security {comps}'
+ - 'deb {partner_mirror} {dist} partner'
+ - 'deb-src {partner_mirror} {dist} partner'
+ #- 'deb {mirror} {dist}-backport {comps}'
+ #- 'deb-src {mirror} {dist}-backport {comps}'
+corpusops_localsettings_pkgmgr_sources_lists_debian:
+ - 'deb {mirror} {dist} {comps}'
+ - 'deb-src {mirror} {dist} {comps}'
+corpusops_localsettings_pkgmgr_partner_mirror: 'http://archive.canonical.com/ubuntu'
+corpusops_localsettings_pkgmgr_rpm_mirrors: null
+corpusops_localsettings_pkgmgr_rpm_mirrors_default: []
+corpusops_localsettings_pkgmgr_rpm_mirrors_centos:
+  - 'http://centos.mirrors.ovh.net/ftp.centos.org'
+corpusops_localsettings_pkgmgr_rpm_repos: []
+corpusops_localsettings_pkgmgr_base_rpm_repos: null
+corpusops_localsettings_pkgmgr_base_rpm_repos_default: []
+corpusops_localsettings_pkgmgr_base_rpm_repos_centos:
+  - name: base
+    repo: os
+    desc: Base
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
+    mirrorlist: "file:///etc/corpusops_rpms_mirrors.os"
+    file: 'CentOS-Base'
+  - name: updates
+    gpgcheck: true
+    desc: Updates
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
+    mirrorlist: "file:///etc/corpusops_rpms_mirrors.updates"
+    file: 'CentOS-Base'
+  - name: extras
+    desc: Extras
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
+    mirrorlist: "file:///etc/corpusops_rpms_mirrors.extras"
+    file: 'CentOS-Base'
+  - name: centosplus
+    desc: Plus
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
+    mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
+    file: 'CentOS-Base'
+corpusops_localsettings_pkgmgr_epel:
+  - name: epel
+    desc: epel
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
+    mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
+    file: 'CentOS-Base'
+_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version|default('7') }}.noarch.rpm"
+corpusops_localsettings_pkgmgr_epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version|default('7') }}"
+corpusops_localsettings_pkgmgr_epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+
