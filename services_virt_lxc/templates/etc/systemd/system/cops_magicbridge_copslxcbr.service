@@ -1,0 +1,13 @@
+# MANAGED VIA SALT -- DO NOT EDIT
+#
+[Unit]
+Description=cops_magicbridge_copslxcbr
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/cops_magicbridge_copslxcbr start
+ExecStop=/usr/bin/cops_magicbridge_copslxcbr stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,108 @@
+---
+- name: create cgroup path
+  file:
+    path: "/sys/fs/cgroup"
+    state: "directory"
+    mode: "755"
+  tags: corpusops_services_virt_lxc
+- name: mount cgroup
+  mount:
+    name: /sys/fs/cgroup
+    src: none
+    fstype: cgroup
+    state: mounted
+    opts: defaults
+  tags: corpusops_services_virt_lxc
+- name: run geerlingguy.repo-epel
+  include_role: {name: geerlingguy.repo-epel}
+  when: "{{ansible_os_family.lower() in ['redhat']}}"
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_virt_lxc_vars.packages is not none and
+           corpusops_services_virt_lxc_vars.packages|length > 0}}"
+  tags: corpusops_services_virt_lxc
+  with_items: "{{corpusops_services_virt_lxc_vars.packages}}"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_services_virt_lxc_vars.packages is not none and
+           corpusops_services_virt_lxc_vars.packages|length > 0}}"
+  tags: corpusops_services_virt_lxc
+  with_items: "{{corpusops_services_virt_lxc_vars.packages}}"
+- name: patch tmpfs
+  shell: |
+    {% set proc_mode=corpusops_services_virt_lxc_vars.proc_mode%}
+    p=/usr/share/lxc/config/common.conf
+    if test -e $p;then
+    if grep "proc:" "$p"|egrep -vq "proc:{{proc_mode}}";then
+    sed -i -re "s/proc:(mixed|ro|rw)/proc:{{proc_mode}}/g" $p
+    echo "was patched"
+    fi
+    fi
+  register: cops_lxcpatchtmpfs
+  changed_when: "{{'was patched' in cops_lxcpatchtmpfs.stdout}}"
+  notify: [restart_corpusops_services_virt_lxc]
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_virt_lxc_vars.files}}"
+  when: |
+    {{corpusops_services_virt_lxc_vars.files is not none and
+      corpusops_services_virt_lxc_vars.files|length > 0}}
+  tags: corpusops_services_virt_lxc
+  notify: [restart_corpusops_services_virt_lxc]
+- name: files copy
+  copy:
+    dest: "{{item.dest|default(omit)}}"
+    src: "{{item.template
+            | default('../templates/'+item.dest)}}"
+    force: "{{item.get('force', True)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_virt_lxc_vars.filescopy}}"
+  when: |
+    {{corpusops_services_virt_lxc_vars.filescopy is not none and
+      corpusops_services_virt_lxc_vars.filescopy|length > 0}}
+  tags: corpusops_services_virt_lxc
+  notify: [restart_corpusops_services_virt_lxc]
+- name: configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_services_virt_lxc_vars.configs}}"
+  when: |
+    {{corpusops_services_virt_lxc_vars.configs is not none and
+      corpusops_services_virt_lxc_vars.configs|length > 0}}
+  tags: corpusops_services_virt_lxc
+  notify: [restart_corpusops_services_virt_lxc]
+- name: service
+  cops_service:
+    state: "{{corpusops_services_virt_lxc_vars.activated
+              | ternary('started', 'stopped')}}"
+    enabled: "{{corpusops_services_virt_lxc_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_virt_lxc_vars.services}}"
+  tags: corpusops_services_virt_lxc
+  when: "{{corpusops_vars.has_services_manager}}"
