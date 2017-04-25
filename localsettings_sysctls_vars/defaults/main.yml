@@ -1,0 +1,38 @@
+---
+corpusops_localsettings_sysctls_packages: null
+corpusops_localsettings_sysctls_packages_debian: [procps]
+corpusops_localsettings_sysctls_packages_ubuntu: []
+corpusops_localsettings_sysctls_configs: []
+corpusops_localsettings_sysctls_configs_ubuntu: []
+corpusops_localsettings_sysctls_disabled_knobs: []
+corpusops_localsettings_sysctls_sysctls: {}
+corpusops_localsettings_sysctls_knobs:
+  # for variables with null values, see ../jinja_vars/main.yml
+  - {name: 'net.ipv4.tcp_wmem', value: null}
+  - {name: 'net.ipv4.tcp_rmem', value: null}
+  - {name: 'net.core.rmem_max', value: null}
+  - {name: 'net.core.wmem_max', value: null}
+  - {name: 'vm.swappiness', value: null}
+  - {name: 'vm.min_free_kbytes', value: null}
+  - {name: 'fs.inotify.max_user_watches', value: null}
+  - {name: 'fs.inotify.max_user_instances', value: null}
+  - {name: 'net.ipv4.ip_local_port_range', value: '1024 65535'}
+  - {name: 'net.ipv4.tcp_max_syn_backlog', value: '20480'}
+  - {name: 'net.ipv4.tcp_fin_timeout', value: '15'}
+  - {name: 'net.core.somaxconn', value: '4096'}
+  - {name: 'net.core.netdev_max_backlog', value: '4096'}
+  - {name: 'net.ipv4.tcp_no_metrics_save', value: '1'}
+  - {name: 'net.ipv4.tcp_congestion_control', value: 'cubic'}
+  - {name: 'net.ipv4.tcp_max_tw_buckets', value: '2000000'}
+  - {name: 'net.ipv4.tcp_tw_recycle', value: '0'}
+  - {name: 'net.ipv4.tcp_syn_retries', value: '2'}
+  - {name: 'net.ipv4.tcp_tw_reuse', value: '1'}
+  - {name: 'net.ipv4.tcp_timestamps', value: '0'}
+  # Enable select acknowledgments}
+  - {name: 'net.ipv4.tcp_sack', value: '1'}
+  - {name: 'net.ipv4.tcp_fack', value: '1'}
+  # To take advantage4.tcp_max_syn_backlog= tuning
+  - {name: 'net.ipv4.tcp_syncookies', value: '1'}
+  # Turn on window scaling which can be an option to enlarge the transfer window
+  - {name: 'net.ipv4.tcp_window_scaling', value: '1'}
+  - {name: 'net.ipv4.tcp_moderate_rcvbuf', value: '1'}
