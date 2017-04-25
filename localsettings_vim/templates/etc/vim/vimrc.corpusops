@@ -1,0 +1,29 @@
+set nocompatible
+set t_Co=256
+syntax enable
+filetype on
+filetype plugin on
+filetype indent on
+filetype plugin indent on
+set bg=dark
+set modeline
+set hlsearch
+set encoding=utf-8
+set backspace=indent,eol,start
+set virtualedit=all
+set mouse=
+set nodiff
+set foldcolumn=0
+set diffopt=filler,vertical,context:4
+set wildmenu
+set wildmode=list:longest,full
+" reindent "
+map == <ESC>maggVG='a
+" remove whitespaces "
+map ,wp ma:%s/\s\s*$//g<CR>'a
+" "
+set sts=4 ts=4 sw=4 tw=0
+set ai
+set et
+set nu
+autocmd! BufRead,BufNewFile *.sls,*.yml,*.yaml set sts=2 ts=2 sw=2 tw=0
