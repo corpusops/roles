@@ -1,0 +1,78 @@
+---
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_base_cron_vars.packages is not none and
+           corpusops_services_base_cron_vars.packages|length > 0}}"
+  tags: corpusops_services_base_cron
+  with_items: "{{corpusops_services_base_cron_vars.packages}}"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_services_base_cron_vars.packages is not none and
+           corpusops_services_base_cron_vars.packages|length > 0}}"
+  tags: corpusops_services_base_cron
+  with_items: "{{corpusops_services_base_cron_vars.packages}}"
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_base_cron_vars.files}}"
+  when: |
+    {{corpusops_services_base_cron_vars.files is not none and
+      corpusops_services_base_cron_vars.files|length > 0}}
+  tags: corpusops_services_base_cron
+  notify: [restart_corpusops_services_base_cron]
+- name: files copy
+  copy:
+    dest: "{{item.dest|default(omit)}}"
+    src: "{{item.src
+            | default(item.template)
+            | default('../templates/'+item.dest)}}"
+    force: "{{item.get('force', True)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_base_cron_vars.filescopy}}"
+  when: |
+    {{corpusops_services_base_cron_vars.filescopy is not none and
+      corpusops_services_base_cron_vars.filescopy|length > 0}}
+  tags: corpusops_services_base_cron
+  notify: [restart_corpusops_services_base_cron]
+- name: configs
+  template:
+    src: "{{item.src
+            | default(item.template)
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_services_base_cron_vars.configs}}"
+  when: |
+    {{corpusops_services_base_cron_vars.configs is not none and
+      corpusops_services_base_cron_vars.configs|length > 0}}
+  tags: corpusops_services_base_cron
+- name: service
+  cops_service:
+    state: "{{corpusops_services_base_cron_vars.activated
+              | ternary('started', 'stopped')}}"
+    enabled: "{{corpusops_services_base_cron_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_base_cron_vars.services}}"
+  tags: corpusops_services_base_cron
+  when: "{{corpusops_vars.has_services_manager}}"
