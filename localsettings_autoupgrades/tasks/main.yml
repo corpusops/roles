@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_autoupgrades preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_autoupgrades | default(True) }}"
+  register: corpusops_localsettings_autoupgrades_can_run
+  tags: corpusops_localsettings_autoupgrades
+- include: run.yml
+  when: '{{corpusops_localsettings_autoupgrades_can_run.msg == True}}'
+  tags: corpusops_localsettings_autoupgrades
