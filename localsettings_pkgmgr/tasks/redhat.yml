@@ -1,0 +1,48 @@
+---
+# yum related
+- name: redhat - mirrorlists for base repos
+  template:
+    src: "../templates/etc/corpusops_rpms_mirrors"
+    dest: "/etc/corpusops_rpms_mirrors.{{item.name}}"
+    mode: "644"
+    owner: "root"
+    group: "root"
+  with_items: "{{corpusops_localsettings_pkgmgr_vars.base_rpm_repos}}"
+  tags: corpusops_localsettings_pkgmgr
+- name: redhat - repos
+  yum_repository:
+    name: "{{item.get('name', item['name'])}}"
+    description: "{{item.get('desc', item['name'])}}"
+    mirrorlist: "{{item.mirrorlist|default(omit)}}"
+    baseurl: "{{item.baseurl|default(omit)}}"
+    reposdir: "{{item.reposdir|default('/etc/yum.repos.d')}}"
+    gpgcheck: "{{item.gpgcheck|default(omit)}}"
+    gpgkey: "{{item.gpgkey|default(omit)}}"
+    enabled: "{{item.enabled|default(True)}}"
+    file: "{{item.file|default(omit)}}"
+  with_items: "{{corpusops_localsettings_pkgmgr_vars.rpm_repos}}"
+  tags: corpusops_localsettings_pkgmgr
+- name: redhat - update cache
+  shell: |
+    if hash -r dnf 2>/dev/null;then
+      cmd=dnf
+    else
+      cmd=yum
+    fi
+    $cmd check-update || test $? -eq 100
+  tags: corpusops_localsettings_pkgmgr
+  changed_when: False
+- name: disable lang overrides
+  shell: |
+    if test -e /etc/yum.conf \
+      && egrep -q ^override_install_langs= /etc/yum.conf; then
+      echo "YUM: disabling override_install_langs" >&2
+      sed -i -re \
+        "s/^override_install_langs=/#override_install_langs=/g" \
+        /etc/yum.conf
+    fi
+  register: corpusops_localsettings_pkgmgr_testyumconf
+  changed_when: "{{('disabling'
+     in corpusops_localsettings_pkgmgr_testyumconf.stderr)}}"
+  tags: corpusops_localsettings_pkgmgr
+

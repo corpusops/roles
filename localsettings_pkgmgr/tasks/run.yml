@@ -1,0 +1,38 @@
+---
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_pkgmgr_vars.files}}"
+  when: |
+    {{corpusops_localsettings_pkgmgr_vars.files is not none and
+      corpusops_localsettings_pkgmgr_vars.files|length > 0}}
+  tags: corpusops_localsettings_pkgmgr
+- name: configs apt clean
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_pkgmgr_vars.apt_clean_configs}}"
+  when: |
+    {{corpusops_localsettings_pkgmgr_vars.apt_clean and
+      corpusops_localsettings_pkgmgr_vars.apt_clean_configs is not none and
+      corpusops_localsettings_pkgmgr_vars.apt_clean_configs|length > 0}}
+  tags: corpusops_localsettings_pkgmgr
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_pkgmgr_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_pkgmgr_vars.configs is not none and
+      corpusops_localsettings_pkgmgr_vars.configs|length > 0}}
+  tags: corpusops_localsettings_pkgmgr 
