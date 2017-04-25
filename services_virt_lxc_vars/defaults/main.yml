@@ -1,0 +1,47 @@
+---
+corpusops_services_virt_lxc_activated: True
+corpusops_services_virt_lxc_packages: null
+corpusops_services_virt_lxc_packages_default: [
+    "lxc-templates", "lxc", "python3-lxc", "liblxc1",
+    "lxcfs", "dnsmasq", "cgmanager"]
+corpusops_services_virt_lxc_packages_redhat: [
+    "libcap-devel", "libcgroup",
+    "wget", "bridge-utils",
+    "debootstrap", "perl",
+    "lxc-templates", "lxc", "lxc-extra", "dnsmasq"]
+corpusops_services_virt_lxc_services: null
+corpusops_services_virt_lxc_services_default: [cops_magicbridge_copslxcbr, lxc]
+corpusops_services_virt_lxc_services_ubuntu: [apparmor, cops_magicbridge_copslxcbr, lxc]
+corpusops_services_virt_lxc_proc_mode: rw
+corpusops_services_virt_lxc_gateway: "10.8.0.1"
+corpusops_services_virt_lxc_net: "10.8.0.0"
+corpusops_services_virt_lxc_netmask: "16"
+corpusops_services_virt_lxc_netmask_full: "255.255.0.0"
+corpusops_services_virt_lxc_files:
+  - {path: "/etc/default", state: directory, mode: "755"}
+  - {path: "/etc/apparmor.d/abstractions/lxc", state: directory, mode: "755"}
+  - {path: "/etc/systemd/system/lxc.service.d", state: directory, mode: "755"}
+  - {path: "/etc/dnsmasq.copslxcbr/conf.d", state: directory, mode: "755"}
+  - {path: "/usr/bin/cops_magicbridge_copslxcbr", src: "/usr/bin/cops_magicbridge.sh", state: link}
+corpusops_services_virt_lxc_filescopy:
+  - {dest: "/etc/systemd/system/lxc.service.d/zz_cops_lxc.conf", mode: "644"}
+  - {dest: "/etc/systemd/system/cops_magicbridge_copslxcbr.service", mode: "644"}
+corpusops_services_virt_lxc_configs: null
+corpusops_services_virt_lxc_configs_ubuntu:
+  - {name: "/etc/apparmor.d/abstractions/lxc/powercontainer-base", mode: "644"}
+  - {name: "/etc/apparmor.d/lxc/lxc-default", mode: "644"}
+  - {name: "/etc/default/lxc", mode: "644"}
+  - {name: "/etc/default/cops_magicbridge_copslxcbr", mode: "644"}
+  - {name: "/etc/dnsmasq.d/copslxcbr", mode: "644"}
+  - {name: "/etc/dnsmasq.copslxcbr/conf.d/cops_lxc", mode: "644"}
+corpusops_services_virt_lxc_configs_redhat:
+  - {name: "/etc/default/lxc", mode: "644"}
+  - {name: "/etc/sysconfig/lxc",
+     template: "../templates/etc/default/lxc",
+     mode: "644"}
+  - {name: "/etc/default/cops_magicbridge_copslxcbr", mode: "644"}
+  - {name: "/etc/default/cops_magicbridge_copslxcbr",
+     template: "/etc/default/cops_magicbridge_copslxcbr",
+     mode: "644"}
+  - {name: "/etc/dnsmasq.d/copslxcbr", mode: "644"}
+  - {name: "/etc/dnsmasq.copslxcbr/conf.d/cops_lxc", mode: "644"}
