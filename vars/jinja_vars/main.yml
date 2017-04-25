@@ -1,0 +1,100 @@
+---
+{% set prefix = 'corpusops_core_' %}
+{% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
+{% set knobs = ['files', 'filescopy', 'packages', 'services', 'configs',
+               ] %}
+{% set computed_defaults = [] %}
+{% set lowered = [] %}
+{% set sub_namespaced = {'settings': {}} %}
+{% set namespaced = {} %}
+{% set subos_append = {} %}
+
+{% for v in knobs %}
+{%  set setted = {'s': False} %}
+{%  for os in flavors %}
+{%   if (
+        os == 'default' or
+        ansible_os_family.lower() == os or
+        ansible_lsb.id.lower() == os) %}
+{%    set vn = prefix + v %}
+{%    if vars[vn] is none %}
+{%      set os_vpref = vn + '_' + os %}
+{%      if os_vpref in vars and not setted.s %}
+{%        set _ = vars.update({vn: vars[os_vpref]}) %}
+{%        set _ = setted.update({'s': True}) %}
+{%      endif %}
+{%    endif %}
+{%   endif %}
+{%  endfor %}
+{% endfor %}
+
+{% set envs = {'env': vars[prefix+'env']} %}
+{% for curtest in [
+    ansible_fqdn,
+    ansible_hostname,
+    inventory_hostname,
+    inventory_hostname_short,
+  ] %}
+{% if (
+  (curtest.lower()
+   |regex_search('^(staging|qa|prod)' , ignorecase=true)
+  ) or
+  (curtest.lower()
+   |regex_search(
+        '-'
+        '('
+        'mysql|redis|pgsql|postgresql'
+        '|es|mongod?b?|elasticsearch'
+        ')'
+        '($|\\.)'
+        , ignorecase=true)
+  )
+  ) and not envs.env %}
+{%  set _ = envs.update({'env': 'prod'})%}
+{% endif %}
+{% endfor %}
+{% if envs.env != vars[prefix+'env']%}
+{%  set _ = vars.update({prefix+'env': envs.env}) %}
+{% endif %}
+
+{% set vt = ansible_virtualization_type | default(None) %}
+{% set _ = vars.update({
+    prefix+'has_services_manager': cops_test_services_mgr.rc != 1
+  }) %}
+
+{% set computed_defaults = {
+  prefix+'vt': vt,
+  prefix+'is_lxc': vt == 'lxc',
+  prefix+'is_docker': vt == 'docker',
+  prefix+'is_container': vt in ['lxc', 'docker'],
+  prefix+'security': vt not in ['docker'],
+  prefix+'server_type': (vt in ['docker', 'lxc'])
+                                 | ternary(vt, 'baremetal'),
+}%}
+
+{% for name, val in computed_defaults.items() %}
+{% if vars[name] is none %}
+{% set _ = vars.update({name: val}) %}
+{% endif %}
+{% endfor %}
+
+{% set namespaced = {'settings': {}} %}
+{% for var in vars %}
+{% if var.startswith(prefix) %}
+{% set skipped = {'skip': False } %}
+{% for flav in flavors if not skipped.skip %}
+{% if var.endswith('_'+flav) and var.split('_'+flav)[0] in vars %}
+{% set _ = skipped.update({'skip': True}) %}
+{% endif %}
+{% endfor %}
+{% if var.startswith(prefix+'settings_') and not skipped.skip%}
+{% set svar = var.replace(prefix+'settings_', '') %}
+{% set _ = namespaced.settings.update({svar: vars[var]}) %}
+{% endif %}
+{% if not skipped.skip %}
+{% set svar = var.replace(prefix, '') %}
+{% set _ = namespaced.update({svar: vars[var]}) %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{{ namespaced | to_json }}
