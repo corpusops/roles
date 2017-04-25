@@ -1,0 +1,77 @@
+---
+# ssh keys allowed to connect as root inside the container
+corpusops_lxc_ssh_keys_paths: ["~/.ssh/id_rsa.pub"]
+corpusops_lxc_ssh_keys: []
+corpusops_lxc_included_config: "/usr/share/lxc/config/{corpusops_lxc_template}.common.conf"
+
+corpusops_lxc_path: /var/lib/lxc
+corpusops_lxc_container_name: "{{lxc_container_name|default(container_name)|default(None)}}"
+corpusops_lxc_from_container: "{{lxc_from_container|default(from_container)|default(None)}}"
+corpusops_lxc_pip: "/usr/bin/pip"
+corpusops_lxc_backing_store: dir
+corpusops_lxc_clone_snapshot: null
+
+corpusops_lxc_template: ubuntu
+corpusops_lxc_ubuntu_release: xenial
+corpusops_lxc_ubuntu_mirror: "http://mirror.ovh.net/ftp.ubuntu.com/"
+corpusops_lxc_template_options: '-r {corpusops_lxc_ubuntu_release} --mirror "{corpusops_lxc_ubuntu_mirror}"'
+
+corpusops_lxc_auto_start: '1'
+
+
+corpusops_lxc_eth0_mac: null
+corpusops_lxc_eth0_bridge: copslxcbr
+corpusops_lxc_eth0_ip: null
+corpusops_lxc_eth0_gateway: null
+#corpusops_lxc_eth0_ip: '1.2.3.4/32'
+#corpusops_lxc_eth0_mac: 'aa:bb:cc:dd:ee:ff'
+
+corpusops_lxc_eth1_mac: null
+corpusops_lxc_eth1_bridge: null
+corpusops_lxc_eth1_ip: null
+corpusops_lxc_eth1_gateway: null
+
+corpusops_lxc_eth2_mac: null
+corpusops_lxc_eth2_bridge: null
+corpusops_lxc_eth2_ip: null
+corpusops_lxc_eth2_gateway: null
+
+corpusops_lxc_eth3_mac: null
+corpusops_lxc_eth3_bridge: null
+corpusops_lxc_eth3_ip: null
+corpusops_lxc_eth3_gateway: null
+
+corpusops_lxc_eth4_mac: null
+corpusops_lxc_eth4_bridge: null
+corpusops_lxc_eth4_ip: null
+corpusops_lxc_eth4_gateway: null
+
+corpusops_lxc_eth5_mac: null
+corpusops_lxc_eth5_bridge: null
+corpusops_lxc_eth5_ip: null
+corpusops_lxc_eth5_gateway: null
+
+corpusops_lxc_eth6_mac: null
+corpusops_lxc_eth6_bridge: null
+corpusops_lxc_eth6_ip: null
+corpusops_lxc_eth6_gateway: null
+
+corpusops_lxc_eth7_mac: null
+corpusops_lxc_eth7_bridge: null
+corpusops_lxc_eth7_ip: null
+corpusops_lxc_eth7_gateway: null
+
+corpusops_lxc_eth8_mac: null
+corpusops_lxc_eth8_bridge: null
+corpusops_lxc_eth8_ip: null
+corpusops_lxc_eth8_gateway: null
+
+corpusops_lxc_eth9_mac: null
+corpusops_lxc_eth9_bridge: null
+corpusops_lxc_eth9_ip: null
+corpusops_lxc_eth9_gateway: null
+
+corpusops_lxc_containers: {}
+
+
+
