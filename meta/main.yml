@@ -1,7 +1,7 @@
 galaxy_info:
   author: Mathieu Le Marec - Pasquet <kiorky@cryptelium.net>
   description: |
-    roles
+    corpusops roles collection bundle
   company: corpusOps
   issue_tracker_url: |
     https://github.com/corpusops/roles/issues/new
