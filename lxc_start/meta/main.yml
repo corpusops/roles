@@ -1,15 +1,6 @@
 ---
 galaxy_info:
-  author: Mathieu Le Marec - Pasquet <kiorky@cryptelium.net>
-  description: |
-    corpusops_lxc_start
-  company: corpusOps
-  issue_tracker_url: |
-    https://github.com/corpusops/lxc_start/issues/new
-  namespace: corpusops
-  license: BSD
   min_ansible_version: 2.0
-  github_branch: master
   platforms:
   - name: GenericLinux
     versions:
@@ -21,7 +12,6 @@ galaxy_info:
   - name: Debian
     versions:
     - all
-  galaxy_tags: [corpusops, corpusops_roles]
 allow_duplicates: yes
 dependencies:
 - role: corpusops.roles/lxc_vars 

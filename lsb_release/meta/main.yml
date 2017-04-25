@@ -1,14 +1,6 @@
 galaxy_info:
-  author: Mathieu Le Marec - Pasquet <kiorky@cryptelium.net>
-  description: |
     lsb_release
-  company: corpusOps
-  issue_tracker_url: |
-    https://github.com/corpusops/lsb_release/issues/new
-  namespace: corpusops
-  license: BSD
   min_ansible_version: 2.2
-  github_branch: master
   platforms:
   - name: GenericLinux
     versions:
@@ -20,7 +12,6 @@ galaxy_info:
   - name: Debian
     versions:
     - all
-  galaxy_tags: [corpusops, corpusops_roles]
 dependencies:
 - role: corpusops.roles/humanlog
 - role: corpusops.roles/actionhelper
