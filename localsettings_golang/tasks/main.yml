@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_golang preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_golang | default(True) }}"
+  register: corpusops_localsettings_golang_can_run
+  tags: corpusops_localsettings_golang
+- include: run.yml
+  when: '{{ corpusops_localsettings_golang_can_run.msg == True }}'
+  tags: corpusops_localsettings_golang

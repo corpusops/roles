@@ -1,0 +1,206 @@
+---
+- name: install golang ppa
+  apt_repository:
+    repo: '{{corpusops_localsettings_golang_vars.repo}}'
+    filename: /etc/apt/sources.list.d/golang.list
+    state: present
+  when: "{{ansible_lsb.id == 'Ubuntu' and
+            corpusops_localsettings_golang_vars.repo is not none and
+           corpusops_localsettings_golang_vars.packages is not none and
+           corpusops_localsettings_golang_vars.packages|length > 0}}"
+  register: corpusops_localsettings_golang_ppa
+  tags: corpusops_localsettings_golang
+- apt:
+    update_cache: yes
+  when: corpusops_localsettings_golang_ppa.changed
+  tags: corpusops_localsettings_golang
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_localsettings_golang_vars.packages is not none and
+           corpusops_localsettings_golang_vars.packages|length > 0}}"
+  tags: corpusops_localsettings_golang
+  with_items: "{{corpusops_localsettings_golang_vars.packages}}"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_localsettings_golang_vars.packages is not none and
+           corpusops_localsettings_golang_vars.packages|length > 0}}"
+  tags: corpusops_localsettings_golang
+  with_items: "{{corpusops_localsettings_golang_vars.packages}}"
+- name: containers
+  file:
+    path: "{{item.value.d}}"
+    mode: "0755"
+    state: directory
+  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  when: |
+    {{corpusops_localsettings_golang_vars.versions is not none and
+      corpusops_localsettings_golang_vars.versions|length > 0}}
+  tags: corpusops_localsettings_golang
+- name: archives
+  get_url:
+    url: "{{item.value.url}}"
+    checksum: "{{item.value.sha|default(omit)}}"
+    headers: "{{item.value.headers|default(omit)}}"
+    remote_src: true
+    dest: "{{'{d}/{bn}'.format(**item.value)}}"
+    mode: "0644"
+  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  when: |
+    {{corpusops_localsettings_golang_vars.versions is not none and
+      corpusops_localsettings_golang_vars.versions|length > 0}}
+  tags: corpusops_localsettings_golang
+- name: "test if alreagy unpacked"
+  stat: {path: "{{'{d}/bin/go'.format(**item.value)}}"}
+  failed_when: false
+  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  register: corpusops_localsettings_golang_testbinsr
+  tags: corpusops_localsettings_golang
+- debug: {msg: "{{corpusops_localsettings_golang_testbinsr }}"}
+- debug:
+    msg: |
+      {% set rt = {} %}
+      {% for r in corpusops_localsettings_golang_testbinsr.results %}
+      {% set _ = rt.update({r.invocation.module_args.path: r.stat})%}
+      {% endfor %}
+      {{ rt|to_json }}
+  register: corpusops_localsettings_golang_testbins
+- name: unarchives
+  unarchive:
+    remote_src: true
+    keep_newer: true
+    extra_opts: |
+        {% set opts = [] %}
+        {% set src = '{d}/{bn}'.format(**item.value) %}
+        {% if ('tgz' in src or
+          '.tbz2' in src  or
+          '.txz' in src  or
+          '.tar' in src
+        ) %}{% set opts = ['--strip-components=1'] %}{% endif %}
+        {{ opts | to_json }}
+    src: "{{'{d}/{bn}'.format(**item.value)}}"
+    dest: "{{item.value.d}}"
+  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  when: |
+    {{corpusops_localsettings_golang_vars.versions is not none and
+      corpusops_localsettings_golang_vars.versions|length > 0 and
+      not corpusops_localsettings_golang_testbins.msg.get(
+        '{d}/bin/go'.format(**item.value), {}
+      ).get('exists', False)}}
+  tags: corpusops_localsettings_golang
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_golang_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_golang_vars.configs is not none and
+      corpusops_localsettings_golang_vars.configs|length > 0}}
+  tags: corpusops_localsettings_golang
+- name: 'install golang versions'
+  changed_when: '{{False}}'
+  when: "{{corpusops_localsettings_golang_vars.versions is not none  and
+           corpusops_localsettings_golang_vars.versions|length > 0 and
+           corpusops_localsettings_golang_vars.bins is not none and
+           corpusops_localsettings_golang_vars.bins|length > 0 and
+           corpusops_localsettings_golang_vars.installs is not none and
+           corpusops_localsettings_golang_vars.installs|length > 0}}"
+  shell: |
+    {% set data = corpusops_localsettings_golang_vars %}
+    {% set quiet='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set quiet=''%}{% endif %}
+    set -ex
+    get_man_name() {
+      local v=$1
+      local p=$2
+      local pp=$p
+      local dv=$(dirname $v)
+      local dp=$(dirname $p)
+      local dpp=$(dirname $pp)
+      pp=$dpp/$(basename $pp .gz)
+      pp=$dpp/$(basename $pp .xz)
+      if ( echo "$v $p"|grep -q "man/" ) && [ ! -e $p ] && [ -e $pp ];then
+        slash=''
+        if [ "x${dv}" != "x" ];then
+          slash='/'
+        fi
+        v=${dv}${slash}$(basename $v .gz)
+        v=${dv}${slash}$(basename $v .xz)
+      fi
+      echo $v
+    }
+    {% for j, jval in data.bins.items() %}
+    update-alternatives {{quiet}} --remove-all {{j}} || true;
+    {% endfor %}
+    {% for i, v in data.installs.items() %}
+    {%  for j, jval in data.bins.items() %}
+    {%    set origsuf = jval.name %}
+    {%    set pd = '/usr/bin'%}
+    {%    if 'mozilla' in j %}{%set pd = '/usr/lib/mozilla/plugins'%}{% endif%}
+    {%    if 'man' in origsuf %}{%set pd = '/usr/share/man/man1'%}{%endif%}
+    if [ -e "{{v.d}}/{{origsuf}}" ];then
+      update-alternatives {{quiet}} \
+      --install {{pd}}/{{j}} {{j}} {{v.d}}/{{origsuf}} 0 \
+    {%    for obin, sval in jval.get('slaves', {}).items() %} \
+    {%     set oorigsuf = sval.name %}{% set opd = '/usr/bin'%} \
+    {%     if 'mozilla' in obin %}{% set opd = '/usr/lib/mozilla/plugins'%}{%endif%}\
+    {%     if 'man' in oorigsuf %}\
+    {%      set opd = '/usr/share/man/man1' %}\
+    {%     endif%} \
+    {%     set slink = '{0}/{1}'.format(opd, obin) %} \
+    {%     set sname = '{0}'.format(obin) %} \
+    {%     set spath = '{0}/{1}'.format(v.d, oorigsuf) %} \
+      --slave  \
+        $(get_man_name {{slink}} {{spath}}) \
+        $(get_man_name {{sname}} {{spath}}) \
+        $(get_man_name {{spath}} {{spath}}) \
+    {%    endfor %} \
+    ;
+    fi
+    {%  endfor %}
+    {% endfor %}
+  tags: corpusops_localsettings_golang
+- name: 'set wanted golang targets'
+  changed_when: '{{False}}'
+  when: "{{corpusops_localsettings_golang_vars.version is not none and
+           corpusops_localsettings_golang_vars.bins is not none and
+           corpusops_localsettings_golang_vars.bins|length > 0 and
+           corpusops_localsettings_golang_vars.installs is not none and
+           corpusops_localsettings_golang_vars.installs|length > 0}}"
+  shell: |
+    {% set data = corpusops_localsettings_golang_vars %}
+    {% set quiet='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set quiet=''%}{% endif %}
+    {% if ansible_os_family.lower() in ['redhat'] %}
+    {% set quiet=''%}
+    {% endif %}
+    set -ex
+    {% for j, jval in data.bins.items() %}
+    {% for _, v in data.installs.items() %}
+    {% if (v.version == data.version and v.flavor  == data.flavor) %}
+    if [ -e "{{v.d}}/{{jval.name}}" ];then
+      update-alternatives {{quiet}} --set {{j}} {{v.d}}/{{jval.name}};
+    fi
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+  tags: corpusops_localsettings_golang
+- name: env files
+  template:
+    dest: "{{item.value.d}}/golang.env"
+    src: "../templates/golang.env"
+    mode: "0644"
+  with_dict: "{{corpusops_localsettings_golang_vars.installs}}"
+  tags: corpusops_localsettings_golang
+  when: "{{corpusops_localsettings_golang_vars.version is not none and
+           corpusops_localsettings_golang_vars.installs is not none and
+           corpusops_localsettings_golang_vars.installs|length > 0}}"
