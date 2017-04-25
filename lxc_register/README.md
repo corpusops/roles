@@ -5,7 +5,7 @@ Add dynamically a lxc container to the ansible inventory
 
 ## example use
 ```bash
-ansible-playbook -l my_lxcs_host.foo.net  -vvv roles/corpusops.lxc_register/role.yml \
+ansible-playbook -l my_lxcs_host.foo.net  -vvv roles/corpusops.roles/lxc_register/role.yml \
         -e lxc_container_name=foo
 ```
 

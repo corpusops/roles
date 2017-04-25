@@ -4,6 +4,6 @@
 ## Role variables
 To see variables for this role, call it directly via
 ```bash
-ansible-playbook -l LIMIT -vvv roles/corpusops.localsettings_basepkgs/role.yml \
+ansible-playbook -l LIMIT -vvv roles/corpusops.roles/localsettings_basepkgs/role.yml \
    -t corpusops.localsettings_basepkgs_vars
 ```

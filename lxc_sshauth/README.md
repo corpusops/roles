@@ -7,7 +7,7 @@ external users to connect to
 ## Role variables
 To see variables for this role, call it directly via
 ```bash
-ansible-playbook -l LIMIT -vvv roles/corpusops.lxc_vars/role.yml
+ansible-playbook -l LIMIT -vvv roles/corpusops.roles/lxc_vars/role.yml
 ```
 
 ## Notes
@@ -33,6 +33,6 @@ Configure your inventory (see above)
 and to apply
 
 ```bash
-ansible-playbook -l my_lxcs_host.foo.net  -vvv roles/corpusops.lxc_sshauth/role.yml \
+ansible-playbook -l my_lxcs_host.foo.net  -vvv roles/corpusops.roles/lxc_sshauth/role.yml \
    -e lxc_container_name=foo
 ``` 

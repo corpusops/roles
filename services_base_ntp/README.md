@@ -4,6 +4,6 @@
 ## Role variables
 To see variables for this role, call it directly via
 ```bash
-ansible-playbook -l LIMIT -vvv roles/corpusops.services_base_ntp/role.yml \
+ansible-playbook -l LIMIT -vvv roles/corpusops.roles/services_base_ntp/role.yml \
    -t corpusops.services_base_ntp_vars
 ```

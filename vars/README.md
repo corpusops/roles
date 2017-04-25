@@ -5,5 +5,5 @@
 To see variables for this role, call it directly via
 ```bash
 ansible-playbook -l LIMIT -vvv \
-    roles/corpusops.vars/role.yml
+    roles/corpusops.roles/vars/role.yml
 ```

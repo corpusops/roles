@@ -1,12 +1,12 @@
 # corpusops.localsettings_jdk ansible role
 ## Documentation
 Needs to be applied before (next line should be on one line (parsed during tests)):
-- cops roles dependencies: corpusops.localsettings_profile
+- cops roles dependencies: corpusops.roles/localsettings_profile
 
 ## Role variables
 To see variables for this role, call it directly via
 ```bash
-ansible-playbook -l LIMIT -vvv roles/corpusops.localsettings_jdk/role.yml \
+ansible-playbook -l LIMIT -vvv roles/corpusops.roles/localsettings_jdk/role.yml \
    -t corpusops.localsettings_jdk_vars
 ```
 
