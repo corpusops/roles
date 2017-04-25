@@ -1,8 +1,8 @@
 ---
 - hosts: all
   roles:
-    - role: corpusops.lxc_sshauth
-    - role: corpusops.lxc_register
+    - role: corpusops.roles/lxc_sshauth
+    - role: corpusops.roles/lxc_register
 
 - include: "../server.yml"
   vars:

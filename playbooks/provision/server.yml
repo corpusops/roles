@@ -1,9 +1,9 @@
 ---
 - hosts: "{{provision_host|default('all')}}"
   roles:
-    - role: corpusops.humanlog
-    - role: corpusops.include_jinja_vars
-    - role: corpusops.vars
+    - role: corpusops.roles/humanlog
+    - role: corpusops.roles/include_jinja_vars
+    - role: corpusops.roles/vars
 - hosts: "{{provision_host|default('all')}}"
   tasks:
     - name: SETUP
@@ -107,30 +107,30 @@
       tags: corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: "{{provision_host|default('all')}}"
   roles:
-    - role: corpusops.localsettings_dns
-    - role: corpusops.localsettings_sysctls
-    - role: corpusops.localsettings_pkgmgr
-    - role: corpusops.localsettings_locales
-    - role: corpusops.localsettings_timezone
-    - role: corpusops.localsettings_autoupgrades
-    - role: corpusops.localsettings_basepkgs
-    - role: corpusops.localsettings_profile
-    - role: corpusops.localsettings_apparmor
-    - role: corpusops.localsettings_editor
-    - role: corpusops.localsettings_etckeeper
-    - role: corpusops.localsettings_git
-    - role: corpusops.localsettings_golang
-    - role: corpusops.localsettings_jdk
-    - role: corpusops.localsettings_nscd
-    - role: corpusops.localsettings_screen
-    - role: corpusops.localsettings_ssh
-    - role: corpusops.localsettings_sudo
-    - role: corpusops.services_base_ntp
-    - role: corpusops.services_base_sshd
-    - role: corpusops.services_base_cron
-    - role: corpusops.services_magicbridge
-    - role: corpusops.services_virt_lxc
-    - role: corpusops.services_virt_docker
-    - role: corpusops.services_misc_xvfb
-    - role: corpusops.services_misc_robotframework
+    - role: corpusops.roles/localsettings_dns
+    - role: corpusops.roles/localsettings_sysctls
+    - role: corpusops.roles/localsettings_pkgmgr
+    - role: corpusops.roles/localsettings_locales
+    - role: corpusops.roles/localsettings_timezone
+    - role: corpusops.roles/localsettings_autoupgrades
+    - role: corpusops.roles/localsettings_basepkgs
+    - role: corpusops.roles/localsettings_profile
+    - role: corpusops.roles/localsettings_apparmor
+    - role: corpusops.roles/localsettings_editor
+    - role: corpusops.roles/localsettings_etckeeper
+    - role: corpusops.roles/localsettings_git
+    - role: corpusops.roles/localsettings_golang
+    - role: corpusops.roles/localsettings_jdk
+    - role: corpusops.roles/localsettings_nscd
+    - role: corpusops.roles/localsettings_screen
+    - role: corpusops.roles/localsettings_ssh
+    - role: corpusops.roles/localsettings_sudo
+    - role: corpusops.roles/services_base_ntp
+    - role: corpusops.roles/services_base_sshd
+    - role: corpusops.roles/services_base_cron
+    - role: corpusops.roles/services_magicbridge
+    - role: corpusops.roles/services_virt_lxc
+    - role: corpusops.roles/services_virt_docker
+    - role: corpusops.roles/services_misc_xvfb
+    - role: corpusops.roles/services_misc_robotframework
 

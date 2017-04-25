@@ -1,5 +1,5 @@
 ---
 - hosts: all
   roles:
-    - role: corpusops.lxc_create
+    - role: corpusops.roles/lxc_create
 
