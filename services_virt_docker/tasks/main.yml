@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_virt_docker preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_virt_docker | default(True) }}"
+  register: corpusops_services_virt_docker_can_run
+  tags: corpusops_services_virt_docker
+- include: run.yml
+  when: '{{corpusops_services_virt_docker_can_run.msg == True}}'
+  tags: corpusops_services_virt_docker

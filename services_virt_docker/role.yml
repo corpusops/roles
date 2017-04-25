@@ -1,0 +1,3 @@
+---
+- hosts: all
+  roles: [corpusops.services_virt_docker]
