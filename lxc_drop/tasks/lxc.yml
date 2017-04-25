@@ -1,0 +1,26 @@
+---
+- name: get lxc status
+  shell: |
+    lxc-ls --fancy -F 'NAME,STATE,AUTOSTART,GROUPS,IPV4,IPV6' \
+    | tail -n +2 | grep "{{lxc_container_name}}"
+  register: corpusops_lxc_drop_lxcls
+  tags: corpusops_lxc_drop,corpusops_lxc_drop_status
+  failed_when: false
+- name: get lxc status - 2
+  debug:
+    msg: "{{corpusops_lxc_drop_lxcls|lxc_lxcls_mangle(restrict_to=lxc_container_name)}}"
+  register: corpusops_lxc_drop_lxcs
+- name: ensure existing
+  debug:
+    msg: |
+         {% if lxc_container_name in corpusops_lxc_drop_lxcs.msg %}
+         LXC {{lxc_container_name}} is still existing
+         {% else %}
+         LXC {{lxc_container_name}} not found
+         {% endif %}
+  tags: corpusops_lxc_drop,corpusops_lxc_drop_ip
+  when:
+- name: Destroy lxc container
+  shell: "lxc-destroy -f -n '{{lxc_container_name}}'"
+  tags: corpusops_lxc_drop,corpusops_lxc_drop_ip
+  when:  "{{ lxc_container_name in corpusops_lxc_drop_lxcs.msg }}"
