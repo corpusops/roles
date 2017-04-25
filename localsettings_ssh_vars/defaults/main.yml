@@ -1,0 +1,16 @@
+---
+corpusops_localsettings_ssh_packages: null
+corpusops_localsettings_ssh_packages_default: [openssh-client]
+corpusops_localsettings_ssh_packages_redhat: [openssh]
+corpusops_localsettings_ssh_configs: null
+corpusops_localsettings_ssh_configs_default:
+  - {name: '/etc/ssh/ssh_config', 'mode': '644'}
+corpusops_localsettings_ssh_hostssettings: {}
+corpusops_localsettings_ssh_settings_*___StrictHostKeyChecking: 'no'
+corpusops_localsettings_ssh_settings_*___UserKnownHostsFile: '/dev/null'
+corpusops_localsettings_ssh_settings_*___AddressFamily: 'any'
+corpusops_localsettings_ssh_settings_*___ConnectTimeout: '0'
+corpusops_localsettings_ssh_settings_*___SendEnv: "LANG: LC_*"
+corpusops_localsettings_ssh_settings_*___HashKnownHosts: 'yes'
+corpusops_localsettings_ssh_settings_*___GSSAPIAuthentication: 'yes'
+corpusops_localsettings_ssh_settings_*___GSSAPIDelegateCredentials: 'no'
