@@ -1,0 +1,40 @@
+---
+- name: update & install prerequisites
+  apt:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{corpusops_localsettings_sysctls_vars.packages}}'
+    state: present
+  when: "{{ansible_os_family == 'Debian' and
+           corpusops_localsettings_sysctls_vars.packages is not none and
+           corpusops_localsettings_sysctls_vars.packages|length > 0}}"
+  tags: corpusops_localsettings_sysctls
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_sysctls_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_sysctls_vars.configs is not none and
+      corpusops_localsettings_sysctls_vars.configs|length > 0}}
+  tags: corpusops_localsettings_sysctls
+- sysctl:
+    sysctl_file: /etc/sysctl.d/corpusops.conf
+    name: "{{item.name}}"
+    value: >
+           {% if ' ' in "{0}".format(item.value) %}
+           {% if 'mem' in item.name %}
+           '{{item.value}}'
+           {% else %}
+           {{item.value}}
+           {% endif%}
+           {% else %}
+           {{item.value}}
+           {% endif%}
+    state: present
+  with_items: "{{corpusops_localsettings_sysctls_vars.knobs}}"
+  tags: corpusops_localsettings_sysctls
+
