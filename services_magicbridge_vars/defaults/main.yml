@@ -1,0 +1,14 @@
+---
+corpusops_services_magicbridge_activated: True
+corpusops_services_magicbridge_packages: null
+corpusops_services_magicbridge_packages_default: []
+corpusops_services_magicbridge_services: null
+corpusops_services_magicbridge_services_default: []
+corpusops_services_magicbridge_filescopy: null
+corpusops_services_magicbridge_filescopy_default:
+  - {dest: "/etc/cops_reset-net-bridges", mode: "755"}
+  - {dest: "/usr/bin/cops_magicbridge.sh", mode: "755"}
+corpusops_services_magicbridge_files: null
+corpusops_services_magicbridge_files_default: []
+corpusops_services_magicbridge_configs: []
+
