@@ -1,5 +1,4 @@
 galaxy_info:
-    lsb_release
   min_ansible_version: 2.2
   platforms:
   - name: GenericLinux
