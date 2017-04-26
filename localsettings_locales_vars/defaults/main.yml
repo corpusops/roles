@@ -2,7 +2,7 @@
 corpusops_localsettings_locales_packages: null
 corpusops_localsettings_locales_packages_debian: [
   'locales']
-corpusops_localsettings_locales_packages_ubuntu: []
+corpusops_localsettings_locales_packages_default: []
 corpusops_localsettings_locales_configs: null
 corpusops_localsettings_locales_configs_default:
   - {name: /etc/profile.d/0_lang.sh, mode: '644'}

@@ -14,6 +14,7 @@
 #}
 
 {% for v in knobs %}
+{%  set setted = {'s': False} %}
 {%  for os in flavors %}
 {%   if (
         os == 'default' or
@@ -21,9 +22,10 @@
         ansible_lsb.id.lower() == os) %}
 {%    set vn = prefix + v %}
 {%    if vars[vn] is none %}
-{%      set os_val = vars.get(vn + '_' + os, none) %}
-{%      if os_val is not none %}
-{%        set _ = vars.update({vn: os_val}) %}
+{%      set os_vpref = vn + '_' + os %}
+{%      if os_vpref in vars and not setted.s %}
+{%        set _ = vars.update({vn: vars[os_vpref]}) %}
+{%        set _ = setted.update({'s': True}) %}
 {%      endif %}
 {%    endif %}
 {%   endif %}
