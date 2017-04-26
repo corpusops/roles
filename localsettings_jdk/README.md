@@ -1,7 +1,7 @@
 # corpusops.roles/localsettings_jdk ansible role
 ## Documentation
 Needs to be applied before (next line should be on one line (parsed during tests)):
-- cops roles dependencies: corpusops.roles/roles/localsettings_profile
+- cops roles dependencies: corpusops.roles/localsettings_profile
 
 ## Role variables
 To see variables for this role, call it directly via
