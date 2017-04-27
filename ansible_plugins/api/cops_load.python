@@ -5,7 +5,6 @@ import os
 try:
     __pmod = globals()['__pmod']
 except:
-    from pdb_clone import pdb as pdbc;pdbc.set_trace_remote()  ## Breakpoint ##
     raise
 [sys.path.insert(0, os.path.join(__pmod, a))
  for a in [
