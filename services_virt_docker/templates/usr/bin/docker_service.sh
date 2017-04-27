@@ -12,9 +12,5 @@ for i in \
     . "${i}"
   fi
 done
-exec $DOCKERD \
-  $DOCKER_OPTS \
-  $DOCKER_STORAGE_OPTIONS \
-  $DOCKER_NETWORK_OPTIONS \
-  $BLOCK_REGISTRY $INSECURE_REGISTRY
+exec $DOCKERD $DOCKER_OPTS
 # vim:set et sts=4 ts=4 tw=80:
