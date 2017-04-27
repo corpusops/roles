@@ -3,7 +3,7 @@
   tags: [corpusops_vars, corpusops_vars_release]
 - name: test service manager
   shell: |
-         if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc|^(/sbin/init)";then
+         if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc| /sbin\/init$";then
           ret=0
          else
           ret=1
