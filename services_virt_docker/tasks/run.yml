@@ -1,14 +1,4 @@
 ---
-- name: install services_virt_docker repokey
-  apt_key:
-    url: '{{corpusops_services_virt_docker_vars.repo_keys_url}}'
-    state: present
-  with_items: '{{corpusops_services_virt_docker_vars.repo_keys}}'
-  when: "{{ansible_os_family.lower() in ['debian'] and
-           corpusops_services_virt_docker_vars.repo_keys is not none and
-           corpusops_services_virt_docker_vars.repo_keys|length > 0}}"
-  register: corpusops_services_virt_docker_key
-  tags: corpusops_services_virt_docker
 - name: install pre - prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -20,6 +10,16 @@
       {{ansible_os_family.lower() in ['debian'] and
         corpusops_services_virt_docker_vars.packages is not none and
         corpusops_services_virt_docker_vars.packages|length > 0}}
+  tags: corpusops_services_virt_docker
+- name: install services_virt_docker repokey
+  apt_key:
+    url: '{{corpusops_services_virt_docker_vars.repo_keys_url}}'
+    state: present
+  with_items: '{{corpusops_services_virt_docker_vars.repo_keys}}'
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_virt_docker_vars.repo_keys is not none and
+           corpusops_services_virt_docker_vars.repo_keys|length > 0}}"
+  register: corpusops_services_virt_docker_key
   tags: corpusops_services_virt_docker
 - name: install services_virt_docker repo
   apt_repository:
