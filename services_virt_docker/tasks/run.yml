@@ -1,4 +1,26 @@
 ---
+# install prerequisites on trusty
+- name: install pre -py- prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: installed
+  with_items: [python-pip, python-dev, libffi-dev, libssl-dev]
+  when: |
+      {{ansible_os_family.lower() in ['ubuntu'] and
+        ansible_distribution_major_version < '15' }}
+  tags: corpusops_services_virt_docker
+- name: install python pre - prerequisites
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items: [urllib3, pyopenssl, ndg-httpsclient, pyasn1]
+  when: |
+      {{ansible_os_family.lower() in ['ubuntu'] and
+        ansible_distribution_major_version < '15' }}
+  tags: corpusops_services_virt_docker
+#
 - name: install pre - prerequisites
   package:
     cache_valid_time: '{{60*60}}'
