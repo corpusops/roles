@@ -2,13 +2,16 @@
 corpusops_services_virt_docker_activated: True
 corpusops_services_virt_docker_group: docker
 corpusops_services_virt_docker_repo: null
+corpusops_services_virt_docker_repo_keys_url: null
+corpusops_services_virt_docker_repo_keys_url_default: "https://download.docker.com/linux/{ansible_distribution}/gpg"
+corpusops_services_virt_docker_repo_keys_url_redhat: "https://download.docker.com/linux/centos/gpg"
+corpusops_services_virt_docker_repo_keys_url_debian: "https://download.docker.com/linux/{ansible_distribution}/gpg"
 corpusops_services_virt_docker_repo_keys: null
 corpusops_services_virt_docker_repo_keys_default: [58118E89F3A912897C070ADBF76221572C52609D]
 corpusops_services_virt_docker_keyserver: "hkp://p80.pool.sks-keyservers.net:80"
-corpusops_services_virt_docker_repo_debian: 'deb https://apt.dockerproject.org/repo {ansible_lsb[id]}-{ansible_lsb[codename]} main'
-corpusops_services_virt_docker_repo_oraclelinux: 'https://docs.docker.com/engine/installation/linux/repo_files/oracle/docker-ol7.repo'
-corpusops_services_virt_docker_repo_centos: 'https://docs.docker.com/engine/installation/linux/repo_files/centos/docker.repo'
-corpusops_services_virt_docker_repo_fedora: 'https://docs.docker.com/engine/installation/linux/repo_files/fedora/docker.repo'
+corpusops_services_virt_docker_repo_debian: 'deb [arch=amd64] https://download.docker.com/linux/{ansible_distribution} {ansible_distribution_release} stable edge'
+corpusops_services_virt_docker_repo_redhat: 'https://download.docker.com/linux/centos/docker-ce.repo'
+corpusops_services_virt_docker_repo_fedora: 'https://download.docker.com/linux/fedora/docker-ce.repo'
 corpusops_services_virt_docker_packages: null
 corpusops_services_virt_docker_packages_default: [docker-ce]
 corpusops_services_virt_docker_services: null

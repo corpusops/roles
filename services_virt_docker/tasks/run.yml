@@ -1,9 +1,8 @@
 ---
 - name: install services_virt_docker repokey
   apt_key:
-    id: '{{item}}'
+    url: '{{corpusops_services_virt_docker_vars.repo_keys_url}}'
     state: present
-    keyserver: "{{corpusops_services_virt_docker_vars.keyserver|default(omit)}}"
   with_items: '{{corpusops_services_virt_docker_vars.repo_keys}}'
   when: "{{ansible_os_family.lower() in ['debian'] and
            corpusops_services_virt_docker_vars.repo_keys is not none and
