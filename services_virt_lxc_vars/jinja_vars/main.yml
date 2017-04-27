@@ -1,7 +1,7 @@
 ---
 {% set prefix = 'corpusops_services_virt_lxc_' %}
 {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
-{% set knobs = ['files', 'filescopy', 'services', 'configs', 'packages'
+{% set knobs = ['files', 'filescopy', 'services', 'configs', 'packages',
                ] %}
 {% set computed_defaults = [] %}
 {% set lowered = [] %}
