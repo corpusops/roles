@@ -3,12 +3,15 @@ corpusops_localsettings_editor_packages: null
 corpusops_localsettings_editor_packages_debian: []
 corpusops_localsettings_editor_packages_ubuntu: []
 corpusops_localsettings_editor_configs: []
-corpusops_localsettings_editor_editors: null
-corpusops_localsettings_editor_editors_default: [
-  '/usr/bin/vim.nox',
-  '/usr/bin/vim.full',
-  '/usr/bin/vim.basic',
-  '/usr/bin/vim.tiny',
-  '/usr/bin/nano',
-  '/usr/bin/emacs',
-  '/bin/ed']
+corpusops_localsettings_editor_alternatives: null
+corpusops_localsettings_editor_alternatives_default:
+  editor:
+    bins:
+      /usr/bin/vim.nox: {}
+      /usr/bin/vim.full: {}
+      /usr/bin/vim.basic: {}
+      /usr/bin/vim.tiny: {}
+      /usr/bin/vim: {}
+      /usr/bin/nano: {}
+      /usr/bin/emacs: {}
+      /bin/ed: {}

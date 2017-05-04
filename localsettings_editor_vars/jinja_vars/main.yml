@@ -3,7 +3,7 @@
 
 {% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
 {% set knobs = ['files', 'filescopy', 'services', 'configs', 'packages',
-                'editors',
+                'alternatives',
                ] %}
 {% set computed_defaults = [] %}
 {% set lowered = [] %}

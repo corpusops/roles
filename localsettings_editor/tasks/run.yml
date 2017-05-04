@@ -21,35 +21,35 @@
     {{corpusops_localsettings_editor_vars.configs is not none and
       corpusops_localsettings_editor_vars.configs|length > 0}}
   tags: corpusops_localsettings_editor
-- name: find best editor
-  changed_when: '{{False}}'
-  shell: 'update-alternatives --list editor 2>&1'
-  failed_when: |
-    {{corpusops_localsettings_editor_installed_editors.rc != 0 and
-      'no alternatives for editor' not in corpusops_localsettings_editor_installed_editors.stdout}}
-  register: corpusops_localsettings_editor_installed_editors
+- name: 'install alternatives'
+  shell: |
+    set -ex
+    {% set data = corpusops_localsettings_editor_vars %}
+    {% set q='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set q=''%}{% endif %}
+    {% for aname, adata in data.alternatives.items() %}
+    {% set atarget = adata.get('target', '/usr/bin/{0}'.format(aname)) %}
+    if update-alternatives --help | grep -q remove-all;then
+      {# ubuntu #}
+      update-alternatives {{q}} --remove-all {{aname}} || true;
+    elif [ -e /var/lib/alternatives/{{aname}} ];then
+      {# redhat #}
+      rm -f /var/lib/alternatives/{{aname}}
+    fi
+    found=""
+    current=$(readlink -f "{{atarget}}")
+    {% for i in adata.bins %}
+      if [ -e "{{i}}" ];then
+       update-alternatives {{q}} --install "{{atarget}}" "{{aname}}" "{{i}}" 0
+       if [ "x${found}" = "x" ] && [ "x${current}" != "x${{i}}" ];then found="{{i}}";fi
+      fi
+    {% endfor %}
+    if [ -e "${found}" ] && [ "x${found}" != "x${current}" ];then
+      update-alternatives --set {{aname}} ${found}
+      echo "{{aname}} alternative changed to ${found}"
+    fi
+    echo "{{aname}} alternative set"
+    {% endfor %}
+  register: corpusops_localsettings_editor_alternatives
+  changed_when: "{{'alternative changed' in corpusops_localsettings_editor_alternatives.stdout}}"
   tags: corpusops_localsettings_editor
-- shell: "update-alternatives --query editor|grep Value|awk '{print $2}'"
-  changed_when: '{{False}}'
-  tags: corpusops_localsettings_editor
-  register: corpusops_localsettings_editor_editor
-  when: corpusops_localsettings_editor_installed_editors.rc == 0
-- debug:
-    msg: |
-      {% set editor = {'found': False} %}
-      {% for ed in corpusops_localsettings_editor_vars.editors if not editor.found %}
-      {% if ed in corpusops_localsettings_editor_installed_editors.stdout.split() %}
-      {% set _ = editor.update({'found': ed}) %}
-      {% endif %}
-      {% endfor %}
-      {{ editor.found}}
-  register: corpusops_localsettings_editor_candidate_editor
-  tags: corpusops_localsettings_editor
-  when: corpusops_localsettings_editor_installed_editors.rc == 0
-- shell: "update-alternatives --set editor {{corpusops_localsettings_editor_candidate_editor.msg.strip()}}"
-  when: "{{(corpusops_localsettings_editor_installed_editors.rc == 0) and
-            corpusops_localsettings_editor_candidate_editor and (
-            ( corpusops_localsettings_editor_candidate_editor.msg.strip() !=
-                  corpusops_localsettings_editor_editor.stdout))}}"
-  changed_when: '{{False}}'
-  tags: corpusops_localsettings_editor
+
