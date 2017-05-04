@@ -93,6 +93,15 @@ warn() {
     log_ "${RED}" "${CYAN}" "${YELLOW}[WARN] ${@}${NORMAL}"
 }
 
+
+bs_log(){
+    log_ "${RED}" "${YELLOW}" "${@}"
+}
+
+bs_yellow_log(){
+    log_ "${YELLOW}" "${YELLOW}" "${@}"
+}
+
 may_die() {
     reset_colors
     thetest=${1:-1}
@@ -130,11 +139,13 @@ debug() {
 }
 
 test_silent_log() {
-    ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] )
+    ( [[ -z ${NO_SILENT-} ]] && \
+        ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] ) )
 }
 
 test_silent() {
-    ( [[ -n ${SILENT-} ]] || test_silent_log )
+    ( [[ -z ${NO_SILENT-} ]] && \
+        ( [[ -n ${SILENT-} ]] || test_silent_log ) )
 }
 
 silent_run_post() {
@@ -143,18 +154,20 @@ silent_run_post() {
 
 silent_run_() {
     tmpf=$(mktemp)
-    do_trap silent_run_post EXIT TERM QUIT INT
-    if [[ -n "${NO_SILENT-}" ]];then
+    local ret=
+    if ! test_silent;then
         "${@}"
+        ret=${?}
     else
+        do_trap silent_run_post EXIT TERM QUIT INT
         if test_silent_log;then
             log "Logging command output to ${tmpf}"
         fi
         "${@}" >"${tmpf}" 2>&1
-    fi
-    local ret=${?}
-    if [ "x${ret}" != "x0" ] && [ -e "${tmpf}" ]; then
-        cat "${tmpf}"
+        ret=${?}
+        if [ "x${ret}" != "x0" ] && [ -e "${tmpf}" ]; then
+            cat "${tmpf}"
+        fi
     fi
     return ${ret}
 }
@@ -165,20 +178,12 @@ silent_run() {
 
 vvv() {
     debug "${@}"
-    if test_silent;then
-        silent_run "${@}"
-    else
-        "${@}"
-    fi
+    silent_run "${@}"
 }
 
 vv() {
     log "${@}"
-    if test_silent;then
-        silent_run "${@}"
-    else
-        "${@}"
-    fi
+    silent_run "${@}"
 }
 
 usage() {
@@ -229,6 +234,16 @@ get_image() {
 
 get_docker_ids() {
     docker inspect -f '{{.Id}}' "${@}" 2>/dev/null
+}
+
+get_ancestor_from_dockerfile() {
+    local dockerfile=${1}
+    local ancestor=
+    if [[ -e "${dockerfile}" ]] && egrep -q ^FROM "${dockerfile}"; then
+        ancestor=$(egrep ^FROM "${dockerfile}"\
+            | head -n1 | awk '{print $2}' | xargs -n1| sort -u )
+    fi
+    echo ${ancestor}
 }
 
 sane_container_name() {
@@ -452,6 +467,51 @@ version_gte() {
 
 version_gt() {
     [ "$1" = "$2" ] && return 1 || version_gte $1 $2
+}
+
+get_python2_() {
+    local py2=
+    for i in python2.7 python2.6 python-2.7 python-2.6 python-2;do
+        local lpy=$(get_command $i 2>/dev/null)
+        if [[ -n $lpy ]] && ( ${lpy} -V 2>&1| egrep -qi 'python 2' );then
+            py2=${lpy}
+            break
+        fi
+    done
+    echo $py2
+}
+
+set_python2() {
+    py2=$( deactivate 2>/dev/null;get_python2_)
+    if [[ -z $py2 ]];then
+        die "No Python2 interpreter found"
+    fi
+}
+
+make_virtualenv() {
+    set_python2
+    local py=${1-$py2}
+    local PIP_CACHE=${PIP_CACHE:-${VENV_PATH}/cache}
+    if     [ ! -e "${VENV_PATH}/bin/activate" ] \
+        || [ ! -e "${VENV_PATH}/lib" ] \
+        || [ ! -e "${VENV_PATH}/include" ] \
+        ; then
+        bs_log "Creating virtualenv in ${VENV_PATH}"
+        if [ ! -e "${PIP_CACHE}" ]; then
+            mkdir -p "${PIP_CACHE}"
+        fi
+        if [ ! -e "${VENV_PATH}" ]; then
+            mkdir -p "${VENV_PATH}"
+        fi
+    virtualenv \
+        $( [[ -n $py ]] && echo "--python=$py2"; ) \
+        --system-site-packages --unzip-setuptools \
+        "${VENV_PATH}" &&\
+    ( . "${VENV_PATH}/bin/activate" &&\
+      "${VENV_PATH}/bin/easy_install" -U setuptools &&\
+      "${VENV_PATH}/bin/pip" install -U pip &&\
+      deactivate; )
+    fi
 }
 
 detect_os no_fail

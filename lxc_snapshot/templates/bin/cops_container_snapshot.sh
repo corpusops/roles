@@ -18,7 +18,7 @@
 # * NO_FILE_WIPE
 #
 
-set -e
+set +e
 if [ "x${DEBUG}" != "x" ];then set -x;fi
 
 is_docker=""
@@ -59,6 +59,7 @@ WIPE="
 "
 # files to delete
 FILE_REMOVE="
+$( find /var/cache/oracle* -name '*.tar.*' 2>/dev/null; )
 /var/cache/apt/archives/
 /var/lib/apt/lists
 "
@@ -107,7 +108,7 @@ if [[ -z "${NO_PROJECTS_ARCHIVES_WIPE-}" ]];then
     if is_this_docker;then
         set +e
         while read i;do
-            rm -rf "${i}" || /bin/true
+            rm -rf "${i}"
         done < \
             <( find /srv/projects/*/archives -mindepth 1 -maxdepth 1 \
             \( -regextype posix-extended -regex "${FIND_EXCLUDES}"  -prune \) \
@@ -121,11 +122,11 @@ if [[ -z "${NO_RECREATE-}" ]];then
         if [ "x${i}" != "x" ];then
             if [ ! -h "${i}" ];then
                 if [ -f "${i}" ];then
-                    rm -fv "${i}" || /bin/true
-                    touch "${i}" || /bin/true
+                    rm -fv "${i}"
+                    touch "${i}"
                 elif [ -d "${i}" ];then
-                    rm -rv "${i}" || /bin/true
-                    mkdir -v "${i}" || /bin/true
+                    rm -rv "${i}"
+                    mkdir -v "${i}"
                 fi
             fi
         fi
@@ -136,10 +137,10 @@ fi
 if [[ -z "${NO_REMOVE-}" ]]; then
     for i in ${REMOVE};do
         if [ -d "${i}" ];then
-            rm -vrf "${i}" || /bin/true
+            rm -vrf "${i}"
         fi
         if [ -h "${i}" ] || [ -f "${i}" ];then
-            rm -vf "${i}" || /bin/true
+            rm -vf "${i}"
         fi
     done
 fi
@@ -150,25 +151,25 @@ if [[ -z "${NO_WIPE-}" ]]; then
         if [ "x${i}" != "x" ];then
             while read k;do
                 if [ -h "${k}" ];then
-                    rm -fv "${k}" || /bin/true
+                    rm -fv "${k}"
                 elif [ -f "${k}" ];then
-                    while read fic;do rm -fv "${fic}" || /bin/true;done < \
+                    while read fic;do rm -fv "${fic}";done < \
                         <( find "${k}" \
                         \( -regextype posix-extended -regex "${FIND_EXCLUDES}"  -prune \) \
                         -o -type f -print 2>/dev/null )
                 elif [ -d "${k}" ];then
                     while read j;do
                         if [ ! -h "${j}" ];then
-                            rm -vrf "${j}" || /bin/true
+                            rm -vrf "${j}"
                         else
-                            rm -vf "${j}" || /bin/true
+                            rm -vf "${j}"
                         fi
                     done < \
                         <( find "${k}" -mindepth 1 -maxdepth 1 \
                         \( -regextype posix-extended -regex "${FIND_EXCLUDES}"  -prune \) \
                         -o -type d -print 2>/dev/null )
                     while read j;do
-                        rm -vf "${j}" || /bin/true
+                        rm -vf "${j}"
                     done < \
                         <( find "${i}" -mindepth 1 -maxdepth 1 \
                         \( -regextype posix-extended -regex "${FIND_EXCLUDES}"  -prune \) \
@@ -184,7 +185,7 @@ fi
 if [[ -z "${NO_FILE_REMOVE-}" ]];then
     while read i;do
         if [ "x${i}" != "x" ];then
-            while read f;do rm -f "${f}" || /bin/true;done < \
+            while read f;do rm -f "${f}";done < \
                 <( find "${i}" \
                 \( -regextype posix-extended -regex "${FIND_EXCLUDES}"  -prune \) \
                 -o -type f -print 2>/dev/null )
@@ -196,7 +197,7 @@ fi
 if [[ -z "${NO_FILE_WIPE-}" ]];then
     while read i;do
         if [ "x${i}" != "x" ];then
-            while read f;do echo > "${f}" || /bin/true;done < \
+            while read f;do echo > "${f}";done < \
                 <( find "${i}" \
                 \( -regextype posix-extended -regex "${FIND_EXCLUDES}"  -prune \) \
                 -o -type f -print 2>/dev/null )
@@ -208,7 +209,7 @@ fi
 # reset shorewall settings if a,y
 if [[ -z "${NO_FIREWALL_WIPE-}" ]];then
     while read i;do
-        sed -i -re "s/ACCEPT.? +net:?.*fw +-/ACCEPT net fw/g" "$i" || /bin/true
+        sed -i -re "s/ACCEPT.? +net:?.*fw +-/ACCEPT net fw/g" "$i"
     done < <( find /etc/shorewall/rules -type f 2>/dev/null )
 fi
 
@@ -239,20 +240,20 @@ fi
 if [[ -z "${NO_ETCKEEPER_WIPE-}" ]];then
     if [ -e /etc/.git ] && [ -e /usr/bin/etckeeper ];then
         rm -rf /etc/.git
-        etckeeper init || /bin/true
+        etckeeper init
         cd /etc
         git config user.name "name"
         git config user.email "a@b.com"
-        etckeeper commit "init" || /bin/true
+        etckeeper commit "init"
     fi
 fi
 
 # save current posix acls
 if [[ -z "${NO_ACLS_BACKUP-}" ]];then
     if hash -r getfacl 1>/dev/null 2>/dev/null;then
-        getfacl -s -R / > /acls.txt || /bin/true
+        getfacl -s -R / > /acls.txt
         if [ -e /acls.txt ];then
-            xz -f -z -9e /acls.txt || /bin/true
+            xz -f -z -9e /acls.txt
         fi
     fi
 fi
