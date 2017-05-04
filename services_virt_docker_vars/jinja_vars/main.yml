@@ -38,7 +38,7 @@
 {%  set knob = {
       'oraclelinux': 'oraclelinux',
       'fedora': 'fedora'
-    }.get(ansible_distribution.lower(), 'centos') %}
+    }.get(ansible_distribution.lower(), 'redhat') %}
 {%  set _ = vars.update({
       prefix+'repo': vars['{0}repo_{1}'.format(prefix, knob)]
     }) %}
