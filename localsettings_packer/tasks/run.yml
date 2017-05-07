@@ -40,7 +40,7 @@
   when: |
     {{corpusops_localsettings_packer_vars.configs is not none and
       corpusops_localsettings_packer_vars.configs|length > 0}}
-- include: "./install_one_packer.yml"
+- include: "./install_one.yml"
   vars:
     version: "{{item}}"
   with_items: "{{corpusops_localsettings_packer_vars.versions}}"
