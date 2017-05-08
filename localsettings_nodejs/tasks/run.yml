@@ -1,0 +1,101 @@
+---
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_localsettings_nodejs_vars.packages is not none and
+           corpusops_localsettings_nodejs_vars.packages|length > 0}}"
+  with_items: "{{corpusops_localsettings_nodejs_vars.packages}}"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_localsettings_nodejs_vars.packages is not none and
+           corpusops_localsettings_nodejs_vars.packages|length > 0}}"
+  with_items: "{{corpusops_localsettings_nodejs_vars.packages}}"
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_nodejs_vars.files}}"
+  when: |
+    {{corpusops_localsettings_nodejs_vars.files is not none and
+      corpusops_localsettings_nodejs_vars.files|length > 0}}
+- name: configs
+  template:
+    src: "{{item.src|default('../templates/'+item.name)}}"
+    dest: "{{item.dest|default(item.name)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_nodejs_vars.configs}}"
+  when: |
+    {{corpusops_localsettings_nodejs_vars.configs is not none and
+      corpusops_localsettings_nodejs_vars.configs|length > 0}}
+- include: "./install_one.yml"
+  vars:
+    version: "{{item}}"
+  with_items: "{{corpusops_localsettings_nodejs_vars.versions}}"
+- name: 'install alternatives'
+  shell: |
+    {% set aname = item.key %}
+    {% set adata = item.value %}
+    {% set data = corpusops_localsettings_nodejs_vars %}
+    {% set version = data.version %}
+    {% set q='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set q=''%}{% endif %}
+    {% set atarget = adata.get('target', '/usr/bin/{0}'.format(aname)) %}
+    set -ex;
+    resetto="";aset="";
+    current=$(realpath $(readlink -f "{{atarget}}" || : ; ) 2>/dev/null || : ; );
+    {%  for binaries in adata.bins %}
+    {%  for i, idata in binaries.items() %}
+    {%    set itarget = idata.get('target', i).format(v=version) %}
+    if [ "x{{itarget}}" != "x" ];then
+      if [ "x${resetto}" = "x" ] && \
+         [ -e "{{itarget}}" ] && \
+         [ "x${current}" != "x${{itarget}}" ];then
+            resetto="{{itarget}}"
+      fi
+    fi
+    {%  endfor %}
+    {% endfor %}
+    if [ "x${resetto}" != "x" ];then
+      echo "{{aname}} alternative will change to ${resetto}";
+      if update-alternatives --help | grep -q remove-all;then
+        {# ubuntu #}
+        update-alternatives {{q}} --remove-all {{aname}} || true;
+      elif [ -e /var/lib/alternatives/{{aname}} ];then
+        {# redhat #}
+        rm -f /var/lib/alternatives/{{aname}};
+      fi
+    fi
+    {%  for binaries in adata.bins %}
+    {%  for i, idata in binaries.items() %}
+    {%    set itarget = idata.get('target', i).format(v=version) %}
+    if [ -e "{{itarget}}" ];then
+      update-alternatives {{q}} \
+        --install "{{atarget}}" "{{aname}}" "{{itarget}}" {{loop.index0}}
+    fi
+    {%  endfor %}
+    {% endfor %}
+    if [ "x${resetto}" != "x" ];then
+      if [ "x${resetto}" != "x${current}" ];then
+        update-alternatives --set {{aname}} ${resetto}
+        echo "{{aname}} alternative changed";
+      else
+        echo "{{aname}} alternative already set";
+      fi
+    fi
+    echo "{{aname}} alternative set"
+  register: corpusops_localsettings_nodejs_alternatives
+  changed_when: "{{'alternative changed' in corpusops_localsettings_nodejs_alternatives.stdout}}"
+  with_dict: |
+    {{corpusops_localsettings_nodejs_vars.alternatives}}

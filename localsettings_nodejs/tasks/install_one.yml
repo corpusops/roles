@@ -1,0 +1,79 @@
+---
+- name: files
+  file:
+    path: "{{iitem.format(v=version)}}"
+    state: "directory"
+    mode: "0755"
+  loop_control:
+    loop_var: iitem
+  with_items:
+    - "{{corpusops_localsettings_nodejs_vars.app_path}}"
+- name: get archive SHAS
+  get_url:
+    url: >-
+      {{corpusops_localsettings_nodejs_vars.urls.shas.format(v=version)}}
+    remote_src: true
+    dest: >-
+      {{corpusops_localsettings_nodejs_vars.app_path.format(
+        v=version)}}/shas
+    mode: "0644"
+- name: get sha
+  shell: >-
+    grep
+    "{{corpusops_localsettings_nodejs_archive.format(v=version)}}"
+    "{{corpusops_localsettings_nodejs_vars.app_path.format(v=version)}}/shas"
+  register: corpusops_localsettings_nodejs_shas
+  changed_when: false
+- name: "test shas"
+  stat:
+    path: >-
+      {{'/'.join([
+         corpusops_localsettings_nodejs_app_path.format(v=version),
+         corpusops_localsettings_nodejs_archive.format(v=version)])}}
+    get_checksum: True
+    checksum_algorithm: sha256
+  register: corpusops_localsettings_nodejs_archivet
+- name: get archive
+  get_url:
+    remote_src: true
+    url: >-
+      {{corpusops_localsettings_nodejs_vars.urls.archive.format(
+          v=version)}}
+    dest: >-
+      {{corpusops_localsettings_nodejs_vars.app_path.format(v=version)}}
+    mode: "0644"
+    checksum: "sha256:{{corpusops_localsettings_nodejs_shas.stdout.split()[0]}}"
+  when: |
+      {{not (
+          corpusops_localsettings_nodejs_archivet.stat.exists and
+          corpusops_localsettings_nodejs_archivet.stat.checksum ==
+            corpusops_localsettings_nodejs_shas.stdout.split()[0])}}
+  changed_when: false
+- name: "nodejs test"
+  stat:
+    path: >-
+      {{'/'.join([
+         corpusops_localsettings_nodejs_app_path.format(v=version),
+         'nodejs'])}}
+  register: corpusops_localsettings_nodejs_exet
+- name: unarchive
+  when: "{{not corpusops_localsettings_nodejs_exet.stat.exists}}"
+  unarchive:
+    remote_src: true
+    keep_newer: true
+    extra_opts: |
+        {% set opts = [] %}
+        {% set src = '{d}/{bn}'.format(**iitem) %}
+        {% if ('tgz' in src or
+          '.tbz2' in src  or
+          '.txz' in src  or
+          '.tar' in src
+        ) %}{% set opts = ['--strip-components=1'] %}{% endif %}
+        {{ opts | to_json }}
+    src: "{{'{d}/{bn}'.format(**iitem)}}"
+    dest: "{{iitem.d}}"
+  loop_control:
+    loop_var: iitem
+  with_items:
+    - d: "{{corpusops_localsettings_nodejs_app_path.format(v=version)}}"
+      bn: "{{corpusops_localsettings_nodejs_archive.format(v=version)}}"
