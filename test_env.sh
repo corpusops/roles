@@ -2,14 +2,18 @@
 W=$(cd $(dirname "$0") && pwd)
 CW=$(pwd)
 COPS_ROOT=/srv/corpusops/corpusops.bootstrap
+CONTROLLER_IMAGE="corpusops/ubuntu:14.04"
 docker=$(which docker)
 runner=${COPSTESTRUNNER:-copsrolestestrunner}
 DEBUG=${DEBUG-}
 LOGGER_NAME="[unit_role]"
+DOCKER_UPGRADE=${DOCKER_UPGRADE-${TRAVIS}}
 
 log() { echo "$LOGGER_NAME ${@}" >&2; }
 vv() { log "$LOGGER_NAME ${@}"; "${@}"; }
 vvv() { if [[ -n $DEBUG ]];then log "${@}";fi;"${@}"; }
+die_in_error_() { if [ "x${1-$?}" != "x0" ];then echo "FAILED: $@">&2; exit 1; fi }
+die_in_error() { die_in_error_ $? $@; }
 debug() { if [[ -n $DEBUG ]];then log "${@}";fi; }
 
 do_trap_() {

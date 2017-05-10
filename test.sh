@@ -15,10 +15,12 @@ post_tests_cleanup() {
     fi
 }
 
-setup() {
+spawn_controller() {
     vvv sudo "$docker" run -ti -d --name=$runner \
         $( while read v; do echo " -v ${v}:${v}:ro";done < \
-          <( ldd "${docker}"|grep -v libpthread|grep -v libc.so|awk '{print $3}'|egrep '^/'; )
+          <( ldd "${docker}" \
+              | egrep -v "libc.so|libpthread.so|libdl.so" \
+              | awk '{print $3}'|egrep '^/'; )
         )\
         -v "${docker}:${docker}" \
         -v "/sys/fs/cgroup:/sys/fs/cgroup:ro" \
@@ -28,8 +30,8 @@ setup() {
         -v "/:/HOST_ROOTFS" \
         -v "$W:$W" \
         $( if [[ "$W" != "$CW" ]];then echo " -v ${CW}:${CW}"; fi) \
-        -e IMAGES="$IMAGES" \
-        "corpusops/ubuntu:14.04" \
+        -e IMAGES="${IMAGES}" \
+        "$CONTROLLER_IMAGE" \
         bash -c 'while true;do sleep 65200;done'
     if [[ $? != 0 ]];then
         log "TESTRUNNER controller: $runner failed to spawn"
@@ -37,7 +39,29 @@ setup() {
     else
         log "TESTRUNNER controller: $runner spawned"
     fi
+}
+
+setup() {
+    spawn_controller
+    if [[ -n ${DOCKER_UPGRADE} ]];then
+        sudo -E bash << EOF
+            set -x
+            docker cp "$runner:$(dirname $COPS_ROOT)"/ "$(dirname $(dirname $COPS_ROOT))"/ &&\
+            rm -rf "$COPS_ROOT"/venv/{bin,include,lib,local} &&\
+            cd $COPS_ROOT &&\
+            bin/install.sh -C -S &&\
+            docker rm -f $runner &&\
+            service docker stop &&\
+            bin/cops_apply_role roles/corpusops.roles/services_virt_docker/role.yml
+EOF
+        die_in_error "docker upgrade"
+        spawn_controller
+    fi
     runnerid=$(get_runner_id)
+    if [[ -z $runnerid ]];then
+        log "container for $runner not found"
+        exit 1
+    fi
 }
 
 run_test() {
@@ -49,10 +73,10 @@ run_test() {
     log "Testing $role"
     if [[ -z "${NOT_IN_DOCKER-}" ]]; then
         if ! ( vv sudo docker exec $runnerid bash -c \
-               "if ! $COPS_ROOT/hacking/test_roles "'"'"${role}"'"'"; then
-                  echo 'First test try failed, try to update code and retry test' >&2;
-                  $COPS_ROOT/bin/install.sh -s && $COPS_ROOT/hacking/test_roles "'"'"${role}"'"'"
-                fi" \
+               'if ! $COPS_ROOT/hacking/test_roles "'"${role}"'"; then
+                  echo "First test try failed, try to update code and retry test" >&2;
+                  $COPS_ROOT/bin/install.sh -s && $COPS_ROOT/hacking/test_roles '"${role}"';
+                fi' \
            ); then
              ret=1;
         else
@@ -91,40 +115,40 @@ run_test() {
 cd "${W}"
 ROLES=${@-}
 FROM_HISTORY=${FROM_HISTORY:-${TRAVIS}}
+USE_LOCAL_DIFF="${USE_LOCAL_DIFF-1}"
 FROM_COMMIT=${FROM_COMMIT:-HEAD^}
 TO_COMMIT=${TO_COMMIT:-HEAD}
-if [[ -z $ROLES ]];then
+IMAGES="$(echo $IMAGES|xargs -n1)"
+if [[ -z "${ROLES}" ]] && [[ -n "${USE_LOCAL_DIFF}" ]] \
+    && ! ( git diff -q --exit-code >/dev/null 2>&1 );then
     candidates=""
-    if [[ -n ${FROM_HISTORY} ]];then
-        if ! ( git diff -q --exit-code >/dev/null 2>&1 );then
-            log "WC not clean using diff status"
-            for i in $(git diff --name-only|grep "/"|sed -re "s#/.*##g"|uniq);do
-                candidates="$candidates $i"
-            done
-        else
-            if git show -q HEAD | egrep -q "fulltest|alltest";then
-                log "Using default (all tests)"
-            else
-                debug "Searching in diff what did changed"
-                for i in $( \
-                    git diff --name-only ${FROM_COMMIT}..${TO_COMMIT}\
-                    |grep "/"|sed -re "s#/.*##g"|uniq);do
-                    candidates="$candidates $i"
-                done
-            fi
-        fi
+    log "WC not clean using diff status"
+    for i in $(git diff --name-only|grep "/"|sed -re "s#/.*##g"|uniq);do
+        candidates="$candidates $i"
+    done
+    for candidate in $candidates;do
+        r="$W/$candidate"
+        if is_role "$r";then ROLES="$ROLES $r";fi
+    done
+fi
+if [[ -z "${ROLES}" ]] && [[ -n "${FROM_HISTORY}" ]];then
+    candidates=""
+    if git show -q HEAD | egrep -q "fulltest|alltest";then
+        log "Using default (all tests)"
+    else
+        debug "Searching in diff what did changed: ${FROM_COMMIT}..${TO_COMMIT}"
+        for i in $( \
+            git diff --name-only ${FROM_COMMIT}..${TO_COMMIT}\
+            | grep "/"| sed -re "s#/.*##g"| uniq);do
+            candidates="$candidates $i"
+        done
     fi
     for candidate in $candidates;do
         r="$W/$candidate"
-        if is_role "$r";then
-            ROLES="$ROLES $r"
-        fi
+        if is_role "$r";then ROLES="$ROLES $r";fi
     done
 fi
-if [[ -z $ROLES ]];then
-    ROLES=${ALL_ROLES}
-fi
-FROM_HISTORY=${FROM_HISTORY:-${TRAVIS}}
+if is_role "$r";then ROLES="$ROLES $r";fi
 if [[ -n $DRY_RUN ]];then
     log "Testing $ROLES"
     exit 0
@@ -132,6 +156,7 @@ fi
 do_trap post_tests_cleanup EXIT
 post_tests_cleanup
 setup
+
 # no test == failure
 # then if at least one test fail, we fail
 ret=-1
