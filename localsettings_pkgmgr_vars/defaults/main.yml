@@ -31,7 +31,7 @@ corpusops_localsettings_pkgmgr_comps_ubuntu: main restricted universe multiverse
 corpusops_localsettings_pkgmgr_mirror: null
 corpusops_localsettings_pkgmgr_mirror_debian: 'http://mirror.ovh.net/ftp.debian.org/'
 corpusops_localsettings_pkgmgr_mirror_debian_archive: 'http://archive.debian.org/debian/'
-corpusops_localsettings_pkgmgr_mirror_ubuntu: 'http://mirror.ovh.net/ftp.ubuntu.com/'
+corpusops_localsettings_pkgmgr_mirror_ubuntu: 'http://mirror.ovh.net/ftp.ubuntu.com/ubuntu/'
 corpusops_localsettings_pkgmgr_sources_lists: null
 corpusops_localsettings_pkgmgr_sources_lists_ubuntu:
  - 'deb {mirror} {dist} {comps}'

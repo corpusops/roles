@@ -13,7 +13,7 @@ corpusops_lxc_clone_snapshot: null
 
 corpusops_lxc_template: ubuntu
 corpusops_lxc_ubuntu_release: xenial
-corpusops_lxc_ubuntu_mirror: "http://mirror.ovh.net/ftp.ubuntu.com/"
+corpusops_lxc_ubuntu_mirror: "http://mirror.ovh.net/ftp.ubuntu.com/ubuntu"
 corpusops_lxc_template_options: '-r {corpusops_lxc_ubuntu_release} --mirror "{corpusops_lxc_ubuntu_mirror}"'
 
 corpusops_lxc_auto_start: '1'
