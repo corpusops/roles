@@ -1,0 +1,16 @@
+---
+- hosts: "{{hosts|default('all')}}"
+  roles: [corpusops.roles/humanlog]
+- hosts: "{{hosts|default('all')}}"
+  vars:
+    cops_root: "/srv/corpusops/corpusops.bootstrap"
+    ms_root: "/srv/makina-states"
+  tasks:
+    - name: upgrade cops
+      shell: |-
+             cd "{{cops_root}}"
+             bin/install.sh -C -s
+    - name: upgrade ms
+      shell: |-
+             cd "{{ms_root}}"
+             bin/boot-salt2.sh -C --synchronize-code
