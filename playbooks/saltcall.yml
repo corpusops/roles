@@ -1,6 +1,6 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles: [corpusops.humanlog]
+  roles: [corpusops.roles/humanlog]
 
 - hosts: "{{hosts|default('all')}}"
   tasks:
