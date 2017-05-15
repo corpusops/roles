@@ -52,7 +52,7 @@ setup() {
             bin/install.sh -C -S &&\
             docker rm -f $runner &&\
             service docker stop &&\
-            bin/cops_apply_role roles/corpusops.roles/services_virt_docker/role.yml
+            bin/cops_shell_common silent_run bin/cops_apply_role roles/corpusops.roles/services_virt_docker/role.yml
 EOF
         die_in_error "docker upgrade"
         spawn_controller
