@@ -30,6 +30,8 @@
                 | default([]) %}
           {% set corpusops_localsettings_dns_search = corpusops_localsettings_dns_search
                 | default([]) %}
+          {% set corpusops_localsettings_packer = corpusops_localsettings_packer
+                | default(False) %}
           {% set corpusops_localsettings_vim = corpusops_localsettings_vim
                 | default(not is_docker) %}
           {% set corpusops_localsettings_editor = corpusops_localsettings_editor
@@ -80,6 +82,7 @@
           corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
+          corpusops_localsettings_packer: {{ corpusops_localsettings_packer }}
           corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
           corpusops_localsettings_vim: {{ corpusops_localsettings_vim }}
           corpusops_localsettings_editor: {{ corpusops_localsettings_editor }}
@@ -119,6 +122,7 @@
     - role: corpusops.roles/localsettings_editor
     - role: corpusops.roles/localsettings_etckeeper
     - role: corpusops.roles/localsettings_git
+    - role: corpusops.roles/localsettings_packer
     - role: corpusops.roles/localsettings_golang
     - role: corpusops.roles/localsettings_jdk
     - role: corpusops.roles/localsettings_nscd
