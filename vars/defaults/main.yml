@@ -14,4 +14,5 @@ corpusops_core_is_docker: null
 corpusops_core_is_container: null
 
 corpusops_core_has_services_manager: true
+corpusops_core_keyserver: keyserver.ubuntu.com
 
