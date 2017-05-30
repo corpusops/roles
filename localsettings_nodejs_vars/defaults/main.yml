@@ -1,36 +1,55 @@
 ---
 corpusops_localsettings_nodejs_version: '7.10.0'
+corpusops_localsettings_nodejs_yarn_version: '0.24.6'
+corpusops_localsettings_nodejs_filetest: [bin/node, bin/npm]
+corpusops_localsettings_nodejs_yarn_filetest: [bin/yarn]
 corpusops_localsettings_nodejs_versions: []
 corpusops_localsettings_nodejs_platform: "linux"
 corpusops_localsettings_nodejs_arch: 'x64'
 corpusops_localsettings_nodejs_configs: {}
 corpusops_localsettings_nodejs_files: []
 corpusops_localsettings_nodejs_install_path: "/usr/local"
-corpusops_localsettings_nodejs_gpg_keys: []
 corpusops_localsettings_nodejs_keyserver: "{{corpusops_core_keyserver}}"
 corpusops_localsettings_nodejs_sources_list: null
 corpusops_localsettings_nodejs_mirror: null
 corpusops_localsettings_nodejs_repo: null
 corpusops_localsettings_nodejs_packages: []
 corpusops_localsettings_nodejs_debug: "1"
-corpusops_localsettings_nodejs_alternatives:
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_nodejs_alternatives:
   npm:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/npm"
     bins:
       - manualnpm:
-          target: "/opt/nodejs-{v}/bin/npm"
+          target: "/opt/nodejs-{{version}}/bin/npm"
   node:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/node"
     bins:
       - manualnode:
-          target: "/opt/nodejs-{v}/bin/node"
+          target: "/opt/nodejs-{{version}}/bin/node"
+  yarn:
+    target: "{{corpusops_localsettings_nodejs_install_path}}/bin/yarn"
+    bins:
+      - manualyarn:
+          target: "{{corpusops_localsettings_nodejs_yarn_app_path}}/bin/yarn"
   nodejs:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/nodejs"
     bins:
       - manualnodejs:
-          target: "/opt/nodejs-{v}/bin/node"
-corpusops_localsettings_nodejs_app_path: "/opt/nodejs-{v}"
-corpusops_localsettings_nodejs_archive: "node-v{v}-{{corpusops_localsettings_nodejs_platform}}-{{corpusops_localsettings_nodejs_arch}}.tar.gz"
-corpusops_localsettings_nodejs_urls:
-  archive: "https://nodejs.org/dist/v{v}/{{corpusops_localsettings_nodejs_archive}}"
-  shas: "https://nodejs.org/dist/v{v}/SHASUMS256.txt.asc"
+          target: "/opt/nodejs-{{version}}/bin/node"
+#
+_corpusops_localsettings_nodejs_app_path: "/opt/nodejs-{{version}}"
+_corpusops_localsettings_nodejs_archive: "node-v{{version}}-{{corpusops_localsettings_nodejs_platform}}-{{corpusops_localsettings_nodejs_arch}}.tar.gz"
+_corpusops_localsettings_nodejs_urls:
+  archive: "https://nodejs.org/dist/v{{version}}/{{_corpusops_localsettings_nodejs_archive}}"
+  archive_crc: "https://nodejs.org/dist/v{{version}}/SHASUMS256.txt.asc"
+  verify_sha256: true
+#
+corpusops_localsettings_nodejs_yarn_app_path: "/opt/yarn-{{corpusops_localsettings_nodejs_yarn_version}}"
+corpusops_localsettings_nodejs_yarn_archive: "yarn-v{{corpusops_localsettings_nodejs_yarn_version}}.tar.gz"
+corpusops_localsettings_nodejs_yarn_urls:
+  archive: "https://github.com/yarnpkg/yarn/releases/download/v{{corpusops_localsettings_nodejs_yarn_version}}/{{corpusops_localsettings_nodejs_yarn_archive}}"
+  archive_crc: "https://github.com/yarnpkg/yarn/releases/download/v{{corpusops_localsettings_nodejs_yarn_version}}/{{corpusops_localsettings_nodejs_yarn_archive}}.asc"
+  #verify_gpg: ["https://dl.yarnpkg.com/debian/pubkey.gpg"]
+  verify_gpg: [9D41F3C3]
+
