@@ -20,8 +20,8 @@ _corpusops_localsettings_packer_alternatives:
     target: "{{corpusops_localsettings_packer_install_path}}/bin/packer"
     bins:
       - manualpacker:
-          target: "/opt/packer-{{version}}/packer"
-_corpusops_localsettings_packer_app_path: "/opt/packer-{{version}}"
+          target: "{{corpusops_core_apps_path}}/packer-{{version}}/packer"
+_corpusops_localsettings_packer_app_path: "{{corpusops_core_apps_path}}/packer-{{version}}"
 _corpusops_localsettings_packer_archive: "packer_{{version}}_{{corpusops_localsettings_packer_platform}}_{{corpusops_localsettings_packer_arch}}.zip"
 _corpusops_localsettings_packer_urls:
   archive: "https://releases.hashicorp.com/packer/{{version}}/{{_corpusops_localsettings_packer_archive}}"

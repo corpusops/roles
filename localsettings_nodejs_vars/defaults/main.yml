@@ -21,12 +21,12 @@ _corpusops_localsettings_nodejs_alternatives:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/npm"
     bins:
       - manualnpm:
-          target: "/opt/nodejs-{{version}}/bin/npm"
+          target: "{{corpusops_core_apps_path}}/nodejs-{{version}}/bin/npm"
   node:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/node"
     bins:
       - manualnode:
-          target: "/opt/nodejs-{{version}}/bin/node"
+          target: "{{corpusops_core_apps_path}}/nodejs-{{version}}/bin/node"
   yarn:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/yarn"
     bins:
@@ -36,16 +36,16 @@ _corpusops_localsettings_nodejs_alternatives:
     target: "{{corpusops_localsettings_nodejs_install_path}}/bin/nodejs"
     bins:
       - manualnodejs:
-          target: "/opt/nodejs-{{version}}/bin/node"
+          target: "{{corpusops_core_apps_path}}/nodejs-{{version}}/bin/node"
 #
-_corpusops_localsettings_nodejs_app_path: "/opt/nodejs-{{version}}"
+_corpusops_localsettings_nodejs_app_path: "{{corpusops_core_apps_path}}/nodejs-{{version}}"
 _corpusops_localsettings_nodejs_archive: "node-v{{version}}-{{corpusops_localsettings_nodejs_platform}}-{{corpusops_localsettings_nodejs_arch}}.tar.gz"
 _corpusops_localsettings_nodejs_urls:
   archive: "https://nodejs.org/dist/v{{version}}/{{_corpusops_localsettings_nodejs_archive}}"
   archive_crc: "https://nodejs.org/dist/v{{version}}/SHASUMS256.txt.asc"
   verify_sha256: true
 #
-corpusops_localsettings_nodejs_yarn_app_path: "/opt/yarn-{{corpusops_localsettings_nodejs_yarn_version}}"
+corpusops_localsettings_nodejs_yarn_app_path: "{{corpusops_core_apps_path}}/yarn-{{corpusops_localsettings_nodejs_yarn_version}}"
 corpusops_localsettings_nodejs_yarn_archive: "yarn-v{{corpusops_localsettings_nodejs_yarn_version}}.tar.gz"
 corpusops_localsettings_nodejs_yarn_urls:
   archive: "https://github.com/yarnpkg/yarn/releases/download/v{{corpusops_localsettings_nodejs_yarn_version}}/{{corpusops_localsettings_nodejs_yarn_archive}}"
