@@ -3,12 +3,31 @@
   tags: [corpusops_vars, corpusops_vars_release]
 - name: test service manager
   shell: |
-         if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc| /sbin\/init$";then
-          ret=0
-         else
-          ret=1
-         fi
-         exit ${ret}
+    has_command() {
+        ret=1
+        if which which >/dev/null 2>/dev/null;then
+          if which "${@}" >/dev/null 2>/dev/null;then
+            ret=0
+          fi
+        else
+          if command -v "${@}" >/dev/null 2>/dev/null;then
+            ret=0
+          else
+            if hash -r "${@}" >/dev/null 2>/dev/null;then
+                ret=0
+            fi
+          fi
+        fi
+        return ${ret}
+    }
+    if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc| /sbin\/init$";then
+     cret=0
+    elif has_command systemctl && systemctl status >/dev/null 2>&1;then
+     cret=0
+    else
+     cret=1
+    fi
+    exit ${cret}
   failed_when: False
   changed_when: False
   register: cops_test_services_mgr
