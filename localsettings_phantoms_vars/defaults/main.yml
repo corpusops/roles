@@ -1,0 +1,37 @@
+---
+corpusops_localsettings_phantoms_phantomjs_version: '2.1.1'
+corpusops_localsettings_phantoms_casperjs_version: '1.1.3'
+corpusops_localsettings_phantoms_phantomjs_filetest: [bin/phantomjs]
+corpusops_localsettings_phantoms_casperjs_filetest: [bin/casperjs]
+corpusops_localsettings_phantoms_platform: "linux"
+corpusops_localsettings_phantoms_arch: 'x86_64'
+corpusops_localsettings_phantoms_configs: {}
+corpusops_localsettings_phantoms_files: []
+corpusops_localsettings_phantoms_install_path: "/usr/local"
+corpusops_localsettings_phantoms_keyserver: "{{corpusops_core_keyserver}}"
+corpusops_localsettings_phantoms_sources_list: null
+corpusops_localsettings_phantoms_mirror: null
+corpusops_localsettings_phantoms_repo: null
+corpusops_localsettings_phantoms_packages: []
+corpusops_localsettings_phantoms_debug: "1"
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_phantoms_alternatives:
+  casperjs:
+    target: "{{corpusops_localsettings_phantoms_install_path}}/bin/casperjs"
+    bins:
+      - manualnpm:
+          target: "{{corpusops_core_apps_path}}/phantoms/node_modules/.bin/casperjs"
+  phantoms:
+    target: "{{corpusops_localsettings_phantoms_install_path}}/bin/phantomjs"
+    bins:
+      - manualphantoms:
+          target: "{{corpusops_core_apps_path}}/phantoms/bin/phantomjs"
+
+corpusops_localsettings_phantoms_phantomjs_app_path: "{{corpusops_core_apps_path}}/phantoms"
+corpusops_localsettings_phantoms_phantomjs_archive: "phantomjs-{{corpusops_localsettings_phantoms_phantomjs_version}}-{{corpusops_localsettings_phantoms_platform}}-{{corpusops_localsettings_phantoms_arch}}.tar.bz2"
+corpusops_localsettings_phantoms_phantomjs_urls:
+  archive: "https://bitbucket.org/ariya/phantomjs/downloads/{{corpusops_localsettings_phantoms_phantomjs_archive}}"
+  archive_crc: "86dd9a4bf4aee45f1a84c9f61cf1947c1d6dce9b9e8d2a907105da7852460d2f"
+  verify_sha256: true
+
+corpusops_localsettings_phantoms_casperjs_app_path: "{{corpusops_core_apps_path}}/phantoms"

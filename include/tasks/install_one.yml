@@ -76,7 +76,19 @@
     dest: "{{app_path}}/crcs"
     mode: "0644"
     force: true
-  when: "{{ corpusops_uo_tests.msg.crc and not corpusops_uo_tests.msg.done}}"
+  when: "{{ (corpusops_uo_tests.msg.crc and
+             urls.archive_crc.startswith('http') and
+             not corpusops_uo_tests.msg.done) }}"
+
+- name: record CRCs
+  shell: |
+    if [ ! -e "{{app_path}}" ];then mkdir "{{app_path}}";fi
+    echo "{{urls.archive_crc}} {{archive}}" > "{{app_path}}/crcs"
+    chmod 0644 "{{app_path}}/crcs"
+  changed_when: false
+  when: "{{ (corpusops_uo_tests.msg.crc and
+             not urls.archive_crc.startswith('http') and
+             not corpusops_uo_tests.msg.done) }}"
 
 # SHA integrity verification case
 - name: get SHA from CRCs file

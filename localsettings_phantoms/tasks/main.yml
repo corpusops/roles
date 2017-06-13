@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_phantoms preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_phantoms | default(True) }}"
+  register: corpusops_localsettings_phantoms_can_run
+  tags: corpusops_localsettings_phantoms
+- include: run.yml
+  when: '{{ corpusops_localsettings_phantoms_can_run.msg == True }}'
+  tags: corpusops_localsettings_phantoms
