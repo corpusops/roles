@@ -7,7 +7,8 @@ corpusops_localsettings_nodejs_versions: []
 corpusops_localsettings_nodejs_platform: "linux"
 corpusops_localsettings_nodejs_arch: 'x64'
 corpusops_localsettings_nodejs_configs: {}
-corpusops_localsettings_nodejs_files: []
+corpusops_localsettings_nodejs_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
 corpusops_localsettings_nodejs_install_path: "/usr/local"
 corpusops_localsettings_nodejs_keyserver: "{{corpusops_core_keyserver}}"
 corpusops_localsettings_nodejs_sources_list: null

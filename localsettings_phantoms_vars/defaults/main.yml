@@ -7,7 +7,8 @@ corpusops_localsettings_phantoms_casperjs_filetest: [bin/casperjs]
 corpusops_localsettings_phantoms_platform: "linux"
 corpusops_localsettings_phantoms_arch: 'x86_64'
 corpusops_localsettings_phantoms_configs: {}
-corpusops_localsettings_phantoms_files: []
+corpusops_localsettings_phantoms_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
 corpusops_localsettings_phantoms_install_path: "/usr/local"
 corpusops_localsettings_phantoms_keyserver: "{{corpusops_core_keyserver}}"
 corpusops_localsettings_phantoms_sources_list: null

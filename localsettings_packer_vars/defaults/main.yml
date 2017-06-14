@@ -5,7 +5,8 @@ corpusops_localsettings_packer_versions: []
 corpusops_localsettings_packer_platform: "linux"
 corpusops_localsettings_packer_arch: 'amd64'
 corpusops_localsettings_packer_configs: {}
-corpusops_localsettings_packer_files: []
+corpusops_localsettings_packer_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
 corpusops_localsettings_packer_install_path: "/usr/local"
 corpusops_localsettings_packer_gpg_keys: []
 corpusops_localsettings_packer_keyserver: "{{corpusops_core_keyserver}}"
