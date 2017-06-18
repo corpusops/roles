@@ -12,6 +12,17 @@
 #    urls:
 #      archive_crc: "https://app-{{version}}.shasums"
 #      archive: "http://app-{{version}}.tgz"
+#      verify_sha1: true
+#  with_items: "[1.0, 2.0]"
+#- include: "../tasks_common/install_one.yml"
+#  vars:
+#    version: "{{item}}"
+#    filetest: [bin/app]
+#    archive: "app-{{version}}.tgz"
+#    app_path: "/opt/app-{{version}}"
+#    urls:
+#      archive_crc: "https://app-{{version}}.shasums"
+#      archive: "http://app-{{version}}.tgz"
 #      verify_sha256: true
 #  with_items: "[1.0, 2.0]"
 #- include: "../tasks_common/install_one.yml"
@@ -46,6 +57,8 @@
     {% set ret = {'done': True,
                   'crc': crc,
                   'verify_gpg': urls.verify_gpg|default([]),
+                  'verify_sha1': (
+                    urls.verify_sha1|default(False)|d and crc),
                   'verify_sha256': (
                     urls.verify_sha256|default(False)|d and crc)} %}
     {% for i in install_one_filet.results %}
@@ -90,20 +103,32 @@
              not urls.archive_crc.startswith('http') and
              not corpusops_uo_tests.msg.done) }}"
 
+- name: get sha mode
+  register: install_shamode
+  debug:
+    msg: |-
+      {%- if corpusops_uo_tests.msg.verify_sha1 %}sha1
+      {%- elif corpusops_uo_tests.msg.verify_sha256 %}sha256
+      {%- else %}
+      {%- endif %}
+
 # SHA integrity verification case
 - name: get SHA from CRCs file
   shell: |
          grep "{{archive}}" "{{app_path}}/crcs"
   register: install_one_shas
   changed_when: false
-  when: "{{corpusops_uo_tests.msg.verify_sha256  and not corpusops_uo_tests.msg.done }}"
+  when: "{{((corpusops_uo_tests.msg.verify_sha256 or
+             corpusops_uo_tests.msg.verify_sha1) and
+            not corpusops_uo_tests.msg.done) }}"
 - name: "test shas"
   stat:
     path: "{{'/'.join([app_path, archive])}}"
     get_checksum: True
-    checksum_algorithm: sha256
+    checksum_algorithm: "{{install_shamode.msg}}"
   register: install_one_archivet
-  when: "{{corpusops_uo_tests.msg.verify_sha256 and not corpusops_uo_tests.msg.done}}"
+  when: "{{((corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1) and
+            not corpusops_uo_tests.msg.done)}}"
 
 # GET  ARCHIVE
 - name: get archive - SHA CRC
@@ -112,9 +137,9 @@
     url: "{{urls.archive}}"
     dest: "{{app_path}}"
     mode: "0644"
-    checksum: "sha256:{{install_one_shas.stdout.split()[0]}}"
+    checksum: "{{install_shamode.msg}}:{{install_one_shas.stdout.split()[0]}}"
   when: >-
-    {% if not corpusops_uo_tests.msg.verify_sha256 %}
+    {% if not (corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1 ) %}
     false
     {% else %}
     {%  if corpusops_uo_tests.msg.done %}
@@ -135,6 +160,7 @@
     mode: "0644"
   when: >-
     {% if (not corpusops_uo_tests.msg.done and
+           not corpusops_uo_tests.msg.verify_sha1 and
            not corpusops_uo_tests.msg.verify_sha256 ) %}
     true
     {% endif %}
