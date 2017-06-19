@@ -1,0 +1,39 @@
+---
+- listen: restart_nginx_via_corpusops_nginx_vhost
+  systemd:
+    daemon_reload: yes
+    state: restarted
+    name: "{{item}}"
+  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  when: "{{corpusops_nginx_vhost_vars.handle_nginx and
+           corpusops_services_http_nginx_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
+- listen: restart_nginx_via_corpusops_nginx_vhost
+  service:
+    state: restarted
+    name: "{{item}}"
+  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  when: "{{corpusops_nginx_vhost_vars.handle_nginx and
+           corpusops_services_http_nginx_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr != 'systemd')}}"
+- listen: reload_nginx_via_corpusops_nginx_vhost
+  systemd:
+    daemon_reload: yes
+    state: reloaded
+    name: "{{item}}"
+  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  when: "{{corpusops_nginx_vhost_vars.handle_nginx and
+           corpusops_services_http_nginx_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
+- listen: reload_nginx_via_corpusops_nginx_vhost
+  service:
+    state: reloaded
+    name: "{{item}}"
+  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  when: "{{corpusops_nginx_vhost_vars.handle_nginx and
+           corpusops_services_http_nginx_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr != 'systemd')}}"

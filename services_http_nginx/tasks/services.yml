@@ -1,0 +1,12 @@
+---
+- name: Check conf
+  shell: /usr/bin/ansibleNginxConfCheck.sh
+  changed_when: false
+- service:
+    state: "{{corpusops_services_http_nginx_vars.activated
+              | ternary('started', 'stopped')}}"
+    enabled: "{{corpusops_services_http_nginx_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  when: "{{corpusops_vars.has_services_manager}}"
