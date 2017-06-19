@@ -1,0 +1,133 @@
+---
+corpusops_services_http_nginx_activated: True
+corpusops_services_http_nginx_repo_keys_url: null
+corpusops_services_http_nginx_repo_keys: null
+corpusops_services_http_nginx_repo_keys_default: [4420973F]
+corpusops_services_http_nginx_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_http_nginx_repo: null
+corpusops_services_http_nginx_repo_debian: "deb http://ppa.launchpad.net/corpusops/nginx/ubuntu {ansible_distribution_release} main"
+corpusops_services_http_nginx_repo_redhat: "https://download.nginx.com/linux/centos/nginx-ce.repo"
+corpusops_services_http_nginx_repo_fedora: "https://download.nginx.com/linux/fedora/nginx-ce.repo"
+corpusops_services_http_nginx_packages: null
+corpusops_services_http_nginx_packages_default: [nginx]
+corpusops_services_http_nginx_services: null
+corpusops_services_http_nginx_services_default: [nginx]
+corpusops_services_http_nginx_files: null
+corpusops_services_http_nginx_filescopy: null
+corpusops_services_http_nginx_ssl_dhparam: /etc/ssl/certs/nginxdhparam.pem
+corpusops_services_http_nginx_filescopy_default: []
+corpusops_services_http_nginx_files_apt:
+  - {name: /etc/apt/preferences.d/99_nginx.pref, mode: "0644"}
+corpusops_services_http_nginx_files_default:
+  - {path: "{{corpusops_services_http_nginx_proxy_temp_path}}",
+    owner: "{{corpusops_services_http_nginx_user}}",
+    group: "{{corpusops_services_http_nginx_group}}",
+    state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_cache_folder}}",
+    owner: "{{corpusops_services_http_nginx_user}}",
+    group: "{{corpusops_services_http_nginx_group}}",
+    state: directory, mode: "755"}
+  - {path: "/etc/systemd/system/nginx.service.d", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_basedir}}", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_confdir}}", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_basedir}}/includes", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_basedir}}/sites-available", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_basedir}}/modules-available", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_basedir}}/modules-enabled", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_logdir}}", state: directory, mode: "755"}
+  - {path: "{{corpusops_services_http_nginx_doc_root}}", state: directory, mode: "755"}
+corpusops_services_http_nginx_configs: null
+corpusops_services_http_nginx_configs_default:
+  - {name: /etc/nginx/fastcgi_fpm_symfony.conf, mode: "0644"}
+  - {name: /etc/nginx/fastcgi_fpm_drupal.conf, mode: "0644"}
+  - {name: /etc/nginx/fastcgi_params, mode: "0644"}
+  - {name: /etc/nginx/koi-utf, mode: "0644"}
+  - {name: /etc/nginx/koi-win, mode: "0644"}
+  - {name: /etc/nginx/map_cache.conf, mode: "0644"}
+  - {name: /etc/nginx/microcache_fcgi.conf, mode: "0644"}
+  - {name: /etc/nginx/mime.types, mode: "0644"}
+  - {name: /etc/nginx/nginx.conf, mode: "0644"}
+  - {name: /etc/nginx/php_fpm_status_vhost.conf, mode: "0644"}
+  - {name: /etc/nginx/proxy_params, mode: "0644"}
+  - {name: /etc/nginx/scgi_params, mode: "0644"}
+  - {name: /etc/nginx/status_allowed_hosts.conf, mode: "0644"}
+  - {name: /etc/nginx/status_vhost.conf, mode: "0644"}
+  - {name: /etc/nginx/uwsgi_params, mode: "0644"}
+  - {name: /etc/nginx/win-utf, mode: "0644"}
+  - {name: /etc/logrotate.d/nginx, mode: "0644"}
+  - {name: /etc/default/nginx, mode: "0644"}
+  - {name: /etc/init.d/nginx, mode: "0755"}
+  - {name: /usr/bin/ansibleNginxConfCheck.sh, mode: "0755"}
+  - {name: /etc/systemd/system/nginx.service.d/nginx.conf, mode: "0644"}
+corpusops_services_http_nginx_worker_processes: "{{ansible_processor_vcpus}}"
+corpusops_services_http_nginx_ulimit: 65536
+corpusops_services_http_nginx_client_max_body_size: "25000000M"
+corpusops_services_http_nginx_doc_root: "/var/www/default"
+corpusops_services_http_nginx_corpusops_services_http_nginx_rotate: "365"
+corpusops_services_http_nginx_real_ip_recursive: "on"
+corpusops_services_http_nginx_no_daemon: false
+corpusops_services_http_nginx_default_vhost: True
+corpusops_services_http_nginx_use_real_ip: True
+corpusops_services_http_nginx_proxy_headers_hash_max_size: 1024
+corpusops_services_http_nginx_proxy_headers_hash_bucket_size: 128
+corpusops_services_http_nginx_real_ip_header: "X-Forwarded-For"
+corpusops_services_http_nginx_logformat: "custom_combined"
+corpusops_services_http_nginx_logformats:
+  custom_combined: '$remote_addr - $remote_user [$time_local] "$request" $status $bytes_sent "$http_referer" "$http_user_agent" "$gzip_ratio"'
+corpusops_services_http_nginx_v6: False
+corpusops_services_http_nginx_allowed_hosts: []
+corpusops_services_http_nginx_donotlog_options_requests: True
+corpusops_services_http_nginx_open_file_cache: "max=200000 inactive=5m"
+corpusops_services_http_nginx_open_file_cache_valid: "6m"
+corpusops_services_http_nginx_open_file_cache_min_uses: "2"
+corpusops_services_http_nginx_open_file_cache_errors: "off"
+corpusops_services_http_nginx_default_type: "application/octet-stream"
+corpusops_services_http_nginx_worker_connections: "1024"
+corpusops_services_http_nginx_multi_accept: True
+corpusops_services_http_nginx_user: "www-data"
+corpusops_services_http_nginx_group: "www-data"
+corpusops_services_http_nginx_server_names_hash_bucket_size: "64"
+corpusops_services_http_nginx_loglevel: "crit"
+corpusops_services_http_nginx_ldap_cache: True
+corpusops_services_http_nginx_logdir: "/var/log/nginx"
+corpusops_services_http_nginx_access_log: "{{corpusops_services_http_nginx_logdir}}/access.log"
+corpusops_services_http_nginx_error_log: "{{corpusops_services_http_nginx_logdir}}/error.log"
+corpusops_services_http_nginx_tcp_nodelay: True
+corpusops_services_http_nginx_tcp_nopush: True
+corpusops_services_http_nginx_reset_timedout_connection: "on"
+corpusops_services_http_nginx_client_body_timeout: "{{4 * 60 * 60}}"
+corpusops_services_http_nginx_send_timeout: "60s"
+corpusops_services_http_nginx_keepalive_requests: "100000"
+corpusops_services_http_nginx_keepalive_timeout: "30"
+corpusops_services_http_nginx_types_hash_max_size: "2048"
+corpusops_services_http_nginx_server_tokens: False
+corpusops_services_http_nginx_server_name_in_redirect: False
+corpusops_services_http_nginx_virtualhosts: {}
+corpusops_services_http_nginx_gzip: True
+corpusops_services_http_nginx_redirect_aliases: True
+corpusops_services_http_nginx_port: "80"
+corpusops_services_http_nginx_default_domains: ["localhost"]
+corpusops_services_http_nginx_ssl_port: "443"
+corpusops_services_http_nginx_ssl_protocols: "TLSv1 TLSv1.1 TLSv1.2"
+corpusops_services_http_nginx_ssl_redirect: False
+corpusops_services_http_nginx_ssl_cacert_first: False
+corpusops_services_http_nginx_ssl_session_cache: "shared:SSL:10m"
+corpusops_services_http_nginx_ssl_session_timeout: "10m"
+corpusops_services_http_nginx_ssl_ciphers: "EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
+corpusops_services_http_nginx_install_default_vhost: true
+corpusops_services_http_nginx_default_vhost_is_default_server: true
+corpusops_services_http_nginx_package: "nginx"
+corpusops_services_http_nginx_docdir: "/usr/share/doc/nginx"
+corpusops_services_http_nginx_service: "nginx"
+corpusops_services_http_nginx_fpm_statuspath: "/fpmstatus"
+corpusops_services_http_nginx_fpm_ping: "/ping"
+corpusops_services_http_nginx_status_allowed_ip: ["127.0.0.1", "192.168.0.0/16", "10.0.0.0/8"]
+corpusops_services_http_nginx_basedir: "/etc/nginx"
+corpusops_services_http_nginx_proxy_temp_path: "/var/lib/nginx/proxy"
+corpusops_services_http_nginx_cache_folder: "/var/lib/nginx/cache"
+corpusops_services_http_nginx_confdir: "{{corpusops_services_http_nginx_basedir}}/conf.d"
+corpusops_services_http_nginx_wwwdir: "/srv/www"
+corpusops_services_http_nginx_epoll: false
+corpusops_services_http_nginx_is_reverse_proxied: false
+corpusops_services_http_nginx_sendfile: true
+corpusops_services_http_nginx_reverse_proxy_addresses: []

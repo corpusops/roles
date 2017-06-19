@@ -1,0 +1,49 @@
+---
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_nginx_vhost_vars.files}}"
+  when: |
+    {{corpusops_nginx_vhost_vars.files is not none and
+      corpusops_nginx_vhost_vars.files|length > 0}}
+  notify: "{{corpusops_nginx_vhost_vars.rhandlers}}"
+- name: configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_nginx_vhost_vars.configs}}"
+  when: |
+    {{corpusops_nginx_vhost_vars.configs is not none and
+      corpusops_nginx_vhost_vars.configs|length > 0}}
+  notify: "{{corpusops_nginx_vhost_vars.rhandlers}}"
+- name: install conf.d link
+  file:
+    path: "{{corpusops_nginx_vhost_site_link}}"
+    src: "{{corpusops_nginx_vhost_site_file}}"
+    state: >-
+      {%- if corpusops_nginx_vhost_vars.install-%}link
+      {%- else-%}absent
+      {%- endif -%}
+  notify: "{{corpusops_nginx_vhost_vars.rhandlers}}"
+- name: Check nginx configs
+  shell: /usr/bin/ansibleNginxConfCheck.sh
+  changed_when: false
+- service:
+    state: "{{corpusops_services_http_nginx_vars.activated
+              | ternary('started', 'stopped')}}"
+    enabled: "{{corpusops_services_http_nginx_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  when: "{{(corpusops_nginx_vhost_vars.handle_nginx and
+            corpusops_vars.has_services_manager)}}"

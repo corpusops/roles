@@ -1,0 +1,15 @@
+---
+- name: "corpusops_services_http_nginx preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_http_nginx | default(True) }}"
+  register: corpusops_services_http_nginx_can_run
+  tags: [corpusops_services_http_nginx]
+- include: run.yml
+  when: '{{corpusops_services_http_nginx_can_run.msg == True}}'
+  tags: [corpusops_services_http_nginx, corpusops_services_http_nginx_conf]
+- include: default_vhost.yml
+  when: '{{corpusops_services_http_nginx_can_run.msg == True}}'
+  tags: [corpusops_services_http_nginx, corpusops_services_http_nginx_vhosts]
+- include: services.yml
+  when: '{{corpusops_services_http_nginx_can_run.msg == True}}'
+  tags: [corpusops_services_http_nginx, corpusops_services_http_nginx_conf]
