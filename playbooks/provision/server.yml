@@ -34,6 +34,10 @@
                 | default(False) %}
           {% set corpusops_localsettings_packer = corpusops_localsettings_packer
                 | default(False) %}
+          {% set corpusops_localsettings_phantoms = corpusops_localsettings_phantoms
+                | default(False) %}
+          {% set corpusops_services_http_nginx = corpusops_services_http_nginx
+                | default(False) %}
           {% set corpusops_localsettings_vim = corpusops_localsettings_vim
                 | default(not is_docker) %}
           {% set corpusops_localsettings_editor = corpusops_localsettings_editor
@@ -85,6 +89,8 @@
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
           corpusops_localsettings_packer: {{ corpusops_localsettings_packer }}
+          corpusops_localsettings_phantoms: {{ corpusops_localsettings_phantoms }}
+          corpusops_services_http_nginx: {{ corpusops_services_http_nginx }}
           corpusops_localsettings_nodejs: {{ corpusops_localsettings_nodejs }}
           corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
           corpusops_localsettings_vim: {{ corpusops_localsettings_vim }}
@@ -126,6 +132,7 @@
     - role: corpusops.roles/localsettings_etckeeper
     - role: corpusops.roles/localsettings_git
     - role: corpusops.roles/localsettings_packer
+    - role: corpusops.roles/localsettings_phantoms
     - role: corpusops.roles/localsettings_nodejs
     - role: corpusops.roles/localsettings_golang
     - role: corpusops.roles/localsettings_jdk
@@ -141,4 +148,5 @@
     - role: corpusops.roles/services_virt_docker
     - role: corpusops.roles/services_misc_xvfb
     - role: corpusops.roles/services_misc_robotframework
+    - role: corpusops.roles/services_http_nginx
 
