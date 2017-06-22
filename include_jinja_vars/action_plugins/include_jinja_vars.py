@@ -71,6 +71,25 @@ class ActionModule(ActionBase):
 
     TRANSFERS_FILES = False
 
+    def resolve(self, data):
+        if isinstance(data, (list, set, tuple)):
+            items = []
+            for i in data:
+                items.append(self.resolve(i))
+            data = type(data)(items)
+        if isinstance(data, six.string_types):
+            old_data = None
+            if ('{{' in data) or ('{%' in data):
+                while old_data != data:
+                    old_data = data
+                    data = self._templar.template(data)
+        elif isinstance(data, dict):
+            for item in [a for a in data]:
+                data[item] = self.resolve(data[item])
+        else:
+            return data
+        return data
+
     def _mutually_exclusive(self):
         dir_arguments = [
             self.source_dir, self.files_matching, self.ignore_files,
@@ -185,7 +204,8 @@ class ActionModule(ActionBase):
                 dep_chain=self._task.get_dep_chain())
         else:
             self._defaults = {}
-        self._task_vars.update(self._defaults)
+        for i, val in six.iteritems(self._defaults):
+            self._task_vars.setdefault(i, val)
 
         results = dict()
         if self.source_dir:
@@ -344,12 +364,8 @@ class ActionModule(ActionBase):
         try:
             data = magicstring(data)
             if (('{{' in data) or ('{%' in data)):
-                while old_data != data:
-                    old_data = data
-                    data = self._templar.template(data)
-                data = self._loader.load(data, show_content)
-            else:
-                data = self._loader.load(data, show_content)
+                data = self._templar.template(data)
+            data = self._loader.load(data, show_content)
         except (Exception,) as exc:
             trace = traceback.format_exc()
             failed = True
@@ -377,6 +393,7 @@ class ActionModule(ActionBase):
             )
         else:
             results.update(data)
+            results = self.resolve(results)
         return failed, err_msg, results
 
     def _load_files_in_dir(self, root_dir, var_files):
