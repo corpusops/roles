@@ -51,12 +51,12 @@
     state: present
   when: "{{ansible_os_family.lower() in ['debian'] and
            corpusops_services_virt_docker_vars.repo is not none}}"
-  register: corpusops_services_virt_docker_repo
+  register: corpusops_services_virt_docker_repoa
   tags: corpusops_services_virt_docker
 - apt:
     update_cache: yes
   when: "{{ansible_os_family.lower() in ['debian'] and
-           corpusops_services_virt_docker_repo.changed or
+           corpusops_services_virt_docker_repoa.changed or
            corpusops_services_virt_docker_key.changed}}"
   tags: corpusops_services_virt_docker
 - name: install prerequisites
