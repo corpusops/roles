@@ -156,11 +156,28 @@ def hash_value(sstring, typ='md5', func='hexdigest'):
     return getattr(getattr(hashlib, typ)(sstring), func)()
 
 
+def is_typ_(val, typs_):
+    if not isinstance(typs_, (list, tuple, set)):
+        typs_ = [typs_]
+    return type(val) in typs_
+
+
 __funcs__ = {
     'copsf_api_wait_lock': wait_lock,
     'copsf_api_hash_value': hash_value,
     'copsf_api_dirname': dirname,
     'copsf_api_basename': basename,
+    'cops_islist': lambda x: is_typ_(x, list),
+    'cops_isdict': lambda x: is_typ_(x, dict),
+    'cops_isset': lambda x: is_typ_(x, set),
+    'cops_istuple': lambda x: is_typ_(x, tuple),
+    'cops_isint': lambda x: is_typ_(x, int),
+    'cops_isbool': lambda x: is_typ_(x, bool),
+    'cops_isstr': lambda x: is_typ_(x, str),
+    'cops_isu': lambda x: is_typ_(x, unicode),
+    'cops_isfloat': lambda x: is_typ_(x, float),
+    'cops_islong': lambda x: is_typ_(x, long),
+    'cops_isnum': lambda x: is_typ_(x, long),
     'cops_basename': basename,  # retrocompat
     'copsf_api_secure_password': secure_password,
     'copsf_api_rand_value': rand_value,
