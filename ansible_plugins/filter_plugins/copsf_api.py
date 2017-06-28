@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import six
 import time
 import os
 import contextlib
@@ -162,18 +163,24 @@ def is_typ_(val, typs_):
     return type(val) in typs_
 
 
+def go_pdb(val=None, *args,  **kwargs):
+    from pdb_clone import pdb as pdbc
+    pdbc.set_trace_remote()
+
+
 __funcs__ = {
     'copsf_api_wait_lock': wait_lock,
     'copsf_api_hash_value': hash_value,
     'copsf_api_dirname': dirname,
     'copsf_api_basename': basename,
+    'cops_pdb': go_pdb,
     'cops_islist': lambda x: is_typ_(x, list),
     'cops_isdict': lambda x: is_typ_(x, dict),
     'cops_isset': lambda x: is_typ_(x, set),
     'cops_istuple': lambda x: is_typ_(x, tuple),
     'cops_isint': lambda x: is_typ_(x, int),
     'cops_isbool': lambda x: is_typ_(x, bool),
-    'cops_isstr': lambda x: is_typ_(x, str),
+    'cops_isstr': lambda x: is_typ_(x, six.string_types),
     'cops_isu': lambda x: is_typ_(x, unicode),
     'cops_isfloat': lambda x: is_typ_(x, float),
     'cops_islong': lambda x: is_typ_(x, long),
