@@ -362,10 +362,13 @@ class ActionModule(ActionBase):
         old_data = None
         err_msg = ''
         try:
-            data = magicstring(data)
-            if (('{{' in data) or ('{%' in data)):
-                data = self._templar.template(data)
-            data = self._loader.load(data, show_content)
+            if isinstance(data, dict):
+                pass
+            else:
+                data = magicstring(data)
+                if (('{{' in data) or ('{%' in data)):
+                    data = self._templar.template(data)
+                data = self._loader.load(data, show_content)
         except (Exception,) as exc:
             trace = traceback.format_exc()
             failed = True
