@@ -31,12 +31,14 @@ Managment of nginx vhosts.
         ```yaml
         - include_role:
             name: corpusops.roles/nginx_vhost
+            private: true
           vars:
-            corpusops_nginx_vhost_basename: foo
-            corpusops_nginx_vhost_domain: foo.com
-            corpusops_nginx_vhost_server_aliases: [foo.bar]
-            corpusops_nginx_vhost_top_template: "../templates/top.conf"
-            corpusops_nginx_vhost_content_template: "../templates/content.conf"
+            _corpusops_nginx_vhost:
+              basename: foo
+              domain: foo.com
+              server_aliases: [foo.bar]
+              top_template: "../templates/top.conf"
+              content_template: "../templates/content.conf"
         ```
 
 ### Remove a vhost
@@ -45,8 +47,9 @@ Managment of nginx vhosts.
   roles:
     - {role: corpusops.roles/nginx_vhost}
   vars:
-    corpusops_nginx_vhost_install: false
-    corpusops_nginx_vhost_basename: myvhost
+      _corpusops_nginx_vhost:
+        install: false
+        basename: myvhost
 ```
 
 
