@@ -168,7 +168,7 @@ def go_pdb(val=None, *args,  **kwargs):
     pdbc.set_trace_remote()
 
 
-def cops_bool(value, asbool=True):
+def copsf_bool(value, asbool=True):
     if isinstance(string, six.string_types):
         if value and asbool:
             low = value.lower().strip()
@@ -188,19 +188,19 @@ __funcs__ = {
     'copsf_api_hash_value': hash_value,
     'copsf_api_dirname': dirname,
     'copsf_api_basename': basename,
-    'cops_bool': cops_bool,
-    'cops_pdb': go_pdb,
-    'cops_islist': lambda x: is_typ_(x, list),
-    'cops_isdict': lambda x: is_typ_(x, dict),
-    'cops_isset': lambda x: is_typ_(x, set),
-    'cops_istuple': lambda x: is_typ_(x, tuple),
-    'cops_isint': lambda x: is_typ_(x, int),
-    'cops_isbool': lambda x: is_typ_(x, bool),
-    'cops_isstr': lambda x: is_typ_(x, six.string_types),
-    'cops_isu': lambda x: is_typ_(x, unicode),
-    'cops_isfloat': lambda x: is_typ_(x, float),
-    'cops_islong': lambda x: is_typ_(x, long),
-    'cops_isnum': lambda x: is_typ_(x, long),
+    'copsf_bool': copsf_bool,
+    'copsf_pdb': go_pdb,
+    'copsf_islist': lambda x: is_typ_(x, list),
+    'copsf_isdict': lambda x: is_typ_(x, dict),
+    'copsf_isset': lambda x: is_typ_(x, set),
+    'copsf_istuple': lambda x: is_typ_(x, tuple),
+    'copsf_isint': lambda x: is_typ_(x, int),
+    'copsf_isbool': lambda x: is_typ_(x, bool),
+    'copsf_isstr': lambda x: is_typ_(x, six.string_types),
+    'copsf_isu': lambda x: is_typ_(x, unicode),
+    'copsf_isfloat': lambda x: is_typ_(x, float),
+    'copsf_islong': lambda x: is_typ_(x, long),
+    'copsf_isnum': lambda x: is_typ_(x, long),
     'cops_basename': basename,  # retrocompat
     'copsf_api_secure_password': secure_password,
     'copsf_api_rand_value': rand_value,
