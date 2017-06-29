@@ -45,6 +45,12 @@
   register: corpusops_services_virt_docker_key
   tags: corpusops_services_virt_docker
 - name: debug travis
+  debug:
+    msg: "{{corpusops_services_virt_docker_vars.repo}}"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+            ansible_env.get('TRAVIS', '') | cops_bool}}"
+  tags: corpusops_services_virt_docker
+- name: debug travis
   shell: |
         cd /etc/apt/sources.list.d
         for i in *;do
