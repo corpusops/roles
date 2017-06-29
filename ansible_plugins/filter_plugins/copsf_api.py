@@ -185,9 +185,13 @@ def copsf_bool(value, asbool=True):
 
 __funcs__ = {
     'copsf_api_wait_lock': wait_lock,
+    'copsf_wait_lock': wait_lock,
     'copsf_api_hash_value': hash_value,
+    'copsf_hash_value': hash_value,
     'copsf_api_dirname': dirname,
+    'copsf_dirname': dirname,
     'copsf_api_basename': basename,
+    'copsf_basename': basename,
     'copsf_bool': copsf_bool,
     'copsf_pdb': go_pdb,
     'copsf_islist': lambda x: is_typ_(x, list),
@@ -203,7 +207,9 @@ __funcs__ = {
     'copsf_isnum': lambda x: is_typ_(x, long),
     'cops_basename': basename,  # retrocompat
     'copsf_api_secure_password': secure_password,
+    'copsf_secure_password': secure_password,
     'copsf_api_rand_value': rand_value,
+    'copsf_rand_value': rand_value,
 }
 
 
