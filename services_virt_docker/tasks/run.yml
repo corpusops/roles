@@ -51,7 +51,7 @@
           echo "----LIST: $i----"
           cat "$i"
         done
-  when;: "{{ansible_os_family.lower() in ['debian'] and
+  when: "{{ansible_os_family.lower() in ['debian'] and
             ansible_env.get('TRAVIS', '') | cops_bool}}"
   tags: corpusops_services_virt_docker
 - name: install services_virt_docker repo
