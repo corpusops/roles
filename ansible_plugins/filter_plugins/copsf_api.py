@@ -168,11 +168,27 @@ def go_pdb(val=None, *args,  **kwargs):
     pdbc.set_trace_remote()
 
 
+def cops_bool(value, asbool=True):
+    if isinstance(string, six.string_types):
+        if value and asbool:
+            low = value.lower().strip()
+            if low in [
+                'non', 'no', 'n', 'off', '0',
+            ]:
+                return False
+            if low in [
+                'oui', 'yes', 'y', 'on', '1',
+            ]:
+                return True
+    return bool(value)
+
+
 __funcs__ = {
     'copsf_api_wait_lock': wait_lock,
     'copsf_api_hash_value': hash_value,
     'copsf_api_dirname': dirname,
     'copsf_api_basename': basename,
+    'cops_bool': cops_bool,
     'cops_pdb': go_pdb,
     'cops_islist': lambda x: is_typ_(x, list),
     'cops_isdict': lambda x: is_typ_(x, dict),
