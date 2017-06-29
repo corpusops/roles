@@ -60,6 +60,14 @@
   when: "{{ansible_os_family.lower() in ['debian'] and
             ansible_env.get('TRAVIS', '') | cops_bool}}"
   tags: corpusops_services_virt_docker
+- name: debug travis APT
+  apt_repository:
+    repo: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu trusty stable edge"'
+    filename: /etc/apt/sources.list.d/services_virt_docker.list
+    state: present
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_virt_docker_vars.repo is not none}}"
+  tags: corpusops_services_virt_docker
 - name: install services_virt_docker repo
   apt_repository:
     repo: '{{corpusops_services_virt_docker_vars.repo}}'
