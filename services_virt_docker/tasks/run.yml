@@ -51,7 +51,9 @@
   tags: corpusops_services_virt_docker
 - name: install services_virt_docker repo WORKAROUND as arch= is filtered ! 
   copy:
-    content: "{{corpusops_services_virt_docker_vars.repo}}"
+    content: |
+      #
+      {{corpusops_services_virt_docker_vars.repo}}
     dest: /etc/apt/sources.list.d/services_virt_docker.list
     mode: '0644'
     owner: root
