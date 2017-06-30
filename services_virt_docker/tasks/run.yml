@@ -1,5 +1,8 @@
 ---
 # install prerequisites on trusty
+- file:
+    path: /etc/apt/sources.list.d/services_virt_docker.list.list
+    state: absent
 - name: install pre -py- prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -64,7 +67,7 @@
 - name: install services_virt_docker repo
   apt_repository:
     repo: '{{corpusops_services_virt_docker_vars.repo}}'
-    filename: /etc/apt/sources.list.d/services_virt_docker.list
+    filename: services_virt_docker
     state: present
   when: "{{ansible_os_family.lower() in ['debian'] and
            corpusops_services_virt_docker_vars.repo is not none}}"

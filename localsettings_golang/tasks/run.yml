@@ -1,8 +1,11 @@
 ---
+- file:
+    path: /etc/apt/sources.list.d/golang.list.list
+    state: absent
 - name: install golang ppa
   apt_repository:
     repo: '{{corpusops_localsettings_golang_vars.repo}}'
-    filename: /etc/apt/sources.list.d/golang.list
+    filename: golang
     state: present
   when: "{{ansible_lsb.id == 'Ubuntu' and
             corpusops_localsettings_golang_vars.repo is not none and

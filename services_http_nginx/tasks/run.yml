@@ -1,4 +1,7 @@
 ---
+- file:
+    path: /etc/apt/sources.list.d/services_http_nginx.list.list
+    state: absent
 - name: files for apt
   template:
     src: "{{item.template
@@ -24,7 +27,7 @@
 - name: install services_http_nginx repo
   apt_repository:
     repo: '{{corpusops_services_http_nginx_vars.repo}}'
-    filename: /etc/apt/sources.list.d/services_http_nginx.list
+    filename: services_http_nginx
     state: present
   when: "{{ansible_os_family.lower() in ['debian'] and
            corpusops_services_http_nginx_vars.repo is not none}}"
