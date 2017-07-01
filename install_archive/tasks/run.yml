@@ -1,0 +1,170 @@
+---
+# LAYOUT
+- name: files
+  file:
+    path: "{{iitem}}"
+    state: "directory"
+    mode: "0755"
+  loop_control: {loop_var: iitem}
+  with_items: [ "{{archive.app_path}}"]
+- name: "existing archive test"
+  stat:
+    path: "{{'/'.join([archive.app_path, iiitem])}}"
+  register: install_one_filet
+  with_items: "{{archive.filetest}}"
+  loop_control: {loop_var: iiitem}
+- debug:
+   msg: |-
+    {% set crc = (archive.urls.alchive_crc | default('')) | length > 0 %}
+    {% set ret = {'done': True,
+                  'crc': crc,
+                  'verify_gpg': archive.urls.verify_gpg|default([]),
+                  'verify_sha1': (
+                    archive.urls.verify_sha1|default(False)|d and crc),
+                  'verify_sha256': (
+                    archive.urls.verify_sha256|default(False)|d and crc)} %}
+    {% for i in install_one_filet.results %}
+    {%  if not i.stat.exists %}
+    {%   set _ = ret.update({'done': False}) %}
+    {%  endif %}
+    {% endfor %}
+    {{ ret | to_json }}
+  register: corpusops_uo_tests
+  changed_when: False
+
+# Download GPG keys if any
+- include: "../include/tasks/add_gpg_keys.yml"
+  vars:
+    keys: "{{corpusops_uo_tests.msg.verify_gpg}}"
+  loop_control: {loop_var: keyitem}
+  changed_when: false
+  with_items: "{{corpusops_uo_tests.msg.verify_gpg}}"
+  when:  "(corpusops_uo_tests.msg.verify_gpg is not none and
+           corpusops_uo_tests.msg.verify_gpg|length > 0)"
+
+# DOWNLOAD CRC FILE
+- name: get CRCs file
+  get_url:
+    url: "{{archive.urls.archive_crc}}"
+    remote_src: true
+    dest: "{{archive.app_path}}/crcs"
+    mode: "0644"
+    force: true
+  when: "(corpusops_uo_tests.msg.crc and
+          archive.urls.archive_crc.startswith('http') and
+          not corpusops_uo_tests.msg.done)"
+
+- name: record CRCs
+  shell: |
+    if [ ! -e "{{archive.app_path}}" ];then mkdir "{{archive.app_path}}";fi
+    echo "{{archive.urls.archive_crc}} {{archive}}" > "{{archive.app_path}}/crcs"
+    chmod 0644 "{{archive.app_path}}/crcs"
+  changed_when: false
+  when: "(corpusops_uo_tests.msg.crc and
+          not archive.urls.archive_crc.startswith('http') and
+          not corpusops_uo_tests.msg.done)"
+
+- name: get sha mode
+  register: install_shamode
+  debug:
+    msg: |-
+      {%- if corpusops_uo_tests.msg.verify_sha1 %}sha1
+      {%- elif corpusops_uo_tests.msg.verify_sha256 %}sha256
+      {%- else %}
+      {%- endif %}
+
+# SHA integrity verification case
+- name: get SHA from CRCs file
+  shell: |
+         grep "{{archive}}" "{{archive.app_path}}/crcs"
+  register: install_one_shas
+  changed_when: false
+  when: "((corpusops_uo_tests.msg.verify_sha256 or
+           corpusops_uo_tests.msg.verify_sha1) and
+          not corpusops_uo_tests.msg.done)"
+- name: "test shas"
+  stat:
+    path: "{{'/'.join([archive.app_path, archive])}}"
+    get_checksum: True
+    checksum_algorithm: "{{install_shamode.msg}}"
+  register: install_one_archivet
+  when: "((corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1) and
+           not corpusops_uo_tests.msg.done)"
+
+# GET  ARCHIVE
+- debug:
+    msg: |
+      {% if not (corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1 ) %}
+      {%    set ret = False %}
+      {% else %}
+      {%  if corpusops_uo_tests.msg.done %}
+      {%    set ret = False %}
+      {%  elif not install_one_archivet.stat.exists %}
+      {%    set ret = True %}
+      {%  else %}
+      {%    set ret = (install_one_archivet.stat.checksum == install_one_shas.stdout.split()[0]) %}
+      {%  endif %}
+      {% endif %}
+      {{ {'r': ret} | to_json }}
+  changed_when: False
+  register: install_one_archivetr
+- name: get archive - SHA CRC
+  get_url:
+    remote_src: true
+    url: "{{archive.urls.archive}}"
+    dest: "{{archive.app_path}}"
+    mode: "0644"
+    checksum: "{{install_shamode.msg}}:{{install_one_shas.stdout.split()[0]}}"
+  when: "not corpusops_uo_tests.msg.done and install_one_archivetr.msg.r"
+  changed_when: false
+- name: get archive - NOCHECK included
+  get_url:
+    remote_src: true
+    url: "{{archive.urls.archive}}"
+    dest: "{{archive.app_path}}"
+    mode: "0644"
+  when: "(not corpusops_uo_tests.msg.done and
+          not corpusops_uo_tests.msg.verify_sha1 and
+          not corpusops_uo_tests.msg.verify_sha256)"
+  changed_when: false
+
+- name: GPG check if any
+  shell: |
+    gpg_() { export LANG=C; export LC_ALL=C; gpg ${@}; };
+    if ! ( gpg_ -q --batch --verify \
+              "{{archive.app_path}}/crcs" \
+              "{{archive.app_path}}/{{archive}}"; );then
+      if [ -e "{{archive}}" ];then
+        echo rm -f "{{archive.app_path}}/{{archive}}";
+      fi;
+      echo "archive verification failed" >&2;
+      exit 1;
+    else
+      echo "archive verified" >&2;
+      exit 0;
+    fi
+  when: "(not corpusops_uo_tests.msg.done and
+          corpusops_uo_tests.msg.verify_gpg and
+          corpusops_uo_tests.msg.crc)"
+  changed_when: false
+
+# UNPACK
+- name: unarchive
+  when: "not corpusops_uo_tests.msg.done"
+  unarchive:
+    remote_src: true
+    keep_newer: true
+    extra_opts: |
+        {% set opts = [] %}
+        {% set src = '{d}/{bn}'.format(**liitem) %}
+        {% if ('tgz' in src or
+          '.tbz2' in src  or
+          '.txz' in src  or
+          '.tar' in src
+        ) %}{% set opts = ['--strip-components=1'] %}{% endif %}
+        {{ opts | to_json }}
+    src: "{{'{d}/{bn}'.format(**liitem)}}"
+    dest: "{{liitem.d}}"
+  loop_control: {loop_var: liitem}
+  with_items: [{d: "{{archive.app_path}}", bn: "{{archive.archive}}"}]
+

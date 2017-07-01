@@ -1,0 +1,11 @@
+---
+archive:
+  filetest: null
+  archive: null
+  app_path: null
+  urls:
+    archive: null
+    archive_crc: null
+    verify_sha1: null
+    verify_sha256: null
+    verify_gpg: null

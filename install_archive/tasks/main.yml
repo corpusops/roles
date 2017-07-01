@@ -1,0 +1,10 @@
+---
+# mangle variables
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: archive
+  tags: [corpusops_install_archive, corpusops_install_archive_vars]
+# do the real stuff
+- name: install archive
+  include: run.yml
+  tags: [corpusops_install_archive, corpusops_install_archive_run]
