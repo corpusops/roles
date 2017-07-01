@@ -22,4 +22,4 @@
       exit $ret
     register: cmdres
     changed_when: False
-    #failed_when: "{{((cmdres.rc != 0}}"
+    #failed_when: "cmdres.rc != 0"
