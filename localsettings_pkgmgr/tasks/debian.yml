@@ -4,6 +4,6 @@
     update_cache: yes
     package: '{{corpusops_localsettings_pkgmgr_vars.packages}}'
     state: present
-  when: "{{corpusops_localsettings_pkgmgr_vars.packages is not none and
-           corpusops_localsettings_pkgmgr_vars.packages|length > 0}}"
+  when: "(corpusops_localsettings_pkgmgr_vars.packages is not none and
+          corpusops_localsettings_pkgmgr_vars.packages|length > 0)"
   tags: corpusops_localsettings_pkgmgr

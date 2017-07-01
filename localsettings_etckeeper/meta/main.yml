@@ -14,5 +14,5 @@ galaxy_info:
 dependencies:
 - role: corpusops.roles/localsettings_etckeeper_vars
 - role: geerlingguy.repo-epel
-  when: "{{ansible_os_family.lower() in ['redhat']}}"
+  when: "ansible_os_family.lower() in ['redhat']"
 

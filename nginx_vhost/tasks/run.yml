@@ -9,9 +9,8 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_nginx_vhost_vars.files}}"
-  when: |
-    {{corpusops_nginx_vhost_vars.files is not none and
-      corpusops_nginx_vhost_vars.files|length > 0}}
+  when: "(corpusops_nginx_vhost_vars.files is not none and
+          corpusops_nginx_vhost_vars.files|length > 0)"
   notify: "{{corpusops_nginx_vhost_vars.rhandlers}}"
 - name: configs
   template:
@@ -22,9 +21,8 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_nginx_vhost_vars.configs}}"
-  when: |
-    {{corpusops_nginx_vhost_vars.configs is not none and
-      corpusops_nginx_vhost_vars.configs|length > 0}}
+  when: "(corpusops_nginx_vhost_vars.configs is not none and
+          corpusops_nginx_vhost_vars.configs|length > 0)"
   notify: "{{corpusops_nginx_vhost_vars.rhandlers}}"
 - name: install conf.d link
   file:
@@ -45,5 +43,5 @@
                 | ternary(True, False)}}"
     name: "{{item}}"
   with_items: "{{corpusops_services_http_nginx_vars.services}}"
-  when: "{{(corpusops_nginx_vhost_vars.handle_nginx and
-            corpusops_vars.has_services_manager)}}"
+  when: "(corpusops_nginx_vhost_vars.handle_nginx and
+          corpusops_vars.has_services_manager)"

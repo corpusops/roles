@@ -49,9 +49,7 @@
       echo "imported by id: ${done}" >&2
     fi
     exit ${ret}
-  changed_when: "{{(
-        ('imported by id: ' in corpusops_install_gpg_keys_ids.stderr) or
-        ('imported: ' in corpusops_install_gpg_keys_ids.stderr)
-        )}}"
+  changed_when: "(('imported by id: ' in corpusops_install_gpg_keys_ids.stderr) or
+                  ('imported: ' in corpusops_install_gpg_keys_ids.stderr))"
   register: corpusops_install_gpg_keys_ids
 

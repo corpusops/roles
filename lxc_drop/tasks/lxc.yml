@@ -23,4 +23,4 @@
 - name: Destroy lxc container
   shell: "lxc-destroy -f -n '{{lxc_container_name}}'"
   tags: corpusops_lxc_drop,corpusops_lxc_drop_ip
-  when:  "{{ lxc_container_name in corpusops_lxc_drop_lxcs.msg }}"
+  when:  "lxc_container_name in corpusops_lxc_drop_lxcs.msg"

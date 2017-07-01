@@ -5,7 +5,7 @@
   register: corpusops_localsettings_timezone_can_run
   tags: corpusops_localsettings_timezone
 - include: run.yml
-  when: '{{ corpusops_localsettings_timezone_can_run.msg == True }}'
+  when: 'corpusops_localsettings_timezone_can_run.msg == True'
   tags: corpusops_localsettings_timezone
   vars:
     tz: "{{corpusops_localsettings_timezone_vars.timezone}}"

@@ -6,9 +6,9 @@
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "{{ansible_os_family.lower() in ['debian'] and
-           corpusops_localsettings_basepkgs_vars.packages is not none and
-           corpusops_localsettings_basepkgs_vars.packages|length > 0}}"
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_basepkgs_vars.packages is not none and
+          corpusops_localsettings_basepkgs_vars.packages|length > 0)"
   tags: corpusops_localsettings_basepkgs
 - name: update & install prerequisites
   with_items: '{{corpusops_localsettings_basepkgs_vars.packages}}'
@@ -16,9 +16,9 @@
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "{{ansible_os_family.lower() in ['redhat'] and
-           corpusops_localsettings_basepkgs_vars.packages is not none and
-           corpusops_localsettings_basepkgs_vars.packages|length > 0}}"
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_basepkgs_vars.packages is not none and
+          corpusops_localsettings_basepkgs_vars.packages|length > 0)"
   tags: corpusops_localsettings_basepkgs
 - name: configs
   template:
@@ -28,7 +28,6 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_basepkgs_vars.configs}}"
-  when: |
-    {{corpusops_localsettings_basepkgs_vars.configs is not none and
-      corpusops_localsettings_basepkgs_vars.configs|length > 0}}
+  when: "(corpusops_localsettings_basepkgs_vars.configs is not none and
+          corpusops_localsettings_basepkgs_vars.configs|length > 0)"
   tags: corpusops_localsettings_basepkgs

@@ -77,9 +77,8 @@
   loop_control: {loop_var: keyitem}
   changed_when: false
   with_items: "{{corpusops_uo_tests.msg.verify_gpg}}"
-  when:  |
-    {{(corpusops_uo_tests.msg.verify_gpg is not none and
-       corpusops_uo_tests.msg.verify_gpg|length > 0)}}
+  when: "(corpusops_uo_tests.msg.verify_gpg is not none and
+          corpusops_uo_tests.msg.verify_gpg|length > 0)"
 
 # DOWNLOAD CRC FILE
 - name: get CRCs file
@@ -89,9 +88,9 @@
     dest: "{{app_path}}/crcs"
     mode: "0644"
     force: true
-  when: "{{ (corpusops_uo_tests.msg.crc and
-             urls.archive_crc.startswith('http') and
-             not corpusops_uo_tests.msg.done) }}"
+  when: "(corpusops_uo_tests.msg.crc and
+          urls.archive_crc.startswith('http') and
+          not corpusops_uo_tests.msg.done)"
 
 - name: record CRCs
   shell: |
@@ -99,12 +98,13 @@
     echo "{{urls.archive_crc}} {{archive}}" > "{{app_path}}/crcs"
     chmod 0644 "{{app_path}}/crcs"
   changed_when: false
-  when: "{{ (corpusops_uo_tests.msg.crc and
-             not urls.archive_crc.startswith('http') and
-             not corpusops_uo_tests.msg.done) }}"
+  when: "(corpusops_uo_tests.msg.crc and
+          not urls.archive_crc.startswith('http') and
+          not corpusops_uo_tests.msg.done)"
 
 - name: get sha mode
   register: install_shamode
+  changed_when: False
   debug:
     msg: |-
       {%- if corpusops_uo_tests.msg.verify_sha1 %}sha1
@@ -114,23 +114,38 @@
 
 # SHA integrity verification case
 - name: get SHA from CRCs file
-  shell: |
-         grep "{{archive}}" "{{app_path}}/crcs"
+  shell: "grep \"{{archive}}\" \"{{app_path}}/crcs\""
   register: install_one_shas
   changed_when: false
-  when: "{{((corpusops_uo_tests.msg.verify_sha256 or
-             corpusops_uo_tests.msg.verify_sha1) and
-            not corpusops_uo_tests.msg.done) }}"
+  when: "((corpusops_uo_tests.msg.verify_sha256 or
+           corpusops_uo_tests.msg.verify_sha1) and
+          not corpusops_uo_tests.msg.done)"
 - name: "test shas"
   stat:
     path: "{{'/'.join([app_path, archive])}}"
     get_checksum: True
     checksum_algorithm: "{{install_shamode.msg}}"
   register: install_one_archivet
-  when: "{{((corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1) and
-            not corpusops_uo_tests.msg.done)}}"
+  when: "((corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1) and
+          not corpusops_uo_tests.msg.done)"
 
 # GET  ARCHIVE
+- debug:
+    msg: |
+      {% if not (corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1 ) %}
+      {% set ret = False %}
+      {% else %}
+      {%  if corpusops_uo_tests.msg.done %}
+      {% set ret = False %}
+      {%  elif not install_one_archivet.stat.exists %}
+      {% set ret = True %}
+      {%  else %}
+      {% set ret =  (install_one_archivet.stat.checksum == install_one_shas.stdout.split()[0]) %}
+      {%  endif %}
+      {% endif %}
+      {{ {'r': ret} | to_json }}
+  changed_when: False
+  register: install_one_archivetr
 - name: get archive - SHA CRC
   get_url:
     remote_src: true
@@ -138,19 +153,7 @@
     dest: "{{app_path}}"
     mode: "0644"
     checksum: "{{install_shamode.msg}}:{{install_one_shas.stdout.split()[0]}}"
-  when: >-
-    {% if not (corpusops_uo_tests.msg.verify_sha256 or corpusops_uo_tests.msg.verify_sha1 ) %}
-    false
-    {% else %}
-    {%  if corpusops_uo_tests.msg.done %}
-    false %}
-    {%  elif not install_one_archivet.stat.exists %}
-    true
-    {%  else %}
-    {{   (install_one_archivet.stat.checksum ==
-          install_one_shas.stdout.split()[0])}}
-    {%  endif %}
-    {% endif %}
+  when: "not corpusops_uo_tests.msg.done and install_one_archivetr.msg.r"
   changed_when: false
 - name: get archive - NOCHECK included
   get_url:
@@ -158,12 +161,9 @@
     url: "{{urls.archive}}"
     dest: "{{app_path}}"
     mode: "0644"
-  when: >-
-    {% if (not corpusops_uo_tests.msg.done and
-           not corpusops_uo_tests.msg.verify_sha1 and
-           not corpusops_uo_tests.msg.verify_sha256 ) %}
-    true
-    {% endif %}
+  when: "(not corpusops_uo_tests.msg.done and
+          not corpusops_uo_tests.msg.verify_sha1 and
+          not corpusops_uo_tests.msg.verify_sha256)"
   changed_when: false
 
 - name: GPG check if any
@@ -181,15 +181,14 @@
       echo "archive verified" >&2;
       exit 0;
     fi
-  when: >-
-    {{(not corpusops_uo_tests.msg.done and
-        corpusops_uo_tests.msg.verify_gpg and
-        corpusops_uo_tests.msg.crc) }}
+  when: "(not corpusops_uo_tests.msg.done and
+          corpusops_uo_tests.msg.verify_gpg and
+          corpusops_uo_tests.msg.crc)"
   changed_when: false
 
 # UNPACK
 - name: unarchive
-  when: "{{not corpusops_uo_tests.msg.done}}"
+  when: "not corpusops_uo_tests.msg.done"
   unarchive:
     remote_src: true
     keep_newer: true
