@@ -5,9 +5,9 @@
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "{{ansible_os_family.lower() in ['debian'] and
-           corpusops_localsettings_sudo_vars.packages is not none and
-           corpusops_localsettings_sudo_vars.packages|length > 0}}"
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_sudo_vars.packages is not none and
+          corpusops_localsettings_sudo_vars.packages|length > 0)"
   tags: corpusops_localsettings_sudo
   with_items: "{{corpusops_localsettings_sudo_vars.packages}}"
 - name: update & install prerequisites
@@ -15,9 +15,9 @@
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "{{ansible_os_family.lower() in ['redhat'] and
-           corpusops_localsettings_sudo_vars.packages is not none and
-           corpusops_localsettings_sudo_vars.packages|length > 0}}"
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_sudo_vars.packages is not none and
+          corpusops_localsettings_sudo_vars.packages|length > 0)"
   tags: corpusops_localsettings_sudo
   with_items: "{{corpusops_localsettings_sudo_vars.packages}}"
 - name: files
@@ -28,9 +28,8 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_sudo_vars.files}}"
-  when: |
-    {{corpusops_localsettings_sudo_vars.files is not none and
-      corpusops_localsettings_sudo_vars.files|length > 0}}
+  when: "(corpusops_localsettings_sudo_vars.files is not none and
+          corpusops_localsettings_sudo_vars.files|length > 0)"
   tags: corpusops_localsettings_sudo
 - name: sudoers groups
   group: {name: "{{item}}", system: yes}
@@ -44,7 +43,6 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_sudo_vars.configs}}"
-  when: |
-    {{corpusops_localsettings_sudo_vars.configs is not none and
-      corpusops_localsettings_sudo_vars.configs|length > 0}}
+  when: "(corpusops_localsettings_sudo_vars.configs is not none and
+          corpusops_localsettings_sudo_vars.configs|length > 0)"
   tags: corpusops_localsettings_sudo

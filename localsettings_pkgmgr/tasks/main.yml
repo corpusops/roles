@@ -6,9 +6,8 @@
   tags: corpusops_localsettings_pkgmgr
 - include: run.yml
   tags: corpusops_localsettings_pkgmgr
-  when: '{{corpusops_localsettings_pkgmgr_can_run.msg == True}}'
+  when: 'corpusops_localsettings_pkgmgr_can_run.msg == True'
 - include: "{{ansible_os_family.lower()}}.yml"
   tags: corpusops_localsettings_pkgmgr
-  when: |
-    {{corpusops_localsettings_pkgmgr_can_run.msg == True and
-      ansible_os_family.lower() in ['debian', 'redhat']}}
+  when: "(corpusops_localsettings_pkgmgr_can_run.msg == True and
+          ansible_os_family.lower() in ['debian', 'redhat']"

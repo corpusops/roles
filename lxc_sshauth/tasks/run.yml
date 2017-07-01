@@ -42,4 +42,4 @@
   shell: "{{lxc_cpath}}/cops_sshkeys.sh"
   register: corpusops_lxc_sshauth_res
   tags: corpusops_lxc_sshauth
-  changed_when: "{{'-CHANGED-' in corpusops_lxc_sshauth_res.stdout}}"
+  changed_when: "'-CHANGED-' in corpusops_lxc_sshauth_res.stdout"

@@ -9,4 +9,4 @@
                 | ternary(True, False)}}"
     name: "{{item}}"
   with_items: "{{corpusops_services_http_nginx_vars.services}}"
-  when: "{{corpusops_vars.has_services_manager}}"
+  when: "corpusops_vars.has_services_manager"

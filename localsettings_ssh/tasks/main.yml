@@ -5,5 +5,5 @@
   register: corpusops_localsettings_ssh_can_run
   tags: corpusops_localsettings_ssh
 - include: run.yml
-  when: '{{corpusops_localsettings_ssh_can_run.msg == True}}'
+  when: 'corpusops_localsettings_ssh_can_run.msg == True'
   tags: corpusops_localsettings_ssh

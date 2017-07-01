@@ -6,9 +6,8 @@
     name: "{{item}}"
     state: installed
   with_items: '{{corpusops_services_misc_robotframework_vars.packages}}'
-  when: |
-      {{corpusops_services_misc_robotframework_vars.packages is not none and
-        corpusops_services_misc_robotframework_vars.packages|length > 0}}
+  when: "(corpusops_services_misc_robotframework_vars.packages is not none and
+          corpusops_services_misc_robotframework_vars.packages|length > 0)"
   tags: corpusops_services_misc_robotframework
   notify: [restart_corpusops_services_misc_robotframework]
 - name: files
@@ -21,9 +20,8 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_services_misc_robotframework_vars.files}}"
-  when: |
-    {{corpusops_services_misc_robotframework_vars.files is not none and
-      corpusops_services_misc_robotframework_vars.files|length > 0}}
+  when: "(corpusops_services_misc_robotframework_vars.files is not none and
+          corpusops_services_misc_robotframework_vars.files|length > 0)"
   tags: corpusops_services_misc_robotframework
   notify: [restart_corpusops_services_misc_robotframework]
 - name: files copy
@@ -37,9 +35,8 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_services_misc_robotframework_vars.filescopy}}"
-  when: |
-    {{corpusops_services_misc_robotframework_vars.filescopy is not none and
-      corpusops_services_misc_robotframework_vars.filescopy|length > 0}}
+  when: "(corpusops_services_misc_robotframework_vars.filescopy is not none and
+          corpusops_services_misc_robotframework_vars.filescopy|length > 0)"
   tags: corpusops_services_misc_robotframework
   notify: [restart_corpusops_services_misc_robotframework]
 - name: configs
@@ -51,9 +48,8 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_services_misc_robotframework_vars.configs}}"
-  when: |
-    {{corpusops_services_misc_robotframework_vars.configs is not none and
-      corpusops_services_misc_robotframework_vars.configs|length > 0}}
+  when: "(corpusops_services_misc_robotframework_vars.configs is not none and
+          corpusops_services_misc_robotframework_vars.configs|length > 0)"
   tags: corpusops_services_misc_robotframework
   notify: [restart_corpusops_services_misc_robotframework]
 - name: service
@@ -65,4 +61,4 @@
     name: "{{item}}"
   with_items: "{{corpusops_services_misc_robotframework_vars.services}}"
   tags: corpusops_services_misc_robotframework
-  when: "{{corpusops_vars.has_services_manager}}"
+  when: "corpusops_vars.has_services_manager"

@@ -42,7 +42,6 @@
         /etc/yum.conf
     fi
   register: corpusops_localsettings_pkgmgr_testyumconf
-  changed_when: "{{('disabling'
-     in corpusops_localsettings_pkgmgr_testyumconf.stderr)}}"
+  changed_when: "('disabling' in corpusops_localsettings_pkgmgr_testyumconf.stderr)"
   tags: corpusops_localsettings_pkgmgr
 

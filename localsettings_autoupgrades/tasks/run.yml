@@ -7,10 +7,9 @@
     state: latest
   with_items: "{{corpusops_localsettings_autoupgrades_vars.packages}}"
   notify: restart_corpusops_localsettings_autoupgrades
-  when: |
-      {{corpusops_localsettings_autoupgrades_vars.packages is not none and
-        ansible_os_family.lower() in ['debian'] and
-        corpusops_localsettings_autoupgrades_vars.packages|length > 0}}
+  when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and
+          ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_autoupgrades_vars.packages|length > 0)"
   tags: corpusops_localsettings_autoupgrades
 - name: install prerequisites
   package:
@@ -19,10 +18,9 @@
     state: installed
   with_items: "{{corpusops_localsettings_autoupgrades_vars.packages}}"
   notify: restart_corpusops_localsettings_autoupgrades
-  when: |
-      {{corpusops_localsettings_autoupgrades_vars.packages is not none and
-        ansible_os_family.lower() in ['redhat'] and
-        corpusops_localsettings_autoupgrades_vars.packages|length > 0}}
+  when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and
+          ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_autoupgrades_vars.packages|length > 0)"
   tags: corpusops_localsettings_autoupgrades
 - name: configs
   template:
@@ -33,22 +31,22 @@
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_autoupgrades_vars.configs}}"
   notify: restart_corpusops_localsettings_autoupgrades
-  when: |
-    {{corpusops_localsettings_autoupgrades_vars.configs is not none and
-      corpusops_localsettings_autoupgrades_vars.configs|length > 0}}
+  when: "(corpusops_localsettings_autoupgrades_vars.configs is not none and
+          corpusops_localsettings_autoupgrades_vars.configs|length > 0)"
   tags: corpusops_localsettings_autoupgrades
 - file:
     src: /etc/yum/yum-cron.conf
     dest: /etc/sysconfig/yum-cron
     state: link
-  when: "{{ansible_distribution_version < 7 and ansible_os_family.lower() in ['redhat'] }}"
+  when: "(ansible_distribution_version < 7 and
+          ansible_os_family.lower() in ['redhat'])"
 - cops_service:
     name: "{{item}}"
     daemon_reload: yes
     state: started
     enabled: yes
   with_items: "{{corpusops_localsettings_autoupgrades_vars.services}}"
-  when: "{{corpusops_localsettings_autoupgrades_vars.activated and
-           corpusops_localsettings_autoupgrades_vars.services|length > 0 and
-           (ansible_service_mgr == 'systemd')}}"
+  when: "(corpusops_localsettings_autoupgrades_vars.activated and
+          corpusops_localsettings_autoupgrades_vars.services|length > 0 and
+          (ansible_service_mgr == 'systemd'))"
   tags: corpusops_localsettings_autoupgrades

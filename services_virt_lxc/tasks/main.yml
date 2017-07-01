@@ -15,5 +15,5 @@
   register: corpusops_services_virt_lxc_can_run
   tags: corpusops_services_virt_lxc
 - include: run.yml
-  when: '{{corpusops_services_virt_lxc_can_run.msg == True}}'
+  when: 'corpusops_services_virt_lxc_can_run.msg == True'
   tags: corpusops_services_virt_lxc

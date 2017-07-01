@@ -5,5 +5,5 @@
   register: corpusops_services_base_ntp_can_run
   tags: corpusops_services_base_ntp
 - include: run.yml
-  when: '{{corpusops_services_base_ntp_can_run.msg == True}}'
+  when: 'corpusops_services_base_ntp_can_run.msg == True'
   tags: corpusops_services_base_ntp

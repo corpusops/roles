@@ -8,7 +8,7 @@
           corpusops_cfg_path1: "/tmp/{{'b'|copsf_api_rand_value}}"
       register: test_vars
     - debug: {msg: "{{test_vars}}"}
-      failed_when: "{{test_vars.msg.corpusops_cfg_path == test_vars.msg.corpusops_cfg_path1}}"
+      failed_when: "test_vars.msg.corpusops_cfg_path == test_vars.msg.corpusops_cfg_path1"
 - hosts: all
   vars:
     corpusops_cfg_path: "{{test_vars.msg.corpusops_cfg_path}}"
@@ -23,32 +23,31 @@
         state: file
     - shell: cat "{{corpusops_cfg_path}}/copstestmyreg.json"
       register: result
-      failed_when: |-
-        {{ result.stdout|from_json != {"a": "b"} }}
+      failed_when: "result.stdout|from_json != {'a': 'b'}"
     - debug:
         msg: "{{lookup('corpusops', ['registry_load', ('copstestmyreg',)])}}"
-      failed_when: "{{ result.msg != {'a': 'b'} }}"
+      failed_when: "result.msg != {'a': 'b'}"
       register: result
     #### JSON
     - debug:
         msg: |-
           {{{1: 2}|to_json|copsf_json_load}}
-      failed_when: "{{ result.msg != {'1': 2} }}"
+      failed_when: "result.msg != {'1': 2}"
       register: result
     - debug:
         msg: |-
           s{{{"a": "b"}|copsf_json_dump(pretty=True)}}
-      failed_when: "{{result.msg != 's{\n    \"a\": \"b\"\n}'}}"
+      failed_when: "result.msg != 's{\n    \"a\": \"b\"\n}'"
       register: result
     #### PASSWORD
     - debug:
         msg: "{{ ''|copsf_api_rand_value }}"
       register: presult1
-      failed_when: "{{ 16 != presult1.msg|length }}"
+      failed_when: "16 != presult1.msg|length > 0"
     - debug:
         msg: "{{ ''|copsf_api_rand_value }}"
       register: presult2
-      failed_when: "{{ (presult2 == presult1) or (16 != presult2.msg|length) }}"
+      failed_when: "(presult2 == presult1) or (16 != presult2.msg|length > 0)"
     - debug:
         msg: |-
           {{ lookup('corpusops', ['rand_stored_value', ('copstest',)]) }}
@@ -58,25 +57,25 @@
           {{ lookup('corpusops', ['rand_stored_value', ('copstest',)]) }}
       register: psresult2
     - debug: {msg: OK}
-      failed_when: "{{ (psresult2 != psresult1) or (16 != psresult2.msg|length) }}"
+      failed_when: "(psresult2 != psresult1) or (16 != psresult2.msg|length)"
     #### API
     - debug:
         msg: "{{'/foo/bar'|copsf_api_basename}}"
-      failed_when: "{{result.msg != 'bar'}}"
+      failed_when: "result.msg != 'bar'"
       register: result
     - debug:
         msg: "{{'foo'|copsf_api_dirname}}"
-      failed_when: "{{result.msg != ''}}"
+      failed_when: "result.msg != ''"
       register: result
     - debug:
         msg: "{{'/foo'|copsf_api_dirname}}"
-      failed_when: "{{result.msg != '/'}}"
+      failed_when: "result.msg != '/'"
       register: result
     - debug:
         msg: "{{'/foo/bar'|copsf_api_dirname}}"
-      failed_when: "{{result.msg != '/foo'}}"
+      failed_when: "result.msg != '/foo'"
       register: result
     - debug:
         msg: "{{'/foo/bar/muche'|copsf_api_dirname}}"
-      failed_when: "{{result.msg != '/foo/bar'}}"
+      failed_when: "result.msg != '/foo/bar'"
       register: result

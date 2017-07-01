@@ -5,9 +5,9 @@
     update_cache: yes
     package: '{{corpusops_localsettings_profile_vars.packages}}'
     state: present
-  when: "{{ansible_os_family == 'Debian' and
-           corpusops_localsettings_profile_vars.packages is not none and
-           corpusops_localsettings_profile_vars.packages|length > 0}}"
+  when: "(ansible_os_family == 'Debian' and
+          corpusops_localsettings_profile_vars.packages is not none and
+          corpusops_localsettings_profile_vars.packages|length > 0)"
   tags: corpusops_localsettings_profile
 - name: files
   file:
@@ -17,9 +17,8 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_profile_vars.files}}"
-  when: |
-    {{corpusops_localsettings_profile_vars.files is not none and
-      corpusops_localsettings_profile_vars.files|length > 0}}
+  when: "(corpusops_localsettings_profile_vars.files is not none and
+          corpusops_localsettings_profile_vars.files|length > 0)"
   tags: corpusops_localsettings_profile
 - name: configs
   template:
@@ -29,9 +28,8 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_profile_vars.configs}}"
-  when: |
-    {{corpusops_localsettings_profile_vars.configs is not none and
-      corpusops_localsettings_profile_vars.configs|length > 0}}
+  when: "(corpusops_localsettings_profile_vars.configs is not none and
+          corpusops_localsettings_profile_vars.configs|length > 0)"
   tags: corpusops_localsettings_profile
 - shell: egrep 'profile\.d' /etc/profile | grep -v 'via ansible' | egrep 'profile\.d'
   register: corpusops_localsettings_profile_hasblock
@@ -52,4 +50,4 @@
         unset i
       fi
   tags: corpusops_localsettings_profile
-  when: '{{corpusops_localsettings_profile_hasblock|failed}}'
+  when: 'corpusops_localsettings_profile_hasblock|failed'
