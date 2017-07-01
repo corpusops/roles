@@ -1,0 +1,29 @@
+---
+# load default variables, first pass, load not resolved values
+- debug:
+    msg: |
+      {% set p = cops_vars_registry_target %}
+      {% set res = {p: vars.get(p, {}) | copsf_deepcopy} %}
+      {% for var, val in vars.items() %}
+      {%  if (var.startswith(cops_vars_registry_prefix) and
+              not var.startswith(cops_vars_registry_name)) %}
+      {%   set _ = res.update({var: val | copsf_deepcopy}) %}
+      {%  endif %}
+      {% endfor %}
+      {{ res | to_json }}
+  register: cops_vars_registry
+- debug:
+    msg: "{{cops_vars_registry.msg}}"
+  register: cops_vars_registry
+# make computations when variable are resolved and store them in a namespace
+- include_jinja_vars:
+    name: "{{cops_vars_registry_name}}"
+    content: |
+      ---
+      {% set res = cops_vars_registry.msg.pop(cops_vars_registry_target, {}) %}
+      {% for var, val in cops_vars_registry.msg.items() %}
+      {%     set svar = cops_vars_registry_prefix.join(
+                var.split(cops_vars_registry_prefix)[1:]) %}
+      {%     set _ = res.update({svar: val}) %}
+      {% endfor %}
+      {{ res | to_json }}

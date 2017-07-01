@@ -1,0 +1,10 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/vars_registry
+      cops_vars_registry_target: foo_var
+      foo_var:
+        truc: muche
+        other: foo
+        password: secret
+      foo_var_truc: bar
