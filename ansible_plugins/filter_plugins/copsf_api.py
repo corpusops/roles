@@ -11,6 +11,7 @@ import contextlib
 import hashlib
 import logging
 import fcntl
+import copy
 import tempfile
 import random
 import string
@@ -183,7 +184,17 @@ def copsf_bool(value, asbool=True):
     return bool(value)
 
 
+def cops_deepcopy(val):
+    return copy.deepcopy(val)
+
+
+def cops_copy(val):
+    return copy.copy(val)
+
+
 __funcs__ = {
+    'copsf_deepcopy': cops_deepcopy,
+    'copsf_copy': cops_copy,
     'copsf_api_wait_lock': wait_lock,
     'copsf_wait_lock': wait_lock,
     'copsf_api_hash_value': hash_value,
