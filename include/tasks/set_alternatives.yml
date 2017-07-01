@@ -59,4 +59,4 @@
       fi
     echo "{{aname}} alternative set"
   register: corpusops_set_alternatives
-  changed_when: "'alternative changed' in corpusops_set_alternatives.stdout"
+  changed_when: "{{'alternative changed' in corpusops_set_alternatives.stdout}}"

@@ -7,28 +7,34 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_dns_vars.configs}}"
-  when: "(corpusops_localsettings_dns_vars.configs is not none and
-          corpusops_localsettings_dns_vars.configs|length > 0)"
+  when: |
+    {{corpusops_localsettings_dns_vars.configs is not none and
+      corpusops_localsettings_dns_vars.configs|length > 0}}
   tags: corpusops_localsettings_dns
 - shell: |
     debconf-get-selections | egrep -iq "resolvconf/linkify-resolvconf.*true"
   register: corpusops_resolvconf_todo
   failed_when: False
   changed_when: False
-  when: "((ansible_os_family.lower() in ['debian']) and
-          (True==corpusops_vars.is_docker))"
+  when: "{{(
+   (ansible_os_family.lower() in ['debian']) and
+   (True==corpusops_vars.is_docker)
+  )}}"
   tags: corpusops_localsettings_dns
 - shell: |
     echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-selections
-  when: "((ansible_os_family.lower() in ['debian']) and
-          (True==corpusops_vars.is_docker) and
-          (corpusops_resolvconf_todo.rc == 0))"
+  when: "{{(
+   (ansible_os_family.lower() in ['debian']) and
+   (True==corpusops_vars.is_docker) and
+   (corpusops_resolvconf_todo.rc == 0)
+  )}}"
   tags: corpusops_localsettings_dns
 - name: set dns_servers/dns_search
   tags: corpusops_localsettings_dns
   register: corpusops_localsettings_msresolvconf
-  when: "corpusops_localsettings_dns_vars.enabled"
-  changed_when: "'skipping' not in corpusops_localsettings_msresolvconf.stderr"
+  when: "{{corpusops_localsettings_dns_vars.enabled}}"
+  changed_when: |
+     {{'skipping' not in corpusops_localsettings_msresolvconf.stderr}}
   shell: |
     /usr/bin/ms-resolv-conf.sh \
     "{% if corpusops_localsettings_dns_vars.servers %}{{

@@ -5,16 +5,16 @@
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_services_base_sshd_vars.services}}"
-  when: "(corpusops_services_base_sshd_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr == 'systemd'))"
+  when: "{{corpusops_services_base_sshd_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
   tags: corpusops_services_base_sshd
 - listen: restart_corpusops_services_base_sshd
   service:
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_services_base_sshd_vars.services}}"
-  when: "(corpusops_services_base_sshd_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr != 'systemd'))"
+  when: "{{corpusops_services_base_sshd_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr != 'systemd')}}"
   tags: corpusops_services_base_sshd

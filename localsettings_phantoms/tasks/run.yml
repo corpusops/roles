@@ -5,18 +5,18 @@
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_localsettings_phantoms_vars.packages is not none and
-          corpusops_localsettings_phantoms_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_localsettings_phantoms_vars.packages is not none and
+           corpusops_localsettings_phantoms_vars.packages|length > 0}}"
   with_items: "{{corpusops_localsettings_phantoms_vars.packages}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "(ansible_os_family.lower() in ['redhat'] and
-          corpusops_localsettings_phantoms_vars.packages is not none and
-          corpusops_localsettings_phantoms_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_localsettings_phantoms_vars.packages is not none and
+           corpusops_localsettings_phantoms_vars.packages|length > 0}}"
   with_items: "{{corpusops_localsettings_phantoms_vars.packages}}"
 - name: files
   file:
@@ -26,8 +26,9 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_phantoms_vars.files}}"
-  when: "(corpusops_localsettings_phantoms_vars.files is not none and
-          corpusops_localsettings_phantoms_vars.files|length > 0)"
+  when: |
+    {{corpusops_localsettings_phantoms_vars.files is not none and
+      corpusops_localsettings_phantoms_vars.files|length > 0}}
 - name: configs
   template:
     src: "{{item.src|default('../templates/'+item.name)}}"
@@ -36,8 +37,9 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_phantoms_vars.configs}}"
-  when: "(corpusops_localsettings_phantoms_vars.configs is not none and
-          corpusops_localsettings_phantoms_vars.configs|length > 0)"
+  when: |
+    {{corpusops_localsettings_phantoms_vars.configs is not none and
+      corpusops_localsettings_phantoms_vars.configs|length > 0}}
 - include: "../include/tasks/install_one.yml"
   vars:
     version: "{{corpusops_localsettings_phantoms_phantomjs_version}}"
@@ -58,8 +60,8 @@
     cd {{corpusops_localsettings_phantoms_casperjs_app_path}}
     yarn add --non-interactive casperjs@{{corpusops_localsettings_phantoms_casperjs_version}}
   register: corpusops_localsettings_phantoms_casperjsinstall
-  changed_when: "'0 new' not in corpusops_localsettings_phantoms_casperjsinstall.stdout"
+  changed_when: "{{'0 new' not in corpusops_localsettings_phantoms_casperjsinstall.stdout}}"
 - include: "../../include/tasks/set_alternatives.yml"
   vars: {version: "{{corpusops_localsettings_phantoms_vars.version}}"}
   with_dict: "{{_corpusops_localsettings_phantoms_alternatives}}"
-  when: "corpusops_localsettings_phantoms_vars.version is not none"
+  when: "{{corpusops_localsettings_phantoms_vars.version is not none}}"

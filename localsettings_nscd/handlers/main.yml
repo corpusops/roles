@@ -1,9 +1,9 @@
 ---
 - listen: restart_corpusops_localsettings_nscd
   shell: systemctl daemon-reload
-  when: "(corpusops_localsettings_nscd_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr == 'systemd'))"
+  when: "{{corpusops_localsettings_nscd_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
   tags: corpusops_localsettings_nscd
 - listen: restart_corpusops_localsettings_nscd
   systemd:
@@ -11,16 +11,16 @@
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_localsettings_nscd_vars.services}}"
-  when: "(corpusops_localsettings_nscd_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr == 'systemd'))"
+  when: "{{corpusops_localsettings_nscd_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
   tags: corpusops_localsettings_nscd
 - listen: restart_corpusops_localsettings_nscd
   cops_service:
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_localsettings_nscd_vars.services}}"
-  when: "(corpusops_localsettings_nscd_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr != 'systemd'))"
+  when: "{{corpusops_localsettings_nscd_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr != 'systemd')}}"
   tags: corpusops_localsettings_nscd

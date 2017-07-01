@@ -15,4 +15,4 @@ dependencies:
 - role: corpusops.roles/services_virt_lxc_vars
 - role: corpusops.roles/services_magicbridge
 - role: geerlingguy.repo-epel
-  when: "ansible_os_family.lower() in ['redhat']"
+  when: "{{ansible_os_family.lower() in ['redhat']}}"

@@ -1,9 +1,9 @@
 ---
 - listen: restart_corpusops_services_misc_xvfb
   shell: systemctl daemon-reload
-  when: "(corpusops_services_misc_xvfb_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr == 'systemd'))"
+  when: "{{corpusops_services_misc_xvfb_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
   tags: corpusops_services_misc_xvfb
 - listen: restart_corpusops_services_misc_xvfb
   systemd:
@@ -11,16 +11,16 @@
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_services_misc_xvfb_vars.services}}"
-  when: "(corpusops_services_misc_xvfb_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr == 'systemd'))"
+  when: "{{corpusops_services_misc_xvfb_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
   tags: corpusops_services_misc_xvfb
 - listen: restart_corpusops_services_misc_xvfb
   cops_service:
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_services_misc_xvfb_vars.services}}"
-  when: "(corpusops_services_misc_xvfb_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr != 'systemd'))"
+  when: "{{corpusops_services_misc_xvfb_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr != 'systemd')}}"
   tags: corpusops_services_misc_xvfb

@@ -11,31 +11,32 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_services_http_nginx_vars.files_apt}}"
-  when: "(corpusops_services_http_nginx_vars.files_apt is not none and
-          corpusops_services_http_nginx_vars.files_apt|length > 0)"
+  when: |
+    {{corpusops_services_http_nginx_vars.files_apt is not none and
+      corpusops_services_http_nginx_vars.files_apt|length > 0}}
 - name: install services_http_nginx repokey
   apt_key:
     id: '{{item}}'
     keyserver: "{{corpusops_services_http_nginx_vars.keyserver}}"
     state: present
   with_items: '{{corpusops_services_http_nginx_vars.repo_keys}}'
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_services_http_nginx_vars.repo_keys is not none and
-          corpusops_services_http_nginx_vars.repo_keys|length > 0)"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_http_nginx_vars.repo_keys is not none and
+           corpusops_services_http_nginx_vars.repo_keys|length > 0}}"
   register: corpusops_services_http_nginx_key
 - name: install services_http_nginx repo
   apt_repository:
     repo: '{{corpusops_services_http_nginx_vars.repo}}'
     filename: services_http_nginx
     state: present
-  when: "(ansible_os_family.lower() in ['debian'] and
-           corpusops_services_http_nginx_vars.repo is not none)"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_http_nginx_vars.repo is not none}}"
   register: corpusops_services_http_nginx_repoa
 - apt:
     update_cache: yes
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_services_http_nginx_repoa.changed or
-          corpusops_services_http_nginx_key.changed)"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_http_nginx_repoa.changed or
+           corpusops_services_http_nginx_key.changed}}"
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -43,9 +44,10 @@
     name: "{{item}}"
     state: installed
   with_items: '{{corpusops_services_http_nginx_vars.packages}}'
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_services_http_nginx_vars.packages is not none and
-          corpusops_services_http_nginx_vars.packages|length > 0)"
+  when: |
+      {{ansible_os_family.lower() in ['debian'] and
+        corpusops_services_http_nginx_vars.packages is not none and
+        corpusops_services_http_nginx_vars.packages|length > 0}}
   notify: [restart_corpusops_services_http_nginx]
 - name: update & install prerequisites
   package:
@@ -53,9 +55,9 @@
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_services_http_nginx_vars.packages is not none and
-          corpusops_services_http_nginx_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_http_nginx_vars.packages is not none and
+           corpusops_services_http_nginx_vars.packages|length > 0}}"
   with_items: "{{corpusops_services_http_nginx_vars.packages}}"
 - name: update & install prerequisites (yum-utils)
   package:
@@ -63,26 +65,26 @@
     enablerepo: epel-testing
     package: 'yum-utils'
     state: present
-  when: "(ansible_os_family.lower() in ['redhat'] and
-          corpusops_services_http_nginx_vars.packages is not none and
-          corpusops_services_http_nginx_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_services_http_nginx_vars.packages is not none and
+           corpusops_services_http_nginx_vars.packages|length > 0}}"
   with_items: "{{corpusops_services_http_nginx_vars.packages}}"
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{item}}"
   with_items: ["{{corpusops_services_http_nginx_vars.repo}}"]
-  when: "(ansible_os_family.lower() in ['redhat'] and
-          corpusops_services_http_nginx_vars.packages is not none and
-          corpusops_services_http_nginx_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_services_http_nginx_vars.packages is not none and
+           corpusops_services_http_nginx_vars.packages|length > 0}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
     enablerepo: epel-testing
     package: '{{item}}'
     state: present
-  when: "(ansible_os_family.lower() in ['redhat'] and
-          corpusops_services_http_nginx_vars.packages is not none and
-          corpusops_services_http_nginx_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_services_http_nginx_vars.packages is not none and
+           corpusops_services_http_nginx_vars.packages|length > 0}}"
   with_items: "{{corpusops_services_http_nginx_vars.packages}}"
 - group:
     name: "{{corpusops_services_http_nginx_vars.group}}"
@@ -99,8 +101,9 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_services_http_nginx_vars.files}}"
-  when: "(corpusops_services_http_nginx_vars.files is not none and
-          corpusops_services_http_nginx_vars.files|length > 0)"
+  when: |
+    {{corpusops_services_http_nginx_vars.files is not none and
+      corpusops_services_http_nginx_vars.files|length > 0}}
   notify: [restart_corpusops_services_http_nginx]
 - name: files copy
   copy:
@@ -113,8 +116,9 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_services_http_nginx_vars.filescopy}}"
-  when: "(corpusops_services_http_nginx_vars.filescopy is not none and
-          corpusops_services_http_nginx_vars.filescopy|length > 0)"
+  when: |
+    {{corpusops_services_http_nginx_vars.filescopy is not none and
+      corpusops_services_http_nginx_vars.filescopy|length > 0}}
   notify: [restart_corpusops_services_http_nginx]
 - name: configs
   template:
@@ -125,8 +129,9 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_services_http_nginx_vars.configs}}"
-  when: "(corpusops_services_http_nginx_vars.configs is not none and
-          corpusops_services_http_nginx_vars.configs|length > 0)"
+  when: |
+    {{corpusops_services_http_nginx_vars.configs is not none and
+      corpusops_services_http_nginx_vars.configs|length > 0}}
   notify: [restart_corpusops_services_http_nginx]
 - name: gen diffie-h file
   shell: |
@@ -136,4 +141,4 @@
       openssl dhparam -out "$f" 2048;chmod 644 "$f";echo "ansibledhgen" >&2 ;
     fi
   register: corpusops_services_http_nginx_dh
-  changed_when: "'ansibledhgen' in corpusops_services_http_nginx_dh.stderr"
+  changed_when: "{{'ansibledhgen' in corpusops_services_http_nginx_dh.stderr}}"

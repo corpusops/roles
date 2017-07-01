@@ -7,14 +7,14 @@
   tasks:
     - name: run geerlingguy.repo-epel
       include_role: {name: geerlingguy.repo-epel}
-      when: "ansible_os_family.lower() in ['redhat']"
+      when: "{{ansible_os_family.lower() in ['redhat']}}"
     - name: update & install prerequisites
       package:
         cache_valid_time: '{{60*60}}'
         update_cache: yes
         package: '{{item}}'
         state: present
-      when: "ansible_os_family.lower() in ['debian']"
+      when: "{{ansible_os_family.lower() in ['debian']}}"
       tags: corpusops_localsettings_jdk
       with_items: [salt-common]
     - name: update & install prerequisites
@@ -22,7 +22,7 @@
         update_cache: yes
         package: '{{item}}'
         state: present
-      when: "ansible_os_family.lower() in ['redhat']"
+      when: "{{ansible_os_family.lower() in ['redhat']}}"
       tags: corpusops_localsettings_jdk
       with_items: [salt-minion]
     - saltcall:

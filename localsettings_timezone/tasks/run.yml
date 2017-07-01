@@ -5,9 +5,9 @@
     update_cache: yes
     package: '{{corpusops_localsettings_timezone_vars.packages}}'
     state: present
-  when: "(ansible_os_family == 'Debian' and
-          corpusops_localsettings_timezone_vars.packages is not none and
-          corpusops_localsettings_timezone_vars.packages|length > 0)"
+  when: "{{ansible_os_family == 'Debian' and
+           corpusops_localsettings_timezone_vars.packages is not none and
+           corpusops_localsettings_timezone_vars.packages|length > 0}}"
   tags: corpusops_localsettings_timezone
 - name: Ensure that specified timezone exist
   stat:
@@ -29,7 +29,7 @@
   file:
     state: absent
     path: "{{item.path}}"
-  when: "item.exists and item.islnk"
+  when: "{{item.exists and item.islnk}}"
   with_items: |
     {%  set val = [corpusops_localsettings_timezone_ltzd.stat,
                    corpusops_localsettings_timezone_ltd.stat] %}
@@ -39,7 +39,7 @@
   file:
     state: absent
     path: "/etc/localtime" 
-  failed_when: "not corpusops_localsettings_timezone_ltd.stat.exists"
+  failed_when: "{{not corpusops_localsettings_timezone_ltd.stat.exists }}"
   changed_when: False
 - name: localtime
   copy:
@@ -54,7 +54,8 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_timezone_vars.configs}}"
-  when: "(corpusops_localsettings_timezone_vars.configs is not none and
-          corpusops_localsettings_timezone_vars.configs|length > 0)"
+  when: |
+    {{corpusops_localsettings_timezone_vars.configs is not none and
+      corpusops_localsettings_timezone_vars.configs|length > 0}}
   tags: corpusops_localsettings_timezone
 

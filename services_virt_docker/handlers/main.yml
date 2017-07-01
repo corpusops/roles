@@ -5,16 +5,16 @@
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
-  when: "(corpusops_services_virt_docker_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr == 'systemd'))"
+  when: "{{corpusops_services_virt_docker_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr == 'systemd')}}"
   tags: corpusops_services_virt_docker
 - listen: restart_corpusops_services_virt_docker
   service:
     state: restarted
     name: "{{item}}"
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
-  when: "(corpusops_services_virt_docker_vars.activated and
-          corpusops_vars.has_services_manager and
-          (ansible_service_mgr != 'systemd'))"
+  when: "{{corpusops_services_virt_docker_vars.activated and
+           corpusops_vars.has_services_manager and
+           (ansible_service_mgr != 'systemd')}}"
   tags: corpusops_services_virt_docker

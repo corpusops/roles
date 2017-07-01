@@ -7,10 +7,10 @@
     repo: 'ppa:git-core/ppa'
     filename: git
     state: present
-  when: "(ansible_lsb.id == 'Ubuntu' and
-          ansible_lsb.release | version_compare('12.04', '<=') and
-          corpusops_localsettings_git_vars.packages is not none and
-          corpusops_localsettings_git_vars.packages|length > 0)"
+  when: "{{ansible_lsb.id == 'Ubuntu' and
+           ansible_lsb.release | version_compare('12.04', '<=') and
+           corpusops_localsettings_git_vars.packages is not none and
+           corpusops_localsettings_git_vars.packages|length > 0}}"
   register: corpusops_localsettings_git_ppa
 - apt:
     update_cache: yes
@@ -21,9 +21,9 @@
     update_cache: yes
     package: '{{corpusops_localsettings_git_vars.packages}}'
     state: present
-  when: "(ansible_os_family == 'Debian' and
-          corpusops_localsettings_git_vars.packages is not none and
-          corpusops_localsettings_git_vars.packages|length > 0)"
+  when: "{{ansible_os_family == 'Debian' and
+           corpusops_localsettings_git_vars.packages is not none and
+           corpusops_localsettings_git_vars.packages|length > 0}}"
 - name: configs
   template:
     src: "../templates/{{item.name}}"
@@ -32,5 +32,6 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_git_vars.configs}}"
-  when: "(corpusops_localsettings_git_vars.configs is not none and
-          corpusops_localsettings_git_vars.configs|length > 0)"
+  when: |
+    {{corpusops_localsettings_git_vars.configs is not none and
+      corpusops_localsettings_git_vars.configs|length > 0}}

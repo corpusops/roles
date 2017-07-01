@@ -15,16 +15,16 @@
   tags: corpusops_services_virt_lxc
 - name: run geerlingguy.repo-epel
   include_role: {name: geerlingguy.repo-epel}
-  when: "ansible_os_family.lower() in ['redhat']"
+  when: "{{ansible_os_family.lower() in ['redhat']}}"
 - name: update & install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     package: '{{item}}'
     state: present
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_services_virt_lxc_vars.packages is not none and
-          corpusops_services_virt_lxc_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['debian'] and
+           corpusops_services_virt_lxc_vars.packages is not none and
+           corpusops_services_virt_lxc_vars.packages|length > 0}}"
   tags: corpusops_services_virt_lxc
   with_items: "{{corpusops_services_virt_lxc_vars.packages}}"
 - name: update & install prerequisites
@@ -33,9 +33,9 @@
     enablerepo: epel-testing
     package: '{{item}}'
     state: present
-  when: "(ansible_os_family.lower() in ['redhat'] and
-          corpusops_services_virt_lxc_vars.packages is not none and
-          corpusops_services_virt_lxc_vars.packages|length > 0)"
+  when: "{{ansible_os_family.lower() in ['redhat'] and
+           corpusops_services_virt_lxc_vars.packages is not none and
+           corpusops_services_virt_lxc_vars.packages|length > 0}}"
   tags: corpusops_services_virt_lxc
   with_items: "{{corpusops_services_virt_lxc_vars.packages}}"
 - name: patch tmpfs
@@ -49,7 +49,7 @@
     fi
     fi
   register: cops_lxcpatchtmpfs
-  changed_when: "'was patched' in cops_lxcpatchtmpfs.stdout"
+  changed_when: "{{'was patched' in cops_lxcpatchtmpfs.stdout}}"
   notify: [restart_corpusops_services_virt_lxc]
 - name: files
   file:
@@ -61,8 +61,9 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_services_virt_lxc_vars.files}}"
-  when: "(corpusops_services_virt_lxc_vars.files is not none and
-          corpusops_services_virt_lxc_vars.files|length > 0)"
+  when: |
+    {{corpusops_services_virt_lxc_vars.files is not none and
+      corpusops_services_virt_lxc_vars.files|length > 0}}
   tags: corpusops_services_virt_lxc
   notify: [restart_corpusops_services_virt_lxc]
 - name: files copy
@@ -76,8 +77,9 @@
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
   with_items: "{{corpusops_services_virt_lxc_vars.filescopy}}"
-  when: "(corpusops_services_virt_lxc_vars.filescopy is not none and
-          corpusops_services_virt_lxc_vars.filescopy|length > 0)"
+  when: |
+    {{corpusops_services_virt_lxc_vars.filescopy is not none and
+      corpusops_services_virt_lxc_vars.filescopy|length > 0}}
   tags: corpusops_services_virt_lxc
   notify: [restart_corpusops_services_virt_lxc]
 - name: configs
@@ -89,8 +91,9 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_services_virt_lxc_vars.configs}}"
-  when: "(corpusops_services_virt_lxc_vars.configs is not none and
-          corpusops_services_virt_lxc_vars.configs|length > 0)"
+  when: |
+    {{corpusops_services_virt_lxc_vars.configs is not none and
+      corpusops_services_virt_lxc_vars.configs|length > 0}}
   tags: corpusops_services_virt_lxc
   notify: [restart_corpusops_services_virt_lxc]
 - name: service
@@ -102,4 +105,4 @@
     name: "{{item}}"
   with_items: "{{corpusops_services_virt_lxc_vars.services}}"
   tags: corpusops_services_virt_lxc
-  when: "corpusops_vars.has_services_manager"
+  when: "{{corpusops_vars.has_services_manager}}"
