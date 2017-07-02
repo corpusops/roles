@@ -38,16 +38,17 @@
   with_items: "{{corpusops_localsettings_phantoms_vars.configs}}"
   when: "(corpusops_localsettings_phantoms_vars.configs is not none and
           corpusops_localsettings_phantoms_vars.configs|length > 0)"
-- include: "../include/tasks/install_one.yml"
+- include_role: {name: corpusops.roles/install_archive}
   vars:
     version: "{{corpusops_localsettings_phantoms_phantomjs_version}}"
-    filetest: "{{corpusops_localsettings_phantoms_phantomjs_filetest}}"
-    archive: "{{corpusops_localsettings_phantoms_phantomjs_archive}}"
-    app_path: "{{corpusops_localsettings_phantoms_phantomjs_app_path}}"
-    urls:
-      archive_crc: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive_crc}}"
-      archive: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive}}"
-      verify_sha256: "{{corpusops_localsettings_phantoms_phantomjs_urls.verify_sha256}}"
+    archive:
+      filetest: "{{corpusops_localsettings_phantoms_phantomjs_filetest}}"
+      archive: "{{corpusops_localsettings_phantoms_phantomjs_archive}}"
+      app_path: "{{corpusops_localsettings_phantoms_phantomjs_app_path}}"
+      urls:
+        archive_crc: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive_crc}}"
+        archive: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive}}"
+        verify_sha256: "{{corpusops_localsettings_phantoms_phantomjs_urls.verify_sha256}}"
 - name: files
   file:
     path: "{{item}}"
