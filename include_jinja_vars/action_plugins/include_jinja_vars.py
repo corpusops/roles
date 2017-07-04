@@ -85,7 +85,9 @@ class ActionModule(ActionBase):
                     data = self._templar.template(data)
         elif isinstance(data, dict):
             for item in [a for a in data]:
-                data[item] = self.resolve(data[item])
+                val = self.resolve(data.pop(item, None))
+                key = self.resolve(item)
+                data[key] = val
         else:
             return data
         return data
