@@ -1,67 +1,61 @@
 ---
 # Allow to specify defaults in a prefix way and in a inline, flattened way
-_corpusops_nginx_vhost: {}
-corpusops_nginx_vhost_doc_root: "{{_corpusops_nginx_vhost.doc_root|default(corpusops_services_http_nginx_vars.doc_root)}}"
-corpusops_nginx_vhost_domain: "{{_corpusops_nginx_vhost.domain|default(domain)|default(ansible_fqdn)}}"
-corpusops_nginx_vhost_server_aliases: "{{_corpusops_nginx_vhost.server_aliases|default([])}}"
-corpusops_nginx_vhost_top_template: "{{_corpusops_nginx_vhost.top_template|default('../templates/top.conf')}}"
-corpusops_nginx_vhost_content_template: "{{_corpusops_nginx_vhost.content_template|default('../templates/content.conf')}}"
+corpusops_nginx_vhost_doc_root: "{{corpusops_services_http_nginx_vars.doc_root}}"
+corpusops_nginx_vhost_domain: "{{ansible_fqdn}}"
+corpusops_nginx_vhost_server_aliases: []
+corpusops_nginx_vhost_top_template: "../templates/top.conf"
+corpusops_nginx_vhost_content_template: "../templates/content.conf"
 # install / remove the link in conf.d (activate/deactivate a vhost)
-corpusops_nginx_vhost_install: "{{_corpusops_nginx_vhost.install|default(True)}}"
+corpusops_nginx_vhost_install: true
 # to be changed in "default" for old nginx versions.
-corpusops_nginx_vhost_listen_default_parameter: "{{_corpusops_nginx_vhost.listen_default_parameter|default('default_server')}}"
+corpusops_nginx_vhost_listen_default_parameter: "default_server"
 # to disable ssl, ssl_cert must be a empty string or None
-corpusops_nginx_vhost_ssl_cert: "{{_corpusops_nginx_vhost.ssl_cert|default(None)}}"
-corpusops_nginx_vhost_ssl_key: "{{_corpusops_nginx_vhost.ssl_key|default(None)}}"
-### this one should mostly never overriden
-corpusops_nginx_vhost_site_template: "{{_corpusops_nginx_vhost.site_template|default('../templates/site.conf')}}"
+corpusops_nginx_vhost_ssl_cert: null
+corpusops_nginx_vhost_ssl_key: null
+# this one should mostly never overriden
+corpusops_nginx_vhost_site_template: "../templates/site.conf"
 # those variable should mostly be good defaults
-corpusops_nginx_vhost_redirect_aliases: "{{_corpusops_nginx_vhost.redirect_aliases|default(False)}}"
-corpusops_nginx_vhost_force_reload: "{{_corpusops_nginx_vhost.force_reload|default(True)}}"
-corpusops_nginx_vhost_force_restart: "{{_corpusops_nginx_vhost.force_restart|default(False)}}"
-corpusops_nginx_vhost_handle_nginx: "{{_corpusops_nginx_vhost.handle_nginx|default(True)}}"
-corpusops_nginx_vhost_is_default_server: "{{_corpusops_nginx_vhost.is_default_server|default(False)}}"
-corpusops_nginx_vhost_http2: "{{_corpusops_nginx_vhost.http2|default(False)}}"
+corpusops_nginx_vhost_redirect_aliases: false
+corpusops_nginx_vhost_force_reload: true
+corpusops_nginx_vhost_force_restart: false
+corpusops_nginx_vhost_check_config: false
+corpusops_nginx_vhost_is_default_server: false
+corpusops_nginx_vhost_http2: false
 # -- computed values
-corpusops_nginx_vhost_docdir: "{{_corpusops_nginx_vhost.docdir|default(corpusops_services_http_nginx_vars.docdir)}}"
-corpusops_nginx_vhost_ssl_dhparam: "{{_corpusops_nginx_vhost.ssl_dhparam|default(corpusops_services_http_nginx_vars.ssl_dhparam)}}"
-corpusops_nginx_vhost_loglevel: "{{_corpusops_nginx_vhost.loglevel|default(corpusops_services_http_nginx_vars.loglevel)}}"
-corpusops_nginx_vhost_small_name: "{{_corpusops_nginx_vhost.small_name|default(corpusops_nginx_vhost_domain.replace('.', '_').replace('-', '_').replace('*', 'star'))}}"
-corpusops_nginx_vhost_ssl_domain: "{{_corpusops_nginx_vhost.ssl_domain|default(corpusops_nginx_vhost_domain)}}"
-corpusops_nginx_vhost_basename: "{{_corpusops_nginx_vhost.basename|default(corpusops_nginx_vhost_domain)}}"
-corpusops_nginx_vhost_site_link_default: "{{corpusops_services_http_nginx_vars.basedir}}/conf.d/{{corpusops_nginx_vhost_basename}}.conf"
-corpusops_nginx_vhost_site_link: "{{_corpusops_nginx_vhost.site_link|default(corpusops_nginx_vhost_site_link_default)}}"
-corpusops_nginx_vhost_site_file_default: "{{corpusops_services_http_nginx_vars.basedir}}/sites-available/{{corpusops_nginx_vhost_basename}}.conf"
-corpusops_nginx_vhost_site_file: "{{_corpusops_nginx_vhost.site_file|default(corpusops_nginx_vhost_site_file_default)}}"
-corpusops_nginx_vhost_content_file_default: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{{corpusops_nginx_vhost_basename}}.content.conf"
-corpusops_nginx_vhost_content_file: "{{_corpusops_nginx_vhost.content_file|default(corpusops_nginx_vhost_content_file_default)}}"
-corpusops_nginx_vhost_top_file_default: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{{corpusops_nginx_vhost_basename}}.top.conf"
-corpusops_nginx_vhost_top_file: "{{_corpusops_nginx_vhost.top_file|default(corpusops_nginx_vhost_top_file_default)}}"
-corpusops_nginx_vhost_active: "{{_corpusops_nginx_vhost.active|default(True)}}"
-corpusops_nginx_vhost_logdir: "{{_corpusops_nginx_vhost.logdir|default(corpusops_services_http_nginx_vars.logdir)}}"
-corpusops_nginx_vhost_logformat: "{{_corpusops_nginx_vhostlogformat|default(corpusops_services_http_nginx_vars.logformat)}}"
-corpusops_nginx_vhost_port: "{{_corpusops_nginx_vhost.port|default(corpusops_services_http_nginx_vars.port)}}"
-corpusops_nginx_vhost_real_ip_header: "{{_corpusops_nginx_vhost.real_ip_header|default(corpusops_services_http_nginx_vars.real_ip_header)}}"
-corpusops_nginx_vhost_reverse_proxy_addresses: "{{_corpusops_nginx_vhost.reverse_proxy_addresses|default(corpusops_services_http_nginx_vars.reverse_proxy_addresses)}}"
-corpusops_nginx_vhost_server_name: "{{_corpusops_nginx_vhost.server_name|default(corpusops_nginx_vhost_domain)}}"
-corpusops_nginx_vhost_use_real_ip: "{{_corpusops_nginx_vhost.use_real_ip|default(corpusops_services_http_nginx_vars.use_real_ip)}}"
-corpusops_nginx_vhost_v6: "{{_corpusops_nginx_vhost.v6|default(corpusops_services_http_nginx_vars.v6)}}"
-corpusops_nginx_vhost_ssl_cacert_first: "{{_corpusops_nginx_vhost.ssl_cacert_first|default(corpusops_services_http_nginx_vars.ssl_cacert_first)}}"
-corpusops_nginx_vhost_ssl_ciphers: "{{_corpusops_nginx_vhost.ssl_ciphers|default(corpusops_services_http_nginx_vars.ssl_ciphers)}}"
-corpusops_nginx_vhost_ssl_cert_path_default: "/etc/ssl/nginx/{{corpusops_nginx_vhost_ssl_domain}}.cert"
-corpusops_nginx_vhost_ssl_cert_path: "{{_corpusops_nginx_vhost.ssl_cert_path|default(corpusops_nginx_vhost_ssl_cert_path_default)}}"
-corpusops_nginx_vhost_ssl_key_path_default: "/etc/ssl/nginx/{{corpusops_nginx_vhost_ssl_domain}}.key"
-corpusops_nginx_vhost_ssl_key_path: "{{_corpusops_nginx_vhost.ssl_key_path|default(corpusops_nginx_vhost_ssl_key_path_default)}}"
-corpusops_nginx_vhost_ssl_port: "{{_corpusops_nginx_vhost.ssl_port|default(corpusops_services_http_nginx_vars.ssl_port)}}"
-corpusops_nginx_vhost_ssl_protocols: "{{_corpusops_nginx_vhost.ssl_protocols|default(corpusops_services_http_nginx_vars.ssl_protocols)}}"
-corpusops_nginx_vhost_ssl_redirect: "{{_corpusops_nginx_vhost.ssl_redirect|default(corpusops_services_http_nginx_vars.ssl_redirect)}}"
-corpusops_nginx_vhost_ssl_session_cache: "{{_corpusops_nginx_vhost.ssl_session_cache|default(corpusops_services_http_nginx_vars.ssl_session_cache)}}"
-corpusops_nginx_vhost_ssl_session_timeout: "{{_corpusops_nginx_vhost.ssl_session_timeout|default(corpusops_services_http_nginx_vars.ssl_session_timeout)}}"
-corpusops_nginx_vhost_user: "{{_corpusops_nginx_vhost.user|default(corpusops_services_http_nginx_vars.user)}}"
-corpusops_nginx_vhost_group: "{{_corpusops_nginx_vhost.group|default(corpusops_services_http_nginx_vars.group)}}"
-corpusops_nginx_vhost_rhandlers: "{{_corpusops_nginx_vhost.rhandlers|default([])}}"
+corpusops_nginx_vhost_docdir: "{{corpusops_services_http_nginx_vars.docdir}}"
+corpusops_nginx_vhost_ssl_dhparam: "{{corpusops_services_http_nginx_vars.ssl_dhparam}}"
+corpusops_nginx_vhost_loglevel: "{{corpusops_services_http_nginx_vars.loglevel}}"
+corpusops_nginx_vhost_active: true
+corpusops_nginx_vhost_logdir: "{{corpusops_services_http_nginx_vars.logdir}}"
+corpusops_nginx_vhost_logformat: "{{corpusops_services_http_nginx_vars.logformat}}"
+corpusops_nginx_vhost_port: "{{corpusops_services_http_nginx_vars.port}}"
+corpusops_nginx_vhost_real_ip_header: "{{corpusops_services_http_nginx_vars.real_ip_header}}"
+corpusops_nginx_vhost_reverse_proxy_addresses: "{{corpusops_services_http_nginx_vars.reverse_proxy_addresses}}"
+corpusops_nginx_vhost_ssl_port: "{{corpusops_services_http_nginx_vars.ssl_port}}"
+corpusops_nginx_vhost_ssl_protocols: "{{corpusops_services_http_nginx_vars.ssl_protocols}}"
+corpusops_nginx_vhost_ssl_redirect: "{{corpusops_services_http_nginx_vars.ssl_redirect}}"
+corpusops_nginx_vhost_ssl_session_cache: "{{corpusops_services_http_nginx_vars.ssl_session_cache}}"
+corpusops_nginx_vhost_ssl_session_timeout: "{{corpusops_services_http_nginx_vars.ssl_session_timeout}}"
+corpusops_nginx_vhost_user: "{{corpusops_services_http_nginx_vars.user}}"
+corpusops_nginx_vhost_group: "{{corpusops_services_http_nginx_vars.group}}"
+corpusops_nginx_vhost_rhandlers: []
+corpusops_nginx_vhost_zrhandlers: []
 # set this list to filter from HOST header
-corpusops_nginx_vhost_allowed_hosts: "{{_corpusops_nginx_vhost.allowed_hosts|default([])}}"
+corpusops_nginx_vhost_allowed_hosts: []
+corpusops_nginx_vhost_use_real_ip: "{{corpusops_services_http_nginx_vars.use_real_ip}}"
+corpusops_nginx_vhost_v6: "{{corpusops_services_http_nginx_vars.v6}}"
+corpusops_nginx_vhost_ssl_cacert_first: "{{corpusops_services_http_nginx_vars.ssl_cacert_first}}"
+corpusops_nginx_vhost_ssl_ciphers: "{{corpusops_services_http_nginx_vars.ssl_ciphers}}"
+corpusops_nginx_vhost_small_name: "{{corpusops_nginx_vhost_domain.replace('.', '_').replace('-', '_').replace('*', 'star')}}"
+corpusops_nginx_vhost_ssl_domain: "{{corpusops_nginx_vhost_domain}}"
+corpusops_nginx_vhost_basename: "{{corpusops_nginx_vhost_domain}}"
+corpusops_nginx_vhost_site_link: "{{corpusops_services_http_nginx_vars.basedir}}/conf.d/{corpusops_nginx_vhost_basename}.conf"
+corpusops_nginx_vhost_site_file: "{{corpusops_services_http_nginx_vars.basedir}}/sites-available/{corpusops_nginx_vhost_basename}.conf"
+corpusops_nginx_vhost_content_file: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{corpusops_nginx_vhost_basename}.content.conf"
+corpusops_nginx_vhost_top_file: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{corpusops_nginx_vhost_basename}.top.conf"
+corpusops_nginx_vhost_server_name: "{{corpusops_nginx_vhost_domain}}"
+corpusops_nginx_vhost_ssl_cert_path: "/etc/ssl/nginx/{corpusops_nginx_vhost_ssl_domain}.cert"
+corpusops_nginx_vhost_ssl_key_path: "/etc/ssl/nginx/{corpusops_nginx_vhost_ssl_domain}.key"
 #
 corpusops_nginx_vhost_files:
   - {path: "{{corpusops_nginx_vhost_ssl_cert_path | copsf_api_dirname }}",
@@ -88,15 +82,15 @@ corpusops_nginx_vhost_configs:
   - {name: "{{corpusops_nginx_vhost_top_file}}",
     owner: "{{corpusops_nginx_vhost_user}}",
     group: "{{corpusops_nginx_vhost_group}}",
-    template: "{{corpusops_nginx_vhost_top_template}}",
+    template: "{corpusops_nginx_vhost_top_template}",
     mode: "0644"}
   - {name: "{{corpusops_nginx_vhost_content_file}}",
     owner: "{{corpusops_nginx_vhost_user}}",
     group: "{{corpusops_nginx_vhost_group}}",
-    template: "{{corpusops_nginx_vhost_content_template}}",
+    template: "{corpusops_nginx_vhost_content_template}",
     mode: "0644"}
   - {name: "{{corpusops_nginx_vhost_site_file}}",
     owner: "{{corpusops_nginx_vhost_user}}",
     group: "{{corpusops_nginx_vhost_group}}",
-    template: "{{corpusops_nginx_vhost_site_template}}",
+    template: "{corpusops_nginx_vhost_site_template}",
     mode: "0644"}
