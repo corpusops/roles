@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import six
 import time
+import collections
 import os
 import contextlib
 import hashlib
@@ -45,6 +46,42 @@ def lock(fd, flags=fcntl.LOCK_NB | fcntl.LOCK_EX):
 def unlock(fd):
     fcntl.flock(fd.fileno(), fcntl.LOCK_UN)
 
+
+def dictupdate(dest, upd, recursive_update=True):
+    '''
+    Recursive version of the default dict.update
+    Merges upd recursively into dest
+    But instead of merging lists, it overrides them from target dict
+    '''
+    if (not isinstance(dest, collections.Mapping)) \
+            or (not isinstance(upd, collections.Mapping)):
+        raise TypeError('Cannot update using non-dict types'
+                        ' in dictupdate.update()')
+    updkeys = list(upd.keys())
+    if not set(list(dest.keys())) & set(updkeys):
+        recursive_update = False
+    if recursive_update:
+        for key in updkeys:
+            val = upd[key]
+            try:
+                dest_subkey = dest.get(key, None)
+            except AttributeError:
+                dest_subkey = None
+            if isinstance(dest_subkey, collections.Mapping) \
+                    and isinstance(val, collections.Mapping):
+                ret = dictupdate(dest_subkey, val)
+                dest[key] = ret
+            else:
+                dest[key] = upd[key]
+        return dest
+    else:
+        try:
+            dest.update(upd)
+        except AttributeError:
+            # this mapping is not a dict
+            for k in upd:
+                dest[k] = upd[k]
+        return dest
 
 @contextlib.contextmanager  # noqa
 def wait_lock(
@@ -193,6 +230,7 @@ def cops_copy(val):
 
 
 __funcs__ = {
+    'copsf_dictupdate': dictupdate,
     'copsf_deepcopy': cops_deepcopy,
     'copsf_copy': cops_copy,
     'copsf_api_wait_lock': wait_lock,
