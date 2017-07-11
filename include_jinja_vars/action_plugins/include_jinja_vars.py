@@ -11,6 +11,7 @@ import chardet
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.module_utils._text import to_native
 from ansible.plugins.action import ActionBase
+IS_JINJA = re.compile('{{.+}}|{%.+%}')
 
 
 def magicstring(thestr):
@@ -361,16 +362,26 @@ class ActionModule(ActionBase):
     def _load_content(self, data, show_content=True, filename='<string>'):
         results = dict()
         failed = False
-        old_data = None
         err_msg = ''
+        pdata = None
+        qdata = None
+        fdata = None
         try:
             if isinstance(data, dict):
-                pass
+                fdata = data
             else:
-                data = magicstring(data)
-                if (('{{' in data) or ('{%' in data)):
-                    data = self._templar.template(data)
-                data = self._loader.load(data, show_content)
+                pdata = magicstring(data)
+                match = IS_JINJA.search(pdata)
+                try:
+                    fdata = self._loader.load(pdata, show_content)
+                    if not isinstance(fdata, dict):
+                        raise Exception('try to load from jinja second pass')
+                except (Exception,) as exc:
+                    if match:
+                        qdata = self._templar.template(pdata)
+                        fdata = self._loader.load(qdata, show_content)
+                    else:
+                        raise exc
         except (Exception,) as exc:
             trace = traceback.format_exc()
             failed = True
@@ -378,26 +389,29 @@ class ActionModule(ActionBase):
             err_msg = (
                 '{0} does not render correctly: \n{1}\n{2}\n'
                 .format(filename, exc, trace))
-            if old_data:
-                print('\nOriginal data')
-                print(old_data)
-            if data and (data != old_data):
-                print('\nCurrently Rendered data')
-                print(data)
+            for label, odata, test in (
+                ('data', data, not any((pdata, fdata, qdata))),
+                ('pdata', pdata, pdata and (pdata != data)),
+                ('qdata', qdata, qdata and (qdata != pdata)),
+                ('fdata', fdata, fdata and (fdata
+                                            not in [pdata, qdata, data])),
+            ):
+                if odata and test:
+                    print('\n{0}'.format(label))
+                    print('{0}'.format(odata))
             print('\nError')
             print(err_msg)
             return failed, err_msg, results
-
-        if not data:
-            data = dict()
-        if not isinstance(data, dict):
+        if not fdata:
+            fdata = dict()
+        if not isinstance(fdata, dict):
             failed = True
             err_msg = (
                 '{0} must be stored as a dictionary/hash'
                 .format(filename)
             )
         else:
-            results.update(data)
+            results.update(fdata)
             results = self.resolve(results)
         return failed, err_msg, results
 
