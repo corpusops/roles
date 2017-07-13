@@ -46,7 +46,7 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_http_nginx_vars.packages is not none and
           corpusops_services_http_nginx_vars.packages|length > 0)"
-  notify: [restart_corpusops_services_http_nginx]
+  register: corpusops_services_http_nginx_pkgst
 - name: update & install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -88,7 +88,6 @@
     name: "{{corpusops_services_http_nginx_vars.group}}"
     system: yes
     state: present
-  notify: [restart_corpusops_services_http_nginx]
 - name: files
   file:
     path: "{{item.path}}"
@@ -101,7 +100,7 @@
   with_items: "{{corpusops_services_http_nginx_vars.files}}"
   when: "(corpusops_services_http_nginx_vars.files is not none and
           corpusops_services_http_nginx_vars.files|length > 0)"
-  notify: [restart_corpusops_services_http_nginx]
+  register: corpusops_services_http_nginx_filest
 - name: files copy
   copy:
     dest: "{{item.dest|default(omit)}}"
@@ -115,7 +114,7 @@
   with_items: "{{corpusops_services_http_nginx_vars.filescopy}}"
   when: "(corpusops_services_http_nginx_vars.filescopy is not none and
           corpusops_services_http_nginx_vars.filescopy|length > 0)"
-  notify: [restart_corpusops_services_http_nginx]
+  register: corpusops_services_http_nginx_filesct
 - name: configs
   template:
     src: "{{item.template
@@ -127,7 +126,7 @@
   with_items: "{{corpusops_services_http_nginx_vars.configs}}"
   when: "(corpusops_services_http_nginx_vars.configs is not none and
           corpusops_services_http_nginx_vars.configs|length > 0)"
-  notify: [restart_corpusops_services_http_nginx]
+  register: corpusops_services_http_nginx_configst
 - name: gen diffie-h file
   shell: |
     f="{{corpusops_services_http_nginx_ssl_dhparam}}";d="$(dirname $f)";
@@ -137,3 +136,10 @@
     fi
   register: corpusops_services_http_nginx_dh
   changed_when: "'ansibledhgen' in corpusops_services_http_nginx_dh.stderr"
+- set_fact:
+    corpusops_nginx_control_state: reloaded
+  when: >
+        (corpusops_services_http_nginx_pkgst.changed or 
+         corpusops_services_http_nginx_filest.changed or
+         corpusops_services_http_nginx_filesct.changed or
+         corpusops_services_http_nginx_configst.changed)
