@@ -1,0 +1,3 @@
+---
+corpusops_nginx_control_handle_nginx: true
+corpusops_nginx_control_state: 'started'
