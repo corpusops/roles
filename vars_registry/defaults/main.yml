@@ -2,3 +2,4 @@
 cops_vars_registry_target: "{{role_name}}"
 cops_vars_registry_prefix: "{{cops_vars_registry_target}}_"
 cops_vars_registry_name:  "{{cops_vars_registry_target}}_vars"
+cops_vars_registry_overrides: "_{{cops_vars_registry_target}}"
