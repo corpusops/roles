@@ -15,7 +15,7 @@
   loop_control: {loop_var: iiitem}
 - debug:
    msg: |-
-    {% set crc = (archive_vars.urls.alchive_crc | default('')) | length > 0 %}
+    {% set crc = (archive_vars.urls.archive_crc | default('')) | length > 0 %}
     {% set ret = {'done': True,
                   'crc': crc,
                   'verify_gpg': archive_vars.urls.verify_gpg|default([]),
@@ -48,7 +48,7 @@
     url: "{{archive_vars.urls.archive_crc}}"
     remote_src: true
     dest: "{{archive_vars.app_path}}/crcs"
-    mode: "0644"
+    mode: "{{archive_vars.mode}}"
     force: true
   when: "(corpusops_uo_tests.msg.crc and
           archive_vars.urls.archive_crc.startswith('http') and
@@ -57,7 +57,7 @@
 - name: record CRCs
   shell: |
     if [ ! -e "{{archive_vars.app_path}}" ];then mkdir "{{archive_vars.app_path}}";fi
-    echo "{{archive_vars.urls.archive_crc}} {{archive}}" > "{{archive_vars.app_path}}/crcs"
+    echo "{{archive_vars.urls.archive_crc}} {{archive_vars.archive}}" > "{{archive_vars.app_path}}/crcs"
     chmod 0644 "{{archive_vars.app_path}}/crcs"
   changed_when: false
   when: "(corpusops_uo_tests.msg.crc and
@@ -76,7 +76,7 @@
 # SHA integrity verification case
 - name: get SHA from CRCs file
   shell: |
-         grep "{{archive}}" "{{archive_vars.app_path}}/crcs"
+         grep "{{archive_vars.archive}}" "{{archive_vars.app_path}}/crcs"
   register: install_one_shas
   changed_when: false
   when: "((corpusops_uo_tests.msg.verify_sha256 or
@@ -84,7 +84,7 @@
           not corpusops_uo_tests.msg.done)"
 - name: "test shas"
   stat:
-    path: "{{'/'.join([archive_vars.app_path, archive])}}"
+    path: "{{archive_vars.app_path}}/{{archive_vars.archive}}"
     get_checksum: True
     checksum_algorithm: "{{install_shamode.msg}}"
   register: install_one_archivet
@@ -113,7 +113,7 @@
     remote_src: true
     url: "{{archive_vars.urls.archive}}"
     dest: "{{archive_vars.app_path}}"
-    mode: "0644"
+    mode: "{{archive_vars.mode}}"
     checksum: "{{install_shamode.msg}}:{{install_one_shas.stdout.split()[0]}}"
   when: "not corpusops_uo_tests.msg.done and install_one_archivetr.msg.r"
   changed_when: false
@@ -122,7 +122,7 @@
     remote_src: true
     url: "{{archive_vars.urls.archive}}"
     dest: "{{archive_vars.app_path}}"
-    mode: "0644"
+    mode: "{{archive_vars.mode}}"
   when: "(not corpusops_uo_tests.msg.done and
           not corpusops_uo_tests.msg.verify_sha1 and
           not corpusops_uo_tests.msg.verify_sha256)"
@@ -150,7 +150,6 @@
 
 # UNPACK
 - name: unarchive
-  when: "not corpusops_uo_tests.msg.done"
   unarchive:
     remote_src: true
     keep_newer: true
@@ -166,5 +165,17 @@
     src: "{{'{d}/{bn}'.format(**liitem)}}"
     dest: "{{liitem.d}}"
   loop_control: {loop_var: liitem}
+  when: |
+        (
+        ('.tbz2' in liitem.bn) or
+        ('.bz2' in liitem.bn) or
+        ('.tar' in liitem.bn) or
+        ('.tgz' in liitem.bn) or
+        ('.gz' in liitem.bn) or
+        ('.lzma' in liitem.bn) or
+        ('.zip' in liitem.bn) or
+        ('.7z' in liitem.bn) or
+        ('.xz' in liitem.bn)
+        ) and not corpusops_uo_tests.msg.done
   with_items: [{d: "{{archive_vars.app_path}}", bn: "{{archive_vars.archive}}"}]
 

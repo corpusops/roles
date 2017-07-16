@@ -3,6 +3,7 @@ archive:
   filetest: null
   archive: null
   app_path: null
+  mode: "0644"
   urls:
     archive: null
     archive_crc: null
