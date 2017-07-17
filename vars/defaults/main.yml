@@ -3,6 +3,7 @@
 corpusops_core_server_type: null
 corpusops_core_roles: "{{role_path | copsf_dirname}}"
 corpusops_core_prefix: "{{role_path | copsf_dirname | copsf_dirname | copsf_dirname}}"
+cops_root: "{{corpusops_core_prefix}}"
 
 # try to determine which type of env we are (prod, etc)
 corpusops_core_env: null
