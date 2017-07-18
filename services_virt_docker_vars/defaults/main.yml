@@ -18,8 +18,13 @@ corpusops_services_virt_docker_services: null
 corpusops_services_virt_docker_services_default: [docker]
 corpusops_services_virt_docker_files: null
 corpusops_services_virt_docker_filescopy: null
-corpusops_services_virt_docker_filescopy_default: []
+corpusops_services_virt_docker_filescopy_default:
+  - {template: "{{cops_root}}/bin/cops_docker_cleanup.sh",
+     dest: "{{corpusops_services_virt_docker_cleanup_script}}",
+     mode: "755"}
 corpusops_services_virt_docker_files_default:
+  - {path: "/etc/cron.d",
+     state: directory, mode: "755"}
   - {path: "/etc/systemd/system/docker.service.d",
      state: directory, mode: "755"}
 corpusops_services_virt_docker_configs: null
@@ -27,9 +32,13 @@ corpusops_services_virt_docker_configs_debian:
   - {name: "/etc/default/docker" , mode: "644"}
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
      mode: "644"}
+  - {name: "/etc/cron.d/cops-docker-cleanup" ,
+     mode: "644"}
 corpusops_services_virt_docker_configs_redhat:
   - {name: "/etc/default/docker",
      dest: "/etc/sysconfig/docker",
+     mode: "644"}
+  - {name: "/etc/cron.d/cops-docker-cleanup" ,
      mode: "644"}
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
      mode: "644"}
@@ -41,3 +50,7 @@ corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
 corpusops_services_virt_docker_settings_INSECURE_REGISTRY: ""
 corpusops_services_virt_docker_settings_http_proxy: ""
 corpusops_services_virt_docker_settings_TMPDIR: ""
+corpusops_services_virt_docker_cleanup_script: /usr/local/bin/cops_docker_cleanup.sh
+# set periodicity to null to deactivate
+corpusops_services_virt_docker_cleanup_cron: |
+  0 3 * * * root sh -c 'if [ -f {{corpusops_services_virt_docker_cleanup_script}} ] && [ ! -e /etc/docker_no_cleanup ];then {{corpusops_services_virt_docker_cleanup_script}} >/dev/null 2>&1;fi'"
