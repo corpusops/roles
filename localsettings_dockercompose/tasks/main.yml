@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_dockercompose preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_dockercompose | default(True) }}"
+  register: corpusops_localsettings_dockercompose_can_run
+  tags: corpusops_localsettings_dockercompose
+- include: run.yml
+  when: 'corpusops_localsettings_dockercompose_can_run.msg == True'
+  tags: corpusops_localsettings_dockercompose

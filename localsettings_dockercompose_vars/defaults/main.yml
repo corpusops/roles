@@ -1,0 +1,32 @@
+---
+corpusops_localsettings_dockercompose_version: '1.16.1'
+corpusops_localsettings_dockercompose_crc: '1804b0ce6596efe707b9cab05d74b161833ed503f0535a937dd5d17bea8fc50a'
+corpusops_localsettings_dockercompose_verify_sha256: true
+corpusops_localsettings_dockercompose_bin: "docker-compose-{{corpusops_localsettings_dockercompose_platform}}-{{corpusops_localsettings_dockercompose_arch}}"
+corpusops_localsettings_dockercompose_filetest: ["{{corpusops_localsettings_dockercompose_bin}}"]
+corpusops_localsettings_dockercompose_versions: []
+corpusops_localsettings_dockercompose_platform: "Linux"
+corpusops_localsettings_dockercompose_arch: 'x86_64'
+corpusops_localsettings_dockercompose_configs: {}
+corpusops_localsettings_dockercompose_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
+corpusops_localsettings_dockercompose_install_path: "/usr/local"
+corpusops_localsettings_dockercompose_gpg_keys: []
+corpusops_localsettings_dockercompose_keyserver: "{{corpusops_core_keyserver}}"
+corpusops_localsettings_dockercompose_sources_list: null
+corpusops_localsettings_dockercompose_mirror: null
+corpusops_localsettings_dockercompose_repo: null
+corpusops_localsettings_dockercompose_packages: []
+corpusops_localsettings_dockercompose_debug: "1"
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_dockercompose_alternatives:
+  docker-compose:
+    target: "{{corpusops_localsettings_dockercompose_install_path}}/bin/docker-compose"
+    bins:
+      - manualdockercompose:
+          target: "{{_corpusops_localsettings_dockercompose_app_path}}/{{corpusops_localsettings_dockercompose_bin}}"
+_corpusops_localsettings_dockercompose_app_path: "{{corpusops_core_apps_path}}/docker-compose-{{version}}"
+_corpusops_localsettings_dockercompose_archive: "{{corpusops_localsettings_dockercompose_bin}}"
+_corpusops_localsettings_dockercompose_urls:
+  archive: "https://github.com/docker/compose/releases/download/{{version}}/{{_corpusops_localsettings_dockercompose_archive}}"
+
