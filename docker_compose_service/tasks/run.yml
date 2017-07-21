@@ -1,0 +1,36 @@
+---
+- template:
+    src: systemd.unit
+    dest: "/etc/systemd/system/{{docker_compose_service_vars.project}}.service"
+    mode: "0644"
+  tags: [service, systemd]
+  when: "(corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+- template:
+    src: upstart.conf
+    dest: "/etc/init/{{docker_compose_service_vars.project}}.conf"
+    mode: "0644"
+  tags: [service, upstart]
+  when: "(corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'upstart'))"
+- systemd:
+    daemon_reload: yes
+    state: "{{docker_compose_service_vars.service_activated
+              | ternary('started', 'stopped')}}"
+    enabled: "{{docker_compose_service_vars.service_activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{docker_compose_service_vars.services}}"
+  tags: [service, systemd_do]
+  when: "(corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+- service:
+    state: "{{docker_compose_service_vars.service_activated
+              | ternary('started', 'stopped')}}"
+    enabled: "{{docker_compose_service_vars.service_activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: ["{{docker_compose_service_vars.project}}"]
+  tags: [service, service_do]
+  when: "(corpusops_vars.has_services_manager and
+          (ansible_service_mgr in ['upstart']))" 

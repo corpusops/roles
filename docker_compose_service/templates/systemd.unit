@@ -1,0 +1,19 @@
+# {{ansible_managed}}
+#{% set d = docker_compose_service_vars.project %}
+#{% set w = docker_compose_service_vars.working_directory %}
+[Unit]
+Description={{d}} DockerCompose service
+After=network.service docker.service
+Requires=docker.service
+[Service]
+Restart=always
+RestartSec=10
+TimeoutSec=300
+WorkingDirectory={{w}}
+ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" pull
+ExecStart=/usr/bin/env    docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" up
+ExecStop=/usr/bin/env     docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" stop
+ExecStopPost=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" down
+[Install]
+WantedBy=docker.service
+# vim: set ft=systemd:

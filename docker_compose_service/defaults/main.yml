@@ -1,0 +1,6 @@
+---
+docker_compose_service:
+  project: compose-myapp
+  working_directory: /tmp
+  docker_compose_file: docker-compose.yml
+  service_activated: true
