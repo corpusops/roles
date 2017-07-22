@@ -7,7 +7,7 @@
 - The gpg key or the shas can be either a string or
   downloaded from a remote http location
 
-### Install a vhost
+### Dowload archives from remotes
 ```yaml
 # most playbooks will want
 # the "version" inline variable before including
