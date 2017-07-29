@@ -1,0 +1,10 @@
+---
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_postgresql_privs
+  tags: [postgresql_privs]
+- debug: "msg={{cops_postgresql_privs_vars}}"
+  failed_when: "not cops_postgresql_privs_vars.roles"
+  tags: [postgresql_privs]
+- include_tasks: run.yml
+  tags: [postgresql_privs]

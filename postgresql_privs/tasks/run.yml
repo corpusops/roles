@@ -1,0 +1,21 @@
+---
+- postgresql_privs:
+    database: "{% if cops_postgresql_privs_vars.database is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.database }}{%endif%}"
+    password: "{% if cops_postgresql_privs_vars.password is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.password }}{%endif%}"
+    type: "{% if cops_postgresql_privs_vars.type is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.type }}{%endif%}"
+    roles: "{% if cops_postgresql_privs_vars.roles is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.roles }}{%endif%}"
+    schema: "{% if cops_postgresql_privs_vars.schema is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.schema }}{%endif%}"
+    objs: "{% if cops_postgresql_privs_vars.objs is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.objs }}{%endif%}"
+    grant_option: "{% if cops_postgresql_privs_vars.grant_option is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.grant_option }}{%endif%}"
+    privs: "{% if cops_postgresql_privs_vars.privs is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.privs }}{%endif%}"
+    port: "{% if cops_postgresql_privs_vars.port is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.port }}{%endif%}"
+    ssl_mode: "{% if cops_postgresql_privs_vars.ssl_mode is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.ssl_mode }}{%endif%}"
+    ssl_rootcert: "{% if cops_postgresql_privs_vars.ssl_rootcert is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.ssl_rootcert }}{%endif%}"
+    login_password: "{{cops_postgresql_privs_vars.login_password}}"
+    login_host: "{{cops_postgresql_privs_vars.login_host}}"
+    login_user: "{{cops_postgresql_privs_vars.login_user}}"
+    login_unix_socket: "{% if cops_postgresql_privs_vars.login_unix_socket is none %}{{omit}}{% else %}{{ cops_postgresql_privs_vars.login_unix_socket }}{%endif%}"
+    state: "{{cops_postgresql_privs_vars.state}}"
+  become: "{{cops_postgresql_privs_vars.become}}"
+  become_user: "{{cops_postgresql_privs_vars.become_user}}"
+  register: cops_postgresql_privs_ret

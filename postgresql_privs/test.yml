@@ -1,0 +1,36 @@
+---
+- hosts: all
+  roles:
+    - {name: corpusops.roles/services_db_postgresql_vars}
+- hosts: all
+  roles:
+    - {name: corpusops.roles/services_db_postgresql,
+       tags: setup}
+- hosts: all
+  tasks:
+    - shell: |
+        set -ex
+        dropdb "{{item}}" || /bin/true
+      become: true
+      become_user: "postgres"
+      with_items:
+        - postgresql_privs_uprivdb2
+    - include_role:
+        name: corpusops.roles/postgresql_db
+      vars:
+        _cops_postgresql_db:
+          db: "postgresql_privs_uprivdb2"
+    - include_role:
+        name: corpusops.roles/postgresql_user
+      vars:
+        _cops_postgresql_user:
+          name: "postgresql_privs_uprivdb3_user"
+          password: verysecret
+    - include_role:
+        name: corpusops.roles/postgresql_privs
+      vars:
+        _cops_postgresql_privs:
+          roles: "postgresql_privs_uprivdb3_user"
+          database: "postgresql_privs_uprivdb2"
+          type: database
+          privs: ALL
