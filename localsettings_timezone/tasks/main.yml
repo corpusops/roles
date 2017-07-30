@@ -4,7 +4,7 @@
     msg: "{{corpusops_localsettings_timezone | default(True) }}"
   register: corpusops_localsettings_timezone_can_run
   tags: corpusops_localsettings_timezone
-- include: run.yml
+- include_tasks: run.yml
   when: 'corpusops_localsettings_timezone_can_run.msg == True'
   tags: corpusops_localsettings_timezone
   vars:

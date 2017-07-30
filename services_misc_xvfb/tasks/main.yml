@@ -4,6 +4,6 @@
     msg: "{{corpusops_services_misc_xvfb | default(True) }}"
   register: corpusops_services_misc_xvfb_can_run
   tags: corpusops_services_misc_xvfb
-- include: run.yml
+- include_tasks: run.yml
   when: 'corpusops_services_misc_xvfb_can_run.msg == True'
   tags: corpusops_services_misc_xvfb

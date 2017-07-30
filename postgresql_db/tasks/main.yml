@@ -6,5 +6,5 @@
 - debug: "msg={{cops_postgresql_db_vars}}"
   failed_when: "not cops_postgresql_db_vars.db"
   tags: [postgresql_db]
-- include: run.yml
+- include_tasks: run.yml
   tags: [postgresql_db]

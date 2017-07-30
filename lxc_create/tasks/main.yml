@@ -1,6 +1,6 @@
 ---
 # map computation from lxcvar role back to clean variables
-- include: lxc.yml
+- include_tasks: lxc.yml
   vars:
     lxc_included_config: "{{corpusops_lxc_container_vars.msg['included_config']}}"
     lxc_path: "{{corpusops_lxc_container_vars.msg['path']}}"

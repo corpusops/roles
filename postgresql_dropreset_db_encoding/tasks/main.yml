@@ -39,6 +39,6 @@
     msg: "{{postgresql_dropreset_db_encoding_test.rc != 0}}"
   register: postgresql_dropreset_db_encoding_can_run
   tags: [postgresql_dropreset_db_encoding]
-- include: run.yml
+- include_tasks: run.yml
   when: 'postgresql_dropreset_db_encoding_can_run.msg == True'
   tags: [postgresql_dropreset_db_encoding, postgresql_dropreset_db_encoding_conf]

@@ -13,21 +13,21 @@
     egrep -q "^{{lxc_container_name}}$";echo $?
   register: corpusops_lxc_create_lxc_test
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc
-- include: manual_lxc_conf.yml
+- include_tasks: manual_lxc_conf.yml
   when: 'corpusops_lxc_create_lxc_test.stdout == "0"'
   tags: corpusops_lxc_create
-- include: fstab.yml
+- include_tasks: fstab.yml
   tags: corpusops_lxc_create
   when: 'corpusops_lxc_create_lxc_test.stdout == "0"'
-- include: from_template.yml
+- include_tasks: from_template.yml
   when: 'lxc_from_container == ""'
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc_bare
-- include: from_image.yml
+- include_tasks: from_image.yml
   when: 'lxc_from_container != ""'
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc_bare
-- include: fstab.yml
+- include_tasks: fstab.yml
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc_bare
-- include: manual_lxc_conf.yml
+- include_tasks: manual_lxc_conf.yml
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc_bare
 - name: lxc mgmt dirs
   file:

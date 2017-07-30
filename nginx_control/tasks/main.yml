@@ -5,5 +5,5 @@
     cops_vars_registry_target: corpusops_nginx_control
   tags: [corpusops_vars, corpusops_nginx_control, corpusops_nginx_control_vars]
 # do the real stuff
-- include: run.yml
+- include_tasks: run.yml
   tags: [corpusops_nginx_control, corpusops_nginx_control_do]

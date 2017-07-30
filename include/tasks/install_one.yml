@@ -3,7 +3,7 @@
 # the "version" inline variable before including
 # this tasks file
 # EG:
-#- include: "../tasks_common/install_one.yml"
+#- include_tasks: "../tasks_common/install_one.yml"
 #  vars:
 #    version: "{{item}}"
 #    filetest: [bin/app]
@@ -14,7 +14,7 @@
 #      archive: "http://app-{{version}}.tgz"
 #      verify_sha1: true
 #  with_items: "[1.0, 2.0]"
-#- include: "../tasks_common/install_one.yml"
+#- include_tasks: "../tasks_common/install_one.yml"
 #  vars:
 #    version: "{{item}}"
 #    filetest: [bin/app]
@@ -25,7 +25,7 @@
 #      archive: "http://app-{{version}}.tgz"
 #      verify_sha256: true
 #  with_items: "[1.0, 2.0]"
-#- include: "../tasks_common/install_one.yml"
+#- include_tasks: "../tasks_common/install_one.yml"
 #  vars:
 #    version: "{{item}}"
 #    filetest: [bin/app]
@@ -71,7 +71,7 @@
   changed_when: False
 
 # Download GPG keys if any
-- include: "../include/tasks/add_gpg_keys.yml"
+- include_tasks: "../include/tasks/add_gpg_keys.yml"
   vars:
     keys: "{{corpusops_uo_tests.msg.verify_gpg}}"
   loop_control: {loop_var: keyitem}
