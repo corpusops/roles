@@ -56,8 +56,16 @@ def dictupdate(dest, upd, recursive_update=True):
     '''
     if (not isinstance(dest, collections.Mapping)) \
             or (not isinstance(upd, collections.Mapping)):
-        raise TypeError('Cannot update using non-dict types'
-                        ' in dictupdate.update()')
+        msg = ('Cannot update using non-dict types'
+               ' in dictupdate.update()')
+        try:
+            msg = "{0}\ndest: {1}\nupd: {2}".format(msg, dest, upd)
+        except Exception:
+            try:
+                msg = "{0}\ndest: {1}".format(msg, dest, upd)
+            except Exception:
+                msg = "{1}\nupd: {2}".format(msg, dest, upd)
+        raise TypeError(msg)
     updkeys = list(upd.keys())
     if not set(list(dest.keys())) & set(updkeys):
         recursive_update = False
