@@ -1,5 +1,5 @@
 ---
-corpusops_localsettings_packer_version: '1.0.0'
+corpusops_localsettings_packer_version: '1.0.4'
 corpusops_localsettings_packer_filetest: [packer]
 corpusops_localsettings_packer_versions: []
 corpusops_localsettings_packer_platform: "linux"
