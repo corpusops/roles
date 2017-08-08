@@ -6,11 +6,23 @@
     cops_root: "/srv/corpusops/corpusops.bootstrap"
     ms_root: "/srv/makina-states"
   tasks:
+    - stat:
+        path: "{{cops_root}}"
+      register: cops_stat
+    - stat:
+        path: "{{ms_root}}"
+      register: ms_stat
     - name: upgrade cops
+      tags: [cops, upgrade_cops]
       shell: |-
              cd "{{cops_root}}"
+             git pull
              bin/install.sh -C -s
+      when: "cops_stat.stat.exists"
     - name: upgrade ms
+      tags: [ms, upgrade_ms]
       shell: |-
              cd "{{ms_root}}"
+             git pull
              bin/boot-salt2.sh -C --synchronize-code
+      when: "ms_stat.stat.exists"
