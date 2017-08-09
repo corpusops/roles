@@ -1,10 +1,11 @@
 ---
+- set_fact:
+    corpusops_services_http_nginx_rp: "{{role_path}}"
 - include_role:
     name: "corpusops.roles/nginx_vhost"
-    private: true
   vars:
     _corpusops_nginx_vhost:
-      content_template: ../templates/etc/nginx/sites-available/default.conf
+      content_template: "{{corpusops_services_http_nginx_rp}}/templates/etc/nginx/sites-available/default.conf"
       basename: default
       domain: _
       server_aliases: []
