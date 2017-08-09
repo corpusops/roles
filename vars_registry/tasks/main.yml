@@ -1,29 +1,33 @@
 ---
 # load default variables, first pass, load not resolved values
-- debug:
-    msg: |
-      {% set p = cops_vars_registry_target %}
-      {% set res = {p: vars.get(p, {}) | copsf_deepcopy} %}
-      {% for var, val in vars.items() %}
-      {%  if (var.startswith(cops_vars_registry_prefix) and
-              not var.startswith(cops_vars_registry_name)) %}
-      {%   set _ = res.update({var: val | copsf_deepcopy}) %}
-      {%  endif %}
-      {% endfor %}
-      {{ res | to_json }}
-  register: cops_vars_registry
-- debug:
-    msg: "{{cops_vars_registry.msg}}"
-  register: cops_vars_registry
-# make computations when variable are resolved and store them in a namespace
 - include_jinja_vars:
-    name: "{{cops_vars_registry_name}}"
+    name: __GLOBAL__
     content: |
       ---
-      {% set res = cops_vars_registry.msg.pop(cops_vars_registry_target, {}) %}
-      {% for var, val in cops_vars_registry.msg.items() %}
-      {%     set svar = cops_vars_registry_prefix.join(
-                var.split(cops_vars_registry_prefix)[1:]) %}
-      {%     set _ = res.update({svar: val}) %}
+      {% set n = cops_vars_registry_name %}
+      {% set p = cops_vars_registry_target %}
+      {% set prefix = cops_vars_registry_prefix %}
+      {% set o = cops_vars_registry_overrides %}
+      {% set res = {n: vars.get(p, {}) | copsf_deepcopy} %}
+      {% set overrides = vars.get(o, {}) | copsf_deepcopy %}
+      {% set _ = res[n]|copsf_dictupdate(overrides) %}
+      {#
+      Record registry & overrides back to first level, flattened variables
+          {foo: {a: o, bar: 1}, foo_overrides: {bar, 2}}
+          => {foo_bar: 2, foo_a: o}
+      #}
+      {# Set back to global values each subelement
+          foo_bar: {1:2} => foo_bar_1: 2 #}
+      {% for var, val in res[n].items() %}
+      {%  set _ = res|copsf_dictupdate({'{0}{1}'.format(prefix, var): val}) %}
+      {% endfor %}
+      {# Construct registry variable
+          foo_bar_1, => foo_bar_vars: {1: 2}#}
+      {% for var, val in vars.items() %}
+      {%  if var.startswith(prefix) and var not in [prefix, n, p, o] %}
+      {%    set svar = prefix.join(var.split(prefix)[1:]) %}
+      {%    set val = res.get(var, res[n].get(svar, val)) %}
+      {%    set _ = res[n]|copsf_dictupdate({svar: val}) %}
+      {%  endif %}
       {% endfor %}
       {{ res | to_json }}
