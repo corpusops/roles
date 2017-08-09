@@ -6,23 +6,23 @@
     state: "directory"
     mode: "0755"
   loop_control: {loop_var: iitem}
-  with_items: [ "{{archive.app_path}}"]
+  with_items: [ "{{archive_vars.app_path}}"]
 - name: "existing archive test"
   stat:
-    path: "{{'/'.join([archive.app_path, iiitem])}}"
+    path: "{{'/'.join([archive_vars.app_path, iiitem])}}"
   register: install_one_filet
-  with_items: "{{archive.filetest}}"
+  with_items: "{{archive_vars.filetest}}"
   loop_control: {loop_var: iiitem}
 - debug:
    msg: |-
-    {% set crc = (archive.urls.alchive_crc | default('')) | length > 0 %}
+    {% set crc = (archive_vars.urls.alchive_crc | default('')) | length > 0 %}
     {% set ret = {'done': True,
                   'crc': crc,
-                  'verify_gpg': archive.urls.verify_gpg|default([]),
+                  'verify_gpg': archive_vars.urls.verify_gpg|default([]),
                   'verify_sha1': (
-                    archive.urls.verify_sha1|default(False)|d and crc),
+                    archive_vars.urls.verify_sha1|default(False)|d and crc),
                   'verify_sha256': (
-                    archive.urls.verify_sha256|default(False)|d and crc)} %}
+                    archive_vars.urls.verify_sha256|default(False)|d and crc)} %}
     {% for i in install_one_filet.results %}
     {%  if not i.stat.exists %}
     {%   set _ = ret.update({'done': False}) %}
@@ -45,23 +45,23 @@
 # DOWNLOAD CRC FILE
 - name: get CRCs file
   get_url:
-    url: "{{archive.urls.archive_crc}}"
+    url: "{{archive_vars.urls.archive_crc}}"
     remote_src: true
-    dest: "{{archive.app_path}}/crcs"
+    dest: "{{archive_vars.app_path}}/crcs"
     mode: "0644"
     force: true
   when: "(corpusops_uo_tests.msg.crc and
-          archive.urls.archive_crc.startswith('http') and
+          archive_vars.urls.archive_crc.startswith('http') and
           not corpusops_uo_tests.msg.done)"
 
 - name: record CRCs
   shell: |
-    if [ ! -e "{{archive.app_path}}" ];then mkdir "{{archive.app_path}}";fi
-    echo "{{archive.urls.archive_crc}} {{archive}}" > "{{archive.app_path}}/crcs"
-    chmod 0644 "{{archive.app_path}}/crcs"
+    if [ ! -e "{{archive_vars.app_path}}" ];then mkdir "{{archive_vars.app_path}}";fi
+    echo "{{archive_vars.urls.archive_crc}} {{archive}}" > "{{archive_vars.app_path}}/crcs"
+    chmod 0644 "{{archive_vars.app_path}}/crcs"
   changed_when: false
   when: "(corpusops_uo_tests.msg.crc and
-          not archive.urls.archive_crc.startswith('http') and
+          not archive_vars.urls.archive_crc.startswith('http') and
           not corpusops_uo_tests.msg.done)"
 
 - name: get sha mode
@@ -76,7 +76,7 @@
 # SHA integrity verification case
 - name: get SHA from CRCs file
   shell: |
-         grep "{{archive}}" "{{archive.app_path}}/crcs"
+         grep "{{archive}}" "{{archive_vars.app_path}}/crcs"
   register: install_one_shas
   changed_when: false
   when: "((corpusops_uo_tests.msg.verify_sha256 or
@@ -84,7 +84,7 @@
           not corpusops_uo_tests.msg.done)"
 - name: "test shas"
   stat:
-    path: "{{'/'.join([archive.app_path, archive])}}"
+    path: "{{'/'.join([archive_vars.app_path, archive])}}"
     get_checksum: True
     checksum_algorithm: "{{install_shamode.msg}}"
   register: install_one_archivet
@@ -111,8 +111,8 @@
 - name: get archive - SHA CRC
   get_url:
     remote_src: true
-    url: "{{archive.urls.archive}}"
-    dest: "{{archive.app_path}}"
+    url: "{{archive_vars.urls.archive}}"
+    dest: "{{archive_vars.app_path}}"
     mode: "0644"
     checksum: "{{install_shamode.msg}}:{{install_one_shas.stdout.split()[0]}}"
   when: "not corpusops_uo_tests.msg.done and install_one_archivetr.msg.r"
@@ -120,8 +120,8 @@
 - name: get archive - NOCHECK included
   get_url:
     remote_src: true
-    url: "{{archive.urls.archive}}"
-    dest: "{{archive.app_path}}"
+    url: "{{archive_vars.urls.archive}}"
+    dest: "{{archive_vars.app_path}}"
     mode: "0644"
   when: "(not corpusops_uo_tests.msg.done and
           not corpusops_uo_tests.msg.verify_sha1 and
@@ -132,10 +132,10 @@
   shell: |
     gpg_() { export LANG=C; export LC_ALL=C; gpg ${@}; };
     if ! ( gpg_ -q --batch --verify \
-              "{{archive.app_path}}/crcs" \
-              "{{archive.app_path}}/{{archive}}"; );then
+              "{{archive_vars.app_path}}/crcs" \
+              "{{archive_vars.app_path}}/{{archive}}"; );then
       if [ -e "{{archive}}" ];then
-        echo rm -f "{{archive.app_path}}/{{archive}}";
+        echo rm -f "{{archive_vars.app_path}}/{{archive}}";
       fi;
       echo "archive verification failed" >&2;
       exit 1;
@@ -166,5 +166,5 @@
     src: "{{'{d}/{bn}'.format(**liitem)}}"
     dest: "{{liitem.d}}"
   loop_control: {loop_var: liitem}
-  with_items: [{d: "{{archive.app_path}}", bn: "{{archive.archive}}"}]
+  with_items: [{d: "{{archive_vars.app_path}}", bn: "{{archive_vars.archive}}"}]
 
