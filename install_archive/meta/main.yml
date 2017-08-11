@@ -13,5 +13,5 @@ galaxy_info:
     versions:
     - all
 allow_duplicates: yes
-#dependencies:
-#- role: corpusops.roles/vars
+dependencies:
+- role: corpusops.roles/vars
