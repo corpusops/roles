@@ -38,19 +38,27 @@
   with_items: "{{corpusops_localsettings_packer_vars.configs}}"
   when: "(corpusops_localsettings_packer_vars.configs is not none and
           corpusops_localsettings_packer_vars.configs|length > 0)"
-- include_role: {name: corpusops.roles/install_archive}
+# forward vars to handle include_role bugs...
+- debug:
+    msg:
+      _archive:
+        filetest: "{{corpusops_localsettings_packer_vars.filetest}}"
+        archive: "{{_corpusops_localsettings_packer_archive}}"
+        app_path: "{{_corpusops_localsettings_packer_app_path}}"
+        urls:
+          archive_crc: "{{_corpusops_localsettings_packer_urls.archive_crc}}"
+          archive: "{{_corpusops_localsettings_packer_urls.archive}}"
+          verify_sha256: true
   vars:
     version: "{{item}}"
-    archive:
-      filetest: "{{corpusops_localsettings_packer_vars.filetest}}"
-      archive: "{{_corpusops_localsettings_packer_archive}}"
-      app_path: "{{_corpusops_localsettings_packer_app_path}}"
-      urls:
-        archive_crc: "{{_corpusops_localsettings_packer_urls.archive_crc}}"
-        archive: "{{_corpusops_localsettings_packer_urls.archive}}"
-        verify_sha256: true
   with_items: "{{corpusops_localsettings_packer_vars.versions}}"
-- include: "../../include/tasks/set_alternatives.yml"
-  vars: {version: "{{corpusops_localsettings_packer_vars.version}}"}
-  with_dict: "{{_corpusops_localsettings_packer_alternatives}}"
+  register: corpusops_localsettings_packer_archives
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  with_items: "{{corpusops_localsettings_packer_archives.results}}"
+#
+- include_role: {name: corpusops.roles/set_alternatives}
+  vars:
+    version: "{{corpusops_localsettings_packer_vars.version}}"
+    alternatives: "{{_corpusops_localsettings_packer_alternatives}}"
   when: "corpusops_localsettings_packer_vars.version is not none"

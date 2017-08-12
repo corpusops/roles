@@ -4,12 +4,23 @@
     name: __GLOBAL__
     content: |
       ---
+      {% set res = {} %}
+      {% for i in [cops_vars_registry_target, cops_vars_registry_overrides] %}
+      {% set _ = res.update({i: vars.get(i, {})}) %}
+      {% endfor %}
+      {{ res | to_json }}
+  register: cops_vars_registryf
+# then merge overrides and setup the registry and flatenned values
+- include_jinja_vars:
+    name: __GLOBAL__
+    content: |
+      ---
       {% set n = cops_vars_registry_name %}
       {% set p = cops_vars_registry_target %}
       {% set prefix = cops_vars_registry_prefix %}
       {% set o = cops_vars_registry_overrides %}
-      {% set res = {n: vars.get(p, {}) | copsf_deepcopy} %}
-      {% set overrides = vars.get(o, {}) | copsf_deepcopy %}
+      {% set res = {n: cops_vars_registryf.ansible_facts.get(p, {}) | copsf_deepcopy} %}
+      {% set overrides = cops_vars_registryf.ansible_facts.get(o, {}) | copsf_deepcopy %}
       {% set _ = res[n]|copsf_dictupdate(overrides) %}
       {#
       Record registry & overrides back to first level, flattened variables

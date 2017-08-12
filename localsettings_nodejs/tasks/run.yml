@@ -38,31 +38,45 @@
   with_items: "{{corpusops_localsettings_nodejs_vars.configs}}"
   when: "(corpusops_localsettings_nodejs_vars.configs is not none and
           corpusops_localsettings_nodejs_vars.configs|length > 0)"
-- include_role: {name: corpusops.roles/install_archive}
+#
+- debug:
+    msg:
+      _archive:
+        filetest: "{{corpusops_localsettings_nodejs_vars.filetest}}"
+        archive: "{{_corpusops_localsettings_nodejs_archive}}"
+        app_path: "{{_corpusops_localsettings_nodejs_app_path}}"
+        urls:
+          archive_crc: "{{_corpusops_localsettings_nodejs_urls.archive_crc}}"
+          archive: "{{_corpusops_localsettings_nodejs_urls.archive}}"
+          verify_sha256: "{{_corpusops_localsettings_nodejs_urls.verify_sha256}}"
   vars:
     version: "{{item}}"
-    archive:
-      filetest: "{{corpusops_localsettings_nodejs_vars.filetest}}"
-      archive: "{{_corpusops_localsettings_nodejs_archive}}"
-      app_path: "{{_corpusops_localsettings_nodejs_app_path}}"
-      urls:
-        archive_crc: "{{_corpusops_localsettings_nodejs_urls.archive_crc}}"
-        archive: "{{_corpusops_localsettings_nodejs_urls.archive}}"
-        verify_sha256: "{{_corpusops_localsettings_nodejs_urls.verify_sha256}}"
   with_items: "{{corpusops_localsettings_nodejs_vars.versions}}"
+  register: corpusops_localsettings_nodejs_nodejs_archives
 - include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  with_items: "{{corpusops_localsettings_nodejs_nodejs_archives.results}}"
+#
+- debug:
+    msg:
+      _archive:
+       filetest: "{{corpusops_localsettings_nodejs_vars.yarn_filetest}}"
+       archive: "{{corpusops_localsettings_nodejs_yarn_archive}}"
+       app_path: "{{corpusops_localsettings_nodejs_yarn_app_path}}"
+       urls:
+         archive: "{{corpusops_localsettings_nodejs_yarn_urls.archive}}"
+         archive_crc: "{{corpusops_localsettings_nodejs_yarn_urls.archive_crc}}"
+         verify_gpg: "{{corpusops_localsettings_nodejs_yarn_urls.verify_gpg}}"
   vars:
     version: "{{item}}"
-    archive:
-      filetest: "{{corpusops_localsettings_nodejs_vars.yarn_filetest}}"
-      archive: "{{corpusops_localsettings_nodejs_yarn_archive}}"
-      app_path: "{{corpusops_localsettings_nodejs_yarn_app_path}}"
-      urls:
-        archive: "{{corpusops_localsettings_nodejs_yarn_urls.archive}}"
-        archive_crc: "{{corpusops_localsettings_nodejs_yarn_urls.archive_crc}}"
-        verify_gpg: "{{corpusops_localsettings_nodejs_yarn_urls.verify_gpg}}"
-  with_items: "{{[corpusops_localsettings_nodejs_vars.yarn_version]}}"
-- include: "../../include/tasks/set_alternatives.yml"
-  vars: {version: "{{corpusops_localsettings_nodejs_vars.version}}"}
-  with_dict: "{{_corpusops_localsettings_nodejs_alternatives}}"
+  with_items: "{{corpusops_localsettings_nodejs_vars.versions}}"
+  register: corpusops_localsettings_nodejs_yarn_archives
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  with_items: "{{corpusops_localsettings_nodejs_yarn_archives.results}}"
+#
+- include_role: {name: corpusops.roles/set_alternatives}
+  vars:
+    version: "{{corpusops_localsettings_nodejs_vars.version}}"
+    alternatives: "{{_corpusops_localsettings_nodejs_alternatives}}"
   when: "corpusops_localsettings_nodejs_vars.version is not none"

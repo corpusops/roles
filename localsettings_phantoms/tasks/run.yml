@@ -38,17 +38,21 @@
   with_items: "{{corpusops_localsettings_phantoms_vars.configs}}"
   when: "(corpusops_localsettings_phantoms_vars.configs is not none and
           corpusops_localsettings_phantoms_vars.configs|length > 0)"
-- include_role: {name: corpusops.roles/install_archive}
+- debug:
+    msg:
+      _archive:
+        filetest: "{{corpusops_localsettings_phantoms_phantomjs_filetest}}"
+        archive: "{{corpusops_localsettings_phantoms_phantomjs_archive}}"
+        app_path: "{{corpusops_localsettings_phantoms_phantomjs_app_path}}"
+        urls:
+          archive_crc: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive_crc}}"
+          archive: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive}}"
+          verify_sha256: "{{corpusops_localsettings_phantoms_phantomjs_urls.verify_sha256}}"
   vars:
     version: "{{corpusops_localsettings_phantoms_phantomjs_version}}"
-    archive:
-      filetest: "{{corpusops_localsettings_phantoms_phantomjs_filetest}}"
-      archive: "{{corpusops_localsettings_phantoms_phantomjs_archive}}"
-      app_path: "{{corpusops_localsettings_phantoms_phantomjs_app_path}}"
-      urls:
-        archive_crc: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive_crc}}"
-        archive: "{{corpusops_localsettings_phantoms_phantomjs_urls.archive}}"
-        verify_sha256: "{{corpusops_localsettings_phantoms_phantomjs_urls.verify_sha256}}"
+  register: corpusops_localsettings_phantoms_archive
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{corpusops_localsettings_phantoms_archive.msg._archive}}"}
 - name: files
   file:
     path: "{{item}}"
@@ -60,7 +64,8 @@
     yarn add --non-interactive casperjs@{{corpusops_localsettings_phantoms_casperjs_version}}
   register: corpusops_localsettings_phantoms_casperjsinstall
   changed_when: "'0 new' not in corpusops_localsettings_phantoms_casperjsinstall.stdout"
-- include: "../../include/tasks/set_alternatives.yml"
-  vars: {version: "{{corpusops_localsettings_phantoms_vars.version}}"}
-  with_dict: "{{_corpusops_localsettings_phantoms_alternatives}}"
+- include_role: {name: corpusops.roles/set_alternatives}
+  vars:
+    version: "{{corpusops_localsettings_phantoms_vars.version}}"
+    alternatives: "{{_corpusops_localsettings_phantoms_alternatives}}"
   when: "corpusops_localsettings_phantoms_vars.version is not none"
