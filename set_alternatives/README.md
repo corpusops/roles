@@ -9,7 +9,7 @@
 - each "bins" entry represents an alternative to be defined
 - Be warn, all existing alternatives are removed before the entries to be defined
 
-vhost
+Exemple
 ```yaml
 - include_role: {name: corpusops.roles/set_alternatives}
   vars:
