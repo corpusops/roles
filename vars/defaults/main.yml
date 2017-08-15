@@ -19,4 +19,4 @@ corpusops_core_has_services_manager: true
 corpusops_core_keyserver: keyserver.ubuntu.com
 
 corpusops_core_apps_path: /srv/apps
-corpusops_core_projects_path: /srv/apps
+corpusops_core_projects_path: /srv/projects
