@@ -17,6 +17,7 @@ import tempfile
 import random
 import string
 import re
+from distutils.version import LooseVersion
 
 try:
     import Crypto.Random  # pylint: disable=E0611
@@ -229,7 +230,12 @@ def cops_copy(val):
     return copy.copy(val)
 
 
+def looseversion(v):
+    return LooseVersion(v)
+
+
 __funcs__ = {
+    'copsf_looseversion': looseversion,
     'copsf_dictupdate': dictupdate,
     'copsf_deepcopy': cops_deepcopy,
     'copsf_copy': cops_copy,
