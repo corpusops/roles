@@ -199,7 +199,12 @@ def hash_value(sstring, typ='md5', func='hexdigest'):
 def is_typ_(val, typs_):
     if not isinstance(typs_, (list, tuple, set)):
         typs_ = [typs_]
-    return type(val) in typs_
+    test1 = type(val) in typs_
+    if not test1:
+        try:
+            return isinstance(val, typs_)
+        except Exception:
+            return False
 
 
 def go_pdb(val=None, *args,  **kwargs):
