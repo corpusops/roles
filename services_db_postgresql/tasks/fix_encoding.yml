@@ -1,0 +1,13 @@
+---
+- debug:
+    cops_fix_encoding_db: "template1"
+    cops_fix_encoding_version: "{{corpusops_services_db_postgresql_version}}"
+    cops_fix_encoding_locale: "{{corpusops_services_db_postgresql_locale}}"
+    cops_fix_encoding_encoding: "{{corpusops_services_db_postgresql_encoding}}"
+- include_role:
+    name: corpusops.roles/postgresql_dropreset_db_encoding
+  vars:
+    db: "{{cops_fix_encoding_version}}"
+    version: "{{cops_fix_encoding_version}}"
+    locale: "{{cops_fix_encoding_locale}}"
+    encoding: "{{cops_fix_encoding_encoding}}"

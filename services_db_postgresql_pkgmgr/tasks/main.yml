@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_db_postgresql_pkgmgr preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_db_postgresql_pkgmgr | default(True) }}"
+  register: corpusops_services_db_postgresql_pkgmgr_can_run
+  tags: [corpusops_services_db_postgresql_pkgmgr]
+- include: run.yml
+  when: 'corpusops_services_db_postgresql_pkgmgr_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql_pkgmgr, corpusops_services_db_postgresql_pkgmgr_conf]

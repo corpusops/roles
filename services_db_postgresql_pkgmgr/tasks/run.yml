@@ -1,0 +1,36 @@
+---
+- name: install services_db_postgresql repokey
+  apt_key:
+    id: '{{item}}'
+    keyserver: "{{corpusops_services_db_postgresql_vars.keyserver}}"
+    state: present
+  with_items: '{{corpusops_services_db_postgresql_vars.repo_keys}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgresql_vars.repo_keys is not none and
+          corpusops_services_db_postgresql_vars.repo_keys|length > 0)"
+  register: corpusops_services_db_postgresql_key
+- name: install services_db_postgresql repo
+  apt_repository:
+    repo: '{{corpusops_services_db_postgresql_vars.repo}}'
+    filename: services_db_postgresql
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+           corpusops_services_db_postgresql_vars.repo is not none)"
+  register: corpusops_services_db_postgresql_repoa
+- apt:
+    update_cache: yes
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgresql_repoa.changed or
+          corpusops_services_db_postgresql_key.changed)"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_services_db_postgresql_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_db_postgresql_vars.client_packages is not none and
+          corpusops_services_db_postgresql_vars.client_packages|length > 0)"
+- apt:
+    update_cache: yes
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgresql_repoa.changed or
+          corpusops_services_db_postgresql_key.changed )"

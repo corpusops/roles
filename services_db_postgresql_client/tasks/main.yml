@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_db_postgresql_client preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_db_postgresql_client | default(True) }}"
+  register: corpusops_services_db_postgresql_client_can_run
+  tags: [corpusops_services_db_postgresql_client]
+- include: run.yml
+  when: 'corpusops_services_db_postgresql_client_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql_client, corpusops_services_db_postgresql_client_conf]

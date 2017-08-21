@@ -1,0 +1,115 @@
+---
+corpusops_services_db_postgresql_activated: True
+corpusops_services_db_postgresql_repo_keys_url: null
+corpusops_services_db_postgresql_repo_keys: null
+corpusops_services_db_postgresql_repo_keys_default: [ACCC4CF8]
+corpusops_services_db_postgresql_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_db_postgresql_repo: null
+corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {ansible_distribution_release}-pgdg main"
+corpusops_services_db_postgresql_repo_redhat: "https://download.postgresql.com/linux/centos/postgresql-ce.repo"
+corpusops_services_db_postgresql_repo_fedora: "https://download.postgresql.com/linux/fedora/postgresql-ce.repo"
+corpusops_services_db_postgresql_client_packages: null
+corpusops_services_db_postgresql_client_packages_default:
+  - 'libpq-dev'
+  - 'python-psycopg2'
+  - 'python3-psycopg2'
+  - 'postgresql-contrib'
+  - 'postgresql-client-{corpusops_services_db_postgresql_version}'
+corpusops_services_db_postgresql_packages: null
+corpusops_services_db_postgresql_packages_default:
+  - 'libpq-dev'
+  - 'postgresql-{corpusops_services_db_postgresql_version}'
+  - 'postgresql-server-dev-{corpusops_services_db_postgresql_version}'
+  - 'postgresql-{corpusops_services_db_postgresql_version}-pgextwlist'
+corpusops_services_db_postgresql_services: null
+corpusops_services_db_postgresql_group: postgres
+corpusops_services_db_postgresql_services_default: [postgresql]
+corpusops_services_db_postgresql_files: null
+corpusops_services_db_postgresql_filescopy: null
+corpusops_services_db_postgresql_filescopy_default: []
+corpusops_services_db_postgresql_files_apt: []
+corpusops_services_db_postgresql_files_default:
+  - {path: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/conf.d",
+    mode: "0755"}
+corpusops_services_db_postgresql_configs: null
+corpusops_services_db_postgresql_configs_default:
+  - {name: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/pg_hba.conf",
+    template: "../templates/etc/postgresql/main/pg_hba.conf",
+    mode: "0644"}
+  - {name: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/conf.d/empty.conf",
+    template: "../templates/etc/postgresql/main/conf.d/empty.conf",
+    mode: "0644"}
+  - {name: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/postgresql.conf",
+    template: "../templates/etc/postgresql/main/postgresql.conf",
+    mode: "0644"}
+corpusops_services_db_postgresql_wrapper_configs:
+  - {name: "/usr/bin/pg-wrapper-{{corpusops_services_db_postgresql_version}}.sh",
+    template: "../templates/usr/bin/pg-wrapper.sh",
+    mode: "0755"}
+corpusops_services_db_postgresql_wrapped_binaries: [
+  vacuumdb, dropdb, clusterdb, reindexdb, pg_dump, pg_basebackup,
+  pg_receivexlog, psql, createdb, dropuser, pg_dumpall, createuser,
+  pg_restore, pg_isready, createlang, droplang]
+corpusops_services_db_postgresql_dist: "{{ansible_distribution_release}}"
+corpusops_services_db_postgresql_user: 'postgres'
+corpusops_services_db_postgresql_version: '9.6'
+corpusops_services_db_postgresql_encoding: 'utf8'
+corpusops_services_db_postgresql_locale: 'fr_FR.UTF-8'
+corpusops_services_db_postgresql_postgis_db: 'postgis'
+corpusops_services_db_postgresql_pg_conf_catalog: 'pg_catalog.french'
+corpusops_services_db_postgresql_pg_conf_locale: 'fr_FR.UTF-8'
+corpusops_services_db_postgresql_pg_conf_port: 5432
+corpusops_services_db_postgresql_pg_conf_unix_socket_directories: "'/var/run/postgresql'"
+corpusops_services_db_postgresql_pg_conf_ssl: 'true'
+corpusops_services_db_postgresql_pg_conf_listen: ['*']
+corpusops_services_db_postgresql_pg_conf_datestyle: 'iso, dmy'
+corpusops_services_db_postgresql_pg_conf_timezone: 'localtime'
+corpusops_services_db_postgresql_pg_conf_max_connections: '100'
+corpusops_services_db_postgresql_pg_conf_max_locks_per_transaction: '164'
+corpusops_services_db_postgresql_pg_conf_max_pred_locks_per_transaction: '164'
+corpusops_services_db_postgresql_pg_conf_log_line_prefix: '%t '
+corpusops_services_db_postgresql_pg_conf_log_timezone: 'localtime'
+corpusops_services_db_postgresql_pg_conf_shared_buffers: '128MB'
+corpusops_services_db_postgresql_pg_conf_ssl_cert_file: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+corpusops_services_db_postgresql_pg_conf_ssl_key_file: '/etc/ssl/private/ssl-cert-snakeoil.key'
+corpusops_services_db_postgresql_pg_conf_local_preload_libraries: 'pgextwlist'
+corpusops_services_db_postgresql_pg_conf_extwlist_extensions: 'hstore,cube,postgis,pgrouting,postgis_topology,fuzzystrmatch,postgis_tiger_geocoder'
+corpusops_services_db_postgresql_pg_conf_extras:
+ - "# comment in postgresql.conf"
+ - "# mysetting = value"
+corpusops_services_db_postgresql_pg_hba:
+  - {'comment': "# administration "}
+  - {'type': 'local',
+     'db': 'all',
+     'user': 'postgres',
+     'address': '',
+     'method': 'peer'}
+  - {'comment': "# local is for Unix socket connections only"}
+  - {'type': 'local',
+     'db': 'all',
+     'user': 'all',
+     'address': '',
+     'method': 'peer'}
+  - {'comment': "# IPv4 local connections:"}
+  - {'type': 'host',
+     'db': 'all',
+     'user': 'all',
+     'address': '127.0.0.1/32',
+     'method': 'md5'}
+  - {"comment": '# IPv6 local connections:'}
+  - {'type': 'host',
+     'db': 'all',
+     'user': 'all',
+     'address': '::1/128',
+     'method': 'md5'}
+  - {"comment": '# makina-states lxc inter communication'}
+  - {'type': 'host',
+     'db': 'all',
+     'user': 'all',
+     'address': '10.5.0.0/16',
+     'method': 'md5'}
+  - {'type': 'host',
+     'db': 'all',
+     'user': 'all',
+     'address': '0.0.0.0/0',
+     'method': 'md5'}

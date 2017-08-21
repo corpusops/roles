@@ -1,0 +1,31 @@
+---
+- name: wrapper configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    force: "{{item.force|default(True)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_services_db_postgresql_vars.wrapper_configs}}"
+  when: "(corpusops_services_db_postgresql_vars.configs is not none and
+          corpusops_services_db_postgresql_vars.configs|length > 0)"
+  register: corpusops_services_db_postgresql_wconfigs1
+- name: wrappers
+  template:
+    src: "../templates/usr/bin/pgbin-wrapper.sh"
+    dest: "/usr/bin/{{item}}-{{corpusops_services_db_postgresql_version}}"
+    mode: "0755"
+    force: "{{item.force|default(True)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_services_db_postgresql_vars.wrapped_binaries}}"
+  when: "(corpusops_services_db_postgresql_vars.configs is not none and
+          corpusops_services_db_postgresql_vars.configs|length > 0)"
+  register: corpusops_services_db_postgresql_wconfigs2
+- set_fact:
+    corpusops_services_db_postgresql_wrappers_changed: "{{(
+       corpusops_services_db_postgresql_wconfigs1.changed or
+       corpusops_services_db_postgresql_wconfigs2.changed
+    )}}"

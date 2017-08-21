@@ -1,0 +1,31 @@
+---
+- name: "corpusops_services_db_postgresql preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_db_postgresql | default(True) }}"
+  register: corpusops_services_db_postgresql_can_run
+  tags: [corpusops_services_db_postgresql]
+- include: prerequisites.yml
+  when: 'corpusops_services_db_postgresql_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql,
+         postgresql_prerequisites,
+         corpusops_services_db_postgresql_prerequisites]
+- include: configuration.yml
+  when: 'corpusops_services_db_postgresql_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql,
+         postgresql_configuration,
+         corpusops_services_db_postgresql_configuration]
+- include: wrappers.yml
+  when: 'corpusops_services_db_postgresql_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql,
+         postgresql_wrappers,
+         corpusops_services_db_postgresql_wrappers]
+- include: fix_encoding.yml
+  when: 'corpusops_services_db_postgresql_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql,
+         postgresql_fix_encoding,
+         corpusops_services_db_postgresql_fix_encoding]
+- include: services.yml
+  when: 'corpusops_services_db_postgresql_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql,
+         postgresql_services,
+         corpusops_services_db_postgresql_services]
