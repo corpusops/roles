@@ -1,0 +1,13 @@
+---
+- include_role:
+    name: corpusops.roles/postgresql_extensions
+  vars:
+    cops_postgresql_extensions:
+      db: "{{cops_postgresql_install_postgis_vars.db}}"
+      port: "{{cops_postgresql_install_postgis_vars.port}}"
+      login_host: "{{cops_postgresql_install_postgis_vars.login_host}}"
+      login_user: "{{cops_postgresql_install_postgis_vars.login_user}}"
+      login_password: "{{cops_postgresql_install_postgis_vars.login_password}}"
+      extensions: "{{cops_postgresql_install_postgis_vars.extensions}}"
+      become: "{{cops_postgresql_install_postgis_vars.become}}"
+      become_user: "{{cops_postgresql_install_postgis_vars.become_user}}"

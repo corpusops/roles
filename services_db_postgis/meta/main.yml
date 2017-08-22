@@ -1,0 +1,19 @@
+galaxy_info:
+  min_ansible_version: 2.0
+  platforms:
+  - name: GenericLinux
+    versions:
+    - all
+    - any
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+allow_duplicates: yes
+dependencies:
+- role: corpusops.roles/services_db_postgresql_vars
+  tags: [corpusops_postgis_role]
+- role: corpusops.roles/services_db_postgis_vars
+  tags: [corpusops_postgis_role]

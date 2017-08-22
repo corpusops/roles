@@ -1,0 +1,24 @@
+---
+corpusops_services_db_postgis_packages_default:
+  - 'postgresql-{corpusops_services_db_postgresql_version}-postgis-{corpusops_services_db_postgis_version}'
+  - 'postgresql-{corpusops_services_db_postgresql_version}-postgis-{corpusops_services_db_postgis_version}-scripts'
+corpusops_services_db_postgis_db: 'postgis'
+corpusops_services_db_postgis_activated: True
+corpusops_services_db_postgis_repo_keys_url: null
+corpusops_services_db_postgis_repo_keys: null
+corpusops_services_db_postgis_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_db_postgis_repo: null
+corpusops_services_db_postgis_packages: null
+corpusops_services_db_postgis_services: null
+corpusops_services_db_postgis_services_default: []
+corpusops_services_db_postgis_group: null
+corpusops_services_db_postgis_user: null
+corpusops_services_db_postgis_files: null
+corpusops_services_db_postgis_filescopy: null
+corpusops_services_db_postgis_filescopy_default: []
+corpusops_services_db_postgis_configs: []
+corpusops_services_db_postgis_files_apt: []
+corpusops_services_db_postgis_files_default: []
+corpusops_services_db_postgis_version: null
+corpusops_services_db_postgis_encoding: "{{corpusops_services_db_postgresql_vars.encoding}}"
+corpusops_services_db_postgis_locale: "{{corpusops_services_db_postgresql_vars.locale}}"

@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_db_postgis preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_db_postgis | default(True) }}"
+  register: corpusops_services_db_postgis_can_run
+  tags: [corpusops_services_db_postgis]
+- include: prerequisites.yml
+  when: 'corpusops_services_db_postgis_can_run.msg == True'
+  tags: [corpusops_services_db_postgis,
+         postgis_prerequisites,
+         corpusops_services_db_postgis_prerequisites]
+- include: configuration.yml
+  when: 'corpusops_services_db_postgis_can_run.msg == True'
+  tags: [corpusops_services_db_postgis,
+         postgis_configuration,
+         corpusops_services_db_postgis_configuration]
+- include: postgis.yml
+  when: 'corpusops_services_db_postgis_can_run.msg == True'
+  tags: [corpusops_services_db_postgis,
+         postgis_postgis,
+         corpusops_services_db_postgis_postgis]

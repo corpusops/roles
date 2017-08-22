@@ -1,0 +1,10 @@
+---
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_postgresql_install_postgis
+  tags: [postgresql_install_postgis]
+- debug: "msg={{cops_postgresql_install_postgis_vars}}"
+  failed_when: "not cops_postgresql_install_postgis_vars.db"
+  tags: [postgresql_install_postgis]
+- include: run.yml
+  tags: [postgresql_install_postgis]

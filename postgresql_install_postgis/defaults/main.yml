@@ -1,0 +1,11 @@
+cops_postgresql_install_postgis_db: null
+cops_postgresql_install_postgis_port: null
+cops_postgresql_install_postgis_login_host: ''
+cops_postgresql_install_postgis_login_user: null
+cops_postgresql_install_postgis_login_password: null
+cops_postgresql_install_postgis_extensions: [
+  hstore, postgis, postgis_topology, 
+  fuzzystrmatch, 
+  postgis_tiger_geocoder]
+cops_postgresql_install_postgis_become: true
+cops_postgresql_install_postgis_become_user: postgres

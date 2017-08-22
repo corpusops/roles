@@ -1,0 +1,97 @@
+---
+- file:
+    path: /etc/apt/sources.list.d/services_db_postgis.list.list
+    state: absent
+- name: files for apt
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_services_db_postgis_vars.files_apt}}"
+  when: "(corpusops_services_db_postgis_vars.files_apt is not none and
+          corpusops_services_db_postgis_vars.files_apt|length > 0)"
+- name: install services_db_postgis repokey
+  apt_key:
+    id: '{{item}}'
+    keyserver: "{{corpusops_services_db_postgis_vars.keyserver}}"
+    state: present
+  with_items: '{{corpusops_services_db_postgis_vars.repo_keys}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgis_vars.repo_keys is not none and
+          corpusops_services_db_postgis_vars.repo_keys|length > 0)"
+  register: corpusops_services_db_postgis_key
+- name: install services_db_postgis repo
+  apt_repository:
+    repo: '{{corpusops_services_db_postgis_vars.repo}}'
+    filename: services_db_postgis
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+           corpusops_services_db_postgis_vars.repo is not none)"
+  register: corpusops_services_db_postgis_repoa
+- apt:
+    update_cache: yes
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgis_repoa.changed or
+          corpusops_services_db_postgis_key.changed)"
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: installed
+  with_items: '{{corpusops_services_db_postgis_vars.packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgis_vars.packages is not none and
+          corpusops_services_db_postgis_vars.packages|length > 0)"
+  register: corpusops_services_db_postgis_pkgst
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    package: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_postgis_vars.packages is not none and
+          corpusops_services_db_postgis_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_db_postgis_vars.packages}}"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    package: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_db_postgis_vars.packages is not none and
+          corpusops_services_db_postgis_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_db_postgis_vars.packages}}"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_services_db_postgis_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_db_postgis_vars.packages is not none and
+          corpusops_services_db_postgis_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    package: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_db_postgis_vars.packages is not none and
+          corpusops_services_db_postgis_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_db_postgis_vars.packages}}"
+- group:
+    name: "{{corpusops_services_db_postgis_vars.group}}"
+    system: yes
+    state: present
+  when: "corpusops_services_db_postgis_vars.group"
+- user:
+    name: "{{corpusops_services_db_postgis_vars.user}}"
+    system: yes
+    group: "{{corpusops_services_db_postgis_vars.group}}"
+  when: "corpusops_services_db_postgis_vars.user"
+

@@ -1,0 +1,15 @@
+---
+- include_role:
+    name: corpusops.roles/postgresql_db
+  vars:
+    _cops_postgresql_db:
+      db: "{{corpusops_services_db_postgis_vars.db}}"
+      encoding: "{{corpusops_services_db_postgis_vars.encoding}}"
+      locale: "{{corpusops_services_db_postgis_vars.locale}}"
+  tags: [corpusops_services_db_postgis, corpusops_services_db_postgis_db]
+- include_role:
+    name: corpusops.roles/postgresql_install_postgis
+  vars:
+    _cops_postgresql_install_postgis:
+      db: "{{corpusops_services_db_postgis_vars.db}}"
+  tags: [corpusops_services_db_postgis, corpusops_services_db_postgis_postgis]
