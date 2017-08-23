@@ -1,0 +1,29 @@
+---
+- hosts: all
+  roles:
+    - {name: corpusops.roles/services_db_postgresql_vars}
+- hosts: all
+  roles:
+    - {name: corpusops.roles/services_db_postgresql,
+       tags: setup}
+- hosts: all
+  tasks:
+    - shell: |
+        set -ex
+        dropdb "{{item}}" || /bin/true
+      become: true
+      become_user: "postgres"
+      with_items:
+        - postgresql_db_ndb2
+        - postgresql_db_ndb3
+    - include_role:
+        name: corpusops.roles/postgresql_db
+      vars:
+        _cops_postgresql_db:
+          db: "postgresql_db_ndb2"
+    - include_role:
+        name: corpusops.roles/postgresql_db
+      vars:
+        _cops_postgresql_db:
+          db: "postgresql_db_ndb3"
+          template: "postgresql_db_ndb2"

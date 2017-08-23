@@ -1,0 +1,19 @@
+---
+cops_postgresql_db_db: null
+cops_postgresql_db_encoding: "{{corpusops_services_db_postgresql_vars.encoding}}"
+cops_postgresql_db_lc_collate: "{{corpusops_services_db_postgresql_vars.locale}}"
+cops_postgresql_db_lc_ctype: "{{corpusops_services_db_postgresql_vars.locale}}"
+cops_postgresql_db_port: null
+cops_postgresql_db_owner: null
+cops_postgresql_db_login_host: null
+cops_postgresql_db_login_user: null
+cops_postgresql_db_login_password: null
+cops_postgresql_db_target: null
+cops_postgresql_db_target_opts: null
+cops_postgresql_db_template: "template1"
+cops_postgresql_db_ssl_mode: null
+cops_postgresql_db_ssl_rootcert: null
+cops_postgresql_db_become: true
+cops_postgresql_db_become_user: postgres
+cops_postgresql_db_login_unix_socket: null
+cops_postgresql_db_state: present

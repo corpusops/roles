@@ -1,0 +1,21 @@
+---
+- postgresql_db:
+    db: "{{cops_postgresql_db_vars.db}}"
+    encoding: "{{cops_postgresql_db_vars.encoding}}"
+    lc_collate: "{{cops_postgresql_db_vars.lc_collate}}"
+    lc_ctype: "{{cops_postgresql_db_vars.lc_ctype}}"
+    owner: "{{cops_postgresql_db_vars.owner}}"
+    login_host: "{{cops_postgresql_db_vars.login_host}}"
+    login_user: "{{cops_postgresql_db_vars.login_user}}"
+    login_password: "{{cops_postgresql_db_vars.login_password}}"
+    template: "{{cops_postgresql_db_vars.template}}"
+    target: "{%if cops_postgresql_db_vars.target is none %}{{omit}}{%else%}{{ cops_postgresql_db_vars.target }}{%endif%}"
+    target_opts: "{% if cops_postgresql_db_vars.target_opts is none %}{{omit}}{%else%}{{ cops_postgresql_db_vars.target_opts }}{%endif%}"
+    port: "{% if cops_postgresql_db_vars.port is none %}{{omit}}{%else%}{{ cops_postgresql_db_vars.port }}{%endif%}"
+    ssl_mode: "{% if cops_postgresql_db_vars.ssl_mode is none %}{{omit}}{%else%}{{ cops_postgresql_db_vars.ssl_mode }}{%endif%}"
+    ssl_rootcert: "{% if cops_postgresql_db_vars.ssl_rootcert is none %}{{omit}}{%else%}{{ cops_postgresql_db_vars.ssl_rootcert }}{%endif%}"
+    login_unix_socket: "{% if cops_postgresql_db_vars.login_unix_socket is none %}{{omit}}{% else %}{{ cops_postgresql_db_vars.login_unix_socket }}{%endif%}"
+    state: "{{cops_postgresql_db_vars.state}}"
+  become: "{{cops_postgresql_db_vars.become}}"
+  become_user: "{{cops_postgresql_db_vars.become_user}}"
+  register:  cops_postgresql_db_ret
