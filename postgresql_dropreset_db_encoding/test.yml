@@ -1,0 +1,48 @@
+---
+- hosts: all
+  roles:
+    - {name: corpusops.roles/services_db_postgresql_vars}
+- hosts: all
+  roles:
+    - {name: corpusops.roles/services_db_postgresql,
+       tags: setup}
+- hosts: all
+  tasks:
+    - shell: |
+        set -ex
+        dropdb "{{item}}" || /bin/true
+        createdb "{{item}}" -l C.UTF-8 -E utf8 -T template0
+      become: true
+      become_user: "postgres"
+      with_items:
+        - postgresql_dropreset_db_encoding_db1
+        - postgresql_dropreset_db_encoding_db2
+    - set_fact:
+        _cops_def:
+          version: "{{corpusops_services_db_postgresql_vars.version}}"
+          locale: "{{corpusops_services_db_postgresql_vars.locale}}"
+          encoding: "{{corpusops_services_db_postgresql_vars.encoding}}"
+    - include_role:
+        name: corpusops.roles/postgresql_dropreset_db_encoding
+      vars:
+        _cops_postgresql_drop_reset_db_encoding:
+          db: "template1"
+          version: "{{_cops_def.version}}"
+          locale: "{{_cops_def.locale}}"
+          encoding: "{{_cops_def.encoding}}"
+    - include_role:
+        name: corpusops.roles/postgresql_dropreset_db_encoding
+      vars:
+        _cops_postgresql_drop_reset_db_encoding:
+          db: "postgresql_dropreset_db_encoding_db1"
+          version: "{{_cops_def.version}}"
+          locale: "{{_cops_def.locale}}"
+          encoding: "{{_cops_def.encoding}}"
+    - include_role:
+        name: corpusops.roles/postgresql_dropreset_db_encoding
+      vars:
+        _cops_postgresql_drop_reset_db_encoding:
+          db: "postgresql_dropreset_db_encoding_db2"
+          version: "{{_cops_def.version}}"
+          locale: "{{_cops_def.locale}}"
+          encoding: "{{_cops_def.encoding}}"

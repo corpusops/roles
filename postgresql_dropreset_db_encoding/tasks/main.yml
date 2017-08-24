@@ -1,0 +1,44 @@
+---
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_postgresql_drop_reset_db_encoding
+  tags: [postgresql_dropreset_db_encoding]
+- debug: "msg={{cops_postgresql_drop_reset_db_encoding_vars}}"
+  failed_when: "not cops_postgresql_drop_reset_db_encoding_vars.db"
+  tags: [postgresql_dropreset_db_encoding]
+- set_fact:
+    _cops_postgresql_drop_reset_db_encoding_version: "{% set v = cops_postgresql_drop_reset_db_encoding_vars.version%}{% if v %}-{{v}}{%endif%}"
+  tags: [postgresql_dropreset_db_encoding]
+- shell: |
+    {% set pgsql_vars = cops_postgresql_drop_reset_db_encoding_vars%}
+    {% set v = _cops_postgresql_drop_reset_db_encoding_version %}
+    # either locale & encoding is good => skip
+    set -x
+    {# fr_FR.utf-8 -> utf.?8 #}
+    encoding="{{pgsql_vars.locale.split('.', 1)[1].replace('-', '.?')}}"
+    if psql{{v}} -t -A -F';;;' -c'\l'\
+    | egrep '^{{pgsql_vars.db}};;;'\
+    | egrep -i "{{pgsql_vars.locale[0:2]}}"\
+    | egrep -i "$encoding;;;$";then
+      exit 0
+    fi
+    # Or database does not exist => skip
+    if ! ( psql{{v}} -t -A -F';;;' -c'\l'\
+           | awk -F";" '{print $1}'\
+           | egrep -q "^{{pgsql_vars.db}}$"; );then
+      exit 0
+    fi
+    exit 1
+  failed_when: false
+  become: true
+  become_user: "{{cops_postgresql_drop_reset_db_encoding_vars.user}}"
+  register: postgresql_dropreset_db_encoding_test
+  tags: [postgresql_dropreset_db_encoding]
+- name: "postgresql_dropreset_db_encoding preflight check - SKIPTEST"
+  debug:
+    msg: "{{postgresql_dropreset_db_encoding_test.rc != 0}}"
+  register: postgresql_dropreset_db_encoding_can_run
+  tags: [postgresql_dropreset_db_encoding]
+- include: run.yml
+  when: 'postgresql_dropreset_db_encoding_can_run.msg == True'
+  tags: [postgresql_dropreset_db_encoding, postgresql_dropreset_db_encoding_conf]

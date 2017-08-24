@@ -1,0 +1,8 @@
+---
+cops_postgresql_drop_reset_db_encoding_user: "{{corpusops_services_db_postgresql_vars.user}}"
+cops_postgresql_drop_reset_db_encoding_encoding: "{{corpusops_services_db_postgresql_vars.encoding}}"
+cops_postgresql_drop_reset_db_encoding_locale: "{{corpusops_services_db_postgresql_vars.locale}}"
+cops_postgresql_drop_reset_db_encoding_template: template1
+cops_postgresql_drop_reset_db_encoding_version: "{{corpusops_services_db_postgresql_vars.version}}"
+cops_postgresql_drop_reset_db_encoding_db: null
+cops_postgresql_drop_reset_db_encoding_install_postgis: false

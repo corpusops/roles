@@ -1,0 +1,43 @@
+---
+- set_fact:
+    reset_db_file: "{{'/tmp/psql.{version}-{db}-fix.sql'.format(**cops_postgresql_drop_reset_db_encoding_vars)}}"
+- name: fix encoding
+  copy:
+    force: true
+    mode: "0755"
+    dest: "{{reset_db_file}}"
+    content: |
+      {% set pgsql_vars = cops_postgresql_drop_reset_db_encoding_vars%}
+      {% set v = _cops_postgresql_drop_reset_db_encoding_version %}
+      {% set db = pgsql_vars.db %}
+      {% set encoding = pgsql_vars.encoding %}
+      {% set locale = pgsql_vars.locale %}
+      {% if db == 'template1' %}
+      {%  set _ = pgsql_vars.update({'template': 'template0'}) %}
+      {% endif %}
+      {% set template = pgsql_vars.template %}
+      {% if db == 'template1' %}
+      update pg_database set datallowconn = TRUE where datname = 'template0';
+      update pg_database set datistemplate = FALSE where datname = 'template1';
+      {% endif %}
+      {% if template %}
+      \c {{template}}
+      {% endif %}
+      DROP DATABASE IF EXISTS {{db}};
+      CREATE DATABASE {{db}} WITH {% if template %}template = {{template}}{%endif%}
+        encoding = '{{encoding}}' 
+        LC_CTYPE = '{{locale}}' 
+        LC_COLLATE = '{{locale}}';
+
+      \c {{db}}
+      {% if db == 'template1' %}
+      update pg_database set datistemplate = TRUE where datname = 'template1';
+      update pg_database set datallowconn = FALSE where datname = 'template0';
+      {% endif %}
+- shell: |
+    {% set v = _cops_postgresql_drop_reset_db_encoding_version %}
+    {% set pgsql_vars = cops_postgresql_drop_reset_db_encoding_vars%}
+    psql{{v}} -v ON_ERROR_STOP=1 \
+      "{{pgsql_vars.db}}" -f "{{reset_db_file}}"
+  become: true
+  become_user: "{{cops_postgresql_drop_reset_db_encoding_vars.user}}"
