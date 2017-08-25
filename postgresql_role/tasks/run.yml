@@ -1,0 +1,23 @@
+---
+- postgresql_user:
+    name: "{{ cops_postgresql_role_vars.name}}"
+    db: "{% if cops_postgresql_role_vars.db is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.db }}{%endif%}"
+    password: "{% if cops_postgresql_role_vars.password is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.password }}{%endif%}"
+    conn_limit: "{% if cops_postgresql_role_vars.conn_limit is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.conn_limit }}{%endif%}"
+    encrypted: "{% if cops_postgresql_role_vars.encrypted is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.encrypted }}{%endif%}"
+    expires: "{% if cops_postgresql_role_vars.expires is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.expires }}{%endif%}"
+    fail_on_user: "{% if cops_postgresql_role_vars.fail_on_user is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.fail_on_user }}{%endif%}"
+    no_password_changes: "{% if cops_postgresql_role_vars.no_password_changes is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.no_password_changes }}{%endif%}"
+    priv: "{% if cops_postgresql_role_vars.priv is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.db }}{%endif%}"
+    role_attr_flags: "{% if cops_postgresql_role_vars.role_attr_flags is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.role_attr_flags }}{%endif%}"
+    port: "{% if cops_postgresql_role_vars.port is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.port }}{%endif%}"
+    ssl_mode: "{% if cops_postgresql_role_vars.ssl_mode is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.ssl_mode }}{%endif%}"
+    ssl_rootcert: "{% if cops_postgresql_role_vars.ssl_rootcert is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.ssl_rootcert }}{%endif%}"
+    login_password: "{{cops_postgresql_role_vars.login_password}}"
+    login_host: "{{cops_postgresql_role_vars.login_host}}"
+    login_user: "{{cops_postgresql_role_vars.login_user}}"
+    login_unix_socket: "{% if cops_postgresql_role_vars.login_unix_socket is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.login_unix_socket }}{%endif%}"
+    state: "{{cops_postgresql_role_vars.state}}"
+  become: "{{cops_postgresql_role_vars.become}}"
+  become_user: "{{cops_postgresql_role_vars.become_user}}"
+  register: cops_postgresql_role_ret

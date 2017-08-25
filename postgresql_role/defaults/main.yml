@@ -1,0 +1,21 @@
+---
+cops_postgresql_role_name: null
+cops_postgresql_role_db: null
+cops_postgresql_role_password: null
+cops_postgresql_role_conn_limit: null
+cops_postgresql_role_encrypted: null
+cops_postgresql_role_expires: null
+cops_postgresql_role_fail_on_user: true
+cops_postgresql_role_no_password_changes: null
+cops_postgresql_role_priv: null
+cops_postgresql_role_role_attr_flags: null
+cops_postgresql_role_port: null
+cops_postgresql_role_login_host: null
+cops_postgresql_role_login_user: null
+cops_postgresql_role_login_password: null
+cops_postgresql_role_ssl_mode: null
+cops_postgresql_role_ssl_rootcert: null
+cops_postgresql_role_become: true
+cops_postgresql_role_become_user: postgres
+cops_postgresql_role_state: present
+cops_postgresql_role_login_unix_socket: null
