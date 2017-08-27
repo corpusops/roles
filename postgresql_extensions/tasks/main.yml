@@ -1,0 +1,10 @@
+---
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_postgresql_extensions
+  tags: [postgresql_extensions]
+- debug: "msg={{cops_postgresql_extensions_vars}}"
+  failed_when: "not cops_postgresql_extensions_vars.db"
+  tags: [postgresql_extensions]
+- include: run.yml
+  tags: [postgresql_extensions]

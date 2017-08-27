@@ -1,0 +1,19 @@
+---
+- hosts: all
+  roles: [{name: corpusops.roles/services_db_postgresql_vars}]
+- hosts: all
+  roles: [{name: corpusops.roles/services_db_postgresql, tags: setup}]
+- hosts: all
+  tasks:
+    - shell: |
+        set -ex
+        dropdb "{{item}}" || /bin/true
+        createdb "{{item}}"
+      become: true
+      become_user: "postgres"
+      with_items: [postgresql_extensions_db1e]
+    - include_role: {name: corpusops.roles/postgresql_extensions}
+      vars:
+        _cops_postgresql_extensions:
+          db: "postgresql_extensions_db1e"
+          extensions: [fuzzystrmatch]

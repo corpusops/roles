@@ -1,0 +1,14 @@
+---
+- postgresql_ext:
+    db: "{{cops_postgresql_extensions_vars.db}}"
+    name: "{{item}}"
+    port: "{{cops_postgresql_extensions_vars.port}}"
+    login_host: "{{cops_postgresql_extensions_vars.login_host}}"
+    login_user: "{{cops_postgresql_extensions_vars.login_user}}"
+    login_password: "{{cops_postgresql_extensions_vars.login_password}}"
+    login_unix_socket: "{% if cops_postgresql_extensions_vars.login_unix_socket is none %}{{omit}}{% else %}{{ cops_postgresql_extensions_vars.login_unix_socket }}{%endif%}"
+    state: "{{cops_postgresql_extensions_vars.state}}"
+  become: "{{cops_postgresql_extensions_vars.become}}"
+  become_user: "{{cops_postgresql_extensions_vars.become_user}}"
+  with_items: "{{cops_postgresql_extensions_vars.extensions}}"
+  register:  cops_postgresql_extensions_ret

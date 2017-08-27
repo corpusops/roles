@@ -1,0 +1,11 @@
+cops_postgresql_extensions_db: null
+cops_postgresql_extensions_port: null
+cops_postgresql_extensions_login_host: null
+cops_postgresql_extensions_login_user: null
+cops_postgresql_extensions_login_password: null
+cops_postgresql_extensions_state: present
+cops_postgresql_extensions_become: true
+cops_postgresql_extensions_become_user: "postgres"
+cops_postgresql_extensions_extensions: []
+cops_postgresql_extensions_state: present
+cops_postgresql_extensions_login_unix_socket: null
