@@ -4,7 +4,12 @@
 
 - Setup the linux alternative system and link one version on the system
 
-### Install a vhost
+### Install alternatives
+- main target entry is mandatory and designate the current alternative
+- each "bins" entry represents an alternative to be defined
+- Be warn, all existing alternatives are removed before the entries to be defined
+
+vhost
 ```yaml
 - include_role: {name: corpusops.roles/set_alternatives}
   vars:
@@ -13,7 +18,7 @@
       mybin:
         target: "/usr/bin/fii"
         bins:
-          - manualfii:
+          - onefii:
               target: "/opt/apps/fii-{{version}}/bin/fii"
 ```
 
