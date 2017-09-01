@@ -19,13 +19,13 @@
   tags: [corpusops_services_db_postgresql,
          postgresql_wrappers,
          corpusops_services_db_postgresql_wrappers]
-- include_tasks: fix_encoding.yml
-  when: 'corpusops_services_db_postgresql_can_run.msg == True'
-  tags: [corpusops_services_db_postgresql,
-         postgresql_fix_encoding,
-         corpusops_services_db_postgresql_fix_encoding]
 - include_tasks: services.yml
   when: 'corpusops_services_db_postgresql_can_run.msg == True'
   tags: [corpusops_services_db_postgresql,
          postgresql_services,
          corpusops_services_db_postgresql_services]
+- include_tasks: fix_encoding.yml
+  when: 'corpusops_services_db_postgresql_can_run.msg == True'
+  tags: [corpusops_services_db_postgresql,
+         postgresql_fix_encoding,
+         corpusops_services_db_postgresql_fix_encoding]
