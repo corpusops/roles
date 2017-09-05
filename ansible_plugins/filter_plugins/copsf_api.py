@@ -48,6 +48,19 @@ def unlock(fd):
     fcntl.flock(fd.fileno(), fcntl.LOCK_UN)
 
 
+def splitstrip(a):
+    res = a
+    if isinstance(a, six.string_types):
+        a = a.split()
+    if isinstance(a, list):
+        res = []
+        for b in a:
+            if isinstance(b, six.string_types):
+                b = b.strip()
+                res.append(b)
+    return res
+
+
 def dictupdate(dest, upd, recursive_update=True):
     '''
     Recursive version of the default dict.update
@@ -248,6 +261,7 @@ def looseversion(v):
 
 
 __funcs__ = {
+    'copsf_splitstrip': splitstrip,
     'copsf_looseversion': looseversion,
     'copsf_dictupdate': dictupdate,
     'copsf_deepcopy': cops_deepcopy,
