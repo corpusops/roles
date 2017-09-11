@@ -12,5 +12,4 @@ galaxy_info:
     versions:
     - all
 dependencies:
-- role: corpusops.roles/humanlog
 - role: corpusops.roles/actionhelper

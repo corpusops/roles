@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles: [corpusops.roles/lsb_release]
+- hosts: all
+  tasks:
+    - cops_lsb_release: {}
