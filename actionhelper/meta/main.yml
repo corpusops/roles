@@ -11,5 +11,4 @@ galaxy_info:
   - name: Debian
     versions:
     - all
-dependencies:
-- role: corpusops.roles/humanlog
+dependencies: []

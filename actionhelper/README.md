@@ -2,7 +2,7 @@
 
 
 - Usage:
-   - Add corpusops.roles/actionhelper to the role/meta/main.yml
+   - Add corpusops.roles/ansible_plugins to the role/meta/main.yml
    - Load the plugin via the module loader
    - use it
 
