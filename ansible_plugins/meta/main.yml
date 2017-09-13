@@ -12,4 +12,10 @@ galaxy_info:
   - name: Debian
     versions:
     - all
-dependencies: []
+dependencies:
+- role: corpusops.roles/actionhelper
+- role: corpusops.roles/lsb_release
+- role: corpusops.roles/include_jinja_vars
+- role: corpusops.roles/service
+- role: corpusops.roles/saltcall
+

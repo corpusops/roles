@@ -12,10 +12,4 @@ galaxy_info:
     versions:
     - all
 dependencies:
-- role: corpusops.roles/lsb_release
-- role: corpusops.roles/include_jinja_vars
-- role: corpusops.roles/service
-- role: corpusops.roles/actionhelper
-- role: corpusops.roles/humanlog
-- role: corpusops.roles/saltcall
 - role: corpusops.roles/ansible_plugins
