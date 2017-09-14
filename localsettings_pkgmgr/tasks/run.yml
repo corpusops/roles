@@ -7,9 +7,9 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_pkgmgr_vars.files}}"
-  when: |
-    {{corpusops_localsettings_pkgmgr_vars.files is not none and
-      corpusops_localsettings_pkgmgr_vars.files|length > 0}}
+  when: >-
+     (corpusops_localsettings_pkgmgr_vars.files is not none and
+      corpusops_localsettings_pkgmgr_vars.files|length > 0)
   tags: corpusops_localsettings_pkgmgr
 - name: configs apt clean
   template:
@@ -19,10 +19,10 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_pkgmgr_vars.apt_clean_configs}}"
-  when: |
-    {{corpusops_localsettings_pkgmgr_vars.apt_clean and
+  when: >-
+     (corpusops_localsettings_pkgmgr_vars.apt_clean and
       corpusops_localsettings_pkgmgr_vars.apt_clean_configs is not none and
-      corpusops_localsettings_pkgmgr_vars.apt_clean_configs|length > 0}}
+      corpusops_localsettings_pkgmgr_vars.apt_clean_configs|length > 0)
   tags: corpusops_localsettings_pkgmgr
 - name: configs
   template:
@@ -32,7 +32,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   with_items: "{{corpusops_localsettings_pkgmgr_vars.configs}}"
-  when: |
-    {{corpusops_localsettings_pkgmgr_vars.configs is not none and
-      corpusops_localsettings_pkgmgr_vars.configs|length > 0}}
-  tags: corpusops_localsettings_pkgmgr 
+  when: >-
+     (corpusops_localsettings_pkgmgr_vars.configs is not none and
+      corpusops_localsettings_pkgmgr_vars.configs|length > 0)
+  tags: corpusops_localsettings_pkgmgr

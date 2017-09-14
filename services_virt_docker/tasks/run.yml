@@ -92,7 +92,7 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    package: '{{item}}'
+    name: '{{item}}'
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.packages is not none and
@@ -103,7 +103,7 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    package: 'yum-utils'
+    name: 'yum-utils'
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_virt_docker_vars.packages is not none and
@@ -122,7 +122,7 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    package: '{{item}}'
+    name: '{{item}}'
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_virt_docker_vars.packages is not none and

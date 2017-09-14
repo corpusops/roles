@@ -4,17 +4,17 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    package: '{{item}}'
+    name: '{{item}}'
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_basepkgs_vars.packages is not none and
           corpusops_localsettings_basepkgs_vars.packages|length > 0)"
   tags: corpusops_localsettings_basepkgs
-- name: update & install prerequisites
+- name: update & install prerequisites here
   with_items: '{{corpusops_localsettings_basepkgs_vars.packages}}'
   package:
     update_cache: yes
-    package: '{{item}}'
+    name: '{{item}}'
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_basepkgs_vars.packages is not none and

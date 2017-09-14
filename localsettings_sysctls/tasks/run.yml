@@ -3,7 +3,7 @@
   apt:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    package: '{{corpusops_localsettings_sysctls_vars.packages}}'
+    name: '{{corpusops_localsettings_sysctls_vars.packages}}'
     state: present
   when: "(ansible_os_family == 'Debian' and
           corpusops_localsettings_sysctls_vars.packages is not none and
