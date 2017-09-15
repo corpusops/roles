@@ -63,7 +63,7 @@ corpusops_localsettings_pkgmgr_base_rpm_repos_centos:
     desc: Base
     gpgcheck: true
     gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
-    mirrorlist: "file:///etc/corpusops_rpms_mirrors.os"
+    mirrorlist: "file:///etc/corpusops_rpms_mirrors.base"
     file: 'CentOS-Base'
   - name: updates
     gpgcheck: true
