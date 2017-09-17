@@ -63,6 +63,8 @@
                 | default(False) %}
           {% set corpusops_localsettings_jdk = corpusops_localsettings_jdk
                 | default(False) %}
+          {% set corpusops_localsettings_dockercompose = corpusops_localsettings_dockercompose
+                | default(False) %}
           {% set corpusops_services_base_sshd = corpusops_services_base_sshd
                 | default(not is_docker) %}
           {% set corpusops_services_magicbridge = corpusops_services_magicbridge
@@ -75,6 +77,14 @@
                 | default(True) %}
           {% set corpusops_services_misc_xvfb = corpusops_services_misc_xvfb
                 | default(False) %}
+          {% set corpusops_services_db_postgresql_client = corpusops_services_db_postgresql_client
+                | default(False) %}
+          {% set corpusops_services_db_postgresql_pkgmgr = corpusops_services_db_postgresql_pkgmgr
+                | default(False) %}
+          {% set corpusops_services_db_postgis = corpusops_services_db_postgis
+                | default(False) %}
+          {% set corpusops_services_db_postgresql = corpusops_services_db_postgresql
+                | default(False) %}
           {% set corpusops_services_misc_robotframework = corpusops_services_misc_robotframework
                 | default(False) %}
           {% set corpusops_localsettings_ssh = corpusops_localsettings_ssh
@@ -85,6 +95,11 @@
           {% set corpusops_localsettings_dns = (
                 corpusops_localsettings_dns_servers or
                 corpusops_localsettings_dns_search) | length > 0 %}
+          corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
+          corpusops_services_db_postgresql_client: {{ corpusops_services_db_postgresql_client }}
+          corpusops_services_db_postgresql_pkgmgr: {{ corpusops_services_db_postgresql_pkgmgr }}
+          corpusops_services_db_postgresql: {{ corpusops_services_db_postgresql }}
+          corpusops_services_db_postgis: {{ corpusops_services_db_postgis }}
           corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
@@ -131,6 +146,7 @@
     - role: corpusops.roles/localsettings_editor
     - role: corpusops.roles/localsettings_etckeeper
     - role: corpusops.roles/localsettings_git
+    - role: corpusops.roles/localsettings_dockercompose
     - role: corpusops.roles/localsettings_packer
     - role: corpusops.roles/localsettings_phantoms
     - role: corpusops.roles/localsettings_nodejs
@@ -149,4 +165,8 @@
     - role: corpusops.roles/services_misc_xvfb
     - role: corpusops.roles/services_misc_robotframework
     - role: corpusops.roles/services_http_nginx
+    - role: corpusops.roles/services_db_postgresql_client
+    - role: corpusops.roles/services_db_postgresql_pkgmgr
+    - role: corpusops.roles/services_db_postgresql
+    - role: corpusops.roles/services_db_postgis
 
