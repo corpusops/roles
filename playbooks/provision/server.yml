@@ -2,9 +2,7 @@
 - hosts: "{{provision_host|default('all')}}"
   roles:
     - role: corpusops.roles/humanlog
-    - role: corpusops.roles/include_jinja_vars
     - role: corpusops.roles/vars
-- hosts: "{{provision_host|default('all')}}"
   tasks:
     - name: SETUP
       include_jinja_vars:
