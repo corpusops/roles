@@ -20,7 +20,7 @@
     - name: update & install prerequisites
       package:
         update_cache: yes
-        package: '{{item}}'
+        name: '{{item}}'
         state: present
       when: "ansible_os_family.lower() in ['redhat']"
       tags: corpusops_localsettings_jdk
