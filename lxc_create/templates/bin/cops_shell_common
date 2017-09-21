@@ -19,14 +19,21 @@ ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(ok|changed):\s+\[localhost\]( =>
 ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*(\"msg|([{}]$))"
 ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
 
+
 has_command() {
     ret=1
-    if which which >/dev/null 2>/dev/null && which "${@}" >/dev/null 2>/dev/null;then
+    if which which >/dev/null 2>/dev/null;then
+      if which "${@}" >/dev/null 2>/dev/null;then
         ret=0
-    elif command -v "${@}" >/dev/null 2>/dev/null;then
+      fi
+    else
+      if command -v "${@}" >/dev/null 2>/dev/null;then
         ret=0
-    elif hash -r "${@}" >/dev/null 2>/dev/null;then
-        ret=0
+      else
+        if hash -r "${@}" >/dev/null 2>/dev/null;then
+            ret=0
+        fi
+      fi
     fi
     return ${ret}
 }
@@ -184,6 +191,10 @@ vvv() {
 vv() {
     log "${@}"
     silent_run "${@}"
+}
+
+silent_vv() {
+    SILENT_LOG=${SILENT_LOG-} SILENT=${SILENT-1} vv "${@}"
 }
 
 usage() {
@@ -430,6 +441,47 @@ get_git_branch() {
      git rev-parse --abbrev-ref HEAD | grep -v HEAD || \
      git describe --exact-match HEAD 2> /dev/null || \
      git rev-parse HEAD)
+}
+
+get_git_branchs() {
+   ( cd "${1:-$(pwd)}" &&\
+       git branch|sed -e "s/^\*\? \+//g")
+}
+
+upgrade_wd_to_br() {
+    (
+        local wd="${2:-$(pwd)}"
+        local up_branch="${1}"
+        cd "${wd}" || die "${wd} does not exists"
+        local test_branch="${3:-$(get_git_branch)}"
+        local existing_gitmodules="$(git submodule status|awk '{print $2}')"
+        if [ "x${test_branch}" != "x${up_branch}" ];then
+            warn "Upgrading $wd to branch: $up_branch"
+            git fetch --all || die "git fetch in $wd failed"
+            if get_git_branchs | egrep -q "^${up_branch}$";then
+                vv git checkout ${up_branch} &&\
+                    vv git reset --hard origin/${up_branch}
+            else
+                vv git checkout origin/${up_branch} -b ${up_branch}
+            fi
+        fi
+        while read subdir;do
+            subdir=$(echo $subdir|sed -e "s/^\.\///g")
+            if [ -h "${subdir}/.git" ] || [ -f "${subdir}/.git" ];then
+                debug "Checking if ${subdir} is always a submodule"
+                if [ -e .gitmodules ] && ( grep -q -- "${subdir}" .gitmodules );then
+                    debug "${subdir} is always a gitmodule"
+                else
+                    warn "${subdir} is not a git submodule anymore"
+                    vv rm -rf "${subdir}"
+                fi
+            fi
+        done < <( echo "${existing_gitmodules}" )
+        if [ -e .gitmodules ];then
+            warn "Upgrading submodules in $wd"
+            vv git submodule update --recursive
+        fi
+    )
 }
 
 do_trap_() {
