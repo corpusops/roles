@@ -10,6 +10,14 @@
     _cops_postgresql_drop_reset_db_encoding_version: "{% set v = cops_postgresql_drop_reset_db_encoding_vars.version%}{% if v %}-{{v}}{%endif%}"
   tags: [postgresql_dropreset_db_encoding]
 - shell: |
+    # test we have a db link
+    set -x
+    echo "select 1"| psql -v ON_ERROR_STOP=1 -t -A -F",":
+  become: true
+  become_user: "{{cops_postgresql_drop_reset_db_encoding_vars.user}}"
+  register: postgresql_dropreset_db_encoding_test
+  tags: [postgresql_dropreset_db_encoding]
+- shell: |
     {% set pgsql_vars = cops_postgresql_drop_reset_db_encoding_vars%}
     {% set v = _cops_postgresql_drop_reset_db_encoding_version %}
     # either locale & encoding is good => skip
