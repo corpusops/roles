@@ -2,6 +2,7 @@
 corpusops_services_db_postgis_packages_default:
   - 'postgresql-{corpusops_services_db_postgresql_version}-postgis-{corpusops_services_db_postgis_version}'
   - 'postgresql-{corpusops_services_db_postgresql_version}-postgis-{corpusops_services_db_postgis_version}-scripts'
+  - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
 corpusops_services_db_postgis_db: 'postgis'
 corpusops_services_db_postgis_activated: True
 corpusops_services_db_postgis_repo_keys_url: null
