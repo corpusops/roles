@@ -41,3 +41,4 @@
       "{{pgsql_vars.db}}" -f "{{reset_db_file}}"
   become: true
   become_user: "{{cops_postgresql_drop_reset_db_encoding_vars.user}}"
+

@@ -13,7 +13,7 @@ corpusops_services_db_postgresql_client_packages_default:
   - 'libpq-dev'
   - 'python-psycopg2'
   - 'python3-psycopg2'
-  - 'postgresql-contrib'
+  - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
   - 'postgresql-client-{corpusops_services_db_postgresql_version}'
 corpusops_services_db_postgresql_packages: null
 corpusops_services_db_postgresql_packages_default:
@@ -21,6 +21,7 @@ corpusops_services_db_postgresql_packages_default:
   - 'postgresql-{corpusops_services_db_postgresql_version}'
   - 'postgresql-server-dev-{corpusops_services_db_postgresql_version}'
   - 'postgresql-{corpusops_services_db_postgresql_version}-pgextwlist'
+  - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
 corpusops_services_db_postgresql_services: null
 corpusops_services_db_postgresql_group: postgres
 corpusops_services_db_postgresql_services_default: [postgresql]
@@ -28,18 +29,20 @@ corpusops_services_db_postgresql_files: null
 corpusops_services_db_postgresql_filescopy: null
 corpusops_services_db_postgresql_filescopy_default: []
 corpusops_services_db_postgresql_files_apt: []
+corpusops_services_db_postgresql_prefix: "/etc/postgresql"
+corpusops_services_db_postgresql_vprefix: "{{corpusops_services_db_postgresql_prefix}}/{{corpusops_services_db_postgresql_version}}"
 corpusops_services_db_postgresql_files_default:
-  - {path: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/conf.d",
-    mode: "0755"}
+  - {path: "{{corpusops_services_db_postgresql_vprefix}}/main/conf.d",
+     owner: root, group: root, state: directory, mode: "0755"}
 corpusops_services_db_postgresql_configs: null
 corpusops_services_db_postgresql_configs_default:
-  - {name: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/pg_hba.conf",
+  - {name: "{{corpusops_services_db_postgresql_vprefix}}/main/pg_hba.conf",
     template: "../templates/etc/postgresql/main/pg_hba.conf",
     mode: "0644"}
-  - {name: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/conf.d/empty.conf",
+  - {name: "{{corpusops_services_db_postgresql_vprefix}}/main/conf.d/empty.conf",
     template: "../templates/etc/postgresql/main/conf.d/empty.conf",
     mode: "0644"}
-  - {name: "/etc/postgresql/{{corpusops_services_db_postgresql_version}}/main/postgresql.conf",
+  - {name: "{{corpusops_services_db_postgresql_vprefix}}/main/postgresql.conf",
     template: "../templates/etc/postgresql/main/postgresql.conf",
     mode: "0644"}
 corpusops_services_db_postgresql_wrapper_configs:
