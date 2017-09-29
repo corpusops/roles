@@ -6,7 +6,7 @@
     {% set q='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set q=''%}{% endif %}
     {% set atarget = adata.get(
       'target', '/usr/bin/{0}'.format(aname)).format(**vars) %}
-    set -ex;
+    set -e; {# set -x;#}
     abspath() {
       realpath $(readlink -f "{{atarget}}" || : ; ) 2>/dev/null || : ;
     }
