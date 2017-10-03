@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_minikube preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_minikube | default(True) }}"
+  register: corpusops_localsettings_minikube_can_run
+  tags: corpusops_localsettings_minikube
+- include_tasks: run.yml
+  when: 'corpusops_localsettings_minikube_can_run.msg == True'
+  tags: corpusops_localsettings_minikube

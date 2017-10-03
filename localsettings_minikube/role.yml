@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/localsettings_kubectl
+      tags: kubectl
+    - role: corpusops.roles/localsettings_minikube
+      tags: minikube

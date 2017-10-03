@@ -1,0 +1,26 @@
+---
+corpusops_localsettings_minikube_version: latest
+corpusops_localsettings_minikube_sha: true
+corpusops_localsettings_minikube_platform: "linux"
+corpusops_localsettings_minikube_arch: 'amd64'
+corpusops_localsettings_minikube_configs: {}
+corpusops_localsettings_minikube_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
+corpusops_localsettings_minikube_install_path: "/usr/local"
+corpusops_localsettings_minikube_gpg_keys: []
+corpusops_localsettings_minikube_sources_list: null
+corpusops_localsettings_minikube_mirror: null
+corpusops_localsettings_minikube_repo: null
+corpusops_localsettings_minikube_packages: []
+corpusops_localsettings_minikube_debug: "1"
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_minikube_alternatives:
+  minikube:
+    target: "{{corpusops_localsettings_minikube_install_path}}/bin/minikube"
+    bins:
+      - manualminikube:
+          target: "{{corpusops_core_apps_path}}/minikube-{{version}}/minikube"
+corpusops_localsettings_minikube_version_getter: "https://api.github.com/repos/kubernetes/minikube/releases/{version}"
+_corpusops_localsettings_minikube_app_path: "{{corpusops_core_apps_path}}/minikube-{{version}}"
+_corpusops_localsettings_minikube_archive: "https://storage.googleapis.com/minikube/releases/v0.22.2/minikube-{{platform}}-{{arch}}"
+

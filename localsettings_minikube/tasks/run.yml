@@ -1,0 +1,98 @@
+---
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_minikube_vars.packages is not none and
+          corpusops_localsettings_minikube_vars.packages|length > 0)"
+  with_items: "{{corpusops_localsettings_minikube_vars.packages}}"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_minikube_vars.packages is not none and
+          corpusops_localsettings_minikube_vars.packages|length > 0)"
+  with_items: "{{corpusops_localsettings_minikube_vars.packages}}"
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_minikube_vars.files}}"
+  when: "(corpusops_localsettings_minikube_vars.files is not none and
+          corpusops_localsettings_minikube_vars.files|length > 0)"
+- name: configs
+  template:
+    src: "{{item.src|default('../templates/'+item.name)}}"
+    dest: "{{item.dest|default(item.name)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_minikube_vars.configs}}"
+  when: "(corpusops_localsettings_minikube_vars.configs is not none and
+          corpusops_localsettings_minikube_vars.configs|length > 0)"
+# forward vars to handle include_role bugs...
+- uri:
+    url: "{{corpusops_localsettings_minikube_vars.version_getter.format(
+           version=corpusops_localsettings_minikube_vars.version)}}"
+    return_content: true
+  register: corpusops_localsettings_minikube_getted_version_
+  when: "corpusops_localsettings_minikube_vars.version in ['latest']"
+- set_fact:
+    corpusops_localsettings_minikube_getted_version: "{{(
+        corpusops_localsettings_minikube_getted_version_.content|from_json
+      ).name.strip()}}"
+  when: "corpusops_localsettings_minikube_vars.version in ['latest']"
+- set_fact:
+    corpusops_localsettings_minikube_getted_version: "{{corpusops_localsettings_minikube_vars.version}}"
+  when: "corpusops_localsettings_minikube_vars.version not in ['latest']"
+- file:
+    path: "{{_corpusops_localsettings_minikube_app_path}}"
+    state: directory
+    mode: "0755"
+  vars:
+    version: "{{corpusops_localsettings_minikube_getted_version}}"
+- stat:
+    path: "{{_corpusops_localsettings_minikube_app_path}}/minikube"
+  register: corpusops_localsettings_minikube_getted_f
+  vars:
+    version: "{{corpusops_localsettings_minikube_getted_version}}"
+    platform: "{{corpusops_localsettings_minikube_vars.platform}}"
+    arch: "{{corpusops_localsettings_minikube_vars.arch}}"
+- uri:
+    url: "{{_corpusops_localsettings_minikube_archive}}.sha256"
+    return_content: true
+  vars:
+    version: "{{corpusops_localsettings_minikube_getted_version}}"
+    platform: "{{corpusops_localsettings_minikube_vars.platform}}"
+    arch: "{{corpusops_localsettings_minikube_vars.arch}}"
+  register: corpusops_localsettings_minikube_getted_version_sha
+  when: |
+    (corpusops_localsettings_minikube_vars.sha and
+     not corpusops_localsettings_minikube_getted_f.stat.exists)
+- get_url:
+    force: true
+    checksum: "{%
+      if corpusops_localsettings_minikube_vars.sha
+      %}sha256:{{corpusops_localsettings_minikube_getted_version_sha.content.strip()}}
+      {%else%}{{omit}}{%endif%}"
+    url: "{{_corpusops_localsettings_minikube_archive}}"
+    dest: "{{_corpusops_localsettings_minikube_app_path}}/minikube"
+    mode: "0755"
+  vars:
+    version: "{{corpusops_localsettings_minikube_getted_version}}"
+    platform: "{{corpusops_localsettings_minikube_vars.platform}}"
+    arch: "{{corpusops_localsettings_minikube_vars.arch}}"
+  when: "not corpusops_localsettings_minikube_getted_f.stat.exists"
+- include_role: {name: corpusops.roles/set_alternatives}
+  vars:
+    version: "{{corpusops_localsettings_minikube_getted_version}}"
+    alternatives: "{{_corpusops_localsettings_minikube_alternatives}}"
+  when: "corpusops_localsettings_minikube_getted_version is not none"
