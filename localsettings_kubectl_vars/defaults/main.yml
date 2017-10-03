@@ -1,0 +1,25 @@
+---
+corpusops_localsettings_kubectl_version: stable
+corpusops_localsettings_kubectl_platform: "linux"
+corpusops_localsettings_kubectl_arch: 'amd64'
+corpusops_localsettings_kubectl_configs: {}
+corpusops_localsettings_kubectl_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
+corpusops_localsettings_kubectl_install_path: "/usr/local"
+corpusops_localsettings_kubectl_gpg_keys: []
+corpusops_localsettings_kubectl_sources_list: null
+corpusops_localsettings_kubectl_mirror: null
+corpusops_localsettings_kubectl_repo: null
+corpusops_localsettings_kubectl_packages: []
+corpusops_localsettings_kubectl_debug: "1"
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_kubectl_alternatives:
+  kubectl:
+    target: "{{corpusops_localsettings_kubectl_install_path}}/bin/kubectl"
+    bins:
+      - manualkubectl:
+          target: "{{corpusops_core_apps_path}}/kubectl-{{version}}/kubectl"
+corpusops_localsettings_kubectl_version_getter: "https://storage.googleapis.com/kubernetes-release/release/{version}.txt"
+
+_corpusops_localsettings_kubectl_app_path: "{{corpusops_core_apps_path}}/kubectl-{{version}}"
+_corpusops_localsettings_kubectl_archive: "https://storage.googleapis.com/kubernetes-release/release/{{version}}/bin/{{platform}}/{{arch}}/kubectl"
