@@ -20,7 +20,7 @@
     enabled: "{{docker_compose_service_vars.service_activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{docker_compose_service_vars.services}}"
+  with_items: ["{{docker_compose_service_vars.project}}"]
   tags: [service, systemd_do]
   when: "(corpusops_vars.has_services_manager and
           (ansible_service_mgr == 'systemd'))"
