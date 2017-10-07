@@ -1,0 +1,26 @@
+---
+- listen: restart_docker_compose_service
+  shell: systemctl daemon-reload
+  when: "(docker_compose_service_vars.service_activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+  tags: docker_compose_service 
+- listen: restart_docker_compose_service
+  systemd:
+    daemon_reload: yes
+    state: restarted
+    name: "{{item}}"
+  with_items: ["{{docker_compose_service_vars.project}}"]
+  when: "(docker_compose_service_vars.service_activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+  tags: docker_compose_service
+- listen: restart_docker_compose_service
+  cops_service:
+    state: restarted
+    name: "{{item}}"
+  with_items: "{{docker_compose_service_vars.services}}"
+  when: "(docker_compose_service_vars.service_activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr != 'systemd'))"
+  tags: docker_compose_service 

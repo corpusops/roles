@@ -4,3 +4,10 @@ docker_compose_service:
   working_directory: /tmp
   docker_compose_file: docker-compose.yml
   service_activated: true
+  # one of:
+  #  no, on-success, on-failure, on-abnormal,
+  #  on-watchdog, on-abort, or always.
+  restart: "no"
+  restart_sec: "0"
+  timeout_sec: "300"
+  #restart_sec: "10"

@@ -1,14 +1,21 @@
 # {{ansible_managed}}
-#{% set d = docker_compose_service_vars.project %}
-#{% set w = docker_compose_service_vars.working_directory %}
+#{% set v = docker_compose_service_vars %}
+#{% set d = v.project %}
+#{% set w = v.working_directory %}
 [Unit]
 Description={{d}} DockerCompose service
 After=network.service docker.service
 Requires=docker.service
 [Service]
-Restart=always
-RestartSec=10
-TimeoutSec=300
+{% if v.restart %}
+Restart=v.restart
+{% endif %}
+{% if v.restart_sec %}
+RestartSec={{v.restart_sec}}
+{% endif %}
+{% if v.timeout_sec %}
+TimeoutSec={{v.timeout_sec}}
+{% endif %}
 WorkingDirectory={{w}}
 ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" pull
 ExecStart=/usr/bin/env    docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" up
