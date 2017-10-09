@@ -1,0 +1,18 @@
+---
+#- debug: "msg={{corpusops_ssh_added_keys_map2}}"
+- debug: "msg={{cops_sshkeys_added}}"
+- debug: "msg={{cops_sshkeys_removed}}"
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_sshkeys_added
+  tags: [sshkeys, vars]
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_sshkeys_removed
+  tags: [sshkeys, vars]
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_sshkeys
+  tags: [sshkeys, vars]
+- include_tasks: run.yml
+  tags: [sshkeys, sshkeys_run]

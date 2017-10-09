@@ -1,0 +1,13 @@
+---
+#- debug: msg="{{subitem}}"
+- authorized_key:
+    state: "{{state}}"
+    user: "{{subitem.key}}"
+    key: "{{item.key}}"
+    key_options: "{{item.key_options|default(omit)}}"
+    manage_dir: "{{item.manage_dir|default(omit)}}"
+    path: "{{item.path|default(omit)}}"
+    comment: "{{item.comment|default(omit)}}"
+    validate_certs: "{{item.validate_certs|default(omit)}}"
+    exclusive: "{{item.exclusive|default(omit)}}"
+  with_items: "{{subitem.value}}"

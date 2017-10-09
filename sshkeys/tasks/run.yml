@@ -1,0 +1,17 @@
+---
+#- debug: msg="{{item}}"
+#  with_dict: "{{cops_sshkeys_vars.added}}"
+- include: "./_manage.yml"
+  with_dict: "{{cops_sshkeys_vars.added}}"
+  register:  cops_sshkeys_added_ret
+  vars:
+    state: present
+  loop_control:
+    loop_var: subitem
+- include: "./_manage.yml"
+  with_dict: "{{cops_sshkeys_vars.removed}}"
+  register:  cops_sshkeys_removed_ret
+  vars:
+    state: absent
+  loop_control:
+    loop_var: subitem

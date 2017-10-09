@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - {name: corpusops.roles/humanlog}
+    - {name: corpusops.roles/sshkeys}
+
