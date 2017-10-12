@@ -131,7 +131,7 @@
           corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
           corpusops_services_misc_robotframework: {{ corpusops_services_misc_robotframework }}
           corpusops_services_misc_xvfb: {{ corpusops_services_misc_xvfb }}
-      tags: corpusops_vars,corpusops_vars_core,corpusops_vars_provision
+      tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: "{{provision_host|default('all')}}"
   roles:
     - role: corpusops.roles/localsettings_dns
