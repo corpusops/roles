@@ -1,0 +1,26 @@
+---
+- name: "corpusops_services_firewall_ms_iptables preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_firewall_ms_iptables | default(True) }}"
+  register: corpusops_services_firewall_ms_iptables_can_run
+  tags: [corpusops_services_firewall_ms_iptables]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_firewall_ms_iptables_can_run.msg == True'
+  tags: [corpusops_services_firewall_ms_iptables,
+         ms_iptables_prerequisites,
+         corpusops_services_firewall_ms_iptables_prerequisites]
+- include_tasks: install.yml
+  when: 'corpusops_services_firewall_ms_iptables_can_run.msg == True'
+  tags: [corpusops_services_firewall_ms_iptables,
+         ms_iptables_install,
+         corpusops_services_firewall_ms_iptables_install]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_firewall_ms_iptables_can_run.msg == True'
+  tags: [corpusops_services_firewall_ms_iptables,
+         ms_iptables_configuration,
+         corpusops_services_firewall_ms_iptables_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_firewall_ms_iptables_can_run.msg == True'
+  tags: [corpusops_services_firewall_ms_iptables,
+         ms_iptables_services,
+         corpusops_services_firewall_ms_iptables_services]

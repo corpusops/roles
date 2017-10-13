@@ -1,0 +1,1 @@
+{{corpusops_services_firewall_ms_iptables_vars.fw|to_nice_json}}

@@ -1,0 +1,54 @@
+---
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_firewall_ms_iptables_vars.files}}"
+  when: "(corpusops_services_firewall_ms_iptables_vars.files is not none and
+          corpusops_services_firewall_ms_iptables_vars.files|length > 0)"
+  register: corpusops_services_firewall_ms_iptables_filest
+  tags: [ms_iptables_configs]
+- name: files copy
+  copy:
+    dest: "{{item.dest|default(omit)}}"
+    src: "{{item.template
+            | default('../templates/'+item.dest)}}"
+    force: "{{item.get('force', True)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_firewall_ms_iptables_vars.filescopy}}"
+  when: "(corpusops_services_firewall_ms_iptables_vars.filescopy is not none and
+          corpusops_services_firewall_ms_iptables_vars.filescopy|length > 0)"
+  register: corpusops_services_firewall_ms_iptables_filesct
+  tags: [ms_iptables_configs]
+- name: configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    trim_blocks: "{{item.trim_blocksmode|default(False)}}"
+    force: "{{item.force|default(True)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_services_firewall_ms_iptables_vars.configs}}"
+  when: "(corpusops_services_firewall_ms_iptables_vars.configs is not none and
+          corpusops_services_firewall_ms_iptables_vars.configs|length > 0)"
+  register: corpusops_services_firewall_ms_iptables_configst
+- set_fact:
+    corpusops_services_firewall_ms_iptables_configs_changed: "{{(
+       corpusops_services_firewall_ms_iptables_filest.changed or
+       corpusops_services_firewall_ms_iptables_filesct.changed or
+       corpusops_services_firewall_ms_iptables_configst.changed)}}"
+  tags: [ms_iptables_configs]
+- include_tasks: "./_sysctls.yml"
+  with_items: "{{corpusops_services_firewall_ms_iptables_vars.sysctls}}" 
+
+  tags: [ms_iptables_sysctls]

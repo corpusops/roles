@@ -1,0 +1,22 @@
+---
+- set_fact:
+    corpusops_services_firewall_ms_iptables_service_state: >-
+      {% if (
+        corpusops_services_firewall_ms_iptables_configs_changed     |default(False) or
+        corpusops_services_firewall_ms_iptables_prequisites_changed |default(False) or
+        corpusops_services_firewall_ms_iptables_wrappers_changed    |default(False)
+      )%}re{%endif%}started
+- set_fact:
+    corpusops_services_firewall_ms_iptables_service_state: "{{corpusops_services_firewall_ms_iptables_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_firewall_ms_iptables_vars.activated
+     | ternary(corpusops_services_firewall_ms_iptables_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_firewall_ms_iptables_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_firewall_ms_iptables_vars.services}}"
+  tags: corpusops_services_firewall_ms_iptables
+  when: "corpusops_vars.has_services_manager"
+- meta: flush_handlers

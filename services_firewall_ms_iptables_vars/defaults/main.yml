@@ -1,0 +1,58 @@
+---
+corpusops_services_firewall_ms_iptables_activated: True
+corpusops_services_firewall_ms_iptables_disabled: "{{not corpusops_services_firewall_ms_iptables_activated}}"
+corpusops_services_firewall_ms_iptables_repo_keys_url: null
+corpusops_services_firewall_ms_iptables_repo_keys: null
+corpusops_services_firewall_ms_iptables_repo_keys_default: []
+corpusops_services_firewall_ms_iptables_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_firewall_ms_iptables_repo: null
+corpusops_services_firewall_ms_iptables_packages: null
+corpusops_services_firewall_ms_iptables_packages_default:
+  - 'iptables'
+corpusops_services_firewall_ms_iptables_services: null
+corpusops_services_firewall_ms_iptables_group: ms_iptables
+corpusops_services_firewall_ms_iptables_services_default: [ms_iptables]
+corpusops_services_firewall_ms_iptables_files: null
+corpusops_services_firewall_ms_iptables_filescopy: null
+corpusops_services_firewall_ms_iptables_filescopy_default: []
+corpusops_services_firewall_ms_iptables_files_apt: []
+corpusops_services_firewall_ms_iptables_conf_prefix: "/etc/ms_iptables.d"
+corpusops_services_firewall_ms_iptables_conflicting_services: [
+  'iptables', 'ebtables', 'firewalld', 'shorewall', 'shorewall6']
+corpusops_services_firewall_ms_iptables_files_default:
+  - {path: "{{corpusops_services_firewall_ms_iptables_prefix}}",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_services_firewall_ms_iptables_sysctls_value: "1"
+corpusops_services_firewall_ms_iptables_sysctls_ipforward: "{{corpusops_services_firewall_ms_iptables_sysctls_value}}"
+corpusops_services_firewall_ms_iptables_sysctls_forwarding: "{{corpusops_services_firewall_ms_iptables_sysctls_value}}"
+corpusops_services_firewall_ms_iptables_sysctls:
+  - net.ipv4.ip_forward: "{{corpusops_services_firewall_ms_iptables_sysctls_ipforward}}"
+  - net.ipv6.conf.all.forwarding: "{{corpusops_services_firewall_ms_iptables_sysctls_forwarding}}"
+corpusops_services_firewall_ms_iptables_configs: null
+corpusops_services_firewall_ms_iptables_configs_default:
+  - {name: "{{corpusops_services_firewall_ms_iptables_conf_prefix}}/z_corpusops.json",
+     template: "../templates/etc/ms_iptables.d/corpusops.json",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {name: "/etc/default/ms_iptables",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_services_firewall_ms_iptables_configs_redhat:
+  - {name: "{{corpusops_services_firewall_ms_iptables_conf_prefix}}/z_corpusops.json",
+     template: "../templates/etc/ms_iptables.d/corpusops.json",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {name: "/etc/sysconfig/ms_iptables",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_services_firewall_ms_iptables_user: 'ms_iptables'
+corpusops_services_firewall_ms_iptables_main_config: '{{corpusops_services_firewall_ms_iptables_prefix}}/ms_iptables.d/open.json'
+corpusops_services_firewall_ms_iptables_origin: 'https://github.com/corpusops/ms_iptables.git'
+corpusops_services_firewall_ms_iptables_version: 'master'
+corpusops_services_firewall_ms_iptables_prefix: '{{corpusops_core_apps_path}}/ms_iptables'
+corpusops_services_firewall_ms_iptables_fw_ipv6: true
+corpusops_services_firewall_ms_iptables_fw_load_default_open_policies: True
+corpusops_services_firewall_ms_iptables_fw_load_default_hard_policies: True
+corpusops_services_firewall_ms_iptables_fw_load_default_flush_rules: True
+corpusops_services_firewall_ms_iptables_fw_load_default_rules: True
+corpusops_services_firewall_ms_iptables_fw_policy: 'hard'
+corpusops_services_firewall_ms_iptables_fw_open_policies: []
+corpusops_services_firewall_ms_iptables_fw_hard_policies: []
+corpusops_services_firewall_ms_iptables_fw_flush_rules: []
+corpusops_services_firewall_ms_iptables_fw_rules: []

@@ -1,0 +1,24 @@
+---
+- git:
+    accept_hostkey: yes
+    repo: '{{corpusops_services_firewall_ms_iptables_vars.origin}}'
+    version: '{{corpusops_services_firewall_ms_iptables_vars.version}}'
+    dest: "{{corpusops_services_firewall_ms_iptables_vars.prefix}}"
+    recursive: true
+    update: yes
+    force: yes
+  tags: ms_iptables_checkout
+  register: ms_iptables_checkout
+- shell: |
+    set -ex
+    export config="{{corpusops_services_firewall_ms_iptables_vars.main_config}}"
+    cd "{{corpusops_services_firewall_ms_iptables_vars.prefix}}"
+    ./install.sh
+  register: ms_iptables_install
+  tags: ms_iptables_install
+  changed_when: "not 'changed=false' in ms_iptables_install.stdout.lower()"
+- set_fact:
+    corpusops_services_firewall_ms_iptables_install_changed: "{{(
+         ms_iptables_checkout.changed or
+         ms_iptables_install.changed
+       )}}"
