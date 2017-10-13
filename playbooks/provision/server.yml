@@ -75,7 +75,7 @@
                 | default(False) %}
           {% set corpusops_services_virt_docker = corpusops_services_virt_docker
                 | default(False) %}
-          {% set corpusops_services_firewall_ms_iptables = corpusops_services_base_cron
+          {% set corpusops_services_firewall_ms_iptables = corpusops_services_firewall_ms_iptables
                 | default(False) %}
           {% set corpusops_services_base_cron = corpusops_services_base_cron
                 | default(True) %}
