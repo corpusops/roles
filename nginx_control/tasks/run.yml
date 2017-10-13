@@ -11,3 +11,4 @@
   with_items: "{{corpusops_services_http_nginx_vars.services}}"
   when: "(corpusops_nginx_control_vars.handle_nginx and
           corpusops_vars.has_services_manager)"
+- meta: flush_handlers

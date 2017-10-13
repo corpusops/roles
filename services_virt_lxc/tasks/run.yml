@@ -103,3 +103,4 @@
   with_items: "{{corpusops_services_virt_lxc_vars.services}}"
   tags: corpusops_services_virt_lxc
   when: "corpusops_vars.has_services_manager"
+- meta: flush_handlers

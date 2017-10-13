@@ -39,4 +39,3 @@
   when: "(corpusops_vars.has_services_manager and
           (ansible_service_mgr in ['upstart']))"
 - meta: flush_handlers
-

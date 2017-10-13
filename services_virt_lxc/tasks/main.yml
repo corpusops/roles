@@ -17,3 +17,4 @@
 - include_tasks: run.yml
   when: 'corpusops_services_virt_lxc_can_run.msg == True'
   tags: corpusops_services_virt_lxc
+- meta: flush_handlers

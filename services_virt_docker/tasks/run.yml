@@ -186,3 +186,4 @@
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
   tags: corpusops_services_virt_docker
   when: "corpusops_vars.has_services_manager"
+- meta: flush_handlers

@@ -50,3 +50,4 @@
           corpusops_localsettings_autoupgrades_vars.services|length > 0 and
           (ansible_service_mgr == 'systemd'))"
   tags: corpusops_localsettings_autoupgrades
+- meta: flush_handlers

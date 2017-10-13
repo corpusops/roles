@@ -41,3 +41,4 @@
   with_items: "{{corpusops_localsettings_nscd_vars.services}}"
   tags: corpusops_localsettings_nscd
   when: "corpusops_vars.has_services_manager"
+- meta: flush_handlers
