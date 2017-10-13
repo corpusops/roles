@@ -137,7 +137,7 @@
       tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: "{{provision_host|default('all')}}"
   roles:
-    - role: sshkeys
+    - role: corpusops.roles/sshkeys
       tags: sshkeys
     - role: corpusops.roles/localsettings_dns
       tags: dns
