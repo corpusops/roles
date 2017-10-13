@@ -206,8 +206,8 @@
     - role: corpusops.roles/services_db_postgresql_client
       tags: postgresql_client
     - role: corpusops.roles/services_db_postgresql_pkgmgr
-      tags: pkgmgr
+      tags: postgresql_pkgmgr
     - role: corpusops.roles/services_db_postgresql
-      tags: postgres
+      tags: postgresql
     - role: corpusops.roles/services_db_postgis
       tags: postgis
