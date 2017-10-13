@@ -75,6 +75,8 @@
                 | default(False) %}
           {% set corpusops_services_virt_docker = corpusops_services_virt_docker
                 | default(False) %}
+          {% set corpusops_services_firewall_ms_iptables = corpusops_services_base_cron
+                | default(False) %}
           {% set corpusops_services_base_cron = corpusops_services_base_cron
                 | default(True) %}
           {% set corpusops_services_misc_xvfb = corpusops_services_misc_xvfb
@@ -103,6 +105,7 @@
           corpusops_services_db_postgresql_pkgmgr: {{ corpusops_services_db_postgresql_pkgmgr }}
           corpusops_services_db_postgresql: {{ corpusops_services_db_postgresql }}
           corpusops_services_db_postgis: {{ corpusops_services_db_postgis }}
+          corpusops_services_firewall_ms_iptables: {{ corpusops_services_firewall_ms_iptables }}
           corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
           corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
@@ -153,10 +156,12 @@
       tags: autoupgrades
     - role: corpusops.roles/localsettings_basepkgs
       tags: basepkgs
+    - role: corpusops.roles/services_firewall_ms_iptables
+      tags: ms_iptables
     - role: corpusops.roles/localsettings_profile
       tags: profile
     - role: corpusops.roles/localsettings_apparmor
-      tags: apparmor 
+      tags: apparmor
     - role: corpusops.roles/localsettings_vim
       tags: vim
     - role: corpusops.roles/localsettings_editor
