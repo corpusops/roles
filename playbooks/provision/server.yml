@@ -69,6 +69,8 @@
                 | default(not is_docker) %}
           {% set corpusops_services_magicbridge = corpusops_services_magicbridge
                 | default(False) %}
+          {% set corpusops_sshkeys = corpusops_sshkeys
+                | default(True) %}
           {% set corpusops_services_virt_lxc = corpusops_services_virt_lxc
                 | default(False) %}
           {% set corpusops_services_virt_docker = corpusops_services_virt_docker
@@ -95,6 +97,7 @@
           {% set corpusops_localsettings_dns = (
                 corpusops_localsettings_dns_servers or
                 corpusops_localsettings_dns_search) | length > 0 %}
+          corpusops_sshkeys: {{ corpusops_sshkeys }}
           corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
           corpusops_services_db_postgresql_client: {{ corpusops_services_db_postgresql_client }}
           corpusops_services_db_postgresql_pkgmgr: {{ corpusops_services_db_postgresql_pkgmgr }}
@@ -134,6 +137,8 @@
       tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - hosts: "{{provision_host|default('all')}}"
   roles:
+    - role: sshkeys
+      tags: sshkeys
     - role: corpusops.roles/localsettings_dns
       tags: dns
     - role: corpusops.roles/localsettings_sysctls
@@ -151,7 +156,9 @@
     - role: corpusops.roles/localsettings_profile
       tags: profile
     - role: corpusops.roles/localsettings_apparmor
-      tags: apparmor
+      tags: apparmor 
+    - role: corpusops.roles/localsettings_vim
+      tags: vim
     - role: corpusops.roles/localsettings_editor
       tags: editor
     - role: corpusops.roles/localsettings_etckeeper

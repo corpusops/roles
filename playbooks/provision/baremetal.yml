@@ -1,0 +1,21 @@
+---
+- hosts: "{{provision_host|default('all')}}"
+  roles:
+    - role: corpusops.roles/humanlog
+      tags: prereqs
+    - role: corpusops.roles/vars
+      tags: prereqs
+  tasks:
+    - name: SETUP
+      include_jinja_vars:
+        content: |
+          ---
+          {% set vt = corpusops_vars.vt %}
+          {% set is_docker    = corpusops_vars.is_docker %}
+          {% set is_lxc       = corpusops_vars.is_lxc %}
+          {% set is_container = corpusops_vars.is_container %}
+          {% set corpusops_localsettings_autoupgrades = corpusops_localsettings_autoupgrades
+              | default(True) %}
+          corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
+      tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
+- import_playbook: ./server.yml
