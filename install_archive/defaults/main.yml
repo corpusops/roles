@@ -4,6 +4,7 @@ archive:
   archive: null
   app_path: null
   mode: "0644"
+  strip_components: 1
   urls:
     archive: null
     archive_crc: null
