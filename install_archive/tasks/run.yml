@@ -166,7 +166,7 @@
         '.txz' in src  or
         '.tar' in src
       ) %}{% set opts = [
-        '--strip-components='+archive_vars.strip_components
+        '--strip-components={0}'.format(archive_vars.strip_components)
       ] %}{% endif %}
       {{ opts | to_json }}
     dest: "{{liitem.d}}"
