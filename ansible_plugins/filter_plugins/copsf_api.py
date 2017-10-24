@@ -173,7 +173,8 @@ def basename(sstring, level=None):
     return os.path.basename(sstring)
 
 
-def secure_password(length=None, use_random=True, *args, **kwargs):
+def secure_password(length=None, use_random=True, choices=None,
+                    *args, **kwargs):
     '''
     Generate a secure password.
     '''
@@ -181,12 +182,18 @@ def secure_password(length=None, use_random=True, *args, **kwargs):
         length = 16
     length = int(length)
     pw = ''
+    if not choices:
+        choices = string.ascii_letters + string.digits
     while len(pw) < length:
         if HAS_RANDOM and use_random:
-            pw += re.sub(r'\W', '', Crypto.Random.get_random_bytes(1))
+            c = re.sub(r'\W', '', Crypto.Random.get_random_bytes(1))
+            try:
+                if c in choices:
+                    pw += c
+            except Exception:
+                pass
         else:
-            pw += random.SystemRandom().choice(
-                string.ascii_letters + string.digits)
+            pw += random.SystemRandom().choice(choices)
     return pw
 
 
