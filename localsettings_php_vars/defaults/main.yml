@@ -1,0 +1,182 @@
+---
+corpusops_localsettings_php_executable: "/usr/bin/php{{corpusops_localsettings_php_version}}"
+corpusops_localsettings_php_composer: /usr/local/bin/composer
+corpusops_localsettings_php_composer_keep_updated: true
+corpusops_localsettings_php_composer_version: ''
+corpusops_localsettings_php_composer_installer: "https://getcomposer.org/installer"
+corpusops_localsettings_php_version: |-
+  {% set v = {'ret': '7.0'} %}
+  {% if ansible_lsb.release|copsf_looseversion  < '16.04' | copsf_looseversion %}
+  {%  set _ = v.update({'ret': '5.6'}) %}
+  {% endif %}
+  {{v.ret}}
+corpusops_localsettings_php_use_ppa: |-
+  {% set v = {'ret': False} %}
+  {% if ansible_lsb.release|copsf_looseversion  < '16.04' | copsf_looseversion %}
+  {%  set _ = v.update({'ret': True}) %}
+  {% endif %}
+  {{v.ret}}
+corpusops_localsettings_php_coinstallable_php: |-
+  {{ corpusops_localsettings_php_php7_onward or corpusops_localsettings_php_use_ppa }}
+corpusops_localsettings_php_php7_onward: |-
+  {{ corpusops_localsettings_php_version[0] | copsf_looseversion  >= '7' | copsf_looseversion }}
+corpusops_localsettings_php_php56_onward: |-
+  {{ corpusops_localsettings_php_version[0:3] | copsf_looseversion  >= '5.6' | copsf_looseversion }}
+corpusops_localsettings_php_s_all: "-s ALL"
+corpusops_localsettings_php_rotate: 31
+corpusops_localsettings_php_timezone: "Europe/Paris"
+corpusops_localsettings_php_open_basedir: None
+corpusops_localsettings_php_include_path: None
+corpusops_localsettings_php_open_basedir_additions: ""
+corpusops_localsettings_php_file_uploads: 1
+corpusops_localsettings_php_upload_max_filesize: "200M"
+corpusops_localsettings_php_max_input_vars: 500
+corpusops_localsettings_php_max_input_time: 300
+corpusops_localsettings_php_html_errors: 0
+corpusops_localsettings_php_define_syslog_variables: 1
+corpusops_localsettings_php_display_errors: 0
+corpusops_localsettings_php_display_startup_errors: 0
+corpusops_localsettings_php_log_errors: 1
+corpusops_localsettings_php_error_reporting: 6143
+corpusops_localsettings_php_memory_limit: "256M"
+corpusops_localsettings_php_max_execution_time: 120
+corpusops_localsettings_php_session_auto_start: 1
+corpusops_localsettings_php_allow_url_fopen: 0
+corpusops_localsettings_php_session_gc_maxlifetime: 3600
+corpusops_localsettings_php_session_gc_probability: 1
+corpusops_localsettings_php_session_gc_divisor: 100
+corpusops_localsettings_php_custom_sessions_enabled: False
+corpusops_localsettings_php_session_save_handler: "redis"
+corpusops_localsettings_php_session_save_path: "tcp://127.0.0.1:6379?weight=2&timeout=2.5, tcp://10.0.0.1:6379?weight=2"
+corpusops_localsettings_php_opcache_install: 1
+corpusops_localsettings_php_opcache_enabled: 1
+corpusops_localsettings_php_opcache_enable_cli: 1
+corpusops_localsettings_php_opcache_memory_consumption: 64
+corpusops_localsettings_php_opcache_interned_strings_buffer: 8
+corpusops_localsettings_php_opcache_max_accelerated_files: 2000
+corpusops_localsettings_php_opcache_max_wasted_percentage: 5
+corpusops_localsettings_php_opcache_validate_timestamps: 1
+corpusops_localsettings_php_opcache_revalidate_freq: 2
+corpusops_localsettings_php_opcache_revalidate_path: 0
+corpusops_localsettings_php_opcache_use_cwd: 1
+corpusops_localsettings_php_opcache_save_comments: 1
+corpusops_localsettings_php_opcache_load_comments: 1
+corpusops_localsettings_php_opcache_fast_shutdown: 0
+corpusops_localsettings_php_opcache_enable_file_override: 1
+corpusops_localsettings_php_opcache_optimization_level: "0xffffffff"
+corpusops_localsettings_php_opcache_blacklist_filename: ""
+corpusops_localsettings_php_opcache_max_file_size: 0
+corpusops_localsettings_php_opcache_force_restart_timeout: 180
+corpusops_localsettings_php_opcache_error_log: ""
+corpusops_localsettings_php_opcache_log_verbosity_level: 1
+corpusops_localsettings_php_apc_install: |-
+  {% set v = {'ret': False} %}
+  {%  set _ = v.update({'ret': not corpusops_localsettings_php_php56_onward}) %}
+  {{v.ret}}
+corpusops_localsettings_php_apc_enabled: 0
+corpusops_localsettings_php_apc_enable_cli: 0
+corpusops_localsettings_php_apc_shm_segments: 1
+corpusops_localsettings_php_apc_shm_size: "32M"
+corpusops_localsettings_php_apc_mmap_file_mask: "/apc.shm.XXXXXX"
+corpusops_localsettings_php_apc_rfc1867: 1
+corpusops_localsettings_php_apc_include_once_override: 1
+corpusops_localsettings_php_apc_canonicalize: 1
+corpusops_localsettings_php_apc_stat: 1
+corpusops_localsettings_php_apc_stat_ctime: 1
+corpusops_localsettings_php_apc_num_files_hint: 1000
+corpusops_localsettings_php_apc_user_entries_hint: 1000
+corpusops_localsettings_php_apc_ttl: 300
+corpusops_localsettings_php_apc_user_ttl: 300
+corpusops_localsettings_php_apc_gc_ttl: 0
+corpusops_localsettings_php_apc_filters: "-config.php-.ini"
+corpusops_localsettings_php_apc_max_file_size: "5M"
+corpusops_localsettings_php_apc_write_lock: 1
+corpusops_localsettings_php_apc_file_update_protection: "2"
+corpusops_localsettings_php_apc_lazy_functions: ""
+corpusops_localsettings_php_apc_lazy_classes: ""
+corpusops_localsettings_php_xdebug_install: True
+corpusops_localsettings_php_xdebug_enabled: True
+corpusops_localsettings_php_xdebug_collect_params: 0
+corpusops_localsettings_php_xdebug_profiler_enable: 0
+corpusops_localsettings_php_xdebug_profiler_enable_trigger: False
+corpusops_localsettings_php_xdebug_remote_enable: 0
+corpusops_localsettings_php_xdebug_remote_host: "localhost"
+corpusops_localsettings_php_xdebug_profiler_output_name: "/cachegrind.out.%p"
+corpusops_localsettings_php_modules_opcache_memory_consumption: 64
+corpusops_localsettings_php_modules_opcache_enable_file_override: 0
+corpusops_localsettings_php_modules_opcache_validate_timestamps: 1
+corpusops_localsettings_php_modules_apc_shm_size: "64M"
+corpusops_localsettings_php_modules_apc_stat: False
+corpusops_localsettings_php_modules_apc_stat_ctime: False
+corpusops_localsettings_php_modules_apc_filters: ""
+corpusops_localsettings_php_modules_xdebug_install: False
+corpusops_localsettings_php_modules_xdebug_enabled: False
+corpusops_localsettings_php_spackages_main: "php{{corpusops_localsettings_php_version}}"
+corpusops_localsettings_php_spackages_fpm: "php{{corpusops_localsettings_php_version}}-fpm"
+corpusops_localsettings_php_spackages_apc: "php-apc"
+corpusops_localsettings_php_spackages_cli: "php{{corpusops_localsettings_php_version}}-cli"
+corpusops_localsettings_php_spackages_imagemagick: "php{{corpusops_localsettings_php_version}}-imagick"
+corpusops_localsettings_php_spackages_memcache: "php{{corpusops_localsettings_php_version}}-memcache"
+corpusops_localsettings_php_spackages_memcached: "php{{corpusops_localsettings_php_version}}-memcached"
+corpusops_localsettings_php_spackages_mysql: "php{{corpusops_localsettings_php_version}}-mysql"
+corpusops_localsettings_php_spackages_postgresql: "php{{corpusops_localsettings_php_version}}-pgsql"
+corpusops_localsettings_php_spackages_sqlite: "php{{corpusops_localsettings_php_version}}-sqlite"
+corpusops_localsettings_php_spackages_pear: "php-pear"
+corpusops_localsettings_php_spackages_soap: "php-soap"
+corpusops_localsettings_php_spackages_dev: "php{{corpusops_localsettings_php_version}}-dev"
+corpusops_localsettings_php_spackages_snmp: "php{{corpusops_localsettings_php_version}}-snmp"
+corpusops_localsettings_php_spackages_xmlrpc: "php{{corpusops_localsettings_php_version}}-xmlrpc"
+corpusops_localsettings_php_spackages_json: "php{{corpusops_localsettings_php_version}}-json"
+corpusops_localsettings_php_spackages_xdebug: "php{{corpusops_localsettings_php_version}}-xdebug"
+corpusops_localsettings_php_spackages_curl: "php{{corpusops_localsettings_php_version}}-curl"
+corpusops_localsettings_php_spackages_gd: "php{{corpusops_localsettings_php_version}}-gd"
+corpusops_localsettings_php_spackages_ldap: "php{{corpusops_localsettings_php_version}}-ldap"
+corpusops_localsettings_php_spackages_mcrypt: "php{{corpusops_localsettings_php_version}}-mcrypt"
+corpusops_localsettings_php_spackages_redis: "php{{corpusops_localsettings_php_version}}-redis"
+corpusops_localsettings_php_spackages_gmp: "php{{corpusops_localsettings_php_version}}-gmp"
+corpusops_localsettings_php_etcdir: "/etc/php{{corpusops_localsettings_php_version}}"
+corpusops_localsettings_php_confdir: "{{corpusops_localsettings_php_etcdir}}/mods-available"
+corpusops_localsettings_php_logdir: "/var/log/php"
+corpusops_localsettings_php_activated: True
+corpusops_localsettings_php_disabled: "{{not corpusops_localsettings_php_activated}}"
+corpusops_localsettings_php_repo_keys_url: null
+corpusops_localsettings_php_repo_keys: null
+corpusops_localsettings_php_repo_keys_default: []
+corpusops_localsettings_php_repo_keys_ubuntu: [E5267A6C]
+corpusops_localsettings_php_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_localsettings_php_repo: null
+corpusops_localsettings_php_repo_ubuntu: "deb http://ppa.launchpad.net/ondrej/php/ubuntu {ansible_distribution_release} main"
+corpusops_localsettings_php_packages: |-
+  {% set v = {'ret': []} %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_main) %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_cli) %}
+  {% if corpusops_localsettings_php_apc_install %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_apc) %}
+  {% endif %}
+  {% if corpusops_localsettings_php_xdebug_install %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_xdebug) %}
+  {% endif %}
+  {{ v.ret | to_json }}
+corpusops_localsettings_php_services: null
+corpusops_localsettings_php_group: php
+corpusops_localsettings_php_services_default: [php]
+corpusops_localsettings_php_files: null
+corpusops_localsettings_php_filescopy: null
+corpusops_localsettings_php_filescopy_default: []
+corpusops_localsettings_php_files_apt: []
+corpusops_localsettings_php_unit: "/etc/systemd/system/php{{corpusops_localsettings_php_version}}-fpm.service.d/php.conf"
+corpusops_localsettings_php_files_default:
+  - {path: "{{corpusops_localsettings_php_etcdir}}",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{{corpusops_localsettings_php_confdir}}",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_localsettings_php_configs: null
+corpusops_localsettings_php_configs_default:
+  - {template: '../templates/etc/php/timezone.ini',
+     name: "{{corpusops_localsettings_php_confdir}}/timezone.ini",
+     owner: 'root',
+     group: 'root',
+     mode: '0644'}
+corpusops_localsettings_php_user: "php"
+corpusops_localsettings_php_configure_apc: true
+corpusops_localsettings_php_configure_opcache: true

@@ -1,0 +1,19 @@
+galaxy_info:
+  min_ansible_version: 2.0
+  platforms:
+  - name: GenericLinux
+    versions:
+    - all
+    - any
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+allow_duplicates: yes
+dependencies:
+- role: corpusops.roles/vars
+  tags: [php_vars_role]
+- role: corpusops.roles/localsettings_php_vars
+  tags: [php_vars_role]
