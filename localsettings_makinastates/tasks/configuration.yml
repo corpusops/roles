@@ -1,0 +1,32 @@
+---
+- name: download ms
+  shell: |
+    set -ex
+    whoami
+    if [ ! -e "{{corpusops_localsettings_makinastates_vars.path}}" ];then
+      git clone \
+        "{{corpusops_localsettings_makinastates_vars.url}}" \
+        "{{corpusops_localsettings_makinastates_vars.path}}" -b \
+        "{{corpusops_localsettings_makinastates_vars.branch}}"
+      cd "{{corpusops_localsettings_makinastates_vars.path}}"
+      if ! git diff --quiet; then
+        git stash
+      fi
+      git pull
+    fi
+  tags: [clone,
+         corpusops_localsettings_makinastates_clone]
+- name: install ms
+  shell: |
+      if ! ( {{corpusops_localsettings_makinastates_vars.path}}/venv/bin/salt-call --help >/dev/null 2>&1 ) &&\
+         ! ( {{corpusops_localsettings_makinastates_vars.path}}/venv/bin/ansible --help >/dev/null 2>&1 );then
+        {{corpusops_localsettings_makinastates_vars.installer}}
+      fi
+  tags: [install,
+         corpusops_localsettings_makinastates_install]
+- name: Upgrade ms
+  shell: |
+      {{corpusops_localsettings_makinastates_vars.upgrader}}
+  tags: [upgrade,
+         corpusops_localsettings_makinastates_upgrade]
+

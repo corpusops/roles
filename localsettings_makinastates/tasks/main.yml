@@ -1,0 +1,16 @@
+---
+- name: "corpusops_localsettings_makinastates preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_makinastates | default(True) }}"
+  register: corpusops_localsettings_makinastates_can_run
+  tags: corpusops_localsettings_makinastates
+- include_tasks: prerequisites.yml
+  when: 'corpusops_localsettings_makinastates.msg == True'
+  tags: [corpusops_localsettings_makinastates,
+         makinastates_prerequisites,
+         corpusops_localsettings_makinastates_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_localsettings_makinastates.msg == True'
+  tags: [corpusops_localsettings_makinastates,
+         makinastates_configuration,
+         corpusops_localsettings_makinastates_configuration]

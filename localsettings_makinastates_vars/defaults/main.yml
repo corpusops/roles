@@ -1,0 +1,11 @@
+---
+corpusops_localsettings_makinastates_branch: 'v2'
+corpusops_localsettings_makinastates_url: "https://github.com/makinacorpus/makina-states.git"
+corpusops_localsettings_makinastates_path: "/srv/makina-states"
+corpusops_localsettings_makinastates_packages: null
+corpusops_localsettings_makinastates_packages_default: ['virtualenv']
+corpusops_localsettings_makinastates_packages_debian: ['virtualenv', 'python-virtualenv', 'python3-virtualenv']
+corpusops_localsettings_makinastates_bootsalt: "{{corpusops_localsettings_makinastates_path}}/bin/boot-salt2.sh"
+corpusops_localsettings_makinastates_installer: "{{corpusops_localsettings_makinastates_bootsalt}}  -C --skip-checkouts"
+corpusops_localsettings_makinastates_upgrader: "{{corpusops_localsettings_makinastates_bootsalt}} -C --synchronize-code"
+
