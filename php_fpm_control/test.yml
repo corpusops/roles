@@ -1,0 +1,11 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/services_php_fpm
+      tags: setup_php_fpm
+    - role: corpusops.roles/php_fpm_control
+      corpusops_php_fpm_control_state: started
+    - role: corpusops.roles/php_fpm_control
+      corpusops_php_fpm_control_state: reloaded
+    - role: corpusops.roles/php_fpm_control
+      corpusops_php_fpm_control_state: restarted

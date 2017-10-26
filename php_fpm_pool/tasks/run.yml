@@ -1,0 +1,51 @@
+---
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.get('src', False) and item.get('src', False).format(**vars) or omit}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_fpm_pool_vars.files}}"
+  when: "(corpusops_fpm_pool_vars.files is not none and
+          corpusops_fpm_pool_vars.files|length > 0)"
+- name: configs containers
+  file:
+    path: "{{item.name|copsf_dirname}}"
+    state: "directory"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_fpm_pool_vars.configs}}"
+  when: "(corpusops_fpm_pool_vars.configs is not none and
+          corpusops_fpm_pool_vars.install and
+          corpusops_fpm_pool_vars.configs|length > 0)"
+- name: configs
+  template:
+    src: "{{(item.template
+            | default('../templates/'+item.name))}}"
+    dest: "{{item.name}}"
+    state: "{{item.state|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_fpm_pool_vars.configs}}"
+  when: "(corpusops_fpm_pool_vars.configs is not none and
+          corpusops_fpm_pool_vars.install and
+          corpusops_fpm_pool_vars.configs|length > 0)"
+- name: configs removed if pool is disabled
+  file:
+    path: "{{item.name}}"
+    state: "absent"
+  with_items: "{{corpusops_fpm_pool_vars.configs}}"
+  when: "(corpusops_fpm_pool_vars.configs is not none and
+          not corpusops_fpm_pool_vars.install and
+          corpusops_fpm_pool_vars.configs|length > 0)"
+- include_role:
+    name: corpusops.roles/php_fpm_control
+  vars:
+    corpusops_php_fpm_control_state: "{{corpusops_fpm_pool_vars.reload_action}}"
+    corpusops_php_fpm_control_check_config: "{{corpusops_fpm_pool_vars.check_config}}"
+  changed_when: false
+  when: "corpusops_fpm_pool_vars.reload_action"

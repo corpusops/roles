@@ -1,0 +1,9 @@
+---
+corpusops_php_ext_activation_status: true
+corpusops_php_ext_version: "{{corpusops_localsettings_php_vars.version}}"
+corpusops_php_ext_ext: null
+corpusops_php_ext_phpquery: /usr/sbin/phpquery
+corpusops_php_ext_phpenmod: /usr/sbin/phpenmod
+corpusops_php_ext_phpdismod: /usr/sbin/phpdismod
+corpusops_php_ext_sapi: "all"
+corpusops_php_ext_etc: "{{corpusops_localsettings_php_vars.etcdir}}"

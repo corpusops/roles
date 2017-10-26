@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_php_fpm preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_php_fpm | default(True) }}"
+  register: corpusops_services_php_fpm_can_run
+  tags: [corpusops_services_php_fpm]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_php_fpm_can_run.msg == True'
+  tags: [corpusops_services_php_fpm,
+         php_prerequisites,
+         corpusops_services_php_fpm_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_php_fpm_can_run.msg == True'
+  tags: [corpusops_services_php_fpm,
+         php_configuration,
+         corpusops_services_php_fpm_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_php_fpm_can_run.msg == True'
+  tags: [corpusops_services_php_fpm,
+         php_services,
+         corpusops_services_php_fpm_services]

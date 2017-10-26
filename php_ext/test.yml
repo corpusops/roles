@@ -1,0 +1,43 @@
+- hosts: all
+  roles:
+    - role: corpusops.roles/localsettings_php
+      tags: setup_php
+      corpusops_localsettings_php_skip_extension: true
+  tasks:
+    - include_role:
+        name: corpusops.roles/php_ext
+      vars:
+        corpusops_php_ext_ext: posix
+        corpusops_php_ext_activation_status: false
+    - include_role:
+        name: corpusops.roles/php_ext
+      vars:
+        corpusops_php_ext_ext: posix
+        corpusops_php_ext_activation_status: true
+      register: test1
+      failed_when: not corpusops_php_ext_installed.changed
+    - include_role:
+        name: corpusops.roles/php_ext
+      vars:
+        corpusops_php_ext_ext: posix
+        corpusops_php_ext_activation_status: true
+      register: test2
+      failed_when: corpusops_php_ext_installed.changed
+    - include_role:
+        name: corpusops.roles/php_ext
+      vars:
+        corpusops_php_ext_ext: posix
+        corpusops_php_ext_activation_status: false
+      register: test3
+      failed_when: not corpusops_php_ext_deinstalled.changed
+    - include_role:
+        name: corpusops.roles/php_ext
+      vars:
+        corpusops_php_ext_ext: posix
+        corpusops_php_ext_activation_status: false
+      failed_when: corpusops_php_ext_deinstalled.changed
+    - include_role:
+        name: corpusops.roles/php_ext
+      vars:
+        corpusops_php_ext_ext: posix
+        corpusops_php_ext_activation_status: true

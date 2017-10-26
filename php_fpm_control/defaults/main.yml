@@ -1,0 +1,15 @@
+---
+corpusops_php_fpm_control_handle_php_fpm: true
+corpusops_php_fpm_control_check_config: true
+corpusops_php_fpm_control_state: 'started'
+corpusops_php_fpm_control_binary: "php-fpm{{corpusops_localsettings_php_vars.version}}"
+corpusops_php_fpm_control_config: "{{corpusops_services_php_fpm_vars.config}}"
+corpusops_php_fpm_control_activated: "{{(
+  corpusops_services_php_fpm_vars.activated
+  | ternary(corpusops_php_fpm_control_state, 'stopped'))}}"
+corpusops_php_fpm_control_enabled: "{{(
+  corpusops_services_php_fpm_vars.activated
+  | ternary(True, False))}}"
+corpusops_php_fpm_control_services: "{{(
+  corpusops_services_php_fpm_vars.services)}}"
+

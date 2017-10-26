@@ -1,0 +1,42 @@
+---
+# load default variables, first pass, load not resolved values
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: corpusops_fpm_pool
+  tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
+#- debug: msg="{{corpusops_fpm_pool_vars}}"
+# make some stuff to DRY templates
+- name: "fpm_pool - compute - 1"
+  tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
+  include_jinja_vars:
+    name: "corpusops_fpm_pool_vars"
+    content: |
+      ---
+      {% set data = corpusops_fpm_pool_vars|copsf_format_resolve %}
+      {# {% for val in data.formated_vals %}
+      {%  if data.get(val, None)|copsf_isstr %}
+      {%   set _ = data.update({val: data[val].format(**data)})%}
+      {%  endif %}
+      {% endfor %}
+      #}
+      {% for denvs in data.base_env, data.env %}
+      {%   set _ = data.setdefault('computed_env', []).extend(denvs) %}
+      {% endfor %}
+      {% set _ = data.update({'computed_chroot': data.chroot}) %}
+      {% if data.chroot and not data.doc_root.startswith(data.project_root) %}
+      {%   set _ = data.update({'chroot': False}) %}
+      {% endif %}
+      {% for dobd in data.base_open_basedir, data.open_basedir %}
+      {%   set _ = data.setdefault('computed_open_basedir', []).extend(dobd) %}
+      {% endfor %}
+      {% for dip in data.base_include_path, data.include_path %}
+      {%   set _ = data.setdefault('computed_include_path', []).extend(dip)%}
+      {% endfor %}
+      {{ data | to_json }}
+  no_log: true
+#- {debug: {msg: "{{corpusops_fpm_pool_vars}}"},
+#  failed_when: false}
+# do the real stuff
+- name: gen pool
+  include_tasks: run.yml
+  tags: [corpusops_fpm_pool, corpusops_fpm_pool_gen]

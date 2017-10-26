@@ -1,0 +1,39 @@
+---
+- listen: restart_php_fpm_via_corpusops_php_fpm_control
+  systemd:
+    daemon_reload: yes
+    state: restarted
+    name: "{{item}}"
+  with_items: "{{corpusops_php_fpm_control_vars.services}}"
+  when: "(corpusops_php_fpm_control_vars.handle_php_fpm and
+          corpusops_php_fpm_control_vars.activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+- listen: restart_php_fpm_via_corpusops_php_fpm_control
+  service:
+    state: restarted
+    name: "{{item}}"
+  with_items: "{{corpusops_php_fpm_control_vars.services}}"
+  when: "(corpusops_php_fpm_control_vars.handle_php_fpm and
+          corpusops_php_fpm_control_vars.activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr != 'systemd'))"
+- listen: reload_php_fpm_via_corpusops_php_fpm_control
+  systemd:
+    daemon_reload: yes
+    state: reloaded
+    name: "{{item}}"
+  with_items: "{{corpusops_php_fpm_control_vars.services}}"
+  when: "(corpusops_php_fpm_control_vars.handle_php_fpm and
+          corpusops_php_fpm_control_vars.activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+- listen: reload_php_fpm_via_corpusops_php_fpm_control
+  service:
+    state: reloaded
+    name: "{{item}}"
+  with_items: "{{corpusops_php_fpm_control_vars.services}}"
+  when: "(corpusops_php_fpm_control_vars.handle_php_fpm and
+          corpusops_php_fpm_control_vars.activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr != 'systemd'))"

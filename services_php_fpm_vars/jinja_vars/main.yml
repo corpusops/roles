@@ -1,0 +1,83 @@
+---
+{% set prefix = 'corpusops_services_php_fpm_' %}
+{% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
+{% set knobs = ['files', 'filescopy', 'configs', 'packages', 'services',
+                'repo_keys', 'repo_keys_url', 'repo',
+                ] %}
+{% set computed_defaults = [] %}
+{% set lowered = [] %}
+{% set lowered = [] %}
+{% set sub_namespaced = {'settings': {}} %}
+{% set namespaced = {'settings': {}} %}
+{% set subos_append = {} %}
+
+{% for v in knobs %}
+{%  set setted = {'s': False} %}
+{%  for os in flavors %}
+{%   if (
+        os == 'default' or
+        ansible_os_family.lower() == os or
+        ansible_lsb.id.lower() == os) %}
+{%    set vn = prefix + v %}
+{%    if vars[vn] is none %}
+{%      set os_vpref = vn + '_' + os %}
+{%      if os_vpref in vars and not setted.s %}
+{%        set _ = vars.update({vn: vars[os_vpref]}) %}
+{%        set _ = setted.update({'s': True}) %}
+{%      endif %}
+{%    endif %}
+{%   endif %}
+{%  endfor %}
+{% endfor %}
+
+{% for os in subos_append %}
+{%  if ansible_lsb.id.lower() == os %}
+{%    for v in subos_append[os].vars %}
+{%      set vn = prefix+'{0}_{1}'.format(
+            v, subos_append[os].os) %}
+{%      set _ = vars[prefix+v].extend(vars[vn]) %}
+{%    endfor %}
+{%  endif %}
+{% endfor %}
+
+{% for k in computed_defaults %}
+{%  if vars[prefix+k]|copsf_isstr %}
+{%     set val = vars[prefix+k].format(**vars) %}
+{%  else %}
+{%    set val = [] %}
+{%    for i in vars[prefix+k] %}
+{%      set _ = val.append(i.format(**vars)) %}
+{%    endfor %}
+{%  endif %}
+{%  set _ = vars.update({prefix+k: val}) %}
+{% endfor %}
+{% for k in lowered %}
+{%  set _ = vars.update({prefix+k: vars[prefix+k].lower()}) %}
+{% endfor %}
+
+{% for var in vars %}
+{%  if var.startswith(prefix) %}
+{%   set skipped = {'skip': False } %}
+{%   for flav in flavors if not skipped.skip %}
+{%    if var.endswith('_'+flav) and var.split('_'+flav)[0] in vars %}
+{%     set _ = skipped.update({'skip': True}) %}
+{%    endif %}
+{%    if var.endswith('_'+'vars') %}
+{%     set _ = skipped.update({'skip': True}) %}
+{%    endif %}
+{%   endfor %}
+{%   for ns in sub_namespaced if sub_namespaced|length > 0 %}
+{%    if var.startswith(prefix+ns+'_') and not skipped.skip%}
+{%     set svar = var.replace(prefix+ns+'_', '') %}
+{%     set _ = sub_namespaced[ns].update({svar: vars[var]}) %}
+{%    endif %}
+{%    set _ = namespaced.update({ns: sub_namespaced[ns]}) %}
+{%   endfor %}
+{%   if not skipped.skip %}
+{%    set svar = var.replace(prefix, '') %}
+{%    set _ = namespaced.update({svar: vars[var]}) %}
+{%   endif %}
+{%  endif %}
+{% endfor %}
+
+{{ namespaced | to_json }}

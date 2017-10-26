@@ -1,0 +1,178 @@
+---
+# install / remove the link in conf.d (activate/deactivate a fpm pool)
+corpusops_fpm_pool_install: true
+# Allow to specify defaults in a prefix way and in a inline, flattened way
+corpusops_fpm_pool_name: "www"
+corpusops_fpm_pool_chroot: false
+corpusops_fpm_pool_rotate: "{{corpusops_localsettings_php_vars.rotate}}"
+corpusops_fpm_pool_listen: "127.0.0.1:9000"
+corpusops_fpm_pool_listen_allowed_clients: ''
+#corpusops_fpm_pool_listen_allowed_clients: [1.2.3.4, 1.2.3.5]
+corpusops_fpm_pool_memory_limit: "256M"
+corpusops_fpm_pool_upload_max_filesize: "200M"
+corpusops_fpm_pool_session_auto_start: 1
+corpusops_fpm_pool_max_execution_time: 120
+#
+corpusops_fpm_pool_php_values: []
+#corpusops_fpm_pool_php_values:
+# paths
+corpusops_fpm_pool_formated_vals: [
+  pool_root, doc_root, private_dir, log_dir, tmp_dir,
+  sessions_dir, poold, file, logrotate_file]
+corpusops_fpm_pool_pool_root: "/var/www"
+corpusops_fpm_pool_doc_root: "{pool_root}/public"
+corpusops_fpm_pool_private_dir: "{pool_root}/private"
+corpusops_fpm_pool_log_dir: "{pool_root}/log"
+corpusops_fpm_pool_tmp_dir: "{pool_root}/tmp"
+corpusops_fpm_pool_sessions_dir: "{tmp_dir}/sessions"
+#  - xdebug.default_enable: "true"
+corpusops_fpm_pool_php_admin_values: []
+# add something to base env/nclude_path/open_basedir
+corpusops_fpm_pool_env: []
+corpusops_fpm_pool_include_path: []
+corpusops_fpm_pool_open_basedir: []
+# base env/open_basedir/include_path
+corpusops_fpm_pool_base_env:
+  - HOSTNAME: "$HOSTNAME"
+  - TMP: "{tmp_dir}"
+  - TMPDIR: "{tmp_dir}"
+  - TEMP: "{tmp_dir}"
+  - DOCUMENT_ROOT: "{doc_root}"
+corpusops_fpm_pool_base_open_basedir:
+  - "{doc_root}"
+  - "/tmp"
+  - "{tmp_dir}"
+  - "{private_dir}"
+  - "{log_dir}"
+  - "{sessions_dir}"
+corpusops_fpm_pool_base_include_path:
+  - "."
+  - ".."
+  - "{doc_root}"
+  - "{doc_root}/include"
+  - "/usr/lib/php/20160303/"
+# errors settings
+corpusops_fpm_pool_display_errors: 0
+corpusops_fpm_pool_display_startup_errors: 0
+corpusops_fpm_pool_error_reporting: 6143
+corpusops_fpm_pool_file_uploads: 1
+corpusops_fpm_pool_html_errors: 0
+corpusops_fpm_pool_log_errors: 1
+# set to null to skip reload
+corpusops_fpm_pool_reload_action: "restarted"
+corpusops_fpm_pool_check_config: true
+corpusops_fpm_pool_user: "{{corpusops_localsettings_php_vars.user}}"
+corpusops_fpm_pool_group: "{{corpusops_localsettings_php_vars.group}}"
+# set this list to filter from HOST header
+corpusops_fpm_pool_confd: "{{corpusops_services_php_fpm_vars.confd}}"
+corpusops_fpm_pool_poold: "{{corpusops_services_php_fpm_vars.poold}}"
+#
+corpusops_fpm_pool_logrotate_template: "../templates/logrotate.conf"
+corpusops_fpm_pool_template: "../templates/pool.conf"
+#
+corpusops_fpm_pool_file: "{poold}/{name}.conf"
+corpusops_fpm_pool_logrotate_file: "/etc/logrotate.d/fpm_{name}.conf"
+#
+corpusops_fpm_pool_files:
+  - {path: "{sessions_dir}", owner: "{user}", group: "{group}",
+    state: directory, mode: "755"}
+  - {path: "{pool_root}", owner: "{user}", group: "{group}",
+    state: directory, mode: "755"}
+  - {path: "{private_dir}", owner: "{user}", group: "{group}",
+    state: directory, mode: "755"}
+  - {path: "{log_dir}", owner: "{user}", group: "{group}",
+    state: directory, mode: "755"}
+  - {path: "{tmp_dir}", owner: "{user}", group: "{group}",
+    state: directory, mode: "755"}
+corpusops_fpm_pool_configs:
+  - {name: "{file}",
+     owner: "root", group: "root", mode: "0644",
+     template: "{template}"}
+  - {name: "{logrotate_file}",
+     owner: "root", group: "root", mode: "0644",
+     template: "{logrotate_template}"}
+corpusops_fpm_pool_allow_url_fopen: 0
+corpusops_fpm_pool_listen_backlog: 128
+corpusops_fpm_pool_pm: dynamic
+corpusops_fpm_pool_catch_workers_output: "no"
+corpusops_fpm_pool_listen_mod: '0660'
+corpusops_fpm_pool_apc_canonicalize: 1
+corpusops_fpm_pool_apc_file_update_protection: "2"
+corpusops_fpm_pool_apc_filters: "-config.php-.ini"
+corpusops_fpm_pool_apc_gc_ttl: 0
+corpusops_fpm_pool_apc_include_once_override: 1
+corpusops_fpm_pool_apc_lazy_classes: ""
+corpusops_fpm_pool_apc_lazy_functions: ""
+corpusops_fpm_pool_apc_max_file_size: "5M"
+corpusops_fpm_pool_apc_num_files_hint: 1000
+corpusops_fpm_pool_apc_rfc1867: 1
+corpusops_fpm_pool_apc_stat: 1
+corpusops_fpm_pool_apc_stat_ctime: 1
+corpusops_fpm_pool_apc_ttl: 300
+corpusops_fpm_pool_apc_user_entries_hint: 1000
+corpusops_fpm_pool_apc_user_ttl: 300
+corpusops_fpm_pool_apc_write_lock: 1
+corpusops_fpm_pool_custom_sessions_enabled: False
+corpusops_fpm_pool_define_syslog_variables: 1
+corpusops_fpm_pool_max_input_time: 300
+corpusops_fpm_pool_max_input_vars: 500
+corpusops_fpm_pool_opcache_blacklist_filename: ""
+corpusops_fpm_pool_opcache_enable_file_override: 1
+corpusops_fpm_pool_opcache_error_log: ""
+corpusops_fpm_pool_opcache_fast_shutdown: 0
+corpusops_fpm_pool_opcache_force_restart_timeout: 180
+corpusops_fpm_pool_opcache_interned_strings_buffer: 8
+corpusops_fpm_pool_opcache_load_comments: 1
+corpusops_fpm_pool_opcache_log_verbosity_level: 1
+corpusops_fpm_pool_opcache_max_accelerated_files: 2000
+corpusops_fpm_pool_opcache_max_file_size: 0
+corpusops_fpm_pool_opcache_max_wasted_percentage: 5
+corpusops_fpm_pool_opcache_optimization_level: "0xffffffff"
+corpusops_fpm_pool_opcache_revalidate_freq: 2
+corpusops_fpm_pool_opcache_revalidate_path: 0
+corpusops_fpm_pool_opcache_save_comments: 1
+corpusops_fpm_pool_opcache_use_cwd: 1
+corpusops_fpm_pool_opcache_validate_timestamps: 1
+corpusops_fpm_pool_session_gc_divisor: 100
+corpusops_fpm_pool_session_gc_maxlifetime: 3600
+corpusops_fpm_pool_session_gc_probability: 1
+corpusops_fpm_pool_session_save_handler: "redis"
+corpusops_fpm_pool_session_save_path: "tcp://127.0.0.1:6379?weight=2&timeout=2.5, tcp://10.0.0.1:6379?weight=2"
+corpusops_fpm_pool_xdebug_collect_params: 0
+corpusops_fpm_pool_xdebug_profiler_enable: 0
+corpusops_fpm_pool_xdebug_profiler_enable_trigger: False
+corpusops_fpm_pool_xdebug_profiler_output_name: "/cachegrind.out.%p"
+corpusops_fpm_pool_xdebug_remote_enable: 0
+corpusops_fpm_pool_xdebug_remote_host: "localhost"
+corpusops_fpm_pool_domain: null
+# computed values
+corpusops_fpm_pool_session_cookie_domain: null
+corpusops_fpm_pool_socket_name: "{name}-fpm.sock"
+corpusops_fpm_pool_socket_directory: /var/spool/www
+corpusops_fpm_pool_opcache_install: "{{corpusops_localsettings_php_vars.opcache_install}}"
+corpusops_fpm_pool_apc_install: "{{corpusops_localsettings_php_vars.apc_install}}"
+corpusops_fpm_pool_xdebug_install: "{{corpusops_localsettings_php_vars.xdebug_install}}"
+corpusops_fpm_pool_xdebug_enabled: "{{corpusops_localsettings_php_vars.xdebug_enabled}}"
+corpusops_fpm_pool_clear_env: "false"
+corpusops_fpm_pool_chdir: "/"
+corpusops_fpm_pool_magic_quotes_gpc: "0"
+corpusops_fpm_pool_register_globals: "0"
+corpusops_fpm_pool_mbstring_http_input: "pass"
+corpusops_fpm_pool_mbstring_http_output: "pass"
+corpusops_fpm_pool_mbstring_encoding_translation: "0"
+corpusops_fpm_pool_safe_mode: "0"
+corpusops_fpm_pool_expose_php: "0"
+corpusops_fpm_pool_variables_order: "PGCSE"
+corpusops_fpm_pool_cgi_fix_pathinfo: "1"
+corpusops_fpm_pool_cgi_discard_path: "0"
+corpusops_fpm_pool_statuspath: '/fpmstatus'
+corpusops_fpm_pool_ping: '/ping'
+corpusops_fpm_pool_pong: 'pong'
+corpusops_fpm_pool_pool_nice_priority: -19
+corpusops_fpm_pool_request_terminate_timeout: '300s'
+corpusops_fpm_pool_request_slowlog_timeout: '5s'
+corpusops_fpm_pool_pm_max_requests: 500
+corpusops_fpm_pool_pm_max_children: 10
+corpusops_fpm_pool_pm_start_servers: 3
+corpusops_fpm_pool_pm_min_spare_servers: 3
+corpusops_fpm_pool_pm_max_spare_servers: 8

@@ -1,0 +1,30 @@
+---
+- name: Check if Composer is installed.
+  stat: "path={{ corpusops_localsettings_php_vars.composer }}"
+  register: composer_bin
+- name: Download Composer installer.
+  get_url:
+    url: "{{corpusops_localsettings_php_vars.composer_installer}}"
+    dest: /tmp/composer-installer.php
+    mode: 0755
+  when: not composer_bin.stat.exists
+- name: Run Composer installer.
+  command: >-
+    {% set composer_version = corpusops_localsettings_php_vars.composer_version %}
+    {{ corpusops_localsettings_php_vars.executable }}
+    composer-installer.php
+    {% if composer_version %} --version={{ composer_version }}{% endif %}
+    chdir=/tmp
+  when: not composer_bin.stat.exists
+- name: Move Composer into globally-accessible location.
+  shell: >
+    mv /tmp/composer.phar {{ corpusops_localsettings_php_vars.composer }}
+    creates={{ corpusops_localsettings_php_vars.composer }}
+  when: not composer_bin.stat.exists
+- name: Update Composer to latest version (if configured).
+  shell: >-
+    {{ corpusops_localsettings_php_vars.executable }} {{ corpusops_localsettings_php_vars.composer }} self-update
+  register: composer_update
+  changed_when: "'Updating to version' in composer_update.stdout"
+  when: "corpusops_localsettings_php_vars.composer_keep_updated"
+

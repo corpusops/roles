@@ -1,0 +1,55 @@
+---
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: installed
+  with_items: '{{corpusops_services_php_fpm_vars.packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_php_fpm_vars.packages is not none and
+          corpusops_services_php_fpm_vars.packages|length > 0)"
+  register: corpusops_services_php_fpm_pkgst
+
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_php_fpm_vars.packages is not none and
+          corpusops_services_php_fpm_vars.packages|length > 0)"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_services_php_fpm_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_php_fpm_vars.packages is not none and
+          corpusops_services_php_fpm_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_php_fpm_vars.packages is not none and
+          corpusops_services_php_fpm_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_php_fpm_vars.packages}}"
+
+- group:
+    name: "{{corpusops_services_php_fpm_vars.group}}"
+    system: yes
+    state: present
+  when: "corpusops_services_php_fpm_vars.group"
+- user:
+    name: "{{corpusops_services_php_fpm_vars.user}}"
+    system: yes
+    group: "{{corpusops_services_php_fpm_vars.group}}"
+  when: "corpusops_services_php_fpm_vars.user"
+- set_fact:
+    corpusops_services_php_fpm_prequisites_changed: "{{(
+         corpusops_services_php_fpm_pkgst.changed
+       )}}"
+- meta: flush_handlers

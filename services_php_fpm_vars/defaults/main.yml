@@ -1,0 +1,38 @@
+---
+corpusops_services_php_fpm_activated: True
+corpusops_services_php_fpm_disabled: "{{not corpusops_services_php_fpm_activated}}"
+corpusops_services_php_fpm_packages: |-
+  {% set v = {'ret': []} %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_vars.spackages_fpm) %}
+  {{ v.ret | to_json }}
+corpusops_services_php_fpm_services: null
+corpusops_services_php_fpm_group: "{{corpusops_localsettings_php_vars.group}}"
+corpusops_services_php_fpm_services_default: ["php{{corpusops_localsettings_php_vars.version}}-fpm"]
+corpusops_services_php_fpm_files: null
+corpusops_services_php_fpm_filescopy: null
+corpusops_services_php_fpm_filescopy_default: []
+corpusops_services_php_fpm_files_apt: []
+corpusops_services_php_fpm_files_default:
+  - {path: "/etc/systemd/system/php{{corpusops_localsettings_php_vars.version}}-fpm.service.d",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{{corpusops_localsettings_php_vars.confdir}}",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_services_php_fpm_configs: null
+corpusops_services_php_fpm_configs_default:
+  - {template: '../templates/etc/systemd/system/php-fpm.service.d/php.conf',
+     name: "/etc/systemd/system/php{{corpusops_localsettings_php_vars.version}}-fpm.service.d/php.conf",
+     owner: 'root',
+     group: 'root',
+     mode: '0644'}
+  - {template: "{{corpusops_services_php_fpm_default_pool_template}}",
+     name: "{{corpusops_services_php_fpm_poold}}/{{corpusops_services_php_fpm_default_pool_name}}.conf",
+     owner: 'root',
+     group: 'root',
+     mode: '0644'}
+corpusops_services_php_fpm_default_pool_name: www
+corpusops_services_php_fpm_default_pool_template: "../templates/default_pool.conf"
+corpusops_services_php_fpm_user: "{{corpusops_localsettings_php_vars.user}}"
+corpusops_services_php_fpm_config: "{{corpusops_localsettings_php_vars.etcdir}}/fpm/php-fpm.conf"
+corpusops_services_php_fpm_confd: "{{corpusops_localsettings_php_vars.etcdir}}/fpm/conf.d"
+corpusops_services_php_fpm_poold: "{{corpusops_localsettings_php_vars.etcdir}}/fpm/pool.d"
+

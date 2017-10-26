@@ -1,0 +1,15 @@
+---
+- name: Check php_fpm configs
+  shell: |
+    {{corpusops_php_fpm_control_vars.binary}} -t -y \
+      {{corpusops_php_fpm_control_vars.config}}
+  changed_when: false
+  when: "corpusops_php_fpm_control_vars.check_config"
+- service:
+    state: "{{corpusops_php_fpm_control_vars.activated}}"
+    enabled: "{{corpusops_php_fpm_control_vars.enabled}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_php_fpm_control_vars.services}}"
+  when: "(corpusops_php_fpm_control_vars.handle_php_fpm and
+          corpusops_vars.has_services_manager)"
+- meta: flush_handlers

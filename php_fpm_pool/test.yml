@@ -1,0 +1,90 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/localsettings_php_vars
+    - role: corpusops.roles/services_php_fpm
+      tags: setup_php_fpm
+- hosts: all
+  vars:
+    v: "{{corpusops_localsettings_php_vars.version}}"
+    e: "{{corpusops_localsettings_php_vars.etcdir}}"
+  tasks:
+    - debug:
+        msg:
+          v: "{{v}}"
+          r: "{{'a'|copsf_where}}"
+          w: "{{e}}"
+    - include_role:
+        name: corpusops.roles/php_fpm_pool
+      vars:
+        _corpusops_fpm_pool:
+          install: true
+          name: foobar
+          listen: "127.0.0.1:9001"
+          doc_root: "/srv/foo/public"
+          # totally reset include path & obd
+          base_include_path: []
+          include_path: ["foo"]
+          base_open_basedir: []
+          open_basedir: ["foo"]
+          # add custom php_value/php_admin_value lines
+          # at end of pool
+          php_values:
+            - xdebug.trace_output_dir: "1"
+          php_admin_values:
+            - xdebug.remote_enable: "1"
+    - include_role:
+        name: corpusops.roles/php_fpm_pool
+      vars:
+        _corpusops_fpm_pool:
+          name: truc
+          listen: "127.0.0.1:9002"
+          doc_root: "/srv/bar/public"
+          # append  include path & obd
+          include_path: ["bar"]
+          open_basedir: ["bar"]
+    - include_role:
+        name: corpusops.roles/php_fpm_pool
+      vars:
+        _corpusops_fpm_pool:
+          name: other
+          listen: "127.0.0.1:9003"
+    # nested form
+    - include_role:
+        name: corpusops.roles/php_fpm_pool
+      vars:
+        _corpusops_fpm_pool:
+          name: mybar
+          listen: "127.0.0.1:9004"
+          doc_root: "/srv/mybar/public"
+          include_path: ["foo"]
+          open_basedir: ["foo"]
+          php_values:
+            - xdebug.trace_output_dir: "1"
+          php_admin_values:
+            - xdebug.remote_enable: "1"
+    - shell: |
+        set -ex
+        test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/foobar.conf
+        test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/other.conf
+        test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/truc.conf
+        egrep -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/foobar.conf
+        egrep -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        egrep -q "include_path.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        egrep -q "basedir.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        egrep -q "srv/mybar/public" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        egrep -q "9004" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+    # disabling a fpm pool
+    - include_role:
+        name: corpusops.roles/php_fpm_pool
+      vars:
+        _corpusops_fpm_pool:
+          name: other
+          install: false
+    - shell: |
+        set -ex
+        if test -e /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/other.conf;then
+          exit 1
+        fi
+
