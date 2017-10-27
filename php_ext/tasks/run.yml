@@ -1,0 +1,29 @@
+---
+- shell: |-
+    {% set v = corpusops_php_ext_vars.version %}
+    {% set s_ALL = corpusops_php_ext_vars.s_all %}
+    {% set ext = corpusops_php_ext_vars.ext %}
+    if [ -e {{corpusops_php_ext_vars.phpquery}} ] && {{ corpusops_php_ext_vars.phpquery }} -q -v {{v}} {{s_ALL}} -m {{ext}};then
+      exit 0
+    fi
+    if [ -e {{ corpusops_php_ext_vars.phpenmod}} ];then
+      {{ corpusops_php_ext_vars.phpenmod}} -v {{v}} {{s_ALL}} {{ext}}
+        echo copsextmod >&2
+    fi
+  when: "corpusops_php_ext_vars.activation_status"
+  register: corpusops_php_ext_installed
+  changed_when: "'copsextmod' in corpusops_php_ext_installed.stderr"
+- shell: |-
+    {% set v = corpusops_php_ext_vars.version %}
+    {% set ext = corpusops_php_ext_vars.ext %}
+    {% set s_ALL = corpusops_php_ext_vars.s_all %}
+    if [ -e {{corpusops_php_ext_vars.phpquery}} ] && {{ corpusops_php_ext_vars.phpquery }} -q -v {{v}} {{s_ALL}} -m {{ext}};then
+      if [ -e {{ corpusops_php_ext_vars.phpdismod}} ];then
+        {{ corpusops_php_ext_vars.phpdismod}} -v {{v}} {{s_ALL}} {{ext}}
+        echo copsextmod >&2
+      fi
+    fi
+  when: "not corpusops_php_ext_vars.activation_status"
+  register: corpusops_php_ext_deinstalled
+  changed_when: "'copsextmod' in corpusops_php_ext_deinstalled.stderr"
+

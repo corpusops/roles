@@ -1,0 +1,57 @@
+---
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_localsettings_php_vars.files}}"
+  when: "(corpusops_localsettings_php_vars.files is not none and
+          corpusops_localsettings_php_vars.files|length > 0)"
+  register: corpusops_localsettings_php_filest
+  tags: [php_configs]
+- name: files copy
+  copy:
+    dest: "{{item.dest|default(omit)}}"
+    src: "{{item.template
+            | default('../templates/'+item.dest)}}"
+    force: "{{item.get('force', True)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_localsettings_php_vars.filescopy}}"
+  when: "(corpusops_localsettings_php_vars.filescopy is not none and
+          corpusops_localsettings_php_vars.filescopy|length > 0)"
+  register: corpusops_localsettings_php_filesct
+  tags: [php_configs]
+- name: configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    trim_blocks: "{{item.trim_blocksmode|default(False)}}"
+    force: "{{item.force|default(True)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+  with_items: "{{corpusops_localsettings_php_vars.configs}}"
+  when: "(corpusops_localsettings_php_vars.configs is not none and
+          corpusops_localsettings_php_vars.configs|length > 0)"
+  register: corpusops_localsettings_php_configst
+- set_fact:
+    corpusops_localsettings_php_configs_changed: "{{(
+       corpusops_localsettings_php_filest.changed or
+       corpusops_localsettings_php_filesct.changed or
+       corpusops_localsettings_php_configst.changed)}}"
+  tags: [php_configs]
+- include_role:
+    name: corpusops.roles/php_ext
+  vars:
+    corpusops_php_ext_ext: xdebug
+  when: |
+      (corpusops_localsettings_php_vars.xdebug_install and
+       corpusops_localsettings_php_vars.xdebug_enabled)
