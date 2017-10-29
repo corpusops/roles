@@ -1,0 +1,21 @@
+- hosts: all
+  vars:
+    ansible_become: true
+    ansible_become_user: root
+  tasks:
+    - become: true
+      block:
+        - file:
+            state: directory
+            mode: "0700"
+            path: "/root/vagrant"
+        - copy:
+            force: true
+            mode: "0644"
+            dest: "/root/vagrant/provision_settings.json"
+            content: "{{provision_settings|to_nice_json}}"
+        - copy:
+            force: true
+            mode: "0644"
+            dest: "/root/vagrant/provision_machines.json"
+            content: "{{provision_machines|to_nice_json}}"

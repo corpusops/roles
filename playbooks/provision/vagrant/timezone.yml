@@ -1,0 +1,20 @@
+---
+- import_playbook: ./load_vars.yml
+- hosts: "{{hosts|default('all')}}"
+  roles:
+    - {role: ../../defaults, become: true}
+  tasks:
+    - become: true
+      block:
+        - shell: |
+            set -ex
+            xxd  /etc/timezone |egrep -iq {{cops_timezone}}
+          register: cops_timezone_test2
+          changed_when: false
+          failed_when: false
+          no_log: true
+- import_playbook: ../install/timezone.yml
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_TIMEZONE', False)) and
+     (cops_timezone_test2.rc !=0)) or
+     (vbox_cops.get('FORCE_INSTALL_TIMEZONE', False)))

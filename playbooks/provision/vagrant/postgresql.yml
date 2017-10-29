@@ -1,0 +1,30 @@
+---
+- import_playbook: ./load_vars.yml
+- hosts: "{{hosts|default('all')}}"
+  roles:
+    - {role: ../../defaults, become: true}
+  tasks:
+    - become: true
+      block:
+        - shell: |
+            set -ex
+            test -e /usr/bin/psql
+            test -e /usr/bin/psql-{{cops_pg_version}}
+          failed_when: false
+          changed_when: false
+          register: cops_postgresql_test1
+          no_log: true
+        - shell: |
+            set -ex
+            echo "select 1"| psql-{{cops_pg_version}} -v ON_ERROR_STOP=1 -t -A -F",":
+            psql-{{cops_pg_version}} -t -A -F';;;' -c'\l'|egrep -iq {{cops_lang}}
+          register: cops_postgresql_test2
+          changed_when: false
+          failed_when: false
+          no_log: true
+- import_playbook: ../install/postgresql.yml
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_POSTGRESQL', False)) and
+     ((cops_postgresql_test2.rc !=0) or
+      (cops_postgresql_test1.rc !=0))) or
+     (vbox_cops.get('FORCE_INSTALL_POSTGRESQL', False)))

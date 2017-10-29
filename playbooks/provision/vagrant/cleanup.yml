@@ -1,0 +1,23 @@
+- import_playbook: ./load_vars.yml
+- hosts: "{{hosts|default('all')}}"
+  tasks:
+    - become: true
+      block:
+       - set_fact:
+           SKIP_CLEANUP: >-
+             ((not vbox_cops.get('SKIP_CLEANUP', False)) or
+               vbox_cops.get('FORCE_CLEANUP', False))
+         tags: [cops_vbox_cleanup]
+       - shell: |
+           # rm this cron on vbox
+           rm -vf /etc/cron.daily/mlocate
+         changed_when: false
+         when: SKIP_CLEANUP
+         tags: [cops_vbox_cleanup]
+       - shell: |
+           # rm this cron on vbox
+           rm -vf /var/cache/apt/archives/*deb
+           rm -rf  /var/lib/apt/lists/*
+         when: SKIP_CLEANUP
+         changed_when: false
+         tags: [cops_vbox_cleanup]

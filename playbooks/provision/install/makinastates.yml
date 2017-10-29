@@ -1,0 +1,4 @@
+---
+- hosts: "{{hosts|default('all')}}"
+  roles:
+    - role: corpusops.roles/localsettings_makinastates, become: true

@@ -1,0 +1,20 @@
+---
+- import_playbook: ./load_vars.yml
+- hosts: "{{hosts|default('all')}}"
+  roles:
+    - {role: ../../defaults, become: true}
+  tasks:
+    - become: true
+      block:
+        - shell: |
+            set -ex
+            locale -a | egrep -iq {{cops_lang}}
+          register: cops_locales_test2
+          changed_when: false
+          failed_when: false
+          #no_log: true
+- import_playbook: ../install/locales.yml
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_LOCALES', False)) and
+     (cops_locales_test2.rc !=0)) or
+     (vbox_cops.get('FORCE_INSTALL_LOCALES', False)))

@@ -1,0 +1,26 @@
+---
+- import_playbook: ./load_vars.yml
+- hosts: "{{hosts|default('all')}}"
+  tasks:
+  - become: true
+    block:
+      - shell: docker ps
+        failed_when: false
+        changed_when: false
+        register: cops_docker_test1
+        no_log: true
+        tags: [cops_vbox_docker]
+      - shell: test -e /etc/default/docker
+        register: cops_docker_test2
+        changed_when: false
+        failed_when: false
+        no_log: true
+        tags: [cops_vbox_docker]
+- import_playbook: ../install/docker.yml
+  tags: [cops_vbox_docker]
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_DOCKER', False)) and
+      ((cops_docker_test2.rc !=0) or
+      (cops_docker_test1.rc !=0))) or
+     (vbox_cops.get('FORCE_INSTALL_DOCKER', False)))
+

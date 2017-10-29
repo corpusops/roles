@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+    - become: true
+      block:
+        - setup: {}
