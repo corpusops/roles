@@ -1,0 +1,51 @@
+---
+#- debug: {msg: "{{cops_ssh_synckeys_vars}}"}
+- set_fact:
+    to_user: "{{cops_ssh_synckeys_vars.to_user}}"
+    from_users: "{{cops_ssh_synckeys_vars.from_users}}"
+  failed_when: not to_user or not from_users
+  no_log: true
+- shell: |
+      i="{{to_user}}";
+      h=$(getent passwd $i | cut -f6 -d:);
+      if [ "x${h}" = "x" ];then h="/home/$i";fi;
+      echo $h
+  changed_when: false
+  register: uh
+- set_fact:
+    uh: "{{uh.stdout.strip()}}"
+  failed_when: not uh.strip()
+- name: ssh directory
+  file:
+    state: directory
+    mode: "0700"
+    path: "{{uh}}/.ssh"
+  become: true
+  no_log: true
+- shell: |-
+    for i in {{cops_ssh_synckeys_vars.from_users|join(' ')}};do
+      h=$( getent passwd $i | cut -f6 -d: ; );
+      if [ "x${h}" = "x" ];then h="/home/$i";fi;
+      ls -1 $h/.ssh/authorized_key* 2>/dev/null
+    done
+  register: cops_homes
+  changed_when: false
+  failed_when: false
+  no_log: true
+- shell: cat "{{item}}"
+  with_items: "{{cops_homes.stdout.splitlines()}}"
+  changed_when: false
+  register: cops_homesc
+- name: Synchronise vagrant home ssh keys to root
+  blockinfile:
+    path: "{{uh}}/.ssh/authorized_keys"
+    marker: "# -- {mark} ANSIBLE MANAGED BLOCK --"
+    create: true
+    mode: "0600"
+    insertafter: EOF
+    content: |
+      {% for i in cops_homesc.results %}
+      {{i.stdout}}
+      {% endfor %}
+  become: true
+  no_log: true

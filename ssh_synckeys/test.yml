@@ -1,0 +1,20 @@
+---
+- hosts: all
+  vars:
+    cops_ssh_synckeys_removed:
+      root:
+        - key: "ssh-rsa xxxx"
+        - key: "ssh-rsa xxxx"
+          comment: foobar
+          key_options: ""
+    cops_ssh_synckeys_added:
+      root:
+        - key: "ssh-rsa xxxx"
+        - key: "ssh-rsa xxxx"
+          path: "/foo/authorized_keys"
+          manage_dir: false
+          comment: foobar
+          key_options: ""
+  roles:
+    - {name: corpusops.roles/ssh_synckeys}
+
