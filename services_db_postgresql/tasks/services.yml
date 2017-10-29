@@ -19,3 +19,42 @@
   with_items: "{{corpusops_services_db_postgresql_vars.services}}"
   tags: corpusops_services_db_postgresql
   when: "corpusops_vars.has_services_manager"
+# with debian cluster mgmnt, verify our pg is really up
+# and die otherwise
+- shell: |
+    systemctl --all --no-legend --no-pager|awk '{print $1}'|grep {{corpusops_services_db_postgresql_vars.version}}
+  register: cops_pg_service
+  changed_when: false
+  when: "corpusops_vars.has_services_manager and ansible_service_mgr in ['systemd']"
+- set_fact:
+    cops_pg_service: "{{cops_pg_service.stdout.strip()}}"
+# try to restart if down
+- shell: "systemctl status {{cops_pg_service}}"
+  tags: corpusops_services_db_postgresql_status
+  failed_when: false
+  changed_when: false
+  when: cops_pg_service|copsf_asbool
+  register: cops_pg_service_test
+- name: restart specific cluster service
+  cops_service:
+    state: "{{corpusops_services_db_postgresql_vars.activated
+     | ternary(corpusops_services_db_postgresql_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_db_postgresql_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{cops_pg_service}}"
+  tags: corpusops_services_db_postgresql
+  when: |
+    (corpusops_vars.has_services_manager and
+     cops_pg_service|copsf_asbool and
+     cops_pg_service_test.rc !=0)
+# bail out if restart of specific cluster failed
+- shell: "systemctl status {{cops_pg_service}}"
+  tags: corpusops_services_db_postgresql_status
+  register: cops_pg_service_test
+  changed_when: false
+  when: |
+    (corpusops_vars.has_services_manager and
+     cops_pg_service|copsf_asbool and
+     cops_pg_service_test.rc !=0)
