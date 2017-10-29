@@ -442,6 +442,7 @@ __funcs__ = {
     'copsf_api_basename': basename,
     'copsf_basename': basename,
     'copsf_bool': copsf_bool,
+    'copsf_asbool': copsf_bool,
     'copsf_pdb': go_pdb,
     'copsf_islist': lambda x: is_typ_(x, list),
     'copsf_isdict': lambda x: is_typ_(x, dict),
