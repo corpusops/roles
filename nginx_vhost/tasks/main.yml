@@ -22,6 +22,7 @@
              {%   endif %}
              {% endfor %}
              {{ res | to_json }}
+  no_log: true
 # do the real stuff
 - name: gen vhost
   include_tasks: run.yml
