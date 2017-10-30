@@ -1,0 +1,34 @@
+---
+- hosts: all
+  tasks:
+    - file:
+        path: /tmp/muche/foobar
+        state: absent
+    - include_role:
+        name: corpusops.roles/get_secret_variable
+      vars:
+        _cops_get_secret_variable:
+          path: /tmp/muche
+          name: foobar
+    - debug:
+        msg: "{{foobar}}"
+      register: test1
+    - file:
+        path: /tmp/muche/foobar
+        state: file
+    - include_role:
+        name: corpusops.roles/get_secret_variable
+      vars:
+        _cops_get_secret_variable:
+          path: /tmp/muche2
+          name: foobar
+    - debug:
+        msg: "{{foobar}}"
+      register: test2
+    - debug:
+        msg: ok
+      failed_when: "test1.msg == test2.msg"
+
+
+
+

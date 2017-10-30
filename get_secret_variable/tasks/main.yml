@@ -1,0 +1,17 @@
+---
+- name: "corpusops_get_secret_variable preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_get_secret_variable | default(True) }}"
+  register: corpusops_get_secret_variable_can_run
+  tags: get_secret_variable
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_get_secret_variable
+  tags: [get_secret_variable, vars]
+  when: "corpusops_get_secret_variable_can_run.msg == True"
+- debug: 
+    msg: failed
+  failed_when: "not cops_get_secret_variable_vars.name"
+- include_tasks: run.yml
+  tags: [get_secret_variable, get_secret_variable_run]
+  when: "corpusops_get_secret_variable_can_run.msg == True"

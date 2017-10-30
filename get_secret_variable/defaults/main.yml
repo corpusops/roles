@@ -1,0 +1,4 @@
+---
+cops_get_secret_variable_path: /tmp
+cops_get_secret_variable_name: null
+
