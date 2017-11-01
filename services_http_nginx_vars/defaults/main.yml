@@ -78,7 +78,7 @@ corpusops_services_http_nginx_v6: False
 corpusops_services_http_nginx_allowed_hosts: []
 corpusops_services_http_nginx_donotlog_options_requests: True
 corpusops_services_http_nginx_open_file_cache: "max=200000 inactive=5m"
-corpusops_services_http_nginx_open_file_cache_valid: "6m"
+corpusops_services_http_nginx_open_file_cache_valid: "15s"
 corpusops_services_http_nginx_open_file_cache_min_uses: "2"
 corpusops_services_http_nginx_open_file_cache_errors: "off"
 corpusops_services_http_nginx_default_type: "application/octet-stream"
