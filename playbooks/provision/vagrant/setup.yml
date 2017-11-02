@@ -1,6 +1,5 @@
 ---
-- hosts: all
+- hosts: "{{hosts|default('all')}}"
   tasks:
-    - become: true
-      block:
-        - setup: {}
+    - include_tasks: ./tasks/setup.yml
+

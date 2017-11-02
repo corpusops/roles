@@ -1,8 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - {role: ../defaults, become: true}
-    - role: corpusops.roles/services_db_postgresql
-      corpusops_services_db_postgresql_version: "{{cops_pg_version}}"
-      become: true
+  tasks:
+    - include_tasks: ./tasks/postgresql.yml
 

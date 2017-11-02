@@ -1,0 +1,18 @@
+---
+- include_tasks: ./load_vars.yml
+- include_role: {name: ../../defaults}
+  become: true
+- become: true
+  block:
+    - shell: |
+        set -ex
+        xxd  /etc/timezone |egrep -iq {{cops_timezone}}
+      register: cops_timezone_test2
+      changed_when: false
+      failed_when: false
+      no_log: true
+- include_tasks: ../../install/tasks/timezone.yml
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_TIMEZONE', False)) and
+     (cops_timezone_test2.rc !=0)) or
+     (vbox_cops.get('FORCE_INSTALL_TIMEZONE', False)))

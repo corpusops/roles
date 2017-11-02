@@ -1,0 +1,3 @@
+---
+- include_role: {name: corpusops.roles/localsettings_makinastates}
+  become: true

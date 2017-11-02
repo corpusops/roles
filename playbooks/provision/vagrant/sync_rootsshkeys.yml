@@ -1,13 +1,5 @@
 ---
-- import_playbook: ./load_vars.yml
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - role: corpusops.roles/ssh_synckeys
-      _cops_ssh_synckeys:
-        from_users: [ubuntu, vagrant]
-        to_user: root
-      tags: [vbox_cops_sshkeys]
-      become: true
-      when: >-
-        (not vbox_cops.get('SKIP_SYNCSSHKEYS', False) or
-         vbox_cops.get('FORCE_SYNCSSHKEYS', False))
+  tasks:
+    - include_tasks: ./tasks/sync_rootsshkeys.yml
+

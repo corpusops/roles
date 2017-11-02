@@ -1,33 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
   tasks:
-    - become: true
-      block:
-        - name: "VAGRANT: read provision_settings"
-          shell: cat /root/vagrant/provision_machines.json
-          changed_when: false
-          register: provision_machines_raw
-          tags: [cops_vagrant_vars]
-          become: true
-          become_user: root
-          no_log: true
-        - name: "VAGRANT: read provision_settings"
-          shell: cat /root/vagrant/provision_settings.json
-          changed_when: false
-          register: provision_settings_raw
-          tags: [cops_vagrant_vars]
-          become: true
-          become_user: root
-          no_log: true
-        - set_fact:
-            vboxes_cops: "{{provision_machines_raw.stdout|from_json}}"
-            vbox_cops: "{{provision_settings_raw.stdout|from_json}}"
-          no_log: true
-          tags: [cops_vagrant_vars]
-        - debug:
-            msg:
-              vboxes_cops: "{{vboxes_cops}}"
-              vbox_cops: "{{vbox_cops}}"
-          tags: [cops_vagrant_vars, cops_vagrant_vars_debug]
-          when: vboxes_cops.DEBUG
+    - include_tasks: ./tasks/load_vars.yml
 

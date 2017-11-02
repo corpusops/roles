@@ -1,10 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - {role: ../../defaults, become: true}
-    - role: corpusops.roles/localsettings_php
-      become: true
-      corpusops_localsettings_php_version: "{{cops_php_version}}"
-    - role: corpusops.roles/services_php_fpm
-      become: true
-      corpusops_localsettings_php_version: "{{cops_php_version}}"
+  tasks:
+    - include_tasks: ./tasks/fpm.yml
+

@@ -1,5 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - role: corpusops.roles/localsettings_timezone
-      become: true 
+  tasks:
+    - include_tasks: ./tasks/timezone.yml
+

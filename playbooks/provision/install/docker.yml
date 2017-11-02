@@ -1,5 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - role: corpusops.roles/services_virt_docker
-      become: true
+  tasks:
+    - include_tasks: ./tasks/docker.yml
+

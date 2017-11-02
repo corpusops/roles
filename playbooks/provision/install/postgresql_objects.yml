@@ -1,17 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - {role: ../defaults, become: true}
   tasks:
-    - include_tasks: ./tasks/postgresql/role.yml
-      with_items: "{{cops_postgresql_roles|default([])}}"
-      no_log: true
-      tags: [postgresql, postgresql_manage_content, postgresql_manage_roles]
-    - include_tasks: ./tasks/postgresql/db.yml
-      with_items: "{{cops_postgresql_databases|default([])}}"
-      no_log: true
-      tags: [postgresql, postgresql_manage_content, postgresql_manage_dbs]
-    - include_tasks: ./tasks/postgresql/privs.yml
-      no_log: true
-      with_items: "{{cops_postgresql_privs|default([])}}"
-      tags: [postgresql, postgresql_manage_content, postgresql_manage_privs]
+    - include_tasks: ./tasks/postgresql_objects.yml
+

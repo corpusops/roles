@@ -1,29 +1,5 @@
 ---
-- import_playbook: ./load_vars.yml
 - hosts: "{{hosts|default('all')}}"
   tasks:
-    - become: true
-      block:
-        - shell: |
-            set -ex
-            test -e /usr/sbin/nginx
-          failed_when: false
-          changed_when: false
-          register: cops_nginx_test1
-          no_log: true
-        - shell: |
-            set -ex
-            test -e /etc/nginx/sites-enabled/default
-            systemctl status nginx
-            test -e /etc/nginx/proxy_params
-            egrep -iq  "Ansible managed" /etc/nginx/nginx.conf
-          register: cops_nginx_test2
-          changed_when: false
-          failed_when: false
-          no_log: true
-- import_playbook: ../install/nginx.yml
-  when: >-
-    (((not vbox_cops.get('SKIP_INSTALL_NGINX', False)) and
-     ((cops_nginx_test2.rc !=0) or
-      (cops_nginx_test1.rc !=0))) or
-     (vbox_cops.get('FORCE_INSTALL_NGINX', False)))
+    - include_tasks: ./tasks/nginx.yml
+

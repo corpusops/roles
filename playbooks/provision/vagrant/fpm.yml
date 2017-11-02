@@ -1,32 +1,5 @@
 ---
-- import_playbook: ./load_vars.yml
 - hosts: "{{hosts|default('all')}}"
-  roles:
-    - {role: ../../defaults, become: true}
   tasks:
-    - become: true
-      block:
-        - shell: |
-            set -ex
-            test -e /usr/bin/php{{cops_php_version}}
-          failed_when: false
-          changed_when: false
-          register: cops_fpm_test1
-          no_log: true
-          tags: [cops_vbox_fpm]
-        - shell: |
-            set -ex
-            test -e /usr/local/bin/composer
-          register: cops_fpm_test2
-          changed_when: false
-          failed_when: false
-          no_log: true
-          tags: [cops_vbox_fpm]
-- import_playbook: ../install/fpm.yml
-  tags: [cops_vbox_fpm]
-  when: >-
-    (((not vbox_cops.get('SKIP_INSTALL_FPM', False)) and
-     ((cops_fpm_test2.rc !=0) or
-      (cops_fpm_test1.rc !=0))) or
-     (vbox_cops.get('FORCE_INSTALL_FPM', False)))
+    - include_tasks: ./tasks/fpm.yml
 

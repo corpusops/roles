@@ -1,26 +1,4 @@
 ---
-- import_playbook: ./load_vars.yml
 - hosts: "{{hosts|default('all')}}"
   tasks:
-    - become: true
-      block:
-        - shell: |
-            set -ex
-            test -e /usr/bin/sshfs
-          failed_when: false
-          changed_when: false
-          register: cops_sshfs_test1
-          no_log: true
-        - shell: |
-            set -ex
-            test -e /usr/bin/sshfs
-          register: cops_sshfs_test2
-          changed_when: false
-          failed_when: false
-          no_log: true
-- import_playbook: ../install/sshfs.yml
-  when: >-
-    (((not vbox_cops.get('SKIP_INSTALL_SSHFS', False)) and
-     ((cops_sshfs_test2.rc !=0) or
-      (cops_sshfs_test1.rc !=0))) or
-     (vbox_cops.get('FORCE_INSTALL_SSHFS', False)))
+    - include_tasks: ./tasks/sshfs.yml

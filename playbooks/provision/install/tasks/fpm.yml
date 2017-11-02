@@ -1,0 +1,11 @@
+---
+- include_role: {name: ../../defaults}
+  become: true
+- include_role: {name: corpusops.roles/localsettings_php}
+  become: true
+  vars:
+    corpusops_localsettings_php_version: "{{cops_php_version}}"
+- include_role: {name: corpusops.roles/services_php_fpm}
+  become: true
+  vars:
+    corpusops_localsettings_php_version: "{{cops_php_version}}"

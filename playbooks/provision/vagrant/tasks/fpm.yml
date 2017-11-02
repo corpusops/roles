@@ -1,0 +1,30 @@
+---
+- include_tasks: ./load_vars.yml
+- include_role: {name: ../../defaults}
+  become: true
+- become: true
+  block:
+    - shell: |
+        set -ex
+        test -e /usr/bin/php{{cops_php_version}}
+      failed_when: false
+      changed_when: false
+      register: cops_fpm_test1
+      no_log: true
+      tags: [cops_vbox_fpm]
+    - shell: |
+        set -ex
+        test -e /usr/local/bin/composer
+      register: cops_fpm_test2
+      changed_when: false
+      failed_when: false
+      no_log: true
+      tags: [cops_vbox_fpm]
+- include_tasks: ../../install/tasks/fpm.yml
+  tags: [cops_vbox_fpm]
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_FPM', False)) and
+     ((cops_fpm_test2.rc !=0) or
+      (cops_fpm_test1.rc !=0))) or
+     (vbox_cops.get('FORCE_INSTALL_FPM', False)))
+
