@@ -12,7 +12,7 @@ corpusops_localsettings_php_version: |-
   {{v.ret}}
 corpusops_localsettings_php_use_ppa: |-
   {% set v = {'ret': False} %}
-  {% if ansible_lsb.release|copsf_looseversion  < '16.04' | copsf_looseversion %}
+  {% if ansible_lsb.release|copsf_looseversion  <= '18.04' | copsf_looseversion %}
   {%  set _ = v.update({'ret': True}) %}
   {% endif %}
   {{v.ret}}
