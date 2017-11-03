@@ -63,6 +63,9 @@
 {%    if var.endswith('_'+flav) and var.split('_'+flav)[0] in vars %}
 {%     set _ = skipped.update({'skip': True}) %}
 {%    endif %}
+{%    if var.endswith('_'+'vars') %}
+{%     set _ = skipped.update({'skip': True}) %}
+{%    endif %}
 {%   endfor %}
 {%   for ns in sub_namespaced if sub_namespaced|length > 0 %}
 {%    if var.startswith(prefix+ns+'_') and not skipped.skip%}
