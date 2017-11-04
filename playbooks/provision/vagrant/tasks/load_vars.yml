@@ -28,4 +28,4 @@
           vbox_cops: "{{vbox_cops}}"
       tags: [cops_vagrant_vars, cops_vagrant_vars_debug]
       when: vboxes_cops.DEBUG
-
+- include_role: {name: "{{cops_playbooks}}/provision/defaults"}

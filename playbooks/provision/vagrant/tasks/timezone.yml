@@ -1,9 +1,7 @@
 ---
-- include_tasks: ./load_vars.yml
-- include_role: {name: ../../defaults}
-  become: true
 - become: true
   block:
+    - include_tasks: ./load_vars.yml
     - shell: |
         set -ex
         xxd  /etc/timezone |egrep -iq {{cops_timezone}}

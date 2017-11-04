@@ -1,7 +1,7 @@
 ---
-- include_tasks: ./load_vars.yml
 - become: true
   block:
+    - include_tasks: ./load_vars.yml
     - shell: |
         set -ex
         test -e /srv/makina-states/.git

@@ -1,7 +1,7 @@
 ---
-- include_tasks: ./load_vars.yml
 - become: true
   block:
+    - include_tasks: ./load_vars.yml
     - changed_when: false
       shell: |
           {% set HOSTNAME = vbox_cops.HOSTNAME %}

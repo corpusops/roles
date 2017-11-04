@@ -1,9 +1,7 @@
 ---
-- include_tasks: ./load_vars.yml
-- include_role: {name: ../../defaults}
-  become: true
 - become: true
   block:
+    - include_tasks: ./load_vars.yml
     - shell: |
         set -ex
         test -e /usr/bin/php{{cops_php_version}}

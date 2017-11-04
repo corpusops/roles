@@ -1,7 +1,7 @@
 ---
-- include_tasks: ./load_vars.yml
 - become: true
   block:
+    - include_tasks: ./load_vars.yml
     - shell: docker ps
       failed_when: false
       changed_when: false

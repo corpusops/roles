@@ -1,8 +1,7 @@
 ---
-- include_tasks: ./load_vars.yml
 - become: true
   block:
-  - include_role: {name: ../../defaults}
+  - include_tasks: ./load_vars.yml
   - shell: |
       set -ex
       locale -a | egrep -iq {{cops_lang}}
