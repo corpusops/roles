@@ -1,16 +1,7 @@
 ---
 - become: true
   block:
-    - include_tasks: ./load_vars.yml
-    - shell: |
-        set -ex
-        xxd  /etc/timezone |egrep -iq {{cops_timezone}}
-      register: cops_timezone_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-- include_tasks: ../../install/tasks/timezone.yml
-  when: >-
-    (((not vbox_cops.get('SKIP_INSTALL_TIMEZONE', False)) and
-     (cops_timezone_test2.rc !=0)) or
-     (vbox_cops.get('FORCE_INSTALL_TIMEZONE', False)))
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_timezone]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/timezone.yml"
+  tags: [cops_provision_timezone]

@@ -1,0 +1,18 @@
+---
+- become: true
+  block:
+  - include_tasks: ./load_vars.yml
+    tags: [cops_provision_locales]
+  - shell: |
+      set -ex
+      locale -a | egrep -iq {{cops_lang}}
+    register: cops_locales_test2
+    changed_when: false
+    failed_when: false
+    tags: [cops_provision_locales]
+- include_tasks: "{{cops_playbooks}}/provision/install/tasks/locales.yml"
+  when: >-
+    (((not vbox_cops.get('SKIP_INSTALL_LOCALES', False)) and
+     (cops_locales_test2.rc !=0)) or
+     (vbox_cops.get('FORCE_INSTALL_LOCALES', False)))
+  tags: [cops_provision_locales]

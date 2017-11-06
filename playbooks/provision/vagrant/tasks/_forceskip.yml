@@ -1,0 +1,12 @@
+---
+- include_jinja_vars:
+    name: __GLOBAL__
+    content: |
+      ---
+      {% set ret = {} %}
+      {% for v,val in vbox_cops.items() %}
+      {%  if v.startswith(('FORCE_', 'SKIP_')) %}
+      {%    set _ = ret.update({v: val}) %}
+      {%  endif %}
+      {% endfor %}
+      {{ret|to_json}}

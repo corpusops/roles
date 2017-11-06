@@ -1,22 +1,11 @@
 ---
 - become: true
   block:
-  - include_tasks: ./load_vars.yml
-  - set_fact:
-      SKIP_CLEANUP: >-
-        ((not vbox_cops.get('SKIP_CLEANUP', False)) or
-          vbox_cops.get('FORCE_CLEANUP', False))
-    tags: [cops_vbox_cleanup]
+  - include_tasks: load_vars.yml
   - shell: |
-      # rm this cron on vbox
+      # rm this cron on vagrant
       rm -vf /etc/cron.daily/mlocate
     changed_when: false
-    when: SKIP_CLEANUP
-    tags: [cops_vbox_cleanup]
-  - shell: |
-      # rm this cron on vbox
-      rm -vf /var/cache/apt/archives/*deb
-      rm -rf  /var/lib/apt/lists/*
-    when: SKIP_CLEANUP
-    changed_when: false
-    tags: [cops_vbox_cleanup]
+    tags: [cops_provision_cleanup]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/cleanup.yml"
+  tags: [cops_provision_cleanup]

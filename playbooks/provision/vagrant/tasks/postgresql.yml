@@ -1,26 +1,7 @@
 ---
 - become: true
   block:
-    - include_tasks: ./load_vars.yml
-    - shell: |
-        set -ex
-        test -e /usr/bin/psql
-        test -e /usr/bin/psql-{{cops_pg_version}}
-      failed_when: false
-      changed_when: false
-      register: cops_postgresql_test1
-      no_log: true
-    - shell: |
-        set -ex
-        echo "select 1"| psql-{{cops_pg_version}} -v ON_ERROR_STOP=1 -t -A -F",":
-        psql-{{cops_pg_version}} -t -A -F';;;' -c'\l'|egrep -iq {{cops_lang}}
-      register: cops_postgresql_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-- include_tasks: ../../install/tasks/postgresql.yml
-  when: >-
-    (True or ((not vbox_cops.get('SKIP_INSTALL_POSTGRESQL', False)) and
-     ((cops_postgresql_test2.rc !=0) or
-      (cops_postgresql_test1.rc !=0))) or
-     (vbox_cops.get('FORCE_INSTALL_POSTGRESQL', False)))
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_postgresql]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/postgresql.yml"
+  tags: [cops_provision_postgresql]

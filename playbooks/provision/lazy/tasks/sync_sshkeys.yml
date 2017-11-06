@@ -1,0 +1,10 @@
+---
+- become: true
+  block:
+  - include_tasks: ./load_vars.yml
+    tags: [cops_provision_syncsshkeys]
+  - include_tasks: "{{cops_playbooks}}/provision/install/tasks/sync_sshkeys.yml"
+    when: >-
+      (not vars.get('SKIP_SYNCSSHKEYS', False) or
+       vars.get('FORCE_SYNCSSHKEYS', False))
+    tags: [cops_provision_syncsshkeys]

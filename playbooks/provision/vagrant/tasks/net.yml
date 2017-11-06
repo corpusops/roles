@@ -1,7 +1,8 @@
 ---
 - become: true
   block:
-    - include_tasks: ./load_vars.yml
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_net]
     - changed_when: false
       shell: |
           {% set HOSTNAME = vbox_cops.HOSTNAME %}
@@ -23,6 +24,7 @@
                 echo "nameserver $i" >> /etc/resolv.conf
             done
           fi
+      tags: [cops_provision_net]
       when: |
           ((not vbox_cops.get('SKIP_CONFIGURE_NET', False)) or
             vbox_cops.get('FORCE_CONFIGURE_NET', False))

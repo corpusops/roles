@@ -1,5 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
   tasks:
-    - include_tasks: ./tasks/sync_rootsshkeys.yml
+    - include_tasks: ./tasks/sync_sshkeys.yml
 

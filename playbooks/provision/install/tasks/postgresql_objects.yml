@@ -1,8 +1,6 @@
 ---
 - become: true
   block:
-    - debug: "msg={{vars}}"
-    - shell: /bin/false
     - include_role: {name: "{{cops_playbooks}}/provision/defaults"}
     - include_tasks: ./postgresql/role.yml
       with_items: "{{cops_postgresql_roles|default([])}}"
