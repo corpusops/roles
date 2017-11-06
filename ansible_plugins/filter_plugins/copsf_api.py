@@ -426,7 +426,12 @@ def format_resolve(value,
                            **kwargs)[0]
 
 
+def copsf_cwd(*args, **kw):
+    return os.getcwd()
+
+
 __funcs__ = {
+    'copsf_cwd': copsf_cwd,
     'copsf_format_resolve': format_resolve,
     'copsf_splitstrip': splitstrip,
     'copsf_looseversion': looseversion,
