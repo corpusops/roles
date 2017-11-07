@@ -244,6 +244,7 @@ def is_typ_(val, typs_):
 def go_pdb(val=None, *args,  **kwargs):
     from pdb_clone import pdb as pdbc
     pdbc.set_trace_remote()
+    return val
 
 
 def copsf_bool(value, asbool=True):
