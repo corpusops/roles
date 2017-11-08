@@ -19,6 +19,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
+    trim_blocks: false
   with_items: "{{corpusops_nginx_vhost_vars.configs}}"
   when: "(corpusops_nginx_vhost_vars.configs is not none and
           corpusops_nginx_vhost_vars.configs|length > 0)"

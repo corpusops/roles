@@ -53,6 +53,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
   with_items: "{{corpusops_localsettings_timezone_vars.configs}}"
   when: "(corpusops_localsettings_timezone_vars.configs is not none and
           corpusops_localsettings_timezone_vars.configs|length > 0)"

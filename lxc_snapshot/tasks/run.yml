@@ -4,6 +4,7 @@
     src: '../templates/{{item}}'
     dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
     mode: "0755"
+    trim_blocks: false
   with_items:
     - 'bin/cops_container_snapshot.sh'
     - 'cops_do_container_snapshot.sh'

@@ -7,6 +7,7 @@
     mode: "644"
     owner: "root"
     group: "root"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
   with_items: "{{corpusops_localsettings_pkgmgr_vars.base_rpm_repos}}"
   tags: corpusops_localsettings_pkgmgr
 - name: redhat - repos

@@ -29,6 +29,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
   with_items: "{{corpusops_localsettings_autoupgrades_vars.configs}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.configs is not none and

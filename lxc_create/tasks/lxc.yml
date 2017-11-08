@@ -57,6 +57,7 @@
     src: "../templates/lxc.conf"
     dest: "{{lxc_path}}/{{lxc_container_name}}/config"
     mode: "0600"
+    trim_blocks: false
   register: corpusops_lxc_create_config
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc
 - name: "RestartContainer{{lxc_container_name}}"

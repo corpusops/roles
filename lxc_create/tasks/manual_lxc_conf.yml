@@ -9,6 +9,7 @@
     src: '../templates/{{item}}'
     dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
     mode: 644
+    trim_blocks: false
   with_items:
     - manual_lxc.conf
   when: not lxc_manual_lxc_conf_test.stat.exists

@@ -9,6 +9,7 @@
     src: '../templates/{{item}}'
     dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
     mode: 644
+    trim_blocks: false
   with_items:
     - fstab
   when: not lxc_fstab_test.stat.exists
