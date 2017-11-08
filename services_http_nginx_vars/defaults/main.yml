@@ -63,7 +63,7 @@ corpusops_services_http_nginx_worker_processes: "{{ansible_processor_vcpus}}"
 corpusops_services_http_nginx_ulimit: 65536
 corpusops_services_http_nginx_client_max_body_size: "25000000M"
 corpusops_services_http_nginx_doc_root: "/var/www/default"
-corpusops_services_http_nginx_corpusops_services_http_nginx_rotate: "365"
+corpusops_services_http_nginx_rotate: "365"
 corpusops_services_http_nginx_real_ip_recursive: "on"
 corpusops_services_http_nginx_no_daemon: false
 corpusops_services_http_nginx_default_vhost: True
