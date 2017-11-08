@@ -38,6 +38,7 @@ __mod = os.path.dirname(__fn)
 __pmod = os.path.dirname(__mod)
 log = logging.getLogger(__n)
 __metaclass__ = type
+_DEFAULT = object()
 with open(os.path.join(__mod, '../api/cops_load.python')) as fic:
     exec(fic.read(), globals(), locals())
 
@@ -427,12 +428,194 @@ def format_resolve(value,
                            **kwargs)[0]
 
 
+def copsf_to_lower(val):
+    if isinstance(val, six.string_types):
+        val = val.lower()
+    elif isinstance(val, dict):
+        val = type(val)()
+        for i in [a for a in val]:
+            val[i] = copsf_to_lower(val[i])
+    elif isinstance(val, list):
+        val = type(val)()
+        for i in range(len(val)):
+            val.append(copsf_to_lower(val[i]))
+    return val
+
+
+def copsf_format_val(val, ansible_vars):
+    if isinstance(val, six.string_types):
+        val = val.format(**ansible_vars)
+        return val
+    elif isinstance(val, dict):
+        nval = type(val)()
+        for i in [a for a in val]:
+            nval[i] = copsf_format_val(val[i], ansible_vars)
+        return nval
+    elif isinstance(val, list):
+        nval = type(val)()
+        for i in range(len(val)):
+            nval.append(copsf_format_val(val[i], ansible_vars))
+        return nval
+    else:
+        return val
+
+
+def copsf_compute_vars(ansible_vars, prefix,
+                       lowered=None, computed_defaults=None):
+    vals = []
+    if computed_defaults is None:
+        computed_defaults = []
+    if lowered is None:
+        lowered = []
+    for k in computed_defaults:
+        svar = prefix + k
+        if svar not in ansible_vars:
+            continue
+        val = copsf_format_val(ansible_vars[svar], ansible_vars)
+        vals.append(val)
+        ansible_vars.update({svar: val})
+    for k in lowered:
+        svar = prefix + k
+        if svar not in ansible_vars:
+            continue
+        val = copsf_to_lower(ansible_vars[svar])
+        ansible_vars.update({svar: val})
+    return ansible_vars
+
+
+def copsf_registry_to_vars(namespaced, ansible_vars, prefix):
+    for k, val in six.iteritems(namespaced):
+        ansible_vars.update({prefix+k: val})
+    return namespaced, ansible_vars
+
+
+def copsf_knobs(ansible_vars, prefix,
+                subos_append=None, knobs=None, flavors=None):
+    """
+    Per os knobs to filter variables and prepare registry adapting to
+    the environment target OS
+    """
+    if knobs is None:
+        knobs = []
+    if flavors is None:
+        flavors = []
+    if subos_append is None:
+        subos_append = {}
+    for v in knobs:
+        vn = prefix + v
+        if ansible_vars.get(vn, None) is not None:
+            continue
+        for flav in flavors:
+            if (
+                flav == 'default' or
+                ansible_vars['ansible_os_family'].lower() == flav or
+                ansible_vars['ansible_lsb']['id'].lower() == flav
+            ):
+                os_vpref = vn + '_' + flav
+                if os_vpref in ansible_vars:
+                    ansible_vars.update({vn: ansible_vars[os_vpref]})
+                    break
+    for _os in subos_append:
+        if ansible_vars['ansible_lsb']['id'].lower() == _os:
+            for v in subos_append[_os]['vars']:
+                sv = prefix+v
+                vn = prefix+'{0}_{1}'.format(v, subos_append[_os]['os'])
+                if sv in ansible_vars and vn in ansible_vars:
+                    ansible_vars[prefix+v].extend(ansible_vars[vn])
+    return ansible_vars
+
+
+def copsf_to_namespace(ansible_vars,
+                       prefix,
+                       computed_defaults=None,
+                       lowered=None,
+                       sub_namespaced=None,
+                       flavors=None,
+                       namespaced=None):
+    """
+    Parse a dictionnary and grab all variable under a custom
+    prefix inside the same prefixed dict:
+    eg::
+
+        {'a_1': 'aaa', 'a_2': 'bbb' } | copsf_to_namespace('a') =>
+        {'a': {'1': 'aaa', '2': 'bbb'}}
+
+    """
+    if namespaced is None:
+        namespaced = {}
+    if sub_namespaced is None:
+        sub_namespaced = {}
+    if flavors is None:
+        flavors = []
+    vprefix = prefix+'vars'
+    for var in six.iterkeys(ansible_vars):
+        if var == vprefix or not var.startswith(prefix):
+            continue
+        svar = prefix.join(var.split(prefix)[1:])
+        for flav in flavors:
+            if (
+                var.endswith('_'+flav) and
+                var.split('_'+flav)[0] in ansible_vars
+            ):
+                continue
+        for ns in sub_namespaced:
+            if not var.startswith(prefix+ns+'_'):
+                continue
+            svar = var.replace(prefix+ns+'_', '')
+            sub_namespaced.setdefault(
+                ns, {}).update({svar: ansible_vars[var]})
+            namespaced.update({ns: sub_namespaced[ns]})
+        namespaced.update({svar: ansible_vars[var]})
+
+    namespaced, ansible_vars = copsf_registry_to_vars(
+        namespaced, ansible_vars, prefix)
+    return namespaced, ansible_vars
+
+
+def copsf_registry(ansible_vars,
+                   prefix,
+                   do_os_knobs=True,
+                   do_resolve=True,
+                   knobs=None,
+                   subos_append=None,
+                   computed_defaults=None,
+                   lowered=None,
+                   flavors=None,
+                   namespaced=None,
+                   sub_namespaced=None):
+    if do_os_knobs:
+        ansible_vars = copsf_knobs(ansible_vars,
+                                   prefix,
+                                   subos_append=subos_append,
+                                   knobs=knobs,
+                                   flavors=flavors)
+    if do_resolve:
+        ansible_vars = copsf_compute_vars(
+            ansible_vars, prefix,
+            lowered=lowered,
+            computed_defaults=computed_defaults)
+    namespaced, ansible_vars = copsf_to_namespace(
+        ansible_vars,
+        prefix,
+        sub_namespaced=sub_namespaced,
+        flavors=flavors,
+        namespaced=namespaced)
+    return namespaced, ansible_vars
+
+
 def copsf_cwd(*args, **kw):
     return os.getcwd()
 
 
 __funcs__ = {
     'copsf_cwd': copsf_cwd,
+    'copsf_to_lower': copsf_to_lower,
+    'copsf_format_val': copsf_format_val,
+    'copsf_registry_to_vars': copsf_registry_to_vars,
+    'copsf_registry': copsf_registry,
+    'copsf_to_namespace': copsf_to_namespace,
+    'copsf_knobs': copsf_knobs,
+    'copsf_compute_vars': copsf_compute_vars,
     'copsf_format_resolve': format_resolve,
     'copsf_splitstrip': splitstrip,
     'copsf_looseversion': looseversion,
@@ -473,4 +656,4 @@ class FilterModule(object):
 
     def filters(self):
         return __funcs__
-# vim:set et sts=4 ts=4 tw=80:
+# vim:set et sts=4 ts=4 tw=80
