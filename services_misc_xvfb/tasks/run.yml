@@ -4,7 +4,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: '{{corpusops_services_misc_xvfb_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_misc_xvfb_vars.packages is not none and
@@ -15,7 +15,7 @@
   package:
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: '{{corpusops_services_misc_xvfb_vars.packages}}'
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_misc_xvfb_vars.packages is not none and

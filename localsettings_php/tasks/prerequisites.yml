@@ -29,7 +29,7 @@
     cache_valid_time: '1'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: '{{corpusops_localsettings_php_vars.packages}}'
   register: corpusops_localsettings_php_pkgstd
   when: corpusops_localsettings_php_repoda.changed
@@ -38,7 +38,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: '{{corpusops_localsettings_php_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_php_vars.packages is not none and

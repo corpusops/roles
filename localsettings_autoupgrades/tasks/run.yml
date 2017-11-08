@@ -15,7 +15,7 @@
   package:
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: "{{corpusops_localsettings_autoupgrades_vars.packages}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and

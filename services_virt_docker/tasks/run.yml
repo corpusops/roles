@@ -8,7 +8,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: [python-pip, python-dev, libffi-dev, libssl-dev]
   when: "(ansible_distribution.lower() in ['ubuntu'] and
           ansible_distribution_major_version < '15' )"
@@ -28,7 +28,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: [apt-transport-https, ca-certificates, curl]
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.packages is not none and
@@ -81,7 +81,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   with_items: '{{corpusops_services_virt_docker_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.packages is not none and
