@@ -565,6 +565,8 @@ def copsf_to_namespace(ansible_vars,
             sub_namespaced.setdefault(
                 ns, {}).update({svar: ansible_vars[var]})
             namespaced.update({ns: sub_namespaced[ns]})
+            for sv, ssval in six.iteritems(namespaced[ns]):
+                namespaced.update({ns+'_'+sv: ssval})
         namespaced.update({svar: ansible_vars[var]})
 
     namespaced, ansible_vars = copsf_registry_to_vars(
