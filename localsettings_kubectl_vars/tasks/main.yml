@@ -2,4 +2,4 @@
 - include_jinja_vars:
     name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
   tags: [corpusops_vars, corpusops_localsettings_kubectl_vars]
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
