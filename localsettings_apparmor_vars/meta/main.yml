@@ -12,4 +12,4 @@ galaxy_info:
     versions:
     - all
 dependencies:
-- role: corpusops.roles/include_jinja_vars
+- role: corpusops.roles/ansible_plugins
