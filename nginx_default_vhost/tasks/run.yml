@@ -1,0 +1,20 @@
+---
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: corpusops_nginx_default_vhost
+- set_fact:
+    corpusops_nginx_default_vhost_rp: "{{role_path}}"
+- include_role:
+    name: "corpusops.roles/nginx_vhost"
+  vars:
+    _corpusops_nginx_vhost:
+      content_template: "{{(
+          corpusops_nginx_default_vhost_vars.content_template or
+          '{0}/templates/etc/nginx/sites-available/default.conf'.format(
+            corpusops_nginx_default_vhost_rp))}}"
+      basename: default
+      domain: _
+      server_aliases: []
+      is_default_server: "{{corpusops_nginx_default_vhost_vars.is_default_server}}"
+      install: "{{corpusops_nginx_default_vhost_vars.install}}"
+      check_config: "{{corpusops_nginx_default_vhost_vars.check_config}}"

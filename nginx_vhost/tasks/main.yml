@@ -4,25 +4,24 @@
   vars:
     cops_vars_registry_target: corpusops_nginx_vhost
   tags: [corpusops_vars, corpusops_nginx_vhost, corpusops_nginx_vhost_vars]
-- debug: msg="{{corpusops_nginx_vhost_vars}}"
 # make some stuff to DRY templates
 - name: "nginx_vhost - compute - 1"
   tags: [corpusops_vars, corpusops_nginx_vhost, corpusops_nginx_vhost_vars]
   include_jinja_vars:
     name: "corpusops_nginx_vhost_vars"
     content: |
-             ---
-             {% set res = corpusops_nginx_vhost_vars %}
-             {% set restarthanders = res.rhandlers %}
-             # force nginx reload/restart via vhost variables
-             {% for i in ['restart', 'reload'] %}
-             {%   if res['force_'+i] not in restarthanders %}
-             {%     set _ = restarthanders.append(
-                      i+'_nginx_via_corpusops_nginx_vhost') %}
-             {%   endif %}
-             {% endfor %}
-             {{ res | to_json }}
-  no_log: true
+      ---
+      {% set res = corpusops_nginx_vhost_vars %}
+      {% set restarthanders = res.rhandlers %}
+      # force nginx reload/restart via vhost variables
+      {% for i in ['restart', 'reload'] %}
+      {%   if res['force_'+i] not in restarthanders %}
+      {%     set _ = restarthanders.append(
+               i+'_nginx_via_corpusops_nginx_vhost') %}
+      {%   endif %}
+      {% endfor %}
+      {{ res | to_json }}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 # do the real stuff
 - name: gen vhost
   include_tasks: run.yml

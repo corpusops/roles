@@ -1,9 +1,19 @@
 ---
+- group:
+    name: "{{corpusops_nginx_vhost_vars.group}}"
+    system: true
+    state: present
+- user:
+    name: "{{corpusops_nginx_vhost_vars.user}}"
+    group: "{{corpusops_nginx_vhost_vars.group}}"
+    append: true
+    system: true
+    state: present
 - name: files
   file:
-    path: "{{item.path.format(**vars)}}"
+    path: "{{item.path}}"
     state: "{{item.state|default(omit)}}"
-    src: "{{item.get('src', False) and item.get('src', False).format(**vars) or omit}}"
+    src: "{{item.get('src', False) and item.get('src', False) or omit}}"
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
@@ -11,11 +21,41 @@
   with_items: "{{corpusops_nginx_vhost_vars.files}}"
   when: "(corpusops_nginx_vhost_vars.files is not none and
           corpusops_nginx_vhost_vars.files|length > 0)"
+- name: files containers
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.get('src', False) and item.get('src', False) or omit}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items:
+  - {path: "{{corpusops_nginx_vhost_vars.ssl_cert_path | copsf_api_dirname }}",
+    owner: "{{corpusops_nginx_vhost_vars.user}}",
+    group: "{{corpusops_nginx_vhost_vars.group}}",
+    state: directory, mode: "755"}
+  - {path: "{{corpusops_nginx_vhost_vars.ssl_key_path | copsf_api_dirname }}",
+    owner: "{{corpusops_nginx_vhost_vars.user}}",
+    group: "{{corpusops_nginx_vhost_vars.group}}",
+    state: directory, mode: "755"}
+  - {path: "{{corpusops_nginx_vhost_vars.top_file | copsf_api_dirname }}",
+    owner: "{{corpusops_nginx_vhost_vars.user}}",
+    group: "{{corpusops_nginx_vhost_vars.group}}",
+    state: directory, mode: "755"}
+  - {path: "{{corpusops_nginx_vhost_vars.site_file | copsf_api_dirname }}",
+    owner: "{{corpusops_nginx_vhost_vars.user}}",
+    group: "{{corpusops_nginx_vhost_vars.group}}",
+    state: directory, mode: "755"}
+  - {path: "{{corpusops_nginx_vhost_vars.content_file | copsf_api_dirname }}",
+    owner: "{{corpusops_nginx_vhost_vars.user}}",
+    group: "{{corpusops_nginx_vhost_vars.group}}",
+    state: directory, mode: "755"}
 - name: configs
   template:
     src: "{{(item.template
-            | default('../templates/'+item.name)).format(**vars)}}"
-    dest: "{{item.name.format(**vars)}}"
+            | default('../templates/'+item.name))}}"
+    dest: "{{item.name}}"
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
@@ -25,8 +65,8 @@
           corpusops_nginx_vhost_vars.configs|length > 0)"
 - name: install conf.d link
   file:
-    path: "{{corpusops_nginx_vhost_site_link.format(**vars)}}"
-    src: "{{corpusops_nginx_vhost_site_file.format(**vars)}}"
+    path: "{{corpusops_nginx_vhost_site_link}}"
+    src: "{{corpusops_nginx_vhost_site_file}}"
     state: >-
       {%- if corpusops_nginx_vhost_vars.install-%}link
       {%- else-%}absent

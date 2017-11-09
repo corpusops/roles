@@ -7,9 +7,3 @@
 - include_tasks: run.yml
   when: 'corpusops_services_http_nginx_can_run.msg == True'
   tags: [corpusops_services_http_nginx, corpusops_services_http_nginx_conf]
-- include_tasks: default_vhost.yml
-  when: 'corpusops_services_http_nginx_can_run.msg == True'
-  tags: [corpusops_services_http_nginx, corpusops_services_http_nginx_vhosts]
-- include_tasks: services.yml
-  when: 'corpusops_services_http_nginx_can_run.msg == True'
-  tags: [corpusops_services_http_nginx, corpusops_services_http_nginx_conf]

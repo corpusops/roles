@@ -1,0 +1,41 @@
+---
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_http_nginx_vars.files}}"
+  when: "(corpusops_services_http_nginx_vars.files is not none and
+          corpusops_services_http_nginx_vars.files|length > 0)"
+  register: corpusops_services_http_nginx_filest
+- name: files copy
+  copy:
+    dest: "{{item.dest|default(omit)}}"
+    src: "{{item.template
+            | default('../templates/'+item.dest)}}"
+    force: "{{item.get('force', True)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_http_nginx_vars.filescopy}}"
+  when: "(corpusops_services_http_nginx_vars.filescopy is not none and
+          corpusops_services_http_nginx_vars.filescopy|length > 0)"
+  register: corpusops_services_http_nginx_filesct
+- name: configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
+  with_items: "{{corpusops_services_http_nginx_vars.configs}}"
+  when: "(corpusops_services_http_nginx_vars.configs is not none and
+          corpusops_services_http_nginx_vars.configs|length > 0)"
+  register: corpusops_services_http_nginx_configst

@@ -1,0 +1,8 @@
+---
+corpusops_nginx_default_vhost_content_template: null
+corpusops_nginx_default_vhost_basename: default
+corpusops_nginx_default_vhost_domain: _
+corpusops_nginx_default_vhost_server_aliases: []
+corpusops_nginx_default_vhost_is_default_server: true
+corpusops_nginx_default_vhost_install: true
+corpusops_nginx_default_vhost_check_config: true

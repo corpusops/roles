@@ -1,0 +1,97 @@
+---
+- group:
+    name: "{{corpusops_services_http_nginx_vars.group}}"
+    system: true
+    state: present
+- user:
+    name: "{{corpusops_services_http_nginx_vars.user}}"
+    group: "{{corpusops_services_http_nginx_vars.group}}"
+    append: true
+    system: true
+    state: present 
+- file:
+    path: /etc/apt/sources.list.d/services_http_nginx.list.list
+    state: absent
+- name: files for apt
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
+  with_items: "{{corpusops_services_http_nginx_vars.files_apt}}"
+  when: "(corpusops_services_http_nginx_vars.files_apt is not none and
+          corpusops_services_http_nginx_vars.files_apt|length > 0)"
+- name: install services_http_nginx repokey
+  apt_key:
+    id: '{{item}}'
+    keyserver: "{{corpusops_services_http_nginx_vars.keyserver}}"
+    state: present
+  with_items: '{{corpusops_services_http_nginx_vars.repo_keys}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_http_nginx_vars.repo_keys is not none and
+          corpusops_services_http_nginx_vars.repo_keys|length > 0)"
+  register: corpusops_services_http_nginx_key
+- name: install services_http_nginx repo
+  apt_repository:
+    repo: '{{corpusops_services_http_nginx_vars.repo}}'
+    filename: services_http_nginx
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+           corpusops_services_http_nginx_vars.repo is not none)"
+  register: corpusops_services_http_nginx_repoa
+- apt:
+    update_cache: yes
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_http_nginx_repoa.changed or
+          corpusops_services_http_nginx_key.changed)"
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: present
+  with_items: '{{corpusops_services_http_nginx_vars.packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_http_nginx_vars.packages is not none and
+          corpusops_services_http_nginx_vars.packages|length > 0)"
+  register: corpusops_services_http_nginx_pkgst
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_http_nginx_vars.packages is not none and
+          corpusops_services_http_nginx_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_http_nginx_vars.packages}}"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_http_nginx_vars.packages is not none and
+          corpusops_services_http_nginx_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_http_nginx_vars.packages}}"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_services_http_nginx_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_http_nginx_vars.packages is not none and
+          corpusops_services_http_nginx_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_http_nginx_vars.packages is not none and
+          corpusops_services_http_nginx_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_http_nginx_vars.packages}}"

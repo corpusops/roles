@@ -1,5 +1,12 @@
 ---
+- set_fact:
+   corpusops_services_http_nginx_state: reloaded
+  when: >
+   (corpusops_services_http_nginx_pkgst.changed   |default(false) or
+    corpusops_services_http_nginx_filest.changed  |default(false) or
+    corpusops_services_http_nginx_filesct.changed |default(false) or
+    corpusops_services_http_nginx_configst.changed|default(false))
 - include_role:
     name: "corpusops.roles/nginx_control"
   vars:
-    corpusops_nginx_control_state: started
+    corpusops_nginx_control_state: "{{corpusops_services_http_nginx_state|default('started')}}"

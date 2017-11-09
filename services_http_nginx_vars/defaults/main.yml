@@ -115,8 +115,6 @@ corpusops_services_http_nginx_ssl_cacert_first: False
 corpusops_services_http_nginx_ssl_session_cache: "shared:SSL:10m"
 corpusops_services_http_nginx_ssl_session_timeout: "10m"
 corpusops_services_http_nginx_ssl_ciphers: "EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
-corpusops_services_http_nginx_install_default_vhost: true
-corpusops_services_http_nginx_default_vhost_is_default_server: true
 corpusops_services_http_nginx_package: "nginx"
 corpusops_services_http_nginx_docdir: "/usr/share/doc/nginx"
 corpusops_services_http_nginx_service: "nginx"
@@ -132,3 +130,7 @@ corpusops_services_http_nginx_epoll: false
 corpusops_services_http_nginx_is_reverse_proxied: false
 corpusops_services_http_nginx_sendfile: true
 corpusops_services_http_nginx_reverse_proxy_addresses: []
+corpusops_services_http_nginx_s_prerequisites: true
+corpusops_services_http_nginx_s_configuration: true
+corpusops_services_http_nginx_s_crypto: true
+corpusops_services_http_nginx_s_service: true

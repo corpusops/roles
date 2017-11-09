@@ -1,0 +1,10 @@
+---
+- name: gen diffie-h file
+  shell: |
+    f="{{corpusops_services_http_nginx_vars.ssl_dhparam}}";d="$(dirname $f)";
+    if test ! -e "$d";then mkdir "$d";fi;
+    if test ! -e "$f";then
+      openssl dhparam -out "$f" 2048;chmod 644 "$f";echo "ansibledhgen" >&2 ;
+    fi
+  register: corpusops_services_http_nginx_dh
+  changed_when: "'ansibledhgen' in corpusops_services_http_nginx_dh.stderr"
