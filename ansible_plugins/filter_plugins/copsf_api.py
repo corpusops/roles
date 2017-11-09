@@ -39,6 +39,8 @@ __pmod = os.path.dirname(__mod)
 log = logging.getLogger(__n)
 __metaclass__ = type
 _DEFAULT = object()
+REGISTRY_DEFAULT_SUFFIX = '_REGISTRY_DEFAULT'
+REGISTRY_DEFAULT_VALUE = '_CORPUSOPS_DEFAULT_VALUE'
 with open(os.path.join(__mod, '../api/cops_load.python')) as fic:
     exec(fic.read(), globals(), locals())
 
@@ -428,6 +430,9 @@ def format_resolve(value,
                            **kwargs)[0]
 
 
+copsf_format_resolve = format_resolve
+
+
 def copsf_to_lower(val):
     if isinstance(val, six.string_types):
         val = val.lower()
@@ -460,20 +465,7 @@ def copsf_format_val(val, ansible_vars):
         return val
 
 
-def copsf_compute_vars(ansible_vars, prefix,
-                       lowered=None, computed_defaults=None):
-    vals = []
-    if computed_defaults is None:
-        computed_defaults = []
-    if lowered is None:
-        lowered = []
-    for k in computed_defaults:
-        svar = prefix + k
-        if svar not in ansible_vars:
-            continue
-        val = copsf_format_val(ansible_vars[svar], ansible_vars)
-        vals.append(val)
-        ansible_vars.update({svar: val})
+def copsf_compute_lower(ansible_vars, prefix, lowered):
     for k in lowered:
         svar = prefix + k
         if svar not in ansible_vars:
@@ -483,55 +475,120 @@ def copsf_compute_vars(ansible_vars, prefix,
     return ansible_vars
 
 
-def copsf_registry_to_vars(namespaced, ansible_vars, prefix):
-    for k, val in six.iteritems(namespaced):
-        ansible_vars.update({prefix+k: val})
-    return namespaced, ansible_vars
+def copsf_compute_defaults(ansible_vars, prefix, computed_defaults):
+    for k in computed_defaults:
+        svar = prefix + k
+        if svar not in ansible_vars:
+            continue
+        val = copsf_format_val(ansible_vars[svar], ansible_vars)
+        ansible_vars.update({svar: val})
+    return ansible_vars
 
 
-def copsf_knobs(ansible_vars, prefix,
-                subos_append=None, knobs=None, flavors=None):
+def get_name_prefix(name_prefix, prefix, suffix='vars'):
+    if not name_prefix:
+        name_prefix = prefix + suffix
+    return name_prefix
+
+
+def copsf_reset_vars_from_registry(ansible_vars,
+                                   prefix, registry_suffix=REGISTRY_DEFAULT_SUFFIX):  #noqa
+    dsvars = ansible_vars.setdefault('__'+prefix+registry_suffix, {})
+    for dsvar in [a for a in dsvars]:
+        data = dsvars.pop(dsvar, {})
+        val = data['value']
+        svar = data['variable']
+        if val == REGISTRY_DEFAULT_VALUE:
+            continue
+        ansible_vars[svar] = val
+    return ansible_vars
+
+
+def copsf_registry_to_vars(namespaced,
+                           ansible_vars,
+                           prefix,
+                           global_scope=False,
+                           name_prefix=None,
+                           registry_suffix=REGISTRY_DEFAULT_SUFFIX):
+    name_prefix = get_name_prefix(name_prefix, prefix)
+    scope = {}
+    scope.update({name_prefix: namespaced})
+    sdvars = '__'+prefix+registry_suffix
+    default_vars = ansible_vars.setdefault(sdvars, {})
+    for k in [a for a in namespaced]:
+        svar = prefix + k
+        dsvar = svar + registry_suffix
+        default_vars.setdefault(dsvar, {
+            'value': ansible_vars.get(svar, REGISTRY_DEFAULT_VALUE),
+            'variable': svar})
+        scope[svar] = namespaced[k]
+    scope[sdvars] = default_vars
+    ansible_vars.update(scope)
+    if not global_scope:
+        scope = namespaced
+    return scope, ansible_vars
+
+
+def copsf_knobs(ansible_vars, prefix, knobs, subos_append=None, flavors=None):
     """
     Per os knobs to filter variables and prepare registry adapting to
     the environment target OS
     """
-    if knobs is None:
-        knobs = []
-    if flavors is None:
+    if not flavors:
         flavors = []
-    if subos_append is None:
+    if not subos_append:
         subos_append = {}
-    for v in knobs:
-        vn = prefix + v
-        if ansible_vars.get(vn, None) is not None:
-            continue
-        for flav in flavors:
-            if (
-                flav == 'default' or
-                ansible_vars['ansible_os_family'].lower() == flav or
-                ansible_vars['ansible_lsb']['id'].lower() == flav
-            ):
-                os_vpref = vn + '_' + flav
-                if os_vpref in ansible_vars:
-                    ansible_vars.update({vn: ansible_vars[os_vpref]})
-                    break
-    for _os in subos_append:
-        if ansible_vars['ansible_lsb']['id'].lower() == _os:
-            for v in subos_append[_os]['vars']:
-                sv = prefix+v
-                vn = prefix+'{0}_{1}'.format(v, subos_append[_os]['os'])
-                if sv in ansible_vars and vn in ansible_vars:
-                    ansible_vars[prefix+v].extend(ansible_vars[vn])
+    if flavors:
+        for v in knobs:
+            vn = prefix + v
+            if ansible_vars.get(vn, None) is not None:
+                continue
+            for flav in flavors:
+                if (
+                    flav == 'default' or
+                    ansible_vars['ansible_os_family'].lower() == flav or
+                    ansible_vars['ansible_lsb']['id'].lower() == flav
+                ):
+                    os_vpref = vn + '_' + flav
+                    if os_vpref in ansible_vars:
+                        ansible_vars.update({vn: ansible_vars[os_vpref]})
+                        break
+    if subos_append:
+        for _os in subos_append:
+            if ansible_vars['ansible_lsb']['id'].lower() == _os:
+                for v in subos_append[_os]['vars']:
+                    sv = prefix+v
+                    vn = prefix+'{0}_{1}'.format(v, subos_append[_os]['os'])
+                    if sv in ansible_vars and vn in ansible_vars:
+                        ansible_vars[prefix+v].extend(ansible_vars[vn])
     return ansible_vars
+
+
+def copsf_load_registry_overrides(ansible_vars,
+                                  prefix,
+                                  registry=None,
+                                  overrides_prefix=None):
+    if overrides_prefix is None and prefix:
+        overrides_prefix = '_{0}'.format(prefix[:-1])
+    overrides = ansible_vars.get(overrides_prefix, {})
+    registry = registry or ansible_vars.get(prefix, {})
+    if (
+        isinstance(overrides, dict) and
+        isinstance(registry, dict)
+    ):
+        registry.update(overrides)
+    return registry
 
 
 def copsf_to_namespace(ansible_vars,
                        prefix,
-                       computed_defaults=None,
-                       lowered=None,
+                       do_load_overrides=None,
+                       overrides_prefix=None,
                        sub_namespaced=None,
                        flavors=None,
-                       namespaced=None):
+                       name_prefix=None,
+                       namespaced=None,
+                       registry_suffix=REGISTRY_DEFAULT_SUFFIX):  # noqa
     """
     Parse a dictionnary and grab all variable under a custom
     prefix inside the same prefixed dict:
@@ -547,9 +604,15 @@ def copsf_to_namespace(ansible_vars,
         sub_namespaced = {}
     if flavors is None:
         flavors = []
-    vprefix = prefix+'vars'
+    if do_load_overrides is None:
+        do_load_overrides = False
+    name_prefix = get_name_prefix(name_prefix, prefix)
     for var in six.iterkeys(ansible_vars):
-        if var == vprefix or not var.startswith(prefix):
+        if (
+            (var == name_prefix) or
+            (var.endswith(registry_suffix)) or
+            (not var.startswith(prefix))
+        ):
             continue
         svar = prefix.join(var.split(prefix)[1:])
         for flav in flavors:
@@ -561,47 +624,74 @@ def copsf_to_namespace(ansible_vars,
         for ns in sub_namespaced:
             if not var.startswith(prefix+ns+'_'):
                 continue
-            svar = var.replace(prefix+ns+'_', '')
+            nssvar = var.replace(prefix+ns+'_', '')
             sub_namespaced.setdefault(
-                ns, {}).update({svar: ansible_vars[var]})
+                ns, {}).update({nssvar: ansible_vars[var]})
             namespaced.update({ns: sub_namespaced[ns]})
             for sv, ssval in six.iteritems(namespaced[ns]):
                 namespaced.update({ns+'_'+sv: ssval})
         namespaced.update({svar: ansible_vars[var]})
-
-    namespaced, ansible_vars = copsf_registry_to_vars(
-        namespaced, ansible_vars, prefix)
+    if do_load_overrides:
+        namespaced = copsf_load_registry_overrides(
+            ansible_vars,
+            prefix,
+            overrides_prefix=overrides_prefix,
+            registry=namespaced)
     return namespaced, ansible_vars
 
 
 def copsf_registry(ansible_vars,
                    prefix,
-                   do_os_knobs=True,
-                   do_resolve=True,
+                   do_load_overrides=None,
+                   do_format_resolve=None,
+                   do_to_vars=True,
                    knobs=None,
                    subos_append=None,
                    computed_defaults=None,
                    lowered=None,
                    flavors=None,
+                   overrides_prefix=None,
                    namespaced=None,
-                   sub_namespaced=None):
-    if do_os_knobs:
+                   global_scope=None,
+                   name_prefix=None,
+                   sub_namespaced=None,
+                   registry_suffix=REGISTRY_DEFAULT_SUFFIX,
+                   **kw):
+    name_prefix = get_name_prefix(name_prefix, prefix)
+    ansible_vars = copsf_reset_vars_from_registry(
+        ansible_vars, prefix,
+        registry_suffix=registry_suffix)
+    if knobs:
         ansible_vars = copsf_knobs(ansible_vars,
                                    prefix,
+                                   knobs,
                                    subos_append=subos_append,
-                                   knobs=knobs,
                                    flavors=flavors)
-    if do_resolve:
-        ansible_vars = copsf_compute_vars(
-            ansible_vars, prefix,
-            lowered=lowered,
-            computed_defaults=computed_defaults)
+    if computed_defaults:
+        ansible_vars = copsf_compute_defaults(
+            ansible_vars, prefix, computed_defaults)
+    if lowered:
+        ansible_vars = copsf_compute_lower(
+            ansible_vars, prefix, lowered)
     namespaced, ansible_vars = copsf_to_namespace(
         ansible_vars,
         prefix,
+        do_load_overrides=do_load_overrides,
         sub_namespaced=sub_namespaced,
+        overrides_prefix=overrides_prefix,
         flavors=flavors,
-        namespaced=namespaced)
+        namespaced=namespaced,
+        registry_suffix=registry_suffix)
+    if do_format_resolve:
+        namespaced = copsf_format_resolve(namespaced)
+    if do_to_vars:
+        namespaced, ansible_vars = copsf_registry_to_vars(
+            namespaced,
+            ansible_vars,
+            prefix,
+            global_scope=global_scope,
+            name_prefix=name_prefix,
+            registry_suffix=registry_suffix)
     return namespaced, ansible_vars
 
 
@@ -617,8 +707,9 @@ __funcs__ = {
     'copsf_registry': copsf_registry,
     'copsf_to_namespace': copsf_to_namespace,
     'copsf_knobs': copsf_knobs,
-    'copsf_compute_vars': copsf_compute_vars,
-    'copsf_format_resolve': format_resolve,
+    'copsf_compute_defaults': copsf_compute_defaults,
+    'copsf_compute_lower': copsf_compute_lower,
+    'copsf_format_resolve': copsf_format_resolve,
     'copsf_splitstrip': splitstrip,
     'copsf_looseversion': looseversion,
     'copsf_dictupdate': dictupdate,
