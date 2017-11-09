@@ -1,46 +1,42 @@
 ---
-# load default variables, first pass, load not resolved values
-- include_jinja_vars:
-    name: __GLOBAL__
-    content: |
-      ---
-      {% set res = {} %}
-      {% for i in [cops_vars_registry_target, cops_vars_registry_overrides] %}
-      {% set _ = res.update({i: vars.get(i, {})}) %}
-      {% endfor %}
-      {{ res | to_json }}
-  register: cops_vars_registryf
-  no_log: true
 # then merge overrides and setup the registry and flatenned values
-- include_jinja_vars:
+- name: "resolve overrides -part1- for {{cops_vars_registry_target}}"
+  debug:
+    var: "{{ cops_vars_registry_overrides }}"
+  when: vars[cops_vars_registry_overrides] is defined
+  register: cops_reg_overrides1
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- name: "construct registry {{cops_vars_registry_target}}"
+  include_jinja_vars:
     name: __GLOBAL__
     content: |
       ---
+      {% set target = cops_vars_registry_target %}
+      {% set defaults = cops_vars_registry_defaults %}
+      {% set knobs = cops_vars_registry_knobs %}
+      {% set sos = cops_vars_registry_subos_append %}
+      {% set lowered = cops_vars_registry_lowered %}
+      {% set sns = cops_vars_registry_sub_namespaced %}
       {% set n = cops_vars_registry_name %}
-      {% set p = cops_vars_registry_target %}
-      {% set prefix = cops_vars_registry_prefix %}
       {% set o = cops_vars_registry_overrides %}
-      {% set res = {n: cops_vars_registryf.ansible_facts.get(p, {}) | copsf_deepcopy} %}
-      {% set overrides = cops_vars_registryf.ansible_facts.get(o, {}) | copsf_deepcopy %}
-      {% set _ = res[n]|copsf_dictupdate(overrides) %}
-      {#
-      Record registry & overrides back to first level, flattened variables
-          {foo: {a: o, bar: 1}, foo_overrides: {bar, 2}}
-          => {foo_bar: 2, foo_a: o}
-      #}
-      {# Set back to global values each subelement
-          foo_bar: {1:2} => foo_bar_1: 2 #}
-      {% for var, val in res[n].items() %}
-      {%  set _ = res|copsf_dictupdate({'{0}{1}'.format(prefix, var): val}) %}
-      {% endfor %}
-      {# Construct registry variable
-          foo_bar_1, => foo_bar_vars: {1: 2}#}
-      {% for var, val in vars.items() %}
-      {%  if var.startswith(prefix) and var not in [prefix, n, p, o] %}
-      {%    set svar = prefix.join(var.split(prefix)[1:]) %}
-      {%    set val = res.get(var, res[n].get(svar, val)) %}
-      {%    set _ = res[n]|copsf_dictupdate({svar: val}) %}
-      {%  endif %}
-      {% endfor %}
+      {% set prefix = cops_vars_registry_prefix %}
+      {% set flavors = cops_vars_registry_flavors %}
+      {% set fr = cops_vars_registry_format_resolve %}
+      {% set gs = cops_vars_registry_global_scope %}
+      {% set lo = cops_vars_registry_load_overrides %}
+      {% set _ = vars.update({o: cops_reg_overrides1.get(o, {})}) %}
+      {% set res, vars = vars | copsf_registry(
+          prefix,
+          do_load_overrides=lo,
+          do_format_resolve=fr,
+          global_scope=gs,
+          lowered=lowered,
+          computed_defaults=defaults,
+          sub_namespaced=sns,
+          knobs=knobs,
+          flavors=flavors,
+          subos_append=subos_append,
+          overrides_prefix=o,
+          name_prefix=n) %}
       {{ res | to_json }}
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
