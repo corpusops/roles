@@ -7,16 +7,15 @@
   register: cops_reg_overrides1
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - name: "construct registry {{cops_vars_registry_target}}"
-  include_jinja_vars:
-    name: __GLOBAL__
-    content: |
-      ---
+  debug:
+    msg: |-
       {% set target = cops_vars_registry_target %}
       {% set defaults = cops_vars_registry_defaults %}
       {% set knobs = cops_vars_registry_knobs %}
       {% set sos = cops_vars_registry_subos_append %}
       {% set lowered = cops_vars_registry_lowered %}
       {% set sns = cops_vars_registry_sub_namespaced %}
+      {% set un = cops_vars_registry_update_namespaces %}
       {% set n = cops_vars_registry_name %}
       {% set o = cops_vars_registry_overrides %}
       {% set prefix = cops_vars_registry_prefix %}
@@ -26,9 +25,9 @@
       {% set lo = cops_vars_registry_load_overrides %}
       {% set _ = vars.update({o: cops_reg_overrides1.get(o, {})}) %}
       {% set res, vars = vars | copsf_registry(
-          prefix,
-          do_load_overrides=lo,
+          prefix, do_load_overrides=lo,
           do_format_resolve=fr,
+          do_update_namespaces=un,
           global_scope=gs,
           lowered=lowered,
           computed_defaults=defaults,
@@ -38,5 +37,38 @@
           subos_append=sos,
           overrides_prefix=o,
           name_prefix=n) %}
+      {% set _ = res.update({
+          'cops_registry_2formatresolve': res.get(prefix+'cops_do_format_resolve')}) %}
+      {{ res | to_json }}
+  register: cops_registry_done
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+
+- name: "Format resolve, second pass after ansible rendering when enabled"
+  include_jinja_vars:
+    name: __GLOBAL__
+    content: |
+      ---
+      {% set res = {} %}
+      {% set n = cops_vars_registry_name %}
+      {% set prefix = cops_vars_registry_prefix %}
+      {% set gs = cops_vars_registry_global_scope %}
+      {% if not gs %}
+      {%  set _ = res.update({n: cops_registry_done.msg}) %}
+      {% else %}
+      {%  set _ = res.update(cops_registry_done.msg) %}
+      {% endif %}
+      {% if cops_registry_done.msg.pop('cops_registry_2formatresolve', False) %}
+      {%  if not gs %}
+      {%   set _ = res[n].update(res[n]
+                                 | copsf_format_resolve(
+                                     res[n],
+                                     additional_namespaces=[vars], topdb=True)) %}
+      {%  else %}
+      {%   set _ = res.update(res
+                              | copsf_format_resolve(
+                                  res[n], additional_namespaces=[vars, res])) %}
+      {%   set _ = vars.update(res) %}
+      {%  endif %}
+      {% endif %}
       {{ res | to_json }}
   no_log: "{{not (cops_vars_debug|default(false))}}"

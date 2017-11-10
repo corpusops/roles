@@ -13,6 +13,7 @@ import hashlib
 import logging
 import fcntl
 import copy
+import traceback
 import tempfile
 import random
 import string
@@ -31,6 +32,7 @@ except ImportError:
     HAS_RANDOM = False
 
 
+_RESOLVED_CACHE = {}
 is_really_a_var = re.compile('(\{[^:}]+\})', re.M | re.U)
 __fn = os.path.abspath(__file__)
 __n = os.path.splitext(os.path.basename(__fn))[0]
@@ -42,6 +44,11 @@ _DEFAULT = object()
 SUBREGISTRIES_KEYS = 'cops_sub_namespaces'
 REGISTRY_DEFAULT_SUFFIX = '_REGISTRY_DEFAULT'
 REGISTRY_DEFAULT_VALUE = '_CORPUSOPS_DEFAULT_VALUE'
+single_brance_in_re = re.compile('(^|[^{])({)[^{]', flags=re.M | re.U)
+single_brance_out_re = re.compile('[^}](})([^}]|$)', flags=re.M | re.U)
+double_brance_in_re = re.compile('{{', flags=re.M | re.U)
+double_brance_out_re = re.compile('}}', flags=re.M | re.U)
+
 with open(os.path.join(__mod, '../api/cops_load.python')) as fic:
     exec(fic.read(), globals(), locals())
 
@@ -278,14 +285,31 @@ def looseversion(v):
     return LooseVersion(v)
 
 
-def unresolved(data):
-    ret = None
+def unresolved(data, jinja=None):
+    iddata = id(data)
+    if jinja is None:
+        jinja = True
+    ret = _RESOLVED_CACHE.setdefault(jinja, {}).get(iddata, None)
+    if ret is not None:
+        return ret
     if isinstance(data, six.string_types):
         if '{' in data and '}' in data:
             if is_really_a_var.search(data):
                 ret = True
             else:
                 ret = False
+            if ret and jinja and ('{{' in data) and ('}}' in data):
+                jbraces_in = len(single_brance_in_re.findall(data))
+                jbraces_out = len(single_brance_out_re.findall(data))
+                ret = ((jbraces_in+jbraces_out) % 2 != 0)
+                # if we detected jinja markers {{foo}}
+                if not ret:
+                    # we also check that we do not have still regular
+                    # python {foo} strings left
+                    single_braces_in = len(single_brance_in_re.findall(data))
+                    single_braces_out = len(single_brance_out_re.findall(data))
+                    if single_braces_in and single_braces_out:
+                        ret = single_braces_in == single_braces_out
         else:
             ret = False
     elif isinstance(data, dict):
@@ -300,14 +324,21 @@ def unresolved(data):
             ret = unresolved(val)
             if ret:
                 break
+    _RESOLVED_CACHE[jinja][iddata] = ret
     return ret
 
 
-def _str_resolve(new, original_dict=None, this_call=0, topdb=False):
+def _str_resolve(new,
+                 original_dict=None,
+                 jinja=None,
+                 this_call=0,
+                 topdb=False):
 
     '''
     low level and optimized call to format_resolve
     '''
+    if jinja is None:
+        jinja = True
     init_new = new
     # do not directly call format to handle keyerror in original mapping
     # where we may have yet keyerrors
@@ -316,8 +347,11 @@ def _str_resolve(new, original_dict=None, this_call=0, topdb=False):
             reprk = k
             if not isinstance(reprk, six.string_types):
                 reprk = '{0}'.format(k)
-            subst = '{' + reprk + '}'
-            if subst in new:
+            jsubst = '{{'+reprk+'}}'
+            subst = '{'+reprk+'}'
+            if jsubst in new:
+                continue
+            elif subst in new:
                 subst_val = original_dict[k]
                 if isinstance(subst_val, (list, dict)):
                     inner_new = format_resolve(
@@ -332,15 +366,20 @@ def _str_resolve(new, original_dict=None, this_call=0, topdb=False):
                 else:
                     if new != subst_val:
                         new = new.replace(subst, str(subst_val))
-            if not unresolved(new):
+            if not unresolved(new, jinja=jinja):
                 # new value has been totally resolved
                 break
-    return new, new != init_new
+    unresolved_state = unresolved(new, jinja=jinja)
+    return new, new != init_new, unresolved_state
 
 
-def str_resolve(new, original_dict=None, this_call=0, topdb=False):
+def str_resolve(new, original_dict=None, this_call=0, topdb=False, jinja=None):
     return _str_resolve(
-        new, original_dict=original_dict, this_call=this_call, topdb=topdb)[0]
+        new,
+        original_dict=original_dict,
+        this_call=this_call,
+        topdb=topdb,
+        jinja=jinja)[0]
 
 
 def _format_resolve(value,
@@ -348,6 +387,7 @@ def _format_resolve(value,
                     this_call=0,
                     topdb=False,
                     retry=None,
+                    jinja=True,
                     **kwargs):
     '''
     low level and optimized call to format_resolve
@@ -364,49 +404,58 @@ def _format_resolve(value,
     if kwargs:
         original_dict.update(kwargs)
 
-    if not unresolved(value):
-        return value, False
+    unresolved_state = unresolved(value, jinja=jinja)
+    if not unresolved_state:
+        return value, False, False
 
     if isinstance(value, dict):
         new = type(value)()
         for key, v in value.items():
-            val, changed_ = _format_resolve(v, original_dict, topdb=topdb)
-            if changed_:
-                changed = changed_
+            val, changed_, unresolved_state_ = _format_resolve(
+                v, original_dict, jinja=jinja, topdb=topdb)
+            unresolved_state = unresolved_state or unresolved_state_
+            changed = changed_ or changed
             new[key] = val
     elif isinstance(value, (list, tuple)):
         new = type(value)()
         for v in value:
-            val, changed_ = _format_resolve(v, original_dict, topdb=topdb)
-            if changed_:
-                changed = changed_
+            val, changed_, unresolved_state_ = _format_resolve(
+                v, original_dict, jinja=jinja, topdb=topdb)
+            unresolved_state = unresolved_state or unresolved_state_
+            changed = changed_ or changed
             new = new + type(value)([val])
     elif isinstance(value, six.string_types):
-        new, changed_ = _str_resolve(value, original_dict, topdb=topdb)
-        if changed_:
-            changed = changed_
+        new, changed_, unresolved_state_ = _str_resolve(
+            value, original_dict, jinja=jinja, topdb=topdb)
+        unresolved_state = unresolved_state or unresolved_state_
+        changed = changed_ or changed
     else:
         new = value
 
-    if retry is None:
-        retry = unresolved(new)
+    if unresolved_state and retry is None:
+        retry = True
 
     while retry and (this_call < 100):
-        new, changed = _format_resolve(new,
-                                       original_dict,
-                                       this_call=this_call,
-                                       retry=False,
-                                       topdb=topdb)
+        new, changed, unresolved_state = _format_resolve(
+            new,
+            original_dict,
+            jinja=jinja,
+            this_call=this_call,
+            retry=False,
+            topdb=topdb)
         if not changed:
             retry = False
         this_call += 1
-    return new, changed
+    return new, changed, unresolved_state
 
 
 def format_resolve(value,
                    original_dict=None,
-                   this_call=0, topdb=False, **kwargs):
-
+                   jinja=None,
+                   this_call=0,
+                   topdb=False,
+                   additional_namespaces=None,
+                   **kwargs):
     '''
     Resolve a dict of formatted strings, mappings & list to a valued dict
     Please also read the associated test::
@@ -423,12 +472,34 @@ def format_resolve(value,
          "d": "{b}",
          "e": "{d}",
         }
+
     '''
-    return _format_resolve(value,
-                           original_dict=original_dict,
-                           this_call=this_call,
-                           topdb=topdb,
-                           **kwargs)[0]
+    topdb2 = kwargs.pop('topdb2', False)  # noqa
+    try:
+        ret = _format_resolve(value,
+                              original_dict=original_dict,
+                              jinja=jinja,
+                              this_call=this_call,
+                              topdb=topdb,
+                              **kwargs)
+        if additional_namespaces is None:
+            additional_namespaces = {}
+        if isinstance(additional_namespaces, dict):
+            additional_namespaces = [additional_namespaces]
+        for namespace in additional_namespaces:
+            if ret[2]:
+                ret = _format_resolve(ret[0],
+                                      original_dict=namespace,
+                                      jinja=jinja,
+                                      this_call=this_call,
+                                      topdb=topdb,
+                                      **kwargs)
+                if not ret[2]:
+                    break
+    except Exception as exc:
+        trace = traceback.format_exc()
+        raise exc
+    return ret[0]
 
 
 copsf_format_resolve = format_resolve
@@ -491,8 +562,12 @@ def get_name_prefix(name_prefix, prefix, suffix='vars'):
 
 
 def copsf_reset_vars_from_registry(ansible_vars,
-                                   prefix, registry_suffix=REGISTRY_DEFAULT_SUFFIX):  #noqa
+                                   prefix,
+                                   name_prefix,
+                                   registry_suffix=REGISTRY_DEFAULT_SUFFIX):  #noqa
     dsvars = ansible_vars.setdefault('__'+prefix+registry_suffix, {})
+    name_prefix = get_name_prefix(name_prefix, prefix)
+    ansible_vars.pop(name_prefix, None)
     for dsvar in [a for a in dsvars]:
         data = dsvars.pop(dsvar, {})
         val = data['value']
@@ -506,7 +581,7 @@ def copsf_reset_vars_from_registry(ansible_vars,
 def copsf_registry_to_vars(namespaced,
                            ansible_vars,
                            prefix,
-                           global_scope=False,
+                           global_scope=None,
                            name_prefix=None,
                            registry_suffix=REGISTRY_DEFAULT_SUFFIX):
     name_prefix = get_name_prefix(name_prefix, prefix)
@@ -568,9 +643,36 @@ def copsf_load_registry_overrides(ansible_vars,
     return registry
 
 
+def copsf_subos_append(ansible_vars,
+                       namespaced,
+                       sub_namespaced,
+                       subos_append):
+    for _os in subos_append:
+        if ansible_vars['ansible_lsb']['id'].lower() == _os:
+            for v in subos_append[_os]['vars']:
+                vn = '{0}_{1}'.format(v, subos_append[_os]['os'])
+                if v in namespaced and vn in namespaced:
+                    namespaced[v].extend(namespaced[vn])
+    return namespaced
+
+
+def get_sub_namespaced(ansible_vars,
+                       namespaced,
+                       prefix,
+                       sub_registries_key=SUBREGISTRIES_KEYS):
+    sub_namespaced = namespaced.get(
+        sub_registries_key,
+        ansible_vars.get(prefix+sub_registries_key, {}))
+    return sub_namespaced
+
+
 def copsf_to_namespace(ansible_vars,
                        prefix,
                        do_load_overrides=None,
+                       do_format_resolve=None,
+                       do_update_namespaces=None,
+                       do_to_vars=None,
+                       global_scope=None,
                        overrides_prefix=None,
                        sub_namespaced=None,
                        flavors=None,
@@ -578,7 +680,9 @@ def copsf_to_namespace(ansible_vars,
                        namespaced=None,
                        knobs=None,
                        lowered=None,
+                       level=0,
                        computed_defaults=None,
+                       format_resolve_topdb=None,
                        subos_append=None,
                        prefixes=None,
                        sub_registries_key=SUBREGISTRIES_KEYS,
@@ -594,24 +698,26 @@ def copsf_to_namespace(ansible_vars,
     """
     if namespaced is None:
         namespaced = {}
-    if isinstance(sub_namespaced, list):
-        sub_namespaced = {}
-        for i in sub_namespaced:
-            sub_namespaced[i] = {}
-    if sub_namespaced is None:
-        sub_namespaced = namespaced.get(sub_registries_key, {})
-    if flavors is None:
-        flavors = []
     if prefixes is None:
-        prefixes = set()
-    if do_load_overrides is None:
-        do_load_overrides = False
+        prefixes = []
+    uplevel = level + 1
+    if sub_namespaced is None:
+        sub_namespaced = get_sub_namespaced(ansible_vars,
+                                            namespaced,
+                                            prefix)
+    if isinstance(sub_namespaced, list):
+        nsub_namespaced = {}
+        for i in sub_namespaced:
+            nsub_namespaced[i] = {}
+        sub_namespaced = nsub_namespaced
+    if sub_namespaced:
+        namespaced[sub_registries_key] = sub_namespaced
     name_prefix = get_name_prefix(name_prefix, prefix)
-    prefixes.add(prefix)
+    prefixes.append(prefix)
     for ns in sub_namespaced:
         sub_prefix = prefix+ns+'_'
-        prefixes.add(get_name_prefix(name_prefix, sub_prefix))
-        prefixes.add(prefix)
+        prefixes.append(get_name_prefix(name_prefix, sub_prefix))
+        prefixes.append(prefix)
     for var in six.iterkeys(ansible_vars):
         if (
             (var in prefixes) or
@@ -626,7 +732,9 @@ def copsf_to_namespace(ansible_vars,
         namespaced[ns], ansible_vars = copsf_to_namespace(
             ansible_vars,
             sub_prefix,
+            level=uplevel,
             do_load_overrides=do_load_overrides,
+            do_update_namespaces=do_update_namespaces,
             overrides_prefix=overrides_prefix,
             flavors=flavors,
             name_prefix=name_prefix,
@@ -635,6 +743,30 @@ def copsf_to_namespace(ansible_vars,
             registry_suffix=registry_suffix)
         for sv, ssval in six.iteritems(namespaced[ns]):
             namespaced.update({ns+'_'+sv: ssval})
+    # compute those args only after registry can give behavior !
+    if subos_append is None:
+        subos_append = namespaced.get('cops_subos_append', {})
+    if lowered is None:
+        lowered = namespaced.get('cops_lowered', [])
+    if computed_defaults is None:
+        computed_defaults = namespaced.get('cops_computed_defaults', [])
+    if knobs is None:
+        knobs = namespaced.get('cops_knobs', [])
+    if global_scope is None:
+        global_scope = namespaced.get('cops_global_scope', False)
+    if do_update_namespaces is None:
+        do_update_namespaces = namespaced.get('cops_do_update_namespaces', True)  # noqa
+    if do_load_overrides is None:
+        do_load_overrides = namespaced.get('cops_do_load_overrides', True)
+    if do_to_vars is None:
+        do_to_vars = namespaced.get('cops_do_to_vars', True)
+    if format_resolve_topdb is None:
+        format_resolve_topdb = namespaced.get('cops_format_resolve_topdb', False)  # noqa
+    if do_format_resolve is None:
+        do_format_resolve = namespaced.get('cops_do_format_resolve', False)
+    if flavors is None:
+        flavors = namespaced.get('cops_flavors', [])
+    #
     if knobs:
         namespaced = copsf_knobs(ansible_vars,
                                  namespaced,
@@ -653,67 +785,78 @@ def copsf_to_namespace(ansible_vars,
                            namespaced,
                            sub_namespaced,
                            subos_append)
-    namespaces = get_subnamespaces(namespaced,
+    namespaces = get_subnamespaces(ansible_vars,
+                                   namespaced,
+                                   prefix,
                                    sub_namespaced=sub_namespaced,
                                    sub_registries_key=sub_registries_key)
-    for v, val in six.iteritems(namespaced):
-        if '_' not in v:
-            continue
-        nsparts = v.split('_')
-        for i in range(len(nsparts)):
-            part = '_'.join(nsparts[:i])
-            key = '_'.join(nsparts[i:])
-            if part in namespaces:
-                sns = namespaces[part]
-                if key in sns:
-                    sns[key] = val
+    if do_update_namespaces:
+        for v, val in six.iteritems(namespaced):
+            if '_' not in v:
+                continue
+            nsparts = v.split('_')
+            for i in range(len(nsparts)):
+                part = '_'.join(nsparts[:i])
+                key = '_'.join(nsparts[i:])
+                if part in namespaces:
+                    sns = namespaces[part]
+                    if key in sns:
+                        sns[key] = val
     if do_load_overrides:
         namespaced = copsf_load_registry_overrides(
             ansible_vars,
             prefix,
             overrides_prefix=overrides_prefix,
             registry=namespaced)
+    if do_format_resolve and not level:
+        namespaced = copsf_format_resolve(namespaced,
+                                          additional_namespaces=[ansible_vars],
+                                          topdb=format_resolve_topdb)
+    scope = namespaced
+    if level < 1 and do_to_vars:
+        scope, ansible_vars = copsf_registry_to_vars(
+            namespaced,
+            ansible_vars,
+            prefix,
+            global_scope=global_scope,
+            name_prefix=name_prefix,
+            registry_suffix=registry_suffix)
+    return scope, ansible_vars
 
-    return namespaced, ansible_vars
 
-
-def get_subnamespaces(namespaced,
+def get_subnamespaces(ansible_vars,
+                      namespaced,
+                      prefix,
                       namespaces=None,
-                      prefix=None,
+                      level=0,
                       sub_namespaced=None,
                       sub_registries_key=SUBREGISTRIES_KEYS):
+    uplevel = level + 1
     if namespaces is None:
         namespaces = {}
     if sub_namespaced is None:
-        sub_namespaced = namespaced.get(sub_registries_key, {})
+        sub_namespaced = get_sub_namespaced(ansible_vars,
+                                            namespaced,
+                                            prefix)
     for i, sns in six.iteritems(sub_namespaced):
-        sub_prefix = prefix and (prefix+'_'+i) or i
+        sub_prefix = prefix+i+'_'
         snamespace = namespaced.get(i, {})
-        namespaces = get_subnamespaces(snamespace,
+        namespaces = get_subnamespaces(ansible_vars,
+                                       snamespace,
                                        namespaces=namespaces,
+                                       level=uplevel,
                                        prefix=sub_prefix,
                                        sub_registries_key=sub_registries_key)
-        namespaces[sub_prefix] = snamespace
+        namespaces[sub_prefix[len(prefix):-1]] = snamespace
     return namespaces
 
-
-def copsf_subos_append(ansible_vars,
-                       namespaced,
-                       sub_namespaced,
-                       subos_append):
-    for _os in subos_append:
-        if ansible_vars['ansible_lsb']['id'].lower() == _os:
-            for v in subos_append[_os]['vars']:
-                vn = '{0}_{1}'.format(v, subos_append[_os]['os'])
-                if v in namespaced and vn in namespaced:
-                    namespaced[v].extend(namespaced[vn])
-    return namespaced
 
 def copsf_registry(ansible_vars,
                    prefix,
                    do_load_overrides=None,
+                   do_update_namespaces=None,
                    do_format_resolve=None,
-                   do_to_vars=True,
+                   do_to_vars=None,
                    knobs=None,
                    subos_append=None,
                    computed_defaults=None,
@@ -728,32 +871,26 @@ def copsf_registry(ansible_vars,
                    **kw):
     name_prefix = get_name_prefix(name_prefix, prefix)
     ansible_vars = copsf_reset_vars_from_registry(
-        ansible_vars, prefix,
+        ansible_vars, prefix, name_prefix,
         registry_suffix=registry_suffix)
     namespaced, ansible_vars = copsf_to_namespace(
         ansible_vars,
         prefix,
         do_load_overrides=do_load_overrides,
+        do_format_resolve=do_format_resolve,
+        do_to_vars=do_to_vars,
+        do_update_namespaces=do_update_namespaces,
         knobs=knobs,
         subos_append=subos_append,
         computed_defaults=computed_defaults,
         lowered=lowered,
         flavors=flavors,
+        global_scope=global_scope,
         overrides_prefix=overrides_prefix,
         namespaced=namespaced,
         name_prefix=name_prefix,
         sub_namespaced=sub_namespaced,
         registry_suffix=registry_suffix)
-    if do_format_resolve:
-        namespaced = copsf_format_resolve(namespaced)
-    if do_to_vars:
-        namespaced, ansible_vars = copsf_registry_to_vars(
-            namespaced,
-            ansible_vars,
-            prefix,
-            global_scope=global_scope,
-            name_prefix=name_prefix,
-            registry_suffix=registry_suffix)
     return namespaced, ansible_vars
 
 
