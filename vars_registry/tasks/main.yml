@@ -35,7 +35,7 @@
           sub_namespaced=sns,
           knobs=knobs,
           flavors=flavors,
-          subos_append=subos_append,
+          subos_append=sos,
           overrides_prefix=o,
           name_prefix=n) %}
       {{ res | to_json }}
