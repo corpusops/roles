@@ -86,8 +86,10 @@ corpusops_services_http_nginx_worker_connections: "1024"
 corpusops_services_http_nginx_multi_accept: True
 corpusops_services_http_nginx_user: "www-data"
 corpusops_services_http_nginx_group: "www-data"
-corpusops_services_http_nginx_server_names_hash_bucket_size: "64"
-variables_hash_bucket_size: '1024'
+corpusops_services_http_nginx_variables_hash_bucket_size: "256"
+corpusops_services_http_nginx_variables_hash_max_size: '1024'
+corpusops_services_http_nginx_server_names_hash_bucket_size: "256"
+corpusops_services_http_nginx_server_names_hash_max_size: '1024'
 corpusops_services_http_nginx_loglevel: "crit"
 corpusops_services_http_nginx_ldap_cache: True
 corpusops_services_http_nginx_logdir: "/var/log/nginx"

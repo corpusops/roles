@@ -46,7 +46,7 @@ corpusops_nginx_vhost_use_real_ip: "{{corpusops_services_http_nginx_vars.use_rea
 corpusops_nginx_vhost_v6: "{{corpusops_services_http_nginx_vars.v6}}"
 corpusops_nginx_vhost_ssl_cacert_first: "{{corpusops_services_http_nginx_vars.ssl_cacert_first}}"
 corpusops_nginx_vhost_ssl_ciphers: "{{corpusops_services_http_nginx_vars.ssl_ciphers}}"
-corpusops_nginx_vhost_small_name: "{{corpusops_nginx_vhost_domain.replace('.', '_').replace('-', '_').replace('*', 'star')}}"
+corpusops_nginx_vhost_small_name: "{basename}"
 corpusops_nginx_vhost_ssl_domain: "{domain}"
 corpusops_nginx_vhost_basename: "{domain}"
 corpusops_nginx_vhost_site_link: "{{corpusops_services_http_nginx_vars.basedir}}/conf.d/{basename}.conf"
