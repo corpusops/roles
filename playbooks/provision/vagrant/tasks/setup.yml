@@ -1,4 +1,3 @@
 ---
-- become: true
-  block:
+- block:
     - setup: {}

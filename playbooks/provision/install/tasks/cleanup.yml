@@ -1,6 +1,5 @@
 ---
-- become: true
-  block:
+- block:
   - include_tasks: ./load_vars.yml
   - shell: |
       rm -vf /var/cache/apt/archives/*deb

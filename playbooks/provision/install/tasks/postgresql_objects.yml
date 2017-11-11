@@ -1,6 +1,5 @@
 ---
-- become: true
-  block:
+- block:
     - include_role: {name: "{{cops_playbooks}}/provision/defaults"}
     - include_tasks: ./postgresql/role.yml
       with_items: "{{cops_postgresql_roles|default([])}}"

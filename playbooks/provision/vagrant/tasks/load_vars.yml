@@ -1,22 +1,17 @@
 ---
 - include_role: {name: corpusops.roles/include_jinja_vars}
   tags: [cops_provision_load_vars]
-- become: true
-  block:
+- block:
     - name: "VAGRANT: read provision_settings"
       shell: cat /root/vagrant/provision_machines.json
       changed_when: false
       register: provision_machines_raw
-      become: true
-      become_user: root
       no_log: true
       tags: [cops_provision_load_vars]
     - name: "VAGRANT: read provision_settings"
       shell: cat /root/vagrant/provision_settings.json
       changed_when: false
       register: provision_settings_raw
-      become: true
-      become_user: root
       no_log: true
       tags: [cops_provision_load_vars]
     - set_fact:

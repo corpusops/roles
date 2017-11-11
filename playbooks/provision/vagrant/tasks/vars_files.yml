@@ -1,6 +1,5 @@
 ---
-- become: true
-  block:
+- block:
     - file:
         state: directory
         mode: "0700"

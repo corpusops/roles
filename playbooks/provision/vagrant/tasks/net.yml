@@ -1,6 +1,5 @@
 ---
-- become: true
-  block:
+- block:
     - include_tasks: load_vars.yml
       tags: [cops_provision_net]
     - changed_when: false

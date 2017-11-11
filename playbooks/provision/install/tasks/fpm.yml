@@ -1,6 +1,5 @@
 ---
-- become: true
-  block:
+- block:
     - include_role: {name: "{{cops_playbooks}}/provision/defaults"}
       tags: [cops_provision_fpm]
     - include_role: {name: corpusops.roles/localsettings_php}

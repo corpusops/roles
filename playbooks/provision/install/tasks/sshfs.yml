@@ -1,6 +1,5 @@
 ---
-- become: true
-  block:
+- block:
   - name: Install sshfs (debian)
     package:
         cache_valid_time: '{{60*60}}'
