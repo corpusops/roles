@@ -15,6 +15,7 @@ But it differs these ways:
 - You can always specify a namespace via the name argument
 - If you want no namespace, then use __GLOBAL__ as the name.
 - the variables file argument is not mandatory and defaults to 'main.yml'
+- You can use 'cacĥeable: true' opt for vars to survive a play (default: false)
 '''
 
 EXAMPLES = """

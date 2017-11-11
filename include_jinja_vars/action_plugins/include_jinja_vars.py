@@ -138,6 +138,9 @@ class ActionModule(ActionBase):
     def _set_args(self):
         """ Set instance variables based on the arguments that were passed
         """
+        self.VALID_OPTIONS_ARGUMENTS = [
+            'cacheable',
+        ]
         self.VALID_DIR_ARGUMENTS = [
             'dir', 'depth', 'files_matching', 'ignore_files'
         ]
@@ -146,7 +149,7 @@ class ActionModule(ActionBase):
 
         self.VALID_ARGUMENTS = (
             self.VALID_DIR_ARGUMENTS + self.VALID_FILE_ARGUMENTS +
-            self.GLOBAL_FILE_ARGUMENTS
+            self.GLOBAL_FILE_ARGUMENTS + self.VALID_OPTIONS_ARGUMENTS
         )
         for arg in self._task.args:
             if arg not in self.VALID_ARGUMENTS:
@@ -156,6 +159,8 @@ class ActionModule(ActionBase):
         self.return_results_as_name = self._task.args.get('name', '__GLOBAL__')
         if self.return_results_as_name == '__GLOBAL__':
             self.return_results_as_name = None
+
+        self.cacheable = self._task.args.get('cacheable', False)
 
         self.content_source = self._task.args.get('content', None)
         self.source_dir = self._task.args.get('dir', None)
@@ -265,6 +270,7 @@ class ActionModule(ActionBase):
 
         result['ansible_facts'] = results
         result['_ansible_no_log'] = not self.show_content
+        result['_ansible_facts_cacheable'] = self.cacheable
 
         return result
 
