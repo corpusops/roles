@@ -153,10 +153,7 @@ class ActionModule(ActionBase):
                 err_msg = '{0} is not a valid option in debug'.format(arg)
                 raise AnsibleError(err_msg)
 
-        self.return_results_as_name = self._task.args.get('name', None)
-        if self._task._role:
-            if not self.return_results_as_name:
-                self.return_results_as_name = self._task._role._role_name
+        self.return_results_as_name = self._task.args.get('name', '__GLOBAL__')
         if self.return_results_as_name == '__GLOBAL__':
             self.return_results_as_name = None
 
