@@ -8,10 +8,11 @@
 - name: "nginx_vhost - compute - 1"
   tags: [corpusops_vars, corpusops_nginx_vhost, corpusops_nginx_vhost_vars]
   include_jinja_vars:
-    name: "corpusops_nginx_vhost_vars"
+    name: __GLOBAL__
     content: |
       ---
-      {% set res = corpusops_nginx_vhost_vars %}
+      {% set n = 'corpusops_nginx_vhost_vars' %}
+      {% set res = vars[n] %}
       {% set restarthanders = res.rhandlers %}
       # force nginx reload/restart via vhost variables
       {% for i in ['restart', 'reload'] %}
@@ -22,7 +23,8 @@
       {% endfor %}
       {% set _ = res.update({'small_name': res.small_name.replace(
             '.', '_').replace('-', '_').replace('*', 'star')}) %}
-      {{ res | to_json }}
+      {% set res = {n: res} %}
+      {{ (res | copsf_registry_to_vars(vars, n))[0] | to_json }}
   no_log: "{{not (cops_vars_debug|default(false))}}"
 # do the real stuff
 - name: gen vhost

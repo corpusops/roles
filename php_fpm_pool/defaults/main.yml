@@ -75,15 +75,15 @@ corpusops_fpm_pool_logrotate_file: "/etc/logrotate.d/fpm_{name}.conf"
 #
 corpusops_fpm_pool_files:
   - {path: "{sessions_dir}", owner: "{user}", group: "{group}",
-    state: directory, mode: "755"}
+     state: directory, mode: "755"}
   - {path: "{pool_root}", owner: "{user}", group: "{group}",
-    state: directory, mode: "755"}
+     state: directory, mode: "755"}
   - {path: "{private_dir}", owner: "{user}", group: "{group}",
-    state: directory, mode: "755"}
+     state: directory, mode: "755"}
   - {path: "{log_dir}", owner: "{user}", group: "{group}",
-    state: directory, mode: "755"}
+     state: directory, mode: "755"}
   - {path: "{tmp_dir}", owner: "{user}", group: "{group}",
-    state: directory, mode: "755"}
+     state: directory, mode: "755"}
 corpusops_fpm_pool_configs:
   - {name: "{file}",
      owner: "root", group: "root", mode: "0644",

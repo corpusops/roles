@@ -1,14 +1,9 @@
 ---
 - name: files
-  file:
-    path: "{{item.path}}"
-    state: "{{item.state|default(omit)}}"
-    src: "{{item.get('src', False) and item.get('src', False).format(**vars) or omit}}"
-    mode: "{{item.mode|default(omit)}}"
-    owner: "{{item.owner|default(omit)}}"
-    group: "{{item.group|default(omit)}}"
-    recurse: "{{item.recurse|default(omit)}}"
+  include_tasks: _pool_file.yml
   with_items: "{{corpusops_fpm_pool_vars.files}}"
+  loop_control:
+    loop_var: poolitem
   when: "(corpusops_fpm_pool_vars.files is not none and
           corpusops_fpm_pool_vars.files|length > 0)"
 - name: configs containers

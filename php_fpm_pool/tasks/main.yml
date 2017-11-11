@@ -4,21 +4,16 @@
   vars:
     cops_vars_registry_target: corpusops_fpm_pool
   tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
-#- debug: msg="{{corpusops_fpm_pool_vars}}"
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 # make some stuff to DRY templates
 - name: "fpm_pool - compute - 1"
   tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
   include_jinja_vars:
-    name: "corpusops_fpm_pool_vars"
+    name: __GLOBAL__
     content: |
       ---
-      {% set data = corpusops_fpm_pool_vars|copsf_format_resolve %}
-      {# {% for val in data.formated_vals %}
-      {%  if data.get(val, None)|copsf_isstr %}
-      {%   set _ = data.update({val: data[val].format(**data)})%}
-      {%  endif %}
-      {% endfor %}
-      #}
+      {% set n = 'corpusops_fpm_pool_vars' %}
+      {% set data = vars[n] %}
       {% for denvs in data.base_env, data.env %}
       {%   set _ = data.setdefault('computed_env', []).extend(denvs) %}
       {% endfor %}
@@ -32,10 +27,9 @@
       {% for dip in data.base_include_path, data.include_path %}
       {%   set _ = data.setdefault('computed_include_path', []).extend(dip)%}
       {% endfor %}
-      {{ data | to_json }}
-  no_log: true
-#- {debug: {msg: "{{corpusops_fpm_pool_vars}}"},
-#  failed_when: false}
+      {% set res = {n: data} %}
+      {{ (res | copsf_registry_to_vars(vars, n))[0] | to_json }}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 # do the real stuff
 - name: gen pool
   include_tasks: run.yml

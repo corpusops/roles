@@ -1,0 +1,19 @@
+---
+- name: "Test file link: {{poolitem}}"
+  stat:
+    path: "{{poolitem.path}}"
+  register: poolitem_link
+- name: "Create file if not link: {{poolitem}}"
+  file:
+    path: "{{poolitem.path}}"
+    state: "{{poolitem.state|default(omit)}}"
+    src: "{{poolitem.get('src', False) and
+              poolitem.get('src', False) or omit}}"
+    mode: "{{poolitem.mode|default(omit)}}"
+    owner: "{{poolitem.owner|default(omit)}}"
+    group: "{{poolitem.group|default(omit)}}"
+    recurse: "{{poolitem.recurse|default(omit)}}"
+  when: >
+      (poolitem.get('stat', None) and
+       poolitem.stat.exists and
+       not poolitem.stat.islnk)
