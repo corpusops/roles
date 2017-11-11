@@ -22,7 +22,6 @@
     content: "{{cops_get_secret_variable_value}}"
     dest: "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}"
 - include_jinja_vars:
-    name: __GLOBAL__
     content: |
       {{{
         cops_get_secret_variable_vars.name: cops_get_secret_variable_value} | to_json }}

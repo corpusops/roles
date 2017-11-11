@@ -12,7 +12,6 @@
   no_log: true
 - name: get back some computed values to vars
   include_jinja_vars:
-    name: __GLOBAL__
     content: |
       ---
       lxc_container_name: {{corpusops_lxc_vars['container_name']}}

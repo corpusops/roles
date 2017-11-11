@@ -9,7 +9,6 @@
 - name: "fpm_pool - compute - 1"
   tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
   include_jinja_vars:
-    name: __GLOBAL__
     content: |
       ---
       {% set n = 'corpusops_fpm_pool_vars' %}

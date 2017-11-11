@@ -8,7 +8,6 @@
 - name: "nginx_vhost - compute - 1"
   tags: [corpusops_vars, corpusops_nginx_vhost, corpusops_nginx_vhost_vars]
   include_jinja_vars:
-    name: __GLOBAL__
     content: |
       ---
       {% set n = 'corpusops_nginx_vhost_vars' %}

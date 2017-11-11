@@ -45,7 +45,6 @@
 
 - name: "Format resolve, second pass after ansible rendering when enabled"
   include_jinja_vars:
-    name: __GLOBAL__
     content: |
       ---
       {% set res = {} %}
