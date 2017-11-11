@@ -7,18 +7,20 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: "{{dockeritema}}"
     state: present
   with_items: [python-pip, python-dev, libffi-dev, libssl-dev]
+  loop_control: {loop_var: dockeritema}
   when: "(ansible_distribution.lower() in ['ubuntu'] and
           ansible_distribution_major_version < '15' )"
   tags: corpusops_services_virt_docker
 - name: install python pre - prerequisites
   pip:
     executable: /usr/bin/pip
-    name: "{{ item }}"
+    name: "{{ dockeritemb }}"
     state: present
   with_items: [urllib3, pyopenssl, ndg-httpsclient, pyasn1]
+  loop_control: {loop_var: dockeritemb}
   when: "(ansible_distribution.lower() in ['ubuntu'] and
           ansible_distribution_major_version < '15' )"
   tags: corpusops_services_virt_docker
@@ -27,9 +29,10 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: "{{dockeritemc}}"
     state: present
   with_items: [apt-transport-https, ca-certificates, curl]
+  loop_control: {loop_var: dockeritemc}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.packages is not none and
           corpusops_services_virt_docker_vars.packages|length > 0)"
@@ -38,7 +41,6 @@
   apt_key:
     url: '{{corpusops_services_virt_docker_vars.repo_keys_url}}'
     state: present
-  with_items: '{{corpusops_services_virt_docker_vars.repo_keys}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.repo_keys is not none and
           corpusops_services_virt_docker_vars.repo_keys|length > 0)"
@@ -80,9 +82,10 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: "{{dockeriteml}}"
     state: present
   with_items: '{{corpusops_services_virt_docker_vars.packages}}'
+  loop_control: {loop_var: dockeriteml}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.packages is not none and
           corpusops_services_virt_docker_vars.packages|length > 0)"
@@ -92,13 +95,14 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{item}}'
+    name: '{{dockeritemk}}'
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_virt_docker_vars.packages is not none and
           corpusops_services_virt_docker_vars.packages|length > 0)"
   tags: corpusops_services_virt_docker
   with_items: "{{corpusops_services_virt_docker_vars.packages}}"
+  loop_control: {loop_var: dockeritemk}
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -109,11 +113,11 @@
           corpusops_services_virt_docker_vars.packages is not none and
           corpusops_services_virt_docker_vars.packages|length > 0)"
   tags: corpusops_services_virt_docker
-  with_items: "{{corpusops_services_virt_docker_vars.packages}}"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{item}}"
+         yum-config-manager --add-repo "{{dockeritemi}}"
   with_items: ["{{corpusops_services_virt_docker_vars.repo}}"]
+  loop_control: {loop_var: dockeritemi}
   tags: corpusops_services_virt_docker
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_virt_docker_vars.packages is not none and
@@ -122,13 +126,14 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{item}}'
+    name: '{{dockeritemh}}'
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_virt_docker_vars.packages is not none and
           corpusops_services_virt_docker_vars.packages|length > 0)"
   tags: corpusops_services_virt_docker
   with_items: "{{corpusops_services_virt_docker_vars.packages}}"
+  loop_control: {loop_var: dockeritemh}
 - group:
     name: "{{corpusops_services_virt_docker_vars.group}}"
     system: yes
@@ -137,43 +142,46 @@
   tags: corpusops_services_virt_docker
 - name: files
   file:
-    path: "{{item.path}}"
-    state: "{{item.state|default(omit)}}"
-    src: "{{item.src|default(omit)}}"
-    mode: "{{item.mode|default(omit)}}"
-    owner: "{{item.owner|default(omit)}}"
-    group: "{{item.group|default(omit)}}"
-    recurse: "{{item.recurse|default(omit)}}"
+    path: "{{dockeritemd.path}}"
+    state: "{{dockeritemd.state|default(omit)}}"
+    src: "{{dockeritemd.src|default(omit)}}"
+    mode: "{{dockeritemd.mode|default(omit)}}"
+    owner: "{{dockeritemd.owner|default(omit)}}"
+    group: "{{dockeritemd.group|default(omit)}}"
+    recurse: "{{dockeritemd.recurse|default(omit)}}"
   with_items: "{{corpusops_services_virt_docker_vars.files}}"
+  loop_control: {loop_var: dockeritemd}
   when: "(corpusops_services_virt_docker_vars.files is not none and
           corpusops_services_virt_docker_vars.files|length > 0)"
   tags: corpusops_services_virt_docker
   notify: [restart_corpusops_services_virt_docker]
 - name: files copy
   copy:
-    dest: "{{item.dest|default(omit)}}"
-    src: "{{item.template
-            | default('../templates/'+item.dest)}}"
-    force: "{{item.get('force', True)}}"
-    mode: "{{item.mode|default(omit)}}"
-    owner: "{{item.owner|default(omit)}}"
-    group: "{{item.group|default(omit)}}"
-    recurse: "{{item.recurse|default(omit)}}"
+    dest: "{{dockeriteme.dest|default(omit)}}"
+    src: "{{dockeriteme.template
+            | default('../templates/'+dockeriteme.dest)}}"
+    force: "{{dockeriteme.get('force', True)}}"
+    mode: "{{dockeriteme.mode|default(omit)}}"
+    owner: "{{dockeriteme.owner|default(omit)}}"
+    group: "{{dockeriteme.group|default(omit)}}"
+    recurse: "{{dockeriteme.recurse|default(omit)}}"
   with_items: "{{corpusops_services_virt_docker_vars.filescopy}}"
+  loop_control: {loop_var: dockeriteme}
   when: "(corpusops_services_virt_docker_vars.filescopy is not none and
           corpusops_services_virt_docker_vars.filescopy|length > 0)"
   tags: corpusops_services_virt_docker
   notify: [restart_corpusops_services_virt_docker]
 - name: configs
   template:
-    src: "{{item.template
-            | default('../templates/'+item.name)}}"
-    dest: "{{item.name}}"
-    mode: "{{item.mode|default(omit)}}"
-    owner: "{{item.owner|default(omit)}}"
-    group: "{{item.group|default(omit)}}"
-    trim_blocks: "{{item.trim_blocks|default(False)}}"
+    src: "{{dockeritemf.template
+            | default('../templates/'+dockeritemf.name)}}"
+    dest: "{{dockeritemf.name}}"
+    mode: "{{dockeritemf.mode|default(omit)}}"
+    owner: "{{dockeritemf.owner|default(omit)}}"
+    group: "{{dockeritemf.group|default(omit)}}"
+    trim_blocks: "{{dockeritemf.trim_blocks|default(False)}}"
   with_items: "{{corpusops_services_virt_docker_vars.configs}}"
+  loop_control: {loop_var: dockeritemf}
   when: "(corpusops_services_virt_docker_vars.configs is not none and
           corpusops_services_virt_docker_vars.configs|length > 0)"
   tags: corpusops_services_virt_docker
@@ -183,8 +191,9 @@
               | ternary('started', 'stopped')}}"
     enabled: "{{corpusops_services_virt_docker_vars.activated
                 | ternary(True, False)}}"
-    name: "{{item}}"
+    name: "{{dockeritemg}}"
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
+  loop_control: {loop_var: dockeritemg}
   tags: corpusops_services_virt_docker
   when: "corpusops_vars.has_services_manager"
 - meta: flush_handlers
