@@ -23,6 +23,8 @@ corpusops_fpm_pool_pool_root: "/var/www"
 corpusops_fpm_pool_doc_root: "{pool_root}/public"
 corpusops_fpm_pool_private_dir: "{pool_root}/private"
 corpusops_fpm_pool_log_dir: "{pool_root}/log"
+corpusops_fpm_pool_slow_log_file: "{log_dir}/phpfpm_{name}.slow.log"
+corpusops_fpm_pool_log_file: "{log_dir}/phpfpm_{name}.log"
 corpusops_fpm_pool_tmp_dir: "{pool_root}/tmp"
 corpusops_fpm_pool_sessions_dir: "{tmp_dir}/sessions"
 #  - xdebug.default_enable: "true"
@@ -84,6 +86,11 @@ corpusops_fpm_pool_files:
      state: directory, mode: "755"}
   - {path: "{tmp_dir}", owner: "{user}", group: "{group}",
      state: directory, mode: "755"}
+corpusops_fpm_pool_logs:
+  - {name: "{slow_log_file}", force: false, content: "",
+     owner: "{user}", group: "{group}", mode: "0640"}
+  - {name: "{log_file}", force: false, content: "",
+     owner: "{user}", group: "{group}", mode: "0640"}
 corpusops_fpm_pool_configs:
   - {name: "{file}",
      owner: "root", group: "root", mode: "0644",
