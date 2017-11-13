@@ -1,0 +1,135 @@
+---
+- block:
+  - name: "git repo: deploy code container inside the target environment"
+    delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+    stat:
+      path: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}"
+    register: cops_drupal_push_code_git_head
+    changed_when: false
+  - name: "git repo: test folder"
+    assert:
+      msg: not a git folder
+      that: cops_drupal_push_code_git_head.stat.exists
+    changed_when: false
+  - name: "git repo: get commit"
+    shell: |
+        set -ex
+        cd  "{{__cops_provision_push_code_vars.src}}"
+        git log -1 --format="%H"
+    delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+    register: cops_drupal_push_code_git_commit
+    when: cops_drupal_push_code_git_head.stat.exists
+    changed_when: false
+  - name: "git repo: ensure commit"
+    assert:
+      msg: "Can't get git commit in {{__cops_provision_push_code_vars.src}}"
+      that:
+        - cops_drupal_push_code_git_commit.stdout.strip()
+        - cops_drupal_push_code_git_commit.stdout.strip()|length == 40
+    changed_when: false
+  when: not __cops_provision_push_code_vars.is_submodule
+- block:
+  - name: "git file sync: deploy code container inside the target environment"
+    file:
+      state: directory
+      path: "{{d}}"
+      owner: "{{__cops_provision_push_code_vars.owner}}"
+      group: "{{__cops_provision_push_code_vars.group}}"
+    changed_when: False
+    loop_control: {loop_var: d}
+    with_items: ["{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}"]
+  - name: "git file sync:  synchronise files inside the environment (deleguation)"
+    delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+    synchronize:
+      compress: false
+      ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"
+      src: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}/"
+      dest: "{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}/"
+      rsync_opts: "{{__cops_provision_push_code_vars.git_rsync_opts}}"
+    when: not __cops_provision_push_code_vars.origin in ['localhost']
+  - name: "git file sync: synchronise files inside the environment"
+    synchronize:
+      compress: false
+      ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"
+      src: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}/"
+      dest: "{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}/"
+      rsync_opts: "{{__cops_provision_push_code_vars.git_rsync_opts}}"
+    when: __cops_provision_push_code_vars.origin in ['localhost']
+  when: (not __cops_provision_push_code_vars.is_submodule and
+         __cops_provision_push_code_vars.force_sync and
+         cops_drupal_push_code_git_head.stat.isdir)
+- block:
+  - name: "git remote repo: Save previous distance commit"
+    shell: |
+        set -ex
+        cd  "{{__cops_provision_push_code_vars.dest}}"
+        git log -1 --format="%H"
+    register: cops_drupal_push_code_git_dest_commit_pre
+    changed_when: false
+  - name: "git remote repo: Stash previous changes if any"
+    shell: |-
+        set -ex;
+        cd  "{{__cops_provision_push_code_vars.dest}}";
+        if ! ( git stash; );then echo nothing to stack >&2;fi;
+    register: cops_drupal_push_code_git_commit_stash
+    changed_when: false
+  - name: "git remote repo: Reset to wanted commit"
+    shell: |-
+        set -ex;
+        cd  "{{__cops_provision_push_code_vars.dest}}";
+        git reset --hard "{{cops_drupal_push_code_git_commit.stdout.strip()}}";
+    register: cops_drupal_push_code_git_commit_reset
+    changed_when: false
+  - name: "git remote repo: Ask current commit"
+    shell: |
+        set -ex
+        cd  "{{__cops_provision_push_code_vars.dest}}"
+        git show -s --format=%H
+    register: cops_drupal_push_code_git_dest_commit
+    changed_when: false
+  - name: "git remote repo: Test everything is in order and may have changed (code updated)"
+    assert:
+      msg: "Can't get dest git commit in {{__cops_provision_push_code_vars.dest}}"
+      that:
+        - cops_drupal_push_code_git_dest_commit.stdout.strip()
+    changed_when: "(cops_drupal_push_code_git_dest_commit.stdout !=
+                    cops_drupal_push_code_git_dest_commit_pre.stdout)"
+  when: (not __cops_provision_push_code_vars.is_submodule and
+         __cops_provision_push_code_vars.force_sync)
+- block:
+  - name: "git remote submodule: Save previous distance commit"
+    shell: |
+        set -ex
+        cd  "{{__cops_provision_push_code_vars.dest}}"
+        git log -1 --format="%H"
+    register: cops_drupal_push_code_git_dest_commit_pre
+    changed_when: false
+  - name: "git remote submodule: Stash previous changes if any"
+    shell: |-
+        set -ex;
+        cd  "{{__cops_provision_push_code_vars.dest}}";
+        if ! ( git stash; );then echo nothing to stack >&2;fi;
+    register: cops_drupal_push_code_git_commit_stash
+    changed_when: false
+  - name: "git remote submodule: Update submodule"
+    shell: |
+        set -ex
+        cd  "{{__cops_provision_push_code_vars.parent_dest}}"
+        git submodule update "{{__cops_provision_push_code_vars.path}}"
+    register: cops_drupal_push_code_git_update_submodule
+    changed_when: false
+  - name: "git remote submodule: Ask current commit"
+    shell: |
+        set -ex
+        cd  "{{__cops_provision_push_code_vars.dest}}"
+        git show -s --format=%H
+    register: cops_drupal_push_code_git_dest_commit
+    changed_when: false
+  - name: "git remote submodule: Test everything is in order and may have changed (code updated)"
+    assert:
+      msg: "Can't get dest git commit in {{__cops_provision_push_code_vars.dest}}"
+      that:
+        - cops_drupal_push_code_git_dest_commit.stdout.strip()
+    changed_when: "(cops_drupal_push_code_git_dest_commit.stdout !=
+                    cops_drupal_push_code_git_dest_commit_pre.stdout)"
+  when: __cops_provision_push_code_vars.is_submodule

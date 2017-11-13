@@ -1,0 +1,76 @@
+---
+- stat:
+    path: "{{_cops_provision_push_code.path}}/{{d}}"
+  loop_control: {loop_var: d}
+  with_items: "{{_cops_provision_push_code.file_tests | default([])}}"
+  register: cops_drupal_push_already_done_
+- register: __cops_provision_push_code
+  debug:
+    msg:
+      is_submodule: "{{_cops_provision_push_code.is_submodule|default(False)}}"
+      is_directory: "{{_cops_provision_push_code.is_directory|default(True)}}"
+      src: "{{_cops_provision_push_code.origin_path|default(''|copsf_cwd)}}"
+      dest: "{{_cops_provision_push_code.dest|default(
+                 _cops_provision_push_code.path)}}"
+      path: "{{_cops_provision_push_code.path}}"
+      parent_dest: "{{_cops_provision_push_code.parent_dest|default(none)}}"
+      parent_path: "{{_cops_provision_push_code.parent_path|default(none)}}"
+      trailing_slash: "{% if _cops_provision_push_code.get('is_directory', True) %}/{%endif%}"
+      sync_mode: "{{_cops_provision_push_code.get(
+                            'sync_mode', 'rsync').replace('/', '') }}"
+      git_folder: "{{_cops_provision_push_code.git_folder|default('.git')}}"
+      force_sync: |-
+        {% set ret = {'r': _cops_provision_push_code.get('force_sync', False)} %}
+        {% if ((not _cops_provision_push_code.file_tests | default([])) or
+               (not cops_drupal_push_already_done_.results)) %}
+        {% set _ = ret.update({'r': True}) %}
+        {% else %}
+        {% for i in cops_drupal_push_already_done_.results %}
+        {% if not i.stat.exists %}
+        {% set _ = ret.update({'r': True}) %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {{'{0}'.format(ret.r)}}
+      owner: "{{_cops_provision_push_code.owner|default('root')}}"
+      group: "{{_cops_provision_push_code.group|default('root')}}"
+      # uniformize localhost origin to localhost
+      origin: "{% set o = _cops_provision_push_code.get(
+                  'origin', '') %}{{(
+                    ((not o) or o in ['localhost', 'local', '127.0.0.1'])
+                    and 'localhost' or o)}}"
+      ssh_args: >-
+        {% set k = hostvars[inventory_hostname].get(
+                      'ansible_ssh_private_key_file', '') %}
+        {% if k%}-o IdentityFile={{k}} -o IdentitiesOnly=yes{%endif%}
+        {% if (
+            hostvars[inventory_hostname].ansible_connection|default('ssh')
+           ) not in [ 'smart', 'local'] %}
+        {{ hostvars[inventory_hostname].ssh_args | default('') }}
+        {{ hostvars[inventory_hostname].ansible_ssh_args | default('') }}
+        {{ hostvars[inventory_hostname].ansible_ssh_common_args | default('') }}
+        {{ hostvars[inventory_hostname].ansible_ssh_extra_args | default('') }}
+        {% endif %}
+      git_rsync_opts: |-
+        {{((_cops_provision_push_code.get('git_rsync_opts', []) or [
+              '--exclude', '**/HEAD', '--exclude', '**/config', '--exclude', '**/refs',
+              '--include', '*',
+              ]
+           ) + (_cops_provision_push_code.get('rsync_opts', []) or ["-azv"])
+          )}}
+      rsync_opts: |-
+        {{(_cops_provision_push_code.get('rsync_opts', []) or ["-azv"])}}
+- set_fact:
+    cacheable: false
+    __cops_provision_push_subs: |-
+      {% set res = [] %}
+      {% for i in _cops_provision_push_code.get('sub_paths', []) %}
+      {% set _ = res.append((i, __cops_provision_push_code.msg))%}
+      {% endfor %}
+      {{ res | to_json }}
+    __cops_provision_push_codes: |-
+      {% set _ = __cops_provision_push_codes.append(__cops_provision_push_code.msg) %}
+      {{ __cops_provision_push_codes | to_json }}
+- include_tasks: register_sub.yml
+  with_items: ["{{__cops_provision_push_subs}}"]
+  loop_control: {loop_var: sub_module}
