@@ -1,7 +1,7 @@
 ---
 - set_fact:
     cacheable: false
-   corpusops_services_http_nginx_state: reloaded
+    corpusops_services_http_nginx_state: reloaded
   when: >
    (corpusops_services_http_nginx_pkgst.changed   |default(false) or
     corpusops_services_http_nginx_filest.changed  |default(false) or

@@ -271,6 +271,7 @@ class ActionModule(ActionBase):
         result['ansible_facts'] = results
         result['_ansible_no_log'] = not self.show_content
         result['_ansible_facts_cacheable'] = self.cacheable
+        result['ansible_facts_cacheable'] = self.cacheable
 
         return result
 
