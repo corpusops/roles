@@ -1,23 +1,25 @@
 ---
 - include_role: {name: corpusops.roles/include_jinja_vars}
   tags: [cops_provision_load_vars]
-- block:
+- become: true
+  block:
     - name: "VAGRANT: read provision_settings"
       shell: cat /root/vagrant/provision_machines.json
       changed_when: false
       register: provision_machines_raw
-      no_log: true
+      no_log: "{{not (cops_vars_debug|default(false))}}"
       tags: [cops_provision_load_vars]
     - name: "VAGRANT: read provision_settings"
       shell: cat /root/vagrant/provision_settings.json
       changed_when: false
       register: provision_settings_raw
-      no_log: true
+      no_log: "{{not (cops_vars_debug|default(false))}}"
       tags: [cops_provision_load_vars]
     - set_fact:
+        cacheable: false
         vboxes_cops: "{{provision_machines_raw.stdout|from_json}}"
         vbox_cops: "{{provision_settings_raw.stdout|from_json}}"
-      no_log: true
+      no_log: "{{not (cops_vars_debug|default(false))}}"
       tags: [cops_provision_load_vars]
     - debug:
         msg:

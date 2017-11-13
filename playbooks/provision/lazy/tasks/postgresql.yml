@@ -24,9 +24,11 @@
       become_user: postgres
       tags: [cops_provision_postgresql]
     - set_fact:
+        cacheable: false
         cops_postgresql_test3: false
   rescue:
     - set_fact:
+        cacheable: false
         cops_postgresql_test3: True
 - include_tasks: "{{cops_playbooks}}/provision/install/tasks/postgresql.yml"
   tags: [cops_provision_postgresql]
