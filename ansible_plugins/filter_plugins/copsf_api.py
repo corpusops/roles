@@ -864,7 +864,7 @@ def copsf_registry(ansible_vars,
                    flavors=None,
                    overrides_prefix=None,
                    namespaced=None,
-                   global_scope=None,
+                   global_scope=True,
                    name_prefix=None,
                    sub_namespaced=None,
                    registry_suffix=REGISTRY_DEFAULT_SUFFIX,
@@ -894,6 +894,11 @@ def copsf_registry(ansible_vars,
     return namespaced, ansible_vars
 
 
+def copsf_scoped_registry(*args,  **kw):
+    kw['global_scope'] = False
+    return copsf_registry(*args, **kw)
+
+
 def copsf_cwd(*args, **kw):
     return os.getcwd()
 
@@ -904,6 +909,7 @@ __funcs__ = {
     'copsf_format_val': copsf_format_val,
     'copsf_registry_to_vars': copsf_registry_to_vars,
     'copsf_registry': copsf_registry,
+    'copsf_scoped_registry': copsf_scoped_registry,
     'copsf_to_namespace': copsf_to_namespace,
     'copsf_knobs': copsf_knobs,
     'copsf_compute_defaults': copsf_compute_defaults,

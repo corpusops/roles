@@ -16,7 +16,7 @@
 #}
 
 {% set namespaced, vars = vars
-   | copsf_registry(
+   | copsf_scoped_registry(
         prefix,
         knobs=knobs, subos_append=subos_append,
         lowered=lowered, computed_defaults=computed_defaults,
