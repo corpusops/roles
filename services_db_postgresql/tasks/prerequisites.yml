@@ -58,6 +58,7 @@
     group: "{{corpusops_services_db_postgresql_vars.group}}"
   when: "corpusops_services_db_postgresql_vars.user"
 - set_fact:
+    cacheable: false
     corpusops_services_db_postgresql_prequisites_changed: "{{(
          corpusops_services_db_postgresql_pkgst
        )}}"

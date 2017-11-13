@@ -1,5 +1,6 @@
 ---
 - set_fact:
+    cacheable: false
     corpusops_services_db_postgresql_service_state: >-
       {% if (
         corpusops_services_db_postgresql_configs_changed     |default(False) or
@@ -7,6 +8,7 @@
         corpusops_services_db_postgresql_wrappers_changed    |default(False)
       )%}re{%endif%}started
 - set_fact:
+    cacheable: false
     corpusops_services_db_postgresql_service_state: "{{corpusops_services_db_postgresql_service_state.strip()}}"
 - name: service
   cops_service:
@@ -27,6 +29,7 @@
   changed_when: false
   when: "corpusops_vars.has_services_manager and ansible_service_mgr in ['systemd']"
 - set_fact:
+    cacheable: false
     cops_pg_service: "{{cops_pg_service.stdout.strip()}}"
 # try to restart if down
 - shell: "systemctl status {{cops_pg_service}}"

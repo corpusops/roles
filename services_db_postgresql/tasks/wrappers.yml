@@ -27,6 +27,7 @@
           corpusops_services_db_postgresql_vars.configs|length > 0)"
   register: corpusops_services_db_postgresql_wconfigs2
 - set_fact:
+    cacheable: false
     corpusops_services_db_postgresql_wrappers_changed: "{{(
        corpusops_services_db_postgresql_wconfigs1.changed or
        corpusops_services_db_postgresql_wconfigs2.changed

@@ -43,6 +43,7 @@
           corpusops_services_firewall_ms_iptables_vars.configs|length > 0)"
   register: corpusops_services_firewall_ms_iptables_configst
 - set_fact:
+    cacheable: false
     corpusops_services_firewall_ms_iptables_configs_changed: "{{(
        corpusops_services_firewall_ms_iptables_filest.changed or
        corpusops_services_firewall_ms_iptables_filesct.changed or

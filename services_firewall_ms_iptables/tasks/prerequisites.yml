@@ -58,6 +58,7 @@
     group: "{{corpusops_services_firewall_ms_iptables_vars.group}}"
   when: "corpusops_services_firewall_ms_iptables_vars.user"
 - set_fact:
+    cacheable: false
     corpusops_services_firewall_ms_iptables_prequisites_changed: "{{(
          corpusops_services_firewall_ms_iptables_pkgst.changed
        )}}"

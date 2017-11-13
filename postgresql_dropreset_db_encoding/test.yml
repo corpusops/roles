@@ -18,6 +18,7 @@
         - postgresql_dropreset_db_encoding_db1
         - postgresql_dropreset_db_encoding_db2
     - set_fact:
+        cacheable: false
         _cops_def:
           version: "{{corpusops_services_db_postgresql_vars.version}}"
           locale: "{{corpusops_services_db_postgresql_vars.locale}}"

@@ -48,6 +48,7 @@
           corpusops_localsettings_makinastates_vars.packages|length > 0)"
   with_items: "{{corpusops_localsettings_makinastates_vars.packages}}"
 - set_fact:
+    cacheable: false
     corpusops_localsettings_makinastates_prequisites_changed: "{{(
          corpusops_localsettings_makinastates_pkgst
        )}}" 

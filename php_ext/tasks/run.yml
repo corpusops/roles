@@ -4,6 +4,7 @@
   register: cops_sapis
   changed_when: false
 - set_fact:
+    cacheable: false
     corpusops_php_ext_csapi: "{{(corpusops_php_ext_vars.sapi
       | cops_sapi(cops_sapis.stdout)) }}"
 - shell: |-

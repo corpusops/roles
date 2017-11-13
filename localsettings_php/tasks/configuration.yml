@@ -43,6 +43,7 @@
           corpusops_localsettings_php_vars.configs|length > 0)"
   register: corpusops_localsettings_php_configst
 - set_fact:
+    cacheable: false
     corpusops_localsettings_php_configs_changed: "{{(
        corpusops_localsettings_php_filest.changed or
        corpusops_localsettings_php_filesct.changed or

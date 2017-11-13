@@ -49,6 +49,7 @@
     group: "{{corpusops_services_php_fpm_vars.group}}"
   when: "corpusops_services_php_fpm_vars.user"
 - set_fact:
+    cacheable: false
     corpusops_services_php_fpm_prequisites_changed: "{{(
          corpusops_services_php_fpm_pkgst.changed
        )}}"

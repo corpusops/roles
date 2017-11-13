@@ -18,6 +18,7 @@
   tags: ms_iptables_install
   changed_when: "not 'changed=false' in ms_iptables_install.stdout.lower()"
 - set_fact:
+    cacheable: false
     corpusops_services_firewall_ms_iptables_install_changed: "{{(
          ms_iptables_checkout.changed or
          ms_iptables_install.changed

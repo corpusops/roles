@@ -82,6 +82,7 @@
     group: "{{corpusops_localsettings_php_vars.group}}"
   when: "corpusops_localsettings_php_vars.user"
 - set_fact:
+    cacheable: false
     corpusops_localsettings_php_prequisites_changed: "{{(
          corpusops_localsettings_php_key.changed or
          corpusops_localsettings_php_repoa.changed or

@@ -46,9 +46,11 @@
   register: corpusops_localsettings_kubectl_getted_version_
   when: "corpusops_localsettings_kubectl_vars.version in ['stable']"
 - set_fact:
+    cacheable: false
     corpusops_localsettings_kubectl_getted_version: "{{corpusops_localsettings_kubectl_getted_version_.content.strip()}}"
   when: "corpusops_localsettings_kubectl_vars.version in ['stable']"
 - set_fact:
+    cacheable: false
     corpusops_localsettings_kubectl_getted_version: "{{corpusops_localsettings_kubectl_vars.version}}"
   when: "corpusops_localsettings_kubectl_vars.version not in ['stable']"
 - file:

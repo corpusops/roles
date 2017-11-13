@@ -3,6 +3,7 @@
   vars:
     cops_vars_registry_target: corpusops_nginx_default_vhost
 - set_fact:
+    cacheable: false
     corpusops_nginx_default_vhost_rp: "{{role_path}}"
 - include_role:
     name: "corpusops.roles/nginx_vhost"

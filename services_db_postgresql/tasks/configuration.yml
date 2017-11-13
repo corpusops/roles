@@ -41,6 +41,7 @@
           corpusops_services_db_postgresql_vars.configs|length > 0)"
   register: corpusops_services_db_postgresql_configst
 - set_fact:
+    cacheable: false
     corpusops_services_db_postgresql_configs_changed: "{{(
        corpusops_services_db_postgresql_filest.changed or
        corpusops_services_db_postgresql_filesct.changed or

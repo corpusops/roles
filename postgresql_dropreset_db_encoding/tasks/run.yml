@@ -1,5 +1,6 @@
 ---
 - set_fact:
+    cacheable: false
     reset_db_file: "{{'/tmp/psql.{version}-{db}-fix.sql'.format(**cops_postgresql_drop_reset_db_encoding_vars)}}"
 - name: fix encoding
   copy:

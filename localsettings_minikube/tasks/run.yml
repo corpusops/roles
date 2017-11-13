@@ -46,11 +46,13 @@
   register: corpusops_localsettings_minikube_getted_version_
   when: "corpusops_localsettings_minikube_vars.version in ['latest']"
 - set_fact:
+    cacheable: false
     corpusops_localsettings_minikube_getted_version: "{{(
         corpusops_localsettings_minikube_getted_version_.content|from_json
       ).name.strip()}}"
   when: "corpusops_localsettings_minikube_vars.version in ['latest']"
 - set_fact:
+    cacheable: false
     corpusops_localsettings_minikube_getted_version: "{{corpusops_localsettings_minikube_vars.version}}"
   when: "corpusops_localsettings_minikube_vars.version not in ['latest']"
 - file:
