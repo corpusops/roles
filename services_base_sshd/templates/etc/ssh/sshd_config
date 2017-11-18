@@ -6,8 +6,9 @@ AllowGroups {{settings.settings.AllowGroups|join(' ')}}
 {% elif settings.settings.AllowUsers %}
 AllowUsers {{settings.settings.AllowUsers|join(' ')}}
 {% endif %}
+{% set opts = [] %}
 {% for key, value in settings.settings.items() %}
-{% if key not in ['chroot_sftp', 'AllowUsers', 'AllowGroups'] %}
+{% if not (key | regex_search('chroot_sftp|AllowUsers|AllowGroups')) %}
 {{key}} {{value}}
 {% endif %}
 {% endfor %}
