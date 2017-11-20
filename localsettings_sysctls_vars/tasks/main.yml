@@ -1,5 +1,131 @@
 ---
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
+    content: |-
+      ---
+      {% set prefix = 'corpusops_localsettings_sysctls_' %}
+      {% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
+      {% set knobs = ['files', 'filescopy', 'services', 'configs', 'packages',
+                     ] %}
+      {% set computed_defaults = [] %}
+      {% set lowered = [] %}
+      {% set sub_namespaced = {'settings': {}} %}
+      {% set namespaced = {} %}
+      {% set subos_append = {} %}
+      {% set snamespaced, vars = vars
+         | copsf_registry(
+              prefix,
+              knobs=knobs, subos_append=subos_append,
+              lowered=lowered, computed_defaults=computed_defaults,
+              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
+      %}
+      {% set namespaced = snamespaced[prefix+'vars'] %}
+
+      {% for sysctldata in namespaced['knobs'] %}
+      {%  set sysctl = sysctldata.name %}
+      {%  set value  = sysctldata.value %}
+      {%  if ansible_virtualization_type in ['docker', 'lxc'] %}
+      {%    set _ = namespaced['disabled_knobs'].append(sysctl) %}
+      {%  else %}
+      {#    Optim depending on available RAM #}
+      {%    if value is none and ansible_memtotal_mb > 128000 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 1*1024*1024,
+                  'net.ipv4.tcp_wmem': '4096 65536 33554432',
+                  'net.ipv4.tcp_rmem': '4096 87380 33554432',
+                  'net.core.rmem_max': '33554432',
+                  'net.core.wmem_max': '33554432',
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 90000 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 512*1024,
+                  'net.ipv4.tcp_wmem': '4096 65536 23068672',
+                  'net.ipv4.tcp_rmem': '4096 87380 23068672',
+                  'net.core.rmem_max': '23068672',
+                  'net.core.wmem_max': '23068672',
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 60000 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 256*1024,
+                  'vm.swappiness': 1,
+                  'net.ipv4.tcp_wmem': '4096 65536 16777216',
+                  'net.ipv4.tcp_rmem': '4096 87380 16777216',
+                  'net.core.rmem_max': '16777216',
+                  'net.core.wmem_max': '16777216',
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 30000 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 128*1024,
+                  'vm.swappiness': 10,
+                  'net.ipv4.tcp_wmem': '4096 65536 12582912',
+                  'net.ipv4.tcp_rmem': '4096 87380 12582912',
+                  'net.core.rmem_max': '12582912',
+                  'net.core.wmem_max': '12582912',
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 15000 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 64*1024,
+                  'fs.inotify.max_user_instances': '512',
+                  'fs.inotify.max_user_watches': '100000',
+                  'net.ipv4.tcp_wmem': '4096 65536 8388608',
+                  'net.ipv4.tcp_rmem': '4096 87380 8388608',
+                  'net.core.rmem_max': '8388608',
+                  'net.core.wmem_max': '8388608',
+                  'vm.swappiness': 30,
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 8000 %}
+      {%      set value = {
+                  'vm.swappiness': 35,
+                  'net.ipv4.tcp_wmem': '4096 65536 4194304',
+                  'net.ipv4.tcp_rmem': '4096 87380 4194304',
+                  'net.core.rmem_max': '4194304',
+                  'net.core.wmem_max': '4194304',
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 1000 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 32*1024,
+                  'vm.swappiness': 50,
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 512 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 16*1024,
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 256 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 6*1024,
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none and ansible_memtotal_mb > 128 %}
+      {%      set value = {
+                  'vm.min_free_kbytes': 3*1024,
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {#    last fallback #}
+      {%    if value is none %}
+      {%      set value = {
+                  'fs.inotify.max_user_instances': 128,
+                  'fs.inotify.max_user_watches': '8192',
+              }.get(sysctl, None) %}
+      {%    endif %}
+      {%    if value is none %}
+      {%      set _ = namespaced['disabled_knobs'].append(sysctl) %}
+      {%    else %}
+      {%      set _ = sysctldata.update({'name': sysctl, 'value': value}) %}
+      {%      set _ = namespaced['sysctls'].update({sysctl: value}) %}
+      {%    endif %}
+      {%  endif %}
+      {% endfor %}
+      {{ (snamespaced[prefix+'vars']
+           | copsf_registry_to_vars(
+               vars, prefix, global_scope=True)
+             )[0] | to_json}}
+
   tags: [corpusops_vars, corpusops_localsettings_sysctls_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
