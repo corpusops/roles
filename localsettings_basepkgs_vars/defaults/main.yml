@@ -116,4 +116,4 @@ corpusops_localsettings_basepkgs_packages_nonminimal_redhat:
       - bridge-utils
       - iptables
       - lvm2
-      - mlocate   
+      - mlocate

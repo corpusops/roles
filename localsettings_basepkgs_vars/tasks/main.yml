@@ -1,5 +1,41 @@
----
+--
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
+    content: |-
+      ---
+      {% set prefix = 'corpusops_localsettings_basepkgs_' %}
+      {% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
+      {% set knobs = ['files', 'filescopy', 'services', 'configs', 'packages',
+                      'mirror', 'comps', 'repo', 'version', 'versions',
+                      'packages_nonminimal',
+                      'bins', 'configs', 'sources_lists',
+                     ] %}
+      {% set computed_defaults = [] %}
+      {% set lowered = [] %}
+      {% set sub_namespaced = {'settings': {}} %}
+      {% set namespaced = {'settings': {}} %}
+      {% set subos_append = {
+          'ubuntu': {'os': 'debian', 'vars': ['packages', 'packages_nonminimal']}
+      } %}
+      {% set _ = vars.update({prefix+'dist': ansible_lsb.codename}) %}
+      {% set namespaced, vars = vars
+         | copsf_registry(
+              prefix,
+              knobs=knobs, subos_append=subos_append,
+              lowered=lowered, computed_defaults=computed_defaults,
+              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
+      %}
+      {% if ansible_lsb.id.lower() == 'ubuntu' %}
+      {%  if ansible_lsb.release | version_compare('13.10', '>' ) %}
+      {%    set _ = namespaced[prefix+'packages'].append('iproute2') %}
+      {%  endif %}
+      {%  if ansible_lsb.release | version_compare('15.04', '<' ) %}
+      {%    set _ = namespaced[prefix+'packages'].append('ubuntu-extras-keyring') %}
+      {%  endif %}
+      {% endif %}
+      {% if ansible_virtualization_type not in ['docker'] %}
+      {%  set _ = namespaced[prefix+'packages'].extend(
+          namespaced[prefix+'packages_nonminimal'])%}
+      {% endif %}
+      {{ namespaced | to_json }}
   tags: [corpusops_vars, corpusops_localsettings_basepkgs_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
