@@ -1,5 +1,113 @@
 ---
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
+    content: |-
+      ---
+      {% set prefix = 'corpusops_localsettings_golang_' %}
+      {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
+      {% set knobs = ['mirror', 'comps', 'repo',
+                      'version', 'versions',
+                      'configs', 'sources_lists', 'packages'] %}
+      {% set knobs = ['mirror', 'comps', 'repo',
+      							  'version', 'versions',
+      								'configs', 'sources_lists', 'packages'] %}
+      {% set computed_defaults = [] %}
+      {% set lowered = [] %}
+      {% set sub_namespaced = {'settings': {}} %}
+      {% set namespaced = {} %}
+      {% set subos_append = {} %}
+      {% set snamespaced, vars = vars
+         | copsf_registry(
+              prefix,
+              knobs=knobs, subos_append=subos_append,
+              lowered=lowered, computed_defaults=computed_defaults,
+              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
+      %}
+      {% set namespaced = snamespaced[prefix+'vars'] %}
+
+      {% set packages = [] %}
+      {% for v in namespaced['versions'] %}
+      {%  for p in namespaced['packages'] if v %}
+      {%    set _ = packages.append(p.format(v=v)) %}
+      {%  endfor %}
+      {% endfor %}
+      {% set _ = namespaced.update({'packages': packages}) %}
+
+      {% set arch = namespaced['arch'] %}
+      {% set aarch = arch == 'amd64' and 'x64' or arch %}
+      {% set _ = vars.update({prefix+'aarch': aarch}) %}
+
+      {% if namespaced['version'] not in namespaced['versions'] %}
+      {% set _ = namespaced['versions'].append(namespaced['version']) %}
+      {% endif%}
+
+      {% set flavors = [] %}
+      {% if packages %}
+      {% 	set flavor = 'system' %}
+      {% else %}
+      {% 	set flavor = namespaced['flavor'] %}
+      {% 	for v in namespaced['flavors'] %}
+      {% 		set _ = flavors.append(v.format(arch=arch))%}
+      {%  endfor %}
+      {% endif %}
+      {% set flavor = flavor.format(arch=arch) %}
+      {% if flavor not in flavors %}
+      {% 	set _ = flavors.append(flavor) %}
+      {% endif%}
+      {% if flavors and not flavor %}{% set flavor = flavors[0]%}{%endif%}
+      {% set _ = namespaced.update({'flavors': flavors}) %}
+      {% set _ = namespaced.update({'flavor': flavor}) %}
+
+      {% set bins = {} %}
+      {% for v, val in namespaced['bins'].items() %}
+      {%  set name = val.name.format(arch=arch) %}
+      {%  set slaves = {} %}
+      {%  for s, sval in val.get('slaves', {}).items() %}
+      {%   set sname = sval.name.format(arch=arch) %}
+      {%   set _ = slaves.update({s: {'name': sname}})%}
+      {%  endfor %}
+      {% 	set _ = val.update({'slaves': slaves, 'name': name}) %}
+      {% 	set _ = bins.update({v: val})%}
+      {% endfor %}
+      {% set _ = namespaced.update({'bins': bins}) %}
+
+      {% set shas = namespaced['shas'] %}
+      {% set headerss = namespaced['headers'] %}
+      {% set urlmap = namespaced['urlmap'] %}
+      {% for version in namespaced['versions'] %}
+      {%  for flavor in flavors %}
+      {%    set selector = '{0}-{1}'.format(version, flavor) %}
+      {%	  if flavor == 'system' %}
+      {% 			set surl = none%}
+      {%      set bn = none %}
+      {%      set p = namespaced['system_prefix'] %}
+      {%		else %}
+      {%    	set surl = urlmap.get(version, urlmap.get('default')).format(
+                          v=version, f=flavor, arch=arch) %}
+      {%      set bn =  surl.split('/')[-1] %}
+      {%      set p = namespaced['local_prefix'] %}
+      {%    endif%}
+      {%    set val = {'bn': bn, 'p': p, 'url': surl,
+                       'version': version, 'flavor': flavor} %}
+      {%    set d = val.setdefault('d', val.p.format(**val)) %}
+      {%    set sha = shas.get(bn, shas.get('default', None)) %}{% if sha %}
+      {%      set _ = val.setdefault('sha', sha) %}
+      {%    endif %}
+      {%    set headers = headerss.get(bn, headerss.get('default', None)) %}{% if headers %}
+      {%      set _ = val.setdefault('headers', headers) %}
+      {%    endif %}
+      {%    set _ = namespaced['installs'].setdefault(selector, val) %}
+      {%  endfor %}
+      {% endfor %}
+
+      {% set urls = namespaced['urls'] %}
+      {% set installs = namespaced.get('installs', {}) %}
+      {% for i, itm in installs.items() %}
+      {% 	if itm.get('url', None)%}{% set _ = urls.update({i: itm})%}{%endif%}
+      {% endfor%}
+
+      {{ (snamespaced[prefix+'vars']
+           | copsf_registry_to_vars(
+               vars, prefix, global_scope=True)
+             )[0] | to_json}}
   tags: [corpusops_vars, corpusops_localsettings_golang_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
