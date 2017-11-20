@@ -1,5 +1,47 @@
 ---
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
+    content: |-
+      ---
+      {% set prefix = 'corpusops_localsettings_php_' %}
+      {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
+      {% set subos_append = {} %}
+      {% set knobs = ['files', 'filescopy', 'configs', 'packages', 'services',
+                      'repo_keys', 'repo_keys_url', 'repo',
+                      ] %}
+      {% set computed_defaults = ['repo'] %}
+      {% set lowered = ['repo'] %}
+      {% set lowered = [] %}
+      {% set sub_namespaced = {'spackages': {}, 'settings': {}} %}
+      {% set namespaced = {'spackages': {}, 'settings': {}} %}
+      {% set snamespaced, vars = vars
+         | copsf_registry(
+              prefix,
+              knobs=knobs, subos_append=subos_append,
+              lowered=lowered, computed_defaults=computed_defaults,
+              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
+      %}
+      {% set namespaced = snamespaced[prefix+'vars'] %}
+      {% if namespaced['opcache_install'] and namespaced['configure_opcache'] %}
+        {% set _ = namespaced['configs'].append({
+            'template': '../templates/etc/php/opcache.ini'.format(**vars),
+            'name': '{corpusops_localsettings_php_confdir}/opcache.ini'.format(**vars),
+            'owner': 'root',
+            'group': 'root',
+            'mode': '0644',
+        }) %}
+      {% endif %}
+      {% if namespaced['apc_install'] and namespaced['configure_apc'] %}
+        {% set _ = namespaced['configs'].append({
+            'template': '../templates/etc/php/apcu.ini'.format(**vars),
+            'name': '{corpusops_localsettings_php_confdir}/apcu.ini'.format(**vars),
+            'owner': 'root',
+            'group': 'root',
+            'mode': '0644',
+        }) %}
+      {% endif %}
+      {{ (snamespaced[prefix+'vars']
+           | copsf_registry_to_vars(
+               vars, prefix, global_scope=True)
+             )[0] | to_json}}
   tags: [corpusops_vars, corpusops_localsettings_php_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
