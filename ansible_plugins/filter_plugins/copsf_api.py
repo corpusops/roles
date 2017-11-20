@@ -475,6 +475,15 @@ def format_resolve(value,
 
     '''
     topdb2 = kwargs.pop('topdb2', False)  # noqa
+    if additional_namespaces is None:
+        additional_namespaces = {}
+    if isinstance(additional_namespaces, dict):
+        additional_namespaces = [additional_namespaces]
+    if isinstance(original_dict, list):
+        if original_dict:
+            for i in original_dict[1:]:
+                additional_namespaces.insert(0, i)
+            original_dict = original_dict[0]
     try:
         ret = _format_resolve(value,
                               original_dict=original_dict,
@@ -482,10 +491,6 @@ def format_resolve(value,
                               this_call=this_call,
                               topdb=topdb,
                               **kwargs)
-        if additional_namespaces is None:
-            additional_namespaces = {}
-        if isinstance(additional_namespaces, dict):
-            additional_namespaces = [additional_namespaces]
         for namespace in additional_namespaces:
             if ret[2]:
                 ret = _format_resolve(ret[0],
@@ -583,6 +588,8 @@ def copsf_registry_to_vars(namespaced,
                            prefix,
                            global_scope=None,
                            name_prefix=None,
+                           do_format_resolve=False,
+                           additional_namespaces=None,
                            registry_suffix=REGISTRY_DEFAULT_SUFFIX):
     name_prefix = get_name_prefix(name_prefix, prefix)
     scope = {}
@@ -600,6 +607,11 @@ def copsf_registry_to_vars(namespaced,
     ansible_vars.update(scope)
     if not global_scope:
         scope = namespaced
+    if do_format_resolve:
+        if additional_namespaces is None:
+            additional_namespaces = [ansible_vars]
+        scope = format_resolve(
+            scope, additional_namespaces=additional_namespaces)
     return scope, ansible_vars
 
 
@@ -722,6 +734,7 @@ def copsf_to_namespace(ansible_vars,
         if (
             (var in prefixes) or
             (var.endswith(registry_suffix)) or
+            (var.startswith(prefix+prefix)) or
             (not var.startswith(prefix))
         ):
             continue
@@ -737,6 +750,7 @@ def copsf_to_namespace(ansible_vars,
             do_update_namespaces=do_update_namespaces,
             overrides_prefix=overrides_prefix,
             flavors=flavors,
+            prefixes=prefixes,
             name_prefix=name_prefix,
             sub_namespaced=sub_sub_namespaced,
             namespaced=namespaced.setdefault(ns, {}),
