@@ -1,6 +1,4 @@
 ---
-#- debug: msg="{{item}}"
-#  with_dict: "{{cops_sshkeys_vars.added}}"
 - include_tasks: "./_manage.yml"
   with_dict: "{{cops_sshkeys_vars.added}}"
   register:  cops_sshkeys_added_ret

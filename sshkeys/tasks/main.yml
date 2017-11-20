@@ -1,22 +1,9 @@
 ---
-#- debug: "msg={{corpusops_ssh_added_keys_map2}}"
-#- debug: "msg={{cops_sshkeys_added}}"
-#- debug: "msg={{cops_sshkeys_removed}}"
 - name: "corpusops_sshkeys preflight check - SKIPTEST"
   debug:
     msg: "{{corpusops_sshkeys | default(True) }}"
   register: corpusops_sshkeys_can_run
   tags: sshkeys
-- include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: cops_sshkeys_added
-  tags: [sshkeys, vars]
-  when: "corpusops_sshkeys_can_run.msg == True"
-- include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: cops_sshkeys_removed
-  tags: [sshkeys, vars]
-  when: "corpusops_sshkeys_can_run.msg == True"
 - include_role: {name: corpusops.roles/vars_registry}
   vars:
     cops_vars_registry_target: cops_sshkeys
