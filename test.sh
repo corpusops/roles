@@ -114,6 +114,7 @@ run_test() {
 
 cd "${W}"
 ROLES=${@-}
+TEST_VARS_ROLES=${TEST_VARS_ROLES:-${TRAVIS}}
 FROM_HISTORY=${FROM_HISTORY:-${TRAVIS}}
 USE_LOCAL_DIFF="${USE_LOCAL_DIFF-1}"
 FROM_COMMIT=${FROM_COMMIT:-HEAD^}
@@ -131,24 +132,35 @@ if [[ -z "${ROLES}" ]] && [[ -n "${USE_LOCAL_DIFF}" ]] \
         if is_role "$r";then ROLES="$ROLES $r";fi
     done
 fi
-if [[ -z "${ROLES}" ]] && [[ -n "${FROM_HISTORY}" ]];then
-    candidates=""
-    if git show -q HEAD | egrep -q "fulltest|alltest";then
-        log "Using default (all tests)"
-    else
-        debug "Searching in diff what did changed: ${FROM_COMMIT}..${TO_COMMIT}"
-        for i in $( \
-            git diff --name-only ${FROM_COMMIT}..${TO_COMMIT}\
-            | grep "/"| sed -re "s#/.*##g"| uniq);do
-            candidates="$candidates $i"
+if [[ -z "${ROLES}" ]];then
+    if [[ -n "${FROM_HISTORY}" ]];then
+        candidates=""
+        if git show -q HEAD | egrep -q "fulltest|alltest";then
+            log "Using default (all tests)"
+        else
+            debug "Searching in diff what did changed: ${FROM_COMMIT}..${TO_COMMIT}"
+            for i in $( \
+                git diff --name-only ${FROM_COMMIT}..${TO_COMMIT}\
+                | grep "/"| sed -re "s#/.*##g"| uniq);do
+                candidates="$candidates $i"
+            done
+        fi
+        for candidate in $candidates;do
+            r="$W/$candidate"
+            if is_role "$r";then ROLES="$ROLES $r";fi
         done
     fi
-    for candidate in $candidates;do
-        r="$W/$candidate"
-        if is_role "$r";then ROLES="$ROLES $r";fi
-    done
+    if [[ -n "${TEST_VARS_ROLES}" ]];then
+        candidates=""
+        while read candidate;do
+            r="$W/$candidate"
+            if is_role "$r";then ROLES="$ROLES $(cd $r && pwd)";fi
+        done < <( \
+            find -maxdepth 1 -mindepth 1 -type d -name '*vars' \
+            | sort \
+            | egrep -v 'include_jinja_vars|lxc_vars': )
+    fi
 fi
-if is_role "$r";then ROLES="$ROLES $r";fi
 if [[ -n $DRY_RUN ]];then
     log "Testing $ROLES"
     exit 0
