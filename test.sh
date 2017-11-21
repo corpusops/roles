@@ -52,7 +52,7 @@ setup() {
             bin/install.sh -C -S &&\
             docker rm -f $runner &&\
             service docker stop &&\
-            bin/cops_shell_common silent_run bin/cops_apply_role roles/corpusops.roles/services_virt_docker/role.yml
+            bin/silent_run bin/cops_apply_role roles/corpusops.roles/services_virt_docker/role.yml
 EOF
         die_in_error "docker upgrade"
         spawn_controller
@@ -73,9 +73,9 @@ run_test() {
     log "Testing $role"
     if [[ -z "${NOT_IN_DOCKER-}" ]]; then
         if ! ( vv sudo docker exec $runnerid bash -c \
-               'if ! $COPS_ROOT/hacking/test_roles "'"${role}"'"; then
+               'if ! $COPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles "'"${role}"'"; then
                   echo "First test try failed, try to update code and retry test" >&2;
-                  $COPS_ROOT/bin/install.sh -s && $COPS_ROOT/hacking/test_roles '"${role}"';
+                  $COPS_ROOT/bin/install.sh -s && $ĈOPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles '"${role}"';
                 fi' \
            ); then
              ret=1;
@@ -97,10 +97,10 @@ run_test() {
         fi
         if [[ $ret -le 1 ]];then
             set -x
-            if ! sudo -E $COPS_ROOT/hacking/test_roles "${role}"; then
+            if ! sudo -E $COPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles "${role}"; then
                 echo 'BM: First test try failed, try to update code and retry test' >&2;
                 vv sudo -E $COPS_ROOT/bin/install.sh -s;
-                if ! sudo -E $COPS_ROOT/hacking/test_roles "${role}";then
+                if ! sudo -E $COPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles "${role}";then
                     ret=2;
                 else
                     ret=0;
@@ -154,7 +154,7 @@ if [[ -z "${ROLES}" ]];then
         candidates=""
         while read candidate;do
             r="$W/$candidate"
-            if is_role "$r";then ROLES="$ROLES $(cd $r && pwd)";fi
+            if is_role "$r";then ROLES="$ROLES $(cd "$r" && pwd)";fi
         done < <( \
             find -maxdepth 1 -mindepth 1 -type d -name '*vars' \
             | sort \
