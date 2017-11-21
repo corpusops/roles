@@ -4,10 +4,10 @@
     - shell: /bin/false
 - hosts: all
   roles:
-    - {name: corpusops.roles/services_db_postgresql_vars}
+    - {role: corpusops.roles/services_db_postgresql_vars}
 - hosts: all
   roles:
-    - {name: corpusops.roles/services_db_postgresql,
+    - {role: corpusops.roles/services_db_postgresql,
        tags: setup}
 - hosts: all
   tasks:
