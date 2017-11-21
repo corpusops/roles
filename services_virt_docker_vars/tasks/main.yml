@@ -26,7 +26,7 @@
             'fedora': 'fedora'
           }.get(ansible_distribution.lower(), 'redhat') %}
       {%  set _ = namespaced.update({
-            'repo': namespaced['repo_{1}'.format(knob)]
+            'repo': namespaced['repo_{0}'.format(knob)]
           }) %}
       {% endif %}
       {{ (snamespaced[prefix+'vars']
