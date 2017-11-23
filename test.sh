@@ -2,6 +2,10 @@
 # Either test on docker if possible or directly on travis compute node
 . test_env.sh
 
+# SYNC_CORPUSOPS=y IMAGES=corpusops/ubuntu:16.04 FORCE_PULL=y DEBUG=1
+#   FORCE_SYNC=y ./test.sh corpusops.roles/actionhelper/
+
+
 LOCAL_COPS_ROOT="${LOCAL_COPS_ROOT:-$CW/local/corpusops.bootstrap}"
 
 RED="\\e[0;31m"
@@ -80,6 +84,14 @@ install_cached_corpusops() {
             ret=3
         fi
     fi &&\
+    if [[ -n "$FORCE_SYNC" ]];then
+        echo "Sync corpusops from origin"
+        ( cd "$LOCAL_COPS_ROOT" && bin/install.sh -C -s; )
+    fi &&\
+    if [[ -n "$FORCE_PULL" ]];then
+        echo "Sync corpusops from origin (only bootstrap)"
+        ( cd "$LOCAL_COPS_ROOT" && git pull; )
+    fi &&\
     if [[ -n "${SYNC_CORPUSOPS-}" ]];then
         log "Sync back local corpusops tree to image"
         vv docker exec -ti $runner \
@@ -129,9 +141,6 @@ run_test() {
     log "Testing $roles"
     if [[ -n "${NOT_IN_DOCKER-}" ]]; then
         log 'NOT_IN_DOCKER is set, skip tests in docker (baremetal tests)' >&2
-    fi
-    if [ ! -e "$LOCAL_COPS_ROOT/bin/silent_run" ];then
-        ( cd "$LOCAL_COPS_ROOT" && git pull; )
     fi
     if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
         "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}"; then
