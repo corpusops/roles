@@ -97,7 +97,7 @@ install_cached_corpusops() {
         vv docker exec -ti $runner \
             rsync -a --exclude=venv/{bin,include,lib,local,man} \
             "$LOCAL_COPS_ROOT/" "$COPS_ROOT/"
-    fi &&\
+    fi
     if [ $? != 0 ]; then
         log "Failure to install corpusops"
         ret=3
