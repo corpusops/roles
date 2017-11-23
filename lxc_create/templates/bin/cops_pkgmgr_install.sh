@@ -270,7 +270,7 @@ parse_cli() {
             *) WANTED_PACKAGES="${WANTED_PACKAGES} ${i}";;
         esac
     done
-    if echo ${DISTRIB_ID} | egrep -iq "ubuntu|debian";then
+    if echo ${DISTRIB_ID} | egrep -iq "ubuntu|debian|linuxmint";then
         INSTALLER=aptget
     elif echo ${DISTRIB_ID} | egrep -iq "archlinux";then
         INSTALLER=pacman

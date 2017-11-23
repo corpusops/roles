@@ -18,6 +18,8 @@ ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*$|"
 ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(ok|changed):\s+\[localhost\]( => {)?$|"
 ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*(\"msg|([{}]$))"
 ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
+DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
+COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
 
 
 has_command() {
@@ -94,6 +96,10 @@ log_() {
 
 log() {
     log_ "${RED}" "${CYAN}" "${@}"
+}
+
+cronolog() {
+    log_ "${RED}" "${CYAN}" "($(get_chrono)) ${@}"
 }
 
 warn() {
@@ -181,6 +187,10 @@ silent_run_() {
 
 silent_run() {
     ( silent_run_ "${@}" ; )
+}
+
+run_silent() {
+    SILENT=${SILENT-1} silent_run "${@}"
 }
 
 vvv() {
@@ -565,6 +575,13 @@ make_virtualenv() {
       deactivate; )
     fi
 }
+
+may_sudo() {
+    if [ "$(whoami)" != "root" ];then
+        echo "sudo $([[ -z $DIRECT_SUDO ]] &&  echo "-HE")"
+    fi
+}
+
 
 detect_os no_fail
 
