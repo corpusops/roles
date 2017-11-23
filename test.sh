@@ -130,7 +130,7 @@ EOF
     fi
 }
 
-run_test() {
+run_test_() {
     local roles=$@
     while read role;do
         if [[ -n $role ]] && [ -e "$role/.travis.env" ];then
@@ -156,6 +156,9 @@ run_test() {
         ret=0;
     fi
 }
+
+run_test() { ( run_test_ "${@}"; ) }
+
 
 cd "${W}"
 ROLES=${@-}
