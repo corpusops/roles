@@ -69,8 +69,9 @@ spawn_controller() {
 }
 
 install_cached_corpusops() {
+    ret=0
     if ( [[ -n "${FORCE_INSTALL_LOCAL_COPS-}" ]] ||\
-         [[ -n "${FORCE_INSTALL_LOCAL_COPS-}" ]] ) || \
+         [[ -n "${FORCE_REINSTALL_LOCAL_COPS-}" ]] ) || \
        [ ! -e "$LOCAL_COPS_ROOT/venv/bin/ansible" ];then
         log "Installing corpusops on baremetal"
         vv docker exec -ti $runner sh -c\
@@ -83,12 +84,9 @@ install_cached_corpusops() {
         if [[ -n "${FORCE_REINSTALL_LOCAL_COPS-}" ]] || [ ! -e "$LOCAL_COPS_ROOT/venv/bin/ansible" ];then
             "$LOCAL_COPS_ROOT/bin/install.sh" -C -S
         fi
-        if [ $? != 0 ]; then
-            log "Failure to install corpusops"
-            ret=3
-        fi
+        ret=$?
     fi &&\
-    if [[ -n "$FORCE_SYNC" ]];then
+    if [[ $ret = 0 ]] && [[ -n "$FORCE_SYNC" ]];then
         echo "Sync corpusops from origin"
         ( cd "$LOCAL_COPS_ROOT" && bin/install.sh -C -s; )
     fi &&\
@@ -102,8 +100,9 @@ install_cached_corpusops() {
             rsync -a --exclude=venv/{bin,include,lib,local,man} \
             "$LOCAL_COPS_ROOT/" "$COPS_ROOT/"
     fi
-    if [ $? != 0 ]; then
-        log "Failure to install corpusops"
+    ret=$?
+    if [[ $ret != 0 ]]; then
+        log "Failure to setup corpusops"
         ret=3
     fi
     return $ret
@@ -115,7 +114,9 @@ respawn_controller() {
 
 setup() {
     spawn_controller
+    die_in_error "Failure to spawn controller"
     install_cached_corpusops
+    die_in_error "Bailing out, failure to setup corpusops"
     if [[ -n ${DOCKER_UPGRADE} ]];then
             sudo -E bash << EOF
               set -x
