@@ -69,7 +69,9 @@ spawn_controller() {
 }
 
 install_cached_corpusops() {
-    if [ ! -e "$LOCAL_COPS_ROOT/venv/bin/ansible" ];then
+    if ( [[ -n "${FORCE_INSTALL_LOCAL_COPS-}" ]] ||\
+         [[ -n "${FORCE_INSTALL_LOCAL_COPS-}" ]] ) || \
+       [ ! -e "$LOCAL_COPS_ROOT/venv/bin/ansible" ];then
         log "Installing corpusops on baremetal"
         vv docker exec -ti $runner sh -c\
             'if [ ! -e '"$LOCAL_COPS_ROOT"' ];then mkdir -p '"$LOCAL_COPS_ROOT"';fi' &&\
@@ -78,7 +80,9 @@ install_cached_corpusops() {
             $COPS_ROOT/ $LOCAL_COPS_ROOT/ &&\
         vv docker exec -ti $runner \
             chown -R $IDWHOAMI $LOCAL_COPS_ROOT && \
-        "$LOCAL_COPS_ROOT/bin/install.sh" -C -S
+        if [[ -n "${FORCE_REINSTALL_LOCAL_COPS-}" ]] || [ ! -e "$LOCAL_COPS_ROOT/venv/bin/ansible" ];then
+            "$LOCAL_COPS_ROOT/bin/install.sh" -C -S
+        fi
         if [ $? != 0 ]; then
             log "Failure to install corpusops"
             ret=3

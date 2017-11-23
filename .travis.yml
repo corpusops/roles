@@ -3,9 +3,9 @@ sudo: required
 dist: trusty
 env:
   matrix:
-    - FORCE_REPULL="y" IMAGES="ubuntu:16.04_preprovision"
-    - FORCE_REPULL="y" IMAGES="ubuntu:14.04_preprovision"
-    - FORCE_REPULL="y" IMAGES="ubuntu:latest_preprovision"
+    - FORCE_INSTALL_LOCAL_COPS="y" FORCE_SYNC="y" IMAGES="ubuntu:16.04_preprovision"
+    - FORCE_INSTALL_LOCAL_COPS="y" FORCE_SYNC="y" IMAGES="ubuntu:14.04_preprovision"
+    - FORCE_INSTALL_LOCAL_COPS="y" FORCE_SYNC="y" IMAGES="ubuntu:latest_preprovision"
 language: python
 python: "2.7"
 before_install:
@@ -14,3 +14,7 @@ install:
   - ./test_setup.sh
 script:
   - ./test.sh
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $TRAVIS_BUILD_DIR/local
