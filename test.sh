@@ -212,9 +212,9 @@ if [[ -n "${TEST_VARS_ROLES}" ]];then
         | sort \
         | egrep -v 'include_jinja_vars|lxc_vars': )
 fi
-ROLES="$(printf "$ROLES\n"|awk '!seen[$0]++'|xargs -n1)"
-ROLES_VARS="$(printf "$ROLES_VARS\n"|awk '!seen[$0]++'|xargs -n1)"
-ROLES_TO_TEST="$(printf "$ROLES_VARS\n$ROLES\n"|awk '!seen[$0]++'|xargs -n1)"
+ROLES="$(printf "$ROLES\n"|xargs -n1|awk '!seen[$0]++')"
+ROLES_VARS="$(printf "$ROLES_VARS\n"|xargs -n1|awk '!seen[$0]++')"
+ROLES_TO_TEST="$(printf "$ROLES_VARS\n$ROLES\n"|xargs -n1|awk '!seen[$0]++')"
 if [[ -n $DRY_RUN ]];then
     log "${CYAN}Testing${NORMAL}"
     if [[ -n $ROLES_TO_TEST ]];then
