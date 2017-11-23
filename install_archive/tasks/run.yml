@@ -133,9 +133,9 @@
     gpg_() { export LANG=C; export LC_ALL=C; gpg ${@}; };
     if ! ( gpg_ -q --batch --verify \
               "{{archive_vars.app_path}}/crcs" \
-              "{{archive_vars.app_path}}/{{archive}}"; );then
+              "{{archive_vars.app_path}}/{{archive_vars.archive}}"; );then
       if [ -e "{{archive}}" ];then
-        echo rm -f "{{archive_vars.app_path}}/{{archive}}";
+        echo rm -f "{{archive_vars.app_path}}/{{archive_vars.archive}}";
       fi;
       echo "archive verification failed" >&2;
       exit 1;
