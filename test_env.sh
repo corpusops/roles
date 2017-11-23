@@ -8,6 +8,8 @@ runner=${COPSTESTRUNNER:-copsrolestestrunner}
 DEBUG=${DEBUG-}
 LOGGER_NAME="[unit_role]"
 DOCKER_UPGRADE=${DOCKER_UPGRADE-${TRAVIS}}
+WHOAMI=${WHOAMI:-$(whoami)}
+IDWHOAMI=$(id -u $WHOAMI)
 
 log() { echo "$LOGGER_NAME ${@}" >&2; }
 vv() { log "$LOGGER_NAME ${@}"; "${@}"; }
