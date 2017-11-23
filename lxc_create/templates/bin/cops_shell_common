@@ -458,6 +458,19 @@ get_git_branchs() {
        git branch|sed -e "s/^\*\? \+//g")
 }
 
+update_wd_to_br() {
+    (
+        local wd="${2:-$(pwd)}"
+        local up_branch="${1}"
+        cd "${wd}" || die "${wd} does not exists"
+        if ! git diff --exit-code -q;then
+            git stash
+        fi &&\
+        vv git pull origin "${up_branch}"
+    )
+
+}
+
 upgrade_wd_to_br() {
     (
         local wd="${2:-$(pwd)}"
@@ -475,6 +488,7 @@ upgrade_wd_to_br() {
                 vv git checkout origin/${up_branch} -b ${up_branch}
             fi
         fi
+        update_wd_to_br $(get_ansible_branch) "${VENV_PATH}/src/ansible" &&\
         while read subdir;do
             subdir=$(echo $subdir|sed -e "s/^\.\///g")
             if [ -h "${subdir}/.git" ] || [ -f "${subdir}/.git" ];then
