@@ -173,7 +173,7 @@ if [[ -z "${ROLES}" ]] && [[ -n "${USE_LOCAL_DIFF}" ]] \
     && ! ( git diff -q --exit-code >/dev/null 2>&1 );then
     candidates=""
     log "WC not clean using diff status"
-    for i in $(git diff --name-only|grep "/"|sed -re "s#/.*##g"|uniq);do
+    for i in $(git diff --name-only|grep "/"|sed -re "s#/.*##g"|awk '!seen[$0]++');do
         candidates="$candidates $i"
     done
     for candidate in $candidates;do
@@ -190,7 +190,7 @@ if [[ -z "${ROLES}" ]];then
             debug "Searching in diff what did changed: ${FROM_COMMIT}..${TO_COMMIT}"
             for i in $( \
                 git diff --name-only ${FROM_COMMIT}..${TO_COMMIT}\
-                | grep "/"| sed -re "s#/.*##g"| uniq);do
+                | grep "/"| sed -re "s#/.*##g"| awk '!seen[$0]++');do
                 candidates="$(printf "$candidates\n$i\n")"
             done
         fi
@@ -212,9 +212,9 @@ if [[ -n "${TEST_VARS_ROLES}" ]];then
         | sort \
         | egrep -v 'include_jinja_vars|lxc_vars': )
 fi
-ROLES="$(printf "$ROLES\n"|uniq|xargs -n1)"
-ROLES_VARS="$(printf "$ROLES_VARS\n"|uniq|xargs -n1)"
-ROLES_TO_TEST="$(printf "$ROLES_VARS\n$ROLES\n"|uniq|xargs -n1)"
+ROLES="$(printf "$ROLES\n"|awk '!seen[$0]++'|xargs -n1)"
+ROLES_VARS="$(printf "$ROLES_VARS\n"|awk '!seen[$0]++'|xargs -n1)"
+ROLES_TO_TEST="$(printf "$ROLES_VARS\n$ROLES\n"|awk '!seen[$0]++'|xargs -n1)"
 if [[ -n $DRY_RUN ]];then
     log "${CYAN}Testing${NORMAL}"
     if [[ -n $ROLES_TO_TEST ]];then
