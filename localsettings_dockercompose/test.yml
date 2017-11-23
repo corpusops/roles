@@ -10,5 +10,5 @@
   roles:
     # see if install_archives does not conflict
     - role: corpusops.roles/localsettings_dockercompose
-    - role: corpusops.roles/localsettings_phantoms
     - role: corpusops.roles/localsettings_nodejs
+    - role: corpusops.roles/localsettings_phantoms

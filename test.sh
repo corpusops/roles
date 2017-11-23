@@ -1,6 +1,23 @@
 #!/usr/bin/env bash
 # Either test on docker if possible or directly on travis compute node
 . test_env.sh
+
+LOCAL_COPS_ROOT="${LOCAL_COPS_ROOT:-$CW/local/corpusops.bootstrap}"
+
+RED="\\e[0;31m"
+CYAN="\\e[0;36m"
+YELLOW="\\e[0;33m"
+NORMAL="\\e[0;0m"
+if [[ -n ${NOCOLORS-${NOCOLOR-}} ]];then
+    RED=""
+    CYAN=""
+    YELLOW=""
+    NORMAL=""
+fi
+
+log() { echo -e "$@">&2; }
+
+
 post_tests_cleanup() {
     if [[ -n "${NO_CLEANUP}" ]]; then
         log "Skip Post tests cleanup"
@@ -16,6 +33,12 @@ post_tests_cleanup() {
 }
 
 spawn_controller() {
+    if [[ -z ${DOCKER_NO_PULL-} ]];then
+        for img in $CONTROLLER_IMAGE;do
+            vvv sudo "$docker" pull "$img"
+            die_in_error "pull $img failed"
+        done
+    fi
     vvv sudo "$docker" run -ti -d --name=$runner \
         $( while read v; do echo " -v ${v}:${v}:ro";done < \
           <( ldd "${docker}" \
@@ -41,18 +64,36 @@ spawn_controller() {
     fi
 }
 
+install_cached_corpusops() {
+    if [ ! -e "$LOCAL_COPS_ROOT/venv/bin/ansible" ];then
+        log "Installing corpusops on baremetal"
+        vv docker exec -ti $runner sh -c\
+            'if [ ! -e '"$LOCAL_COPS_ROOT"' ];then mkdir -p '"$LOCAL_COPS_ROOT"';fi' &&\
+        vv docker exec -ti $runner \
+            rsync -a --exclude=venv/{bin,include,lib,local,man} \
+            $COPS_ROOT/ $LOCAL_COPS_ROOT/ &&\
+        vv docker exec -ti $runner \
+            chown -R $IDWHOAMI $LOCAL_COPS_ROOT && \
+        "$LOCAL_COPS_ROOT/bin/install.sh" -C -S
+        if [ $? != 0 ]; then
+            log "Failure to install corpusops"
+            ret=3
+        fi
+    fi
+    return $ret
+}
+
 setup() {
     spawn_controller
     if [[ -n ${DOCKER_UPGRADE} ]];then
-        sudo -E bash << EOF
-            set -x
-            docker cp "$runner:$(dirname $COPS_ROOT)"/ "$(dirname $(dirname $COPS_ROOT))"/ &&\
-            rm -rf "$COPS_ROOT"/venv/{bin,include,lib,local} &&\
-            cd $COPS_ROOT &&\
-            bin/install.sh -C -S &&\
-            docker rm -f $runner &&\
-            service docker stop &&\
-            bin/silent_run bin/cops_apply_role roles/corpusops.roles/services_virt_docker/role.yml
+        install_cached_corpusops
+        vv docker rm -f $runner  &&\
+            sudo -E bash << EOF
+              set -x
+              service docker stop &&\
+              $LOCAL_COPS_ROOT/bin/silent_run \
+                $LOCAL_COPS_ROOT/bin/cops_apply_role \
+                  $LOCAL_COPS_ROOT/roles/corpusops.roles/services_virt_docker/role.yml
 EOF
         die_in_error "docker upgrade"
         spawn_controller
@@ -65,17 +106,23 @@ EOF
 }
 
 run_test() {
-    local role=$1
-    if [ -e "$role/.travis.env" ];then
-        log "Load env for $role"
-        . "$role/.travis.env"
-    fi
-    log "Testing $role"
+    local roles=$@
+    while read role;do
+        if [[ -n $role ]] && [ -e "$role/.travis.env" ];then
+            log "Load env for $role"
+            . "$role/.travis.env"
+        fi
+    done <<< "$roles"
+    log "Testing $roles"
     if [[ -z "${NOT_IN_DOCKER-}" ]]; then
-        if ! ( vv sudo docker exec $runnerid bash -c \
-               'if ! $COPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles "'"${role}"'"; then
+        if [[ -n ${FORCE_PULL-} ]];then
+            vv sudo docker exec $runnerid bash -c '$COPS_ROOT/bin/install.sh -C -s'
+        fi
+        if ! ( sudo docker exec $runnerid bash -c \
+            'if ! $COPS_ROOT/hacking/test_roles "'"${roles}"'"; then
                   echo "First test try failed, try to update code and retry test" >&2;
-                  $COPS_ROOT/bin/install.sh -s && $ĈOPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles '"${role}"';
+                  $COPS_ROOT/bin/install.sh -C -s &&\
+                  $COPS_ROOT/hacking/test_roles '"${roles}"';
                 fi' \
            ); then
              ret=1;
@@ -84,23 +131,17 @@ run_test() {
         fi
     else
         log 'NOT_IN_DOCKER is set, skip tests in docker (baremetal tests)' >&2
-        if [ ! -e "$COPS_ROOT/venv/bin/ansible" ];then
-            log "Installing corpusops on baremetal"
-            if ! ( \
-              sudo echo docker cp "$runnerid:$(dirname $COPS_ROOT)"/ "$(dirname $(dirname $COPS_ROOT))"/ &&\
-              sudo docker cp "$runnerid:$(dirname $COPS_ROOT)"/ "$(dirname $(dirname $COPS_ROOT))"/ &&\
-              sudo rm -rf "$COPS_ROOT"/venv/{bin,include,lib,local} &&\
-              sudo $COPS_ROOT/bin/install.sh -C -S; ); then
-                log "Failure to install corpusops"
-                ret=3
-            fi
-        fi
+        install_cached_corpusops
         if [[ $ret -le 1 ]];then
-            set -x
-            if ! sudo -E $COPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles "${role}"; then
+            if [ ! -e "$LOCAL_COPS_ROOT/bin/silent_run" ];then
+                ( cd "$LOCAL_COPS_ROOT" && git pull; )
+            fi
+            if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
+                "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}"; then
                 echo 'BM: First test try failed, try to update code and retry test' >&2;
-                vv sudo -E $COPS_ROOT/bin/install.sh -s;
-                if ! sudo -E $COPS_ROOT/bin/silent_run $COPS_ROOT/hacking/test_roles "${role}";then
+                vv "$LOCAL_COPS_ROOT/bin/install.sh" -C -s;
+                if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
+                    "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}";then
                     ret=2;
                 else
                     ret=0;
@@ -119,6 +160,7 @@ FROM_HISTORY=${FROM_HISTORY:-${TRAVIS}}
 USE_LOCAL_DIFF="${USE_LOCAL_DIFF-1}"
 FROM_COMMIT=${FROM_COMMIT:-HEAD^}
 TO_COMMIT=${TO_COMMIT:-HEAD}
+SKIP_REDO_VENV=${SKIP_REDO_VENV-}
 IMAGES="$(echo $IMAGES|xargs -n1)"
 if [[ -z "${ROLES}" ]] && [[ -n "${USE_LOCAL_DIFF}" ]] \
     && ! ( git diff -q --exit-code >/dev/null 2>&1 );then
@@ -142,27 +184,37 @@ if [[ -z "${ROLES}" ]];then
             for i in $( \
                 git diff --name-only ${FROM_COMMIT}..${TO_COMMIT}\
                 | grep "/"| sed -re "s#/.*##g"| uniq);do
-                candidates="$candidates $i"
+                candidates="$(printf "$candidates\n$i\n")"
             done
         fi
         for candidate in $candidates;do
             r="$W/$candidate"
-            if is_role "$r";then ROLES="$ROLES $r";fi
+            if is_role "$r";then ROLES="$(printf "$ROLES\n$r\n")";fi
         done
     fi
-    if [[ -n "${TEST_VARS_ROLES}" ]];then
-        candidates=""
-        while read candidate;do
-            r="$W/$candidate"
-            if is_role "$r";then ROLES="$ROLES $(cd "$r" && pwd)";fi
-        done < <( \
-            find -maxdepth 1 -mindepth 1 -type d -name '*vars' \
-            | sort \
-            | egrep -v 'include_jinja_vars|lxc_vars': )
-    fi
 fi
+ROLES_VARS=""
+if [[ -n "${TEST_VARS_ROLES}" ]];then
+    while read candidate;do
+        r="$W/$candidate"
+        if is_role "$r";then
+            ROLES_VARS="$(printf "$ROLES_VARS\n$(cd "$r" && pwd)")"
+		fi
+    done < <( \
+        find -maxdepth 1 -mindepth 1 -type d -name '*vars' \
+        | sort \
+        | egrep -v 'include_jinja_vars|lxc_vars': )
+fi
+ROLES="$(printf "$ROLES\n"|uniq|xargs -n1)"
+ROLES_VARS="$(printf "$ROLES_VARS\n"|uniq|xargs -n1)"
+ROLES_TO_TEST="$(printf "$ROLES_VARS\n$ROLES\n"|uniq|xargs -n1)"
 if [[ -n $DRY_RUN ]];then
-    log "Testing $ROLES"
+    log "${CYAN}Testing${NORMAL}"
+    if [[ -n $ROLES_TO_TEST ]];then
+        log "${YELLOW}$(echo "$ROLES_TO_TEST"|sed "s/^/ - /g")${NORMAL}"
+    else
+        log "${YELLOW}No tests found${NORMAL}"
+    fi
     exit 0
 fi
 do_trap post_tests_cleanup EXIT
@@ -171,13 +223,21 @@ setup
 
 # no test == failure
 # then if at least one test fail, we fail
-ret=-1
-for r in $ROLES;do
-    if ! ( run_test "$r"; );then
-        ret=6
-    else
-        if [[ $ret == -1 ]];then ret=0;fi
-    fi
-done
+if [[ -n "$ROLES_VARS" ]];then
+    run_test "$ROLES_VARS"
+fi
+ret_vars=$?
+if [[ -n "$ROLES" ]];then
+    run_test "$ROLES"
+fi
+ret_roles=$?
+if [[ ${ret_roles} != 0 ]];then
+    log "${GREEN}Vars tests failed${NORMAL}"
+    ret=56
+fi
+if [[ ${ret_vars} != 0 ]];then
+    log "${RED}Roles tests failed${NORMAL}"
+    ret=57
+fi
 exit ${ret}
 # vim:set et sts=4 ts=4 tw=80:
