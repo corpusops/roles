@@ -79,24 +79,37 @@ install_cached_corpusops() {
             log "Failure to install corpusops"
             ret=3
         fi
+    fi &&\
+    if [[ -n "${SYNC_CORPUSOPS-}" ]];then
+        log "Sync back local corpusops tree to image"
+        vv docker exec -ti $runner \
+            rsync -a --exclude=venv/{bin,include,lib,local,man} \
+            "$LOCAL_COPS_ROOT/" "$COPS_ROOT/"
+    fi &&\
+    if [ $? != 0 ]; then
+        log "Failure to install corpusops"
+        ret=3
     fi
     return $ret
 }
 
+respawn_controller() {
+    vv docker rm -f $runner && spawn_controller
+}
+
 setup() {
     spawn_controller
+    install_cached_corpusops
     if [[ -n ${DOCKER_UPGRADE} ]];then
-        install_cached_corpusops
-        vv docker rm -f $runner  &&\
             sudo -E bash << EOF
               set -x
               service docker stop &&\
               $LOCAL_COPS_ROOT/bin/silent_run \
-                $LOCAL_COPS_ROOT/bin/cops_apply_role \
-                  $LOCAL_COPS_ROOT/roles/corpusops.roles/services_virt_docker/role.yml
+               $LOCAL_COPS_ROOT/bin/cops_apply_role \
+                $LOCAL_COPS_ROOT/roles/corpusops.roles/services_virt_docker/role.yml
 EOF
         die_in_error "docker upgrade"
-        spawn_controller
+        respawn_controller
     fi
     runnerid=$(get_runner_id)
     if [[ -z $runnerid ]];then
@@ -114,42 +127,24 @@ run_test() {
         fi
     done <<< "$roles"
     log "Testing $roles"
-    if [[ -z "${NOT_IN_DOCKER-}" ]]; then
-        if [[ -n ${FORCE_PULL-} ]];then
-            vv sudo docker exec $runnerid bash -c '$COPS_ROOT/bin/install.sh -C -s'
-        fi
-        if ! ( sudo docker exec $runnerid bash -c \
-            'if ! $COPS_ROOT/hacking/test_roles "'"${roles}"'"; then
-                  echo "First test try failed, try to update code and retry test" >&2;
-                  $COPS_ROOT/bin/install.sh -C -s &&\
-                  $COPS_ROOT/hacking/test_roles '"${roles}"';
-                fi' \
-           ); then
-             ret=1;
+    if [[ -n "${NOT_IN_DOCKER-}" ]]; then
+        log 'NOT_IN_DOCKER is set, skip tests in docker (baremetal tests)' >&2
+    fi
+    if [ ! -e "$LOCAL_COPS_ROOT/bin/silent_run" ];then
+        ( cd "$LOCAL_COPS_ROOT" && git pull; )
+    fi
+    if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
+        "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}"; then
+        echo 'BM: First test try failed, try to update code and retry test' >&2;
+        vv "$LOCAL_COPS_ROOT/bin/install.sh" -C -s;
+        if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
+            "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}";then
+            ret=2;
         else
             ret=0;
         fi
     else
-        log 'NOT_IN_DOCKER is set, skip tests in docker (baremetal tests)' >&2
-        install_cached_corpusops
-        if [[ $ret -le 1 ]];then
-            if [ ! -e "$LOCAL_COPS_ROOT/bin/silent_run" ];then
-                ( cd "$LOCAL_COPS_ROOT" && git pull; )
-            fi
-            if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
-                "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}"; then
-                echo 'BM: First test try failed, try to update code and retry test' >&2;
-                vv "$LOCAL_COPS_ROOT/bin/install.sh" -C -s;
-                if ! sudo -E "$LOCAL_COPS_ROOT/bin/silent_run" \
-                    "$LOCAL_COPS_ROOT/hacking/test_roles" "${roles}";then
-                    ret=2;
-                else
-                    ret=0;
-                fi
-            else
-                ret=0;
-            fi
-        fi
+        ret=0;
     fi
 }
 
