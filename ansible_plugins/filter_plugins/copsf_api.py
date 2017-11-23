@@ -639,6 +639,22 @@ def copsf_knobs(ansible_vars, namespaced, knobs, flavors=None):
     return namespaced
 
 
+def copsf_load_registry_pre(ansible_vars,
+                            prefix,
+                            registry=None,
+                            pre_prefix=None):
+    if pre_prefix is None and prefix:
+        pre_prefix = '{0}'.format(prefix[:-1])
+    pre = ansible_vars.get(pre_prefix, {})
+    registry = registry or ansible_vars.get(prefix, {})
+    if (
+        isinstance(pre, dict) and
+        isinstance(registry, dict)
+    ):
+        registry.update(pre)
+    return registry
+
+
 def copsf_load_registry_overrides(ansible_vars,
                                   prefix,
                                   registry=None,
@@ -680,11 +696,13 @@ def get_sub_namespaced(ansible_vars,
 
 def copsf_to_namespace(ansible_vars,
                        prefix,
+                       do_load_registry_pre=None,
                        do_load_overrides=None,
                        do_format_resolve=None,
                        do_update_namespaces=None,
                        do_to_vars=None,
                        global_scope=None,
+                       pre_prefix=None,
                        overrides_prefix=None,
                        sub_namespaced=None,
                        flavors=None,
@@ -712,11 +730,19 @@ def copsf_to_namespace(ansible_vars,
         namespaced = {}
     if prefixes is None:
         prefixes = []
+    if do_load_registry_pre is None:
+        do_load_registry_pre = True
     uplevel = level + 1
     if sub_namespaced is None:
         sub_namespaced = get_sub_namespaced(ansible_vars,
                                             namespaced,
                                             prefix)
+    if do_load_registry_pre:
+        namespaced = copsf_load_registry_pre(
+            ansible_vars,
+            prefix,
+            pre_prefix=pre_prefix,
+            registry=namespaced)
     if isinstance(sub_namespaced, list):
         nsub_namespaced = {}
         for i in sub_namespaced:
@@ -746,9 +772,11 @@ def copsf_to_namespace(ansible_vars,
             ansible_vars,
             sub_prefix,
             level=uplevel,
+            do_load_registry_pre=do_load_registry_pre,
             do_load_overrides=do_load_overrides,
             do_update_namespaces=do_update_namespaces,
             overrides_prefix=overrides_prefix,
+            pre_prefix=pre_prefix,
             flavors=flavors,
             prefixes=prefixes,
             name_prefix=name_prefix,
@@ -867,6 +895,7 @@ def get_subnamespaces(ansible_vars,
 
 def copsf_registry(ansible_vars,
                    prefix,
+                   do_load_registry_pre=None,
                    do_load_overrides=None,
                    do_update_namespaces=None,
                    do_format_resolve=None,
@@ -876,6 +905,7 @@ def copsf_registry(ansible_vars,
                    computed_defaults=None,
                    lowered=None,
                    flavors=None,
+                   pre_prefix=None,
                    overrides_prefix=None,
                    namespaced=None,
                    global_scope=True,
@@ -890,6 +920,7 @@ def copsf_registry(ansible_vars,
     namespaced, ansible_vars = copsf_to_namespace(
         ansible_vars,
         prefix,
+        do_load_registry_pre=do_load_registry_pre,
         do_load_overrides=do_load_overrides,
         do_format_resolve=do_format_resolve,
         do_to_vars=do_to_vars,
@@ -900,6 +931,7 @@ def copsf_registry(ansible_vars,
         lowered=lowered,
         flavors=flavors,
         global_scope=global_scope,
+        pre_prefix=pre_prefix,
         overrides_prefix=overrides_prefix,
         namespaced=namespaced,
         name_prefix=name_prefix,
