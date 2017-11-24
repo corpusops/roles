@@ -175,6 +175,10 @@ def wait_lock(
         pass
 
 
+def abspath(sstring):
+    return os.path.abspath(sstring)
+
+
 def dirname(sstring, level=-1):
     if sstring.endswith('/'):
         sstring = sstring[:-1]
@@ -974,6 +978,7 @@ __funcs__ = {
     'copsf_dirname': dirname,
     'copsf_api_basename': basename,
     'copsf_basename': basename,
+    'copsf_abspath': abspath,
     'copsf_bool': copsf_bool,
     'copsf_asbool': copsf_bool,
     'copsf_pdb': go_pdb,
