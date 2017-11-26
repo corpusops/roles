@@ -1,0 +1,15 @@
+---
+- hosts: "{{controllers|default('localhost')}}"
+  tasks:
+    - include_role: {name: corpusops.roles/ansible_plugins}
+    - block:
+      - file:
+          state: absent
+          path: "{{askey_path.value.path}}"
+        loop_control: {loop_var: askey_path}
+        with_dict: "{{cops_deploy_ssh_key_paths}}"
+      - file:
+          state: absent
+          path: "{{zskey_path.value.path}}.pub"
+        loop_control: {loop_var: zskey_path}
+        with_dict: "{{cops_deploy_ssh_key_paths}}"
