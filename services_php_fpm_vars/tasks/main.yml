@@ -26,4 +26,4 @@
                vars, prefix, global_scope=True)
              )[0] | to_json}}                             
   tags: [corpusops_vars, corpusops_services_php_fpm_vars]
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
