@@ -24,7 +24,7 @@
 # with debian cluster mgmnt, verify our pg is really up
 # and die otherwise
 - shell: |
-    systemctl --all --no-legend --no-pager|awk '{print $1}'|grep {{corpusops_services_db_postgresql_vars.version}}
+    systemctl --all --no-legend --no-pager|awk '{print $1}'|grep {{corpusops_services_db_postgresql_vars.version}}|grep postgresql|grep .service
   register: cops_pg_service
   changed_when: false
   when: "corpusops_vars.has_services_manager and ansible_service_mgr in ['systemd']"
