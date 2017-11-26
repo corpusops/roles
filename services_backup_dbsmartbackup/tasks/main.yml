@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_backup_dbsmartbackup preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_backup_dbsmartbackup | default(True) }}"
+  register: corpusops_services_backup_dbsmartbackup_can_run
+  tags: [corpusops_services_backup_dbsmartbackup]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_backup_dbsmartbackup_can_run.msg == True'
+  tags: [corpusops_services_backup_dbsmartbackup,
+         backup_prerequisites,
+         corpusops_services_backup_dbsmartbackup_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_backup_dbsmartbackup_can_run.msg == True'
+  tags: [corpusops_services_backup_dbsmartbackup,
+         backup_configuration,
+         corpusops_services_backup_dbsmartbackup_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_backup_dbsmartbackup_can_run.msg == True'
+  tags: [corpusops_services_backup_dbsmartbackup,
+         backup_services,
+         corpusops_services_backup_dbsmartbackup_services]

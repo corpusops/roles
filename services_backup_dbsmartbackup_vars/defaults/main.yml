@@ -1,0 +1,21 @@
+---
+corpusops_services_backup_dbsmartbackup_activated: False
+corpusops_services_backup_dbsmartbackup_disabled: "{{not corpusops_services_backup_dbsmartbackup_activated}}"
+corpusops_services_backup_dbsmartbackup_packages: [jq]
+corpusops_services_backup_dbsmartbackup_services: null
+corpusops_services_backup_dbsmartbackup_group: dbsmartbackup
+corpusops_services_backup_dbsmartbackup_user: dbsmartbackup
+corpusops_services_backup_dbsmartbackup_services_default: []
+corpusops_services_backup_dbsmartbackup_files: null
+corpusops_services_backup_dbsmartbackup_filescopy: null
+corpusops_services_backup_dbsmartbackup_filescopy_default: []
+corpusops_services_backup_dbsmartbackup_files_apt: []
+corpusops_services_backup_dbsmartbackup_files_default:
+  - {path: "/usr/bin/db_smart_backup.sh",
+     src: "{dir}/db_smart_backup.sh",
+     owner: root, group: root, state: link}
+corpusops_services_backup_dbsmartbackup_configs: null
+corpusops_services_backup_dbsmartbackup_configs_default: []
+corpusops_services_backup_dbsmartbackup_git: "https://github.com/kiorky/db_smart_backup.git"
+corpusops_services_backup_dbsmartbackup_version: "master"
+corpusops_services_backup_dbsmartbackup_dir: "{{corpusops_vars.apps_path}}/dbsmartbackup"
