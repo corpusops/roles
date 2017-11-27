@@ -655,7 +655,8 @@ def copsf_load_registry_pre(ansible_vars,
         isinstance(pre, dict) and
         isinstance(registry, dict)
     ):
-        registry.update(pre)
+        for i, v in six.iteritems(pre):
+            registry.setdefault(i, v)
     return registry
 
 
@@ -769,7 +770,8 @@ def copsf_to_namespace(ansible_vars,
         ):
             continue
         svar = prefix.join(var.split(prefix)[1:])
-        namespaced.update({svar: ansible_vars[var]})
+        # namespaced.update({svar: ansible_vars[var]})
+        namespaced.setdefault(svar, ansible_vars[var])
     for ns, sub_sub_namespaced in six.iteritems(sub_namespaced):
         sub_prefix = prefix+ns+'_'
         namespaced[ns], ansible_vars = copsf_to_namespace(
