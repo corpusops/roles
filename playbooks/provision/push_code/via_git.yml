@@ -150,7 +150,9 @@
     shell: |
         set -ex
         cd  "{{__cops_provision_push_code_vars.parent_dest}}"
-        git submodule update "{{__cops_provision_push_code_vars.path}}"
+        git submodule update \
+            {{__cops_provision_push_code_vars.update_opts.strip()}} \
+            "{{__cops_provision_push_code_vars.path}}"
     register: cops_sync_code_push_code_git_update_submodule
     changed_when: false
   - name: "git remote submodule: Ask current commit"

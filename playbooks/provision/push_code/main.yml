@@ -11,6 +11,7 @@
 #   sub_paths: submodules to sync (in the form see bellow)
 #   is_directory: (bool) is a dir (add / to end of rsync cmds)
 #   is_submodule: (bool) is a git submodule
+#   update_opts: default: --recursive: opts for submodule update when submodule
 #   sync_mode:
 #      rsync: bare sync asked folders (use case: vagrant/test)
 #      git: sync inner git folders and reset --hard on HEAD commits (use case: staging/prod)

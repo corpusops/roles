@@ -51,6 +51,7 @@
         {{ hostvars[inventory_hostname].ansible_ssh_common_args | default('') }}
         {{ hostvars[inventory_hostname].ansible_ssh_extra_args | default('') }}
         {% endif %}
+      update_opts: "{{_cops_provision_push_code.get('update_opts', '--recursive')}}"
       git_rsync_opts: |-
         {{(_cops_provision_push_code.get('git_rsync_opts', []) or ['-azv'])}}
       rsync_opts: |-
