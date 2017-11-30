@@ -28,3 +28,4 @@
     rsync_opts: "{{__cops_provision_push_code_vars.rsync_opts}}"
   when: (__cops_provision_push_code_vars.force_sync and
          __cops_provision_push_code_vars.origin in ['localhost'])
+
