@@ -254,6 +254,8 @@ def is_typ_(val, typs_):
             return isinstance(val, typs_)
         except Exception:
             return False
+    else:
+        return True
 
 
 def go_pdb(val=None, *args,  **kwargs):
