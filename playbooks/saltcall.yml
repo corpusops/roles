@@ -1,8 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles: [corpusops.roles/humanlog]
-
-- hosts: "{{hosts|default('all')}}"
   tasks:
     - name: >
             salt-call

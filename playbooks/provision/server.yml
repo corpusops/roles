@@ -1,8 +1,6 @@
 ---
 - hosts: "{{provision_host|default('all')}}"
   roles:
-    - role: corpusops.roles/humanlog
-      tags: prereqs
     - role: corpusops.roles/vars
       tags: prereqs
   tasks:

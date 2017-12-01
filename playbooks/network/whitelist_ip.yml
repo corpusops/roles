@@ -1,6 +1,4 @@
 ---
-- hosts: "{{hosts|default('all')}}"
-  roles: [corpusops.roles/humanlog]
 - hosts: all
   tasks:
     - name: transfer script

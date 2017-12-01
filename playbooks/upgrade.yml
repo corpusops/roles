@@ -1,7 +1,5 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  roles: [corpusops.roles/humanlog]
-- hosts: "{{hosts|default('all')}}"
   vars:
     cops_root: "/srv/corpusops/corpusops.bootstrap"
     ms_root: "/srv/makina-states"
