@@ -1,5 +1,4 @@
 ---
-#- debug: {msg: "{{cops_get_secret_variable_vars}}"}
 - stat:
     path: "{{cops_get_secret_variable_vars.path}}"
   register: get_secret_variable_container
@@ -16,7 +15,7 @@
   changed_when: false
 - set_fact:
     cacheable: false
-    cops_get_secret_variable_value: "{{cops_get_secret_variable_variable_cmd.stdout.strip() or (32|copsf_secure_password)}}"
+    cops_get_secret_variable_value: "{{cops_get_secret_variable_variable_cmd.stdout.strip() or (cops_get_secret_variable_vars.length|copsf_secure_password)}}"
   no_log: True
 - copy:
     mode: "0600"

@@ -12,6 +12,12 @@
 - debug: 
     msg: failed
   failed_when: "not cops_get_secret_variable_vars.name"
+- assert:
+    that:
+      - cops_get_secret_variable_vars.path is not none
+      - cops_get_secret_variable_vars.name is not none
+      - cops_get_secret_variable_vars.length is not none
+    msg: invalid parameters
 - include_tasks: run.yml
   tags: [get_secret_variable, get_secret_variable_run]
   when: "corpusops_get_secret_variable_can_run.msg == True"
