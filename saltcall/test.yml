@@ -1,6 +1,5 @@
 - hosts: all
   roles:
-    - role: corpusops.roles/humanlog
     - role: corpusops.roles/lsb_release
     - role: corpusops.roles/saltcall
 - hosts: all
