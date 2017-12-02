@@ -61,7 +61,7 @@
       {%   set _ = res[n].update(res[n]
                                  | copsf_format_resolve(
                                      res[n],
-                                     additional_namespaces=[vars], topdb=True)) %}
+                                     additional_namespaces=[vars])) %}
       {%  else %}
       {%   set _ = res.update(res
                               | copsf_format_resolve(
