@@ -43,7 +43,7 @@
   register: cops_registry_done
   no_log: "{{not (cops_vars_debug|default(false))}}"
 
-- name: "Format resolve, second pass after ansible rendering when enabled"
+- name: "Second pass after ansible rendering"
   include_jinja_vars:
     content: |
       ---
