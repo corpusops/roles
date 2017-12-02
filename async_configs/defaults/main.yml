@@ -1,0 +1,14 @@
+---
+# not defined for them to be redefined in callers
+# cops_async_configs_configs
+# cops_async_configs_templates
+# cops_async_retry_delay
+# cops_async_retries
+# cops_async_configs_notify
+# cops_async_configs_configs_notify
+# cops_async_configs_templates_notify
+_cops_async_configs_async: "{{10**5}}"
+_cops_poll_configs_poll: "{{0}}"
+# for now template does not support async
+# https://github.com/ansible/ansible/issues/32265
+_cops_async_configs_is_async: False

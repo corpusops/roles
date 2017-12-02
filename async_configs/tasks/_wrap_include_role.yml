@@ -1,0 +1,4 @@
+---
+# https://github.com/ansible/ansible/issues/18124
+# ...
+- include_role: {name: corpusops.roles/async_wait, private: true}
