@@ -9,9 +9,6 @@
     cops_vars_registry_target: cops_get_secret_variable
   tags: [get_secret_variable, vars]
   when: "corpusops_get_secret_variable_can_run.msg == True"
-- debug: 
-    msg: failed
-  failed_when: "not cops_get_secret_variable_vars.name"
 - assert:
     that:
       - cops_get_secret_variable_vars.path is not none
