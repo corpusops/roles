@@ -1,0 +1,6 @@
+---
+# not defined for them to be redefined in callers
+# cops_async_retry_delay: 0
+# cops_async_retries: "{{10**5}}"
+_cops_async_retry_delay: 1
+_cops_async_retries: "{{10**5}}"

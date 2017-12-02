@@ -1,0 +1,31 @@
+---
+- async_status: {jid: "{{cops_async_item.ansible_job_id}}"}
+  register: cops_async_poll_results
+  until: cops_async_poll_results.finished
+  retries: "{{cops_async_retries|default(_cops_async_retries)}}"
+  delay: "{{(cops_async_retry_delay
+             |default(_cops_async_retry_delay))|int}}"
+  with_items: "{{cops_async_results.results}}"
+  failed_when: false
+  loop_control: {loop_var: cops_async_item}
+- debug:
+    msg: |
+      {% set res = {} %}
+      {% for r in cops_async_results.results %}
+      {% set _ = r.setdefault('finished', 0) %}
+      {% endfor %}
+      {% for r,val in cops_async_poll_results.results|groupby('finished') %}
+      {% set _ = res.update({r:val}) %}
+      {% endfor %}
+      {{ res | to_json }}
+  register: cops_async_poll_results_g
+- debug:
+    msg:
+      error: "{{(cops_async_poll_results_g.msg.get('0', [])
+            and 'At least one async job timed-out'
+            or 'Async job failed')}}"
+      poll_results: "{{cops_async_results.results}}"
+      waiting_for: "{{cops_async_poll_results.results}}"
+  register: cops_async_error
+  failed_when: cops_async_poll_results.failed
+  when: cops_async_poll_results|failed

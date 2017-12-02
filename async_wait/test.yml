@@ -1,0 +1,39 @@
+- hosts: all
+  gather_facts: no
+  vars:
+    test_cmds: [
+      "sleep 1", "sleep 2", "false", "sleep 5 && /bin/false"]
+  tasks:
+  - block:
+    - shell: "{{item}}"
+      async: 100000
+      poll: 0
+      register: cops_async_results
+      with_items: "{{test_cmds}}"
+    - include_role: {name: corpusops.roles/async_wait, private: true}
+      vars: {cops_async_retry_delay: 1, cops_async_retries: 1}
+    rescue:
+    - assert:
+        that: "'timed-out' in cops_async_error.msg.error"
+        msg: assert failed1
+  - block:
+    - shell: "{{item}}"
+      async: 100000
+      poll: 0
+      register: cops_async_results
+      with_items: "{{test_cmds[:-1]}}"
+    - include_role: {name: corpusops.roles/async_wait, private: true}
+      vars: {cops_async_retry_delay: 1, cops_async_retries: 45}
+    rescue:
+    - assert:
+        that: "'failed' in cops_async_error.msg.error"
+        msg: assert failed2
+  - block:
+    - shell: "{{item}}"
+      async: 100000
+      poll: 0
+      register: cops_async_results
+      with_items: "{{test_cmds[:-2]}}"
+    - include_role: {name: corpusops.roles/async_wait, private: true}
+      vars: {cops_async_retry_delay: 1, cops_async_retries: 4}
+
