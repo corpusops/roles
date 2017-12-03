@@ -7,6 +7,7 @@ from __future__ import print_function
 import six
 import time
 import collections
+import cProfile
 import os
 import contextlib
 import hashlib
@@ -32,6 +33,7 @@ except ImportError:
     HAS_RANDOM = False
 
 
+_STR_RESOLVED_CACHE = {}
 _RESOLVED_CACHE = {}
 is_really_a_var = re.compile('(\{[^:}]+\})', re.M | re.U)
 __fn = os.path.abspath(__file__)
@@ -295,7 +297,14 @@ def unresolved(data, jinja=None):
     iddata = id(data)
     if jinja is None:
         jinja = True
-    ret = _RESOLVED_CACHE.setdefault(jinja, {}).get(iddata, None)
+    try:
+        jcache = _RESOLVED_CACHE[jinja]
+    except KeyError:
+        jcache = _RESOLVED_CACHE[jinja] = {}
+    try:
+        ret = jcache[iddata]
+    except KeyError:
+        ret = None
     if ret is not None:
         return ret
     if isinstance(data, six.string_types):
@@ -320,16 +329,14 @@ def unresolved(data, jinja=None):
             ret = False
     elif isinstance(data, dict):
         for k, val in six.iteritems(data):
-            ret1 = unresolved(k)
-            ret2 = unresolved(val)
-            ret = ret1 or ret2
-            if ret:
-                break
+            # if unresolved(k, jinja=jinja):
+            #    break
+            if unresolved(val, jinja=jinja):
+                return True
     elif isinstance(data, (list, set)):
         for val in data:
-            ret = unresolved(val)
-            if ret:
-                break
+            if unresolved(val, jinja=jinja):
+                return True
     _RESOLVED_CACHE[jinja][iddata] = ret
     return ret
 
@@ -348,7 +355,8 @@ def _str_resolve(new,
     init_new = new
     # do not directly call format to handle keyerror in original mapping
     # where we may have yet keyerrors
-    if isinstance(original_dict, dict):
+    unresolved_state = unresolved(new, jinja=jinja)
+    if unresolved_state and isinstance(original_dict, dict):
         for k in original_dict:
             reprk = k
             if not isinstance(reprk, six.string_types):
@@ -372,10 +380,10 @@ def _str_resolve(new,
                 else:
                     if new != subst_val:
                         new = new.replace(subst, str(subst_val))
-            if not unresolved(new, jinja=jinja):
+            unresolved_state = unresolved(new, jinja=jinja)
+            if not unresolved_state:
                 # new value has been totally resolved
                 break
-    unresolved_state = unresolved(new, jinja=jinja)
     return new, new != init_new, unresolved_state
 
 
@@ -414,7 +422,12 @@ def _format_resolve(value,
     if not unresolved_state:
         return value, False, False
 
-    if isinstance(value, dict):
+    if isinstance(value, six.string_types):
+        new, changed_, unresolved_state_ = _str_resolve(
+            value, original_dict, jinja=jinja, topdb=topdb)
+        unresolved_state = unresolved_state or unresolved_state_
+        changed = changed_ or changed
+    elif isinstance(value, dict):
         new = type(value)()
         for key, v in value.items():
             val, changed_, unresolved_state_ = _format_resolve(
@@ -430,16 +443,14 @@ def _format_resolve(value,
             unresolved_state = unresolved_state or unresolved_state_
             changed = changed_ or changed
             new = new + type(value)([val])
-    elif isinstance(value, six.string_types):
-        new, changed_, unresolved_state_ = _str_resolve(
-            value, original_dict, jinja=jinja, topdb=topdb)
-        unresolved_state = unresolved_state or unresolved_state_
-        changed = changed_ or changed
     else:
         new = value
 
-    if unresolved_state and retry is None:
-        retry = True
+    if unresolved_state:
+        if retry is None:
+            retry = True
+    else:
+        retry = False
 
     while retry and (this_call < 100):
         new, changed, unresolved_state = _format_resolve(
@@ -579,15 +590,16 @@ def copsf_reset_vars_from_registry(ansible_vars,
     dsvars = ansible_vars.setdefault('__'+prefix+registry_suffix, {})
     name_prefix = get_name_prefix(name_prefix, prefix)
     old_vars = ansible_vars.pop(name_prefix, {})
+    sprefixes = (prefix, prefix+prefix)
+    prefixes = [name_prefix, prefix[:-1]]
     for svar in [
         a for a in ansible_vars
-        if not (
-            a.startswith(prefix) and
-            a.startswith(prefix+prefix) and
-            a not in [name_prefix, prefix[:-1]]
+        if (
+            a.startswith(sprefixes) and
+            a not in prefixes
         )
     ]:
-        var = prefix.join(svar.split(prefix)[1:])
+        var = svar.split(prefix, 1)[1]
         reg_val = dsvars.get(var, REGISTRY_DEFAULT_VALUE)
         cur_val = ansible_vars.get(svar, REGISTRY_DEFAULT_VALUE)
         old_val = old_vars.get(var, REGISTRY_DEFAULT_VALUE)
@@ -792,7 +804,7 @@ def copsf_to_namespace(ansible_vars,
                              (var.startswith(prefix+prefix)) or
                              (not var.startswith(prefix)))]
     for var in ansible_vars_keys:
-        svar = prefix.join(var.split(prefix)[1:])
+        svar = var.split(prefix, 1)[1]
         ansible_vars = register_default_val(
             ansible_vars, svar, prefix, registry_suffix)
         if level:
@@ -946,8 +958,13 @@ def copsf_registry(ansible_vars,
                    global_scope=True,
                    name_prefix=None,
                    sub_namespaced=None,
+                   profile=False,
                    registry_suffix=REGISTRY_DEFAULT_SUFFIX,
                    **kw):
+    pr = None
+    if profile:
+        pr = cProfile.Profile()
+        pr.enable()
     name_prefix = get_name_prefix(name_prefix, prefix)
     ansible_vars = copsf_reset_vars_from_registry(
         ansible_vars, prefix, name_prefix,
@@ -972,6 +989,10 @@ def copsf_registry(ansible_vars,
         name_prefix=name_prefix,
         sub_namespaced=sub_namespaced,
         registry_suffix=registry_suffix)
+    if profile:
+        pr.disable()
+        fich, fic = tempfile.mkstemp()
+        pr.dump_stats(fic+'_astat')
     return namespaced, ansible_vars
 
 
