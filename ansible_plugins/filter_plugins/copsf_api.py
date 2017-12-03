@@ -592,17 +592,20 @@ def copsf_reset_vars_from_registry(ansible_vars,
     old_vars = ansible_vars.pop(name_prefix, {})
     sprefixes = (prefix, prefix+prefix)
     prefixes = [name_prefix, prefix[:-1]]
-    for svar in [
+    p = False
+    if 'nginx_vhost' in prefix:
+        p = True
+    for var in [
         a for a in ansible_vars
         if (
             a.startswith(sprefixes) and
             a not in prefixes
         )
     ]:
-        var = svar.split(prefix, 1)[1]
-        reg_val = dsvars.get(var, REGISTRY_DEFAULT_VALUE)
-        cur_val = ansible_vars.get(svar, REGISTRY_DEFAULT_VALUE)
-        old_val = old_vars.get(var, REGISTRY_DEFAULT_VALUE)
+        svar = var.split(prefix, 1)[1]
+        reg_val = dsvars.get(svar, REGISTRY_DEFAULT_VALUE)
+        cur_val = ansible_vars.get(var, REGISTRY_DEFAULT_VALUE)
+        old_val = old_vars.get(svar, REGISTRY_DEFAULT_VALUE)
         if (
             cur_val == REGISTRY_DEFAULT_VALUE or
             reg_val == REGISTRY_DEFAULT_VALUE
@@ -611,7 +614,7 @@ def copsf_reset_vars_from_registry(ansible_vars,
         if (reg_val == old_val and reg_val != cur_val):
             dsvars[var] = cur_val
             continue
-        ansible_vars[svar] = reg_val
+        ansible_vars[var] = reg_val
     return ansible_vars
 
 
@@ -807,10 +810,7 @@ def copsf_to_namespace(ansible_vars,
         svar = var.split(prefix, 1)[1]
         ansible_vars = register_default_val(
             ansible_vars, svar, prefix, registry_suffix)
-        if level:
-            namespaced.update({svar: ansible_vars[var]})
-        else:
-            namespaced.setdefault(svar, ansible_vars[var])
+        namespaced[svar] = ansible_vars[var]
     for ns, sub_sub_namespaced in six.iteritems(sub_namespaced):
         sub_prefix = prefix+ns+'_'
         namespaced[ns], ansible_vars = copsf_to_namespace(
@@ -830,7 +830,7 @@ def copsf_to_namespace(ansible_vars,
             registry_suffix=registry_suffix)
         for sv, ssval in six.iteritems(namespaced[ns]):
             svar = ns+'_'+sv
-            namespaced.update({svar: ssval})
+            namespaced[svar] = ssval
     # compute those args only after registry can give behavior !
     if subos_append is None:
         subos_append = namespaced.get('cops_subos_append', {})
@@ -960,15 +960,19 @@ def copsf_registry(ansible_vars,
                    sub_namespaced=None,
                    profile=False,
                    registry_suffix=REGISTRY_DEFAULT_SUFFIX,
+                   update_mode=None,
                    **kw):
     pr = None
+    if namespaced is not None and update_mode is None:
+        update_mode = True
     if profile:
         pr = cProfile.Profile()
         pr.enable()
     name_prefix = get_name_prefix(name_prefix, prefix)
-    ansible_vars = copsf_reset_vars_from_registry(
-        ansible_vars, prefix, name_prefix,
-        registry_suffix=registry_suffix)
+    if not update_mode:
+        ansible_vars = copsf_reset_vars_from_registry(
+            ansible_vars, prefix, name_prefix,
+            registry_suffix=registry_suffix)
     namespaced, ansible_vars = copsf_to_namespace(
         ansible_vars,
         prefix,
