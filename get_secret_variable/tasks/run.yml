@@ -11,12 +11,12 @@
 - shell: cat "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}" 2>/dev/null
   failed_when: false
   register: cops_get_secret_variable_variable_cmd
-  no_log: True
   changed_when: false
+  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
 - set_fact:
     cacheable: false
     cops_get_secret_variable_value: "{{cops_get_secret_variable_variable_cmd.stdout.strip() or (cops_get_secret_variable_vars.length|copsf_secure_password)}}"
-  no_log: True
+  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
 - copy:
     mode: "0600"
     content: "{{cops_get_secret_variable_value}}"
