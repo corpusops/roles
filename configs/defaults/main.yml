@@ -1,0 +1,24 @@
+---
+# not defined for them to be redefined in callers
+#
+# cops_configs_files
+# cops_configs_templates
+# cops_configs_copys
+#
+# cops_configs_notify
+# cops_configs_templates_notify
+# cops_configs_copys_notify
+#
+cops_configs_async: "{{10**5}}"
+cops_configs_poll: "{{0}}"
+
+# for now template does not support async
+# https://github.com/ansible/ansible/issues/32265
+cops_configs_is_async: False
+cops_configs_is_async_files: "{{cops_configs_is_async}}"
+cops_configs_is_async_templates: "{{cops_configs_is_async}}"
+cops_configs_is_async_copys: "{{cops_configs_is_async}}"
+
+# modifiers when running async:
+cops_configs_async_retry_delay: "{{_cops_configs_poll|default(_cops_configs_poll)}}"
+cops_configs_async_retries: "{{_cops_configs_async|default(_cops_configs_async)}}"
