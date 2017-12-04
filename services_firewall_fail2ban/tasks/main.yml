@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_firewall_fail2ban preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_firewall_fail2ban | default(True) }}"
+  register: corpusops_services_firewall_fail2ban_can_run
+  tags: [corpusops_services_firewall_fail2ban]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_firewall_fail2ban_can_run.msg == True'
+  tags: [corpusops_services_firewall_fail2ban,
+         fail2ban_prerequisites,
+         corpusops_services_firewall_fail2ban_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_firewall_fail2ban_can_run.msg == True'
+  tags: [corpusops_services_firewall_fail2ban,
+         fail2ban_configuration,
+         corpusops_services_firewall_fail2ban_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_firewall_fail2ban_can_run.msg == True'
+  tags: [corpusops_services_firewall_fail2ban,
+         fail2ban_services,
+         corpusops_services_firewall_fail2ban_services]

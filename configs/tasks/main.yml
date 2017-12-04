@@ -47,12 +47,12 @@
 - when: ["cops_configs_is_async_templates"]
   name: async templates
   template:
-    dest: "{{cops_aconfig_cfg_item.dest}}"
+    dest: "{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
     src: "{{cops_aconfig_cfg_item.src
             | default(
                 cops_aconfig_cfg_item.template
                 | default('templates{0}'.format(
-                  cops_aconfig_cfg_item.dest)
+                  cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
                   )
               )}}"
     force: "{{cops_aconfig_cfg_item.force|default(True)}}"
@@ -77,12 +77,12 @@
 - when: ["not cops_configs_is_async_templates"]
   name: sync templates
   template:
-    dest: "{{cops_aconfig_cfg_item.dest}}"
+    dest: "{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
     src: "{{cops_aconfig_cfg_item.src
             | default(
                 cops_aconfig_cfg_item.template
                 | default('templates{0}'.format(
-                  cops_aconfig_cfg_item.dest)
+                  cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
                   )
               )}}"
     force: "{{cops_aconfig_cfg_item.force|default(True)}}"

@@ -1,0 +1,19 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{corpusops_services_firewall_fail2ban_vars.files}}"
+    cops_configs_copys: "{{corpusops_services_firewall_fail2ban_vars.filescopy}}"
+    cops_configs_templates: "{{corpusops_services_firewall_fail2ban_vars.configs}}"
+  tags: [fail2ban_configs]
+- set_fact:
+    cacheable: false
+    corpusops_services_firewall_fail2ban_filest: "{{cops_configs_files_results}}"
+    corpusops_services_firewall_fail2ban_filesct: "{{cops_configs_copys_results}}"
+    corpusops_services_firewall_fail2ban_configst: "{{cops_configs_templates_results}}"
+  tags: [fail2ban_configs]
+- set_fact:
+    cacheable: false
+    corpusops_services_firewall_fail2ban_configs_changed: "{{(
+      corpusops_services_firewall_fail2ban_filest|changed or
+      corpusops_services_firewall_fail2ban_filesct|changed or
+      corpusops_services_firewall_fail2ban_configst|changed)}}"

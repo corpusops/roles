@@ -1,0 +1,135 @@
+---
+corpusops_services_firewall_fail2ban_activated: True
+corpusops_services_firewall_fail2ban_disabled: "{{not corpusops_services_firewall_fail2ban_activated}}"
+corpusops_services_firewall_fail2ban_repo_keys_url: null
+corpusops_services_firewall_fail2ban_repo_keys: null
+corpusops_services_firewall_fail2ban_repo_keys_default: []
+corpusops_services_firewall_fail2ban_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_firewall_fail2ban_repo: null
+corpusops_services_firewall_fail2ban_packages: null
+corpusops_services_firewall_fail2ban_packages_default:
+  - 'fail2ban'
+corpusops_services_firewall_fail2ban_services: null
+corpusops_services_firewall_fail2ban_group: fail2ban
+corpusops_services_firewall_fail2ban_services_default: [fail2ban]
+corpusops_services_firewall_fail2ban_files: null
+corpusops_services_firewall_fail2ban_files_default:
+  - {name: "/etc/fail2ban",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_services_firewall_fail2ban_filescopy: null
+corpusops_services_firewall_fail2ban_filescopy_default: []
+corpusops_services_firewall_fail2ban_files_apt: []
+corpusops_services_firewall_fail2ban_configs: null
+corpusops_services_firewall_fail2ban_configs_default:
+  - {name: "/etc/fail2ban/jail.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/jail.d/autojail.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/filter.d/autofilter.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/action.d/autoaction.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/fail2ban.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/init.d/fail2ban",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/systemd/system/fail2ban.service",
+     owner: root, group: root, state: directory, mode: "0644"}
+corpusops_services_firewall_fail2ban_configs_redhat:
+  - {name: "/etc/fail2ban/jail.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/jail.d/autojail.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/filter.d/autofilter.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/action.d/autoaction.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/fail2ban/fail2ban.conf",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/init.d/fail2ban",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/systemd/system/fail2ban.service",
+     owner: root, group: root, state: directory, mode: "0644"}
+corpusops_services_firewall_fail2ban_cops_sub_namespaces:
+  jails: {}
+  filters: {}
+  settings: {}
+  mail: {}
+  actions: {}
+  default_jails_opts: {}
+  default_filters_opts: {}
+  default_actions_opts: {}
+corpusops_services_firewall_fail2ban_filters:
+  wordpress:
+    failregex: '^%(__prefix_line)sWordpress authentication failure for .* from <HOST>$'
+# exemple to add a fail/filter/action
+# corpusops_services_firewall_fail2ban_jails_truc:
+#   foo:
+#     enable: 'false'
+corpusops_services_firewall_fail2ban_jails:
+  wordpress:
+      filter: 'wordpress'
+      port: 'http,https'
+      enable: 'false'
+corpusops_services_firewall_fail2ban_default_jail_opts:
+  port: 'ssh'
+  logpath: '/var/log/syslog'
+  banaction: "{banaction}"
+  maxretry: 5
+  findtime: 600
+  bantime: 600
+  enabled: 'false'
+  filter: 'sshd'
+corpusops_services_firewall_fail2ban_default_actions_opts: {}
+corpusops_services_firewall_fail2ban_default_filters_opts:
+   ignoreregex: ''
+corpusops_services_firewall_fail2ban_port: 'ssh'
+corpusops_services_firewall_fail2ban_loglevel: 'INFO'
+corpusops_services_firewall_fail2ban_logpath: '/var/log/syslog'
+corpusops_services_firewall_fail2ban_logtarget: '{logpath}'
+#corpusops_services_firewall_fail2ban_banaction: 'iptables'
+corpusops_services_firewall_fail2ban_banaction: 'iptables-multiport'
+corpusops_services_firewall_fail2ban_findtime: '600'
+corpusops_services_firewall_fail2ban_bantime: '600'
+corpusops_services_firewall_fail2ban_filter: 'sshd'
+corpusops_services_firewall_fail2ban_usedns: 'no'
+corpusops_services_firewall_fail2ban_dbpurgeage: '86400'
+corpusops_services_firewall_fail2ban_dbfile: '/var/lib/fail2ban/fail2ban.sqlite3'
+corpusops_services_firewall_fail2ban_pidfile: '/var/run/fail2ban/fail2ban.pid'
+corpusops_services_firewall_fail2ban_socket: '/var/run/fail2ban/fail2ban.sock'
+corpusops_services_firewall_fail2ban_backend: 'polling'
+corpusops_services_firewall_fail2ban_maxretry: '10'
+corpusops_services_firewall_fail2ban_ssh_maxretry: "{maxretry}"
+corpusops_services_firewall_fail2ban_protocol: 'tcp'
+corpusops_services_firewall_fail2ban_sender:    '{destemail}'
+corpusops_services_firewall_fail2ban_destemail: 'root@localhost'
+corpusops_services_firewall_fail2ban_mta: 'sendmail'
+corpusops_services_firewall_fail2ban_ignoreip: '127.0.0.1/8'
+corpusops_services_firewall_fail2ban_default_enabled: 'false'
+corpusops_services_firewall_fail2ban_courier_auth_enabled: 'false'
+corpusops_services_firewall_fail2ban_postfix_enabled: 'false'
+corpusops_services_firewall_fail2ban_postfix_sasl_enabled: 'false'
+corpusops_services_firewall_fail2ban_before: 'paths-debian.conf'
+corpusops_services_firewall_fail2ban_wuftpd_enabled: 'false'
+corpusops_services_firewall_fail2ban_proftpd_enabled: 'false'
+corpusops_services_firewall_fail2ban_pureftpd_enabled: 'true'
+corpusops_services_firewall_fail2ban_ssh_enabled: 'true'
+corpusops_services_firewall_fail2ban_recidive_enabled: 'false'
+corpusops_services_firewall_fail2ban_asterisk_enabled: 'false'
+corpusops_services_firewall_fail2ban_named_enabled: 'false'
+corpusops_services_firewall_fail2ban_actions: {}
+corpusops_services_firewall_fail2ban_mail_enabled: "false"
+corpusops_services_firewall_fail2ban_mail_host: "localhost"
+corpusops_services_firewall_fail2ban_mail_port: "25"
+corpusops_services_firewall_fail2ban_mail_user: ""
+corpusops_services_firewall_fail2ban_mail_from: "{sender}"
+corpusops_services_firewall_fail2ban_mail_localtime: "true"
+corpusops_services_firewall_fail2ban_mail_to: "{destemail}"
+corpusops_services_firewall_fail2ban_mail_password: ""
+corpusops_services_firewall_fail2ban_mail_subject: "[Fail2Ban {{ansible_fqdn}}] <section>: Banned <ip>"
+corpusops_services_firewall_fail2ban_mail_message: |-
+  Hi,<br>
+    The IP <ip> has just been banned by Fail2Ban
+    after <failures> attempts against <section>.<br>
+    Regards,<br>
+    Fail2Ban
