@@ -187,7 +187,7 @@
     - include_role: {name: corpusops.roles/localsettings_profile}
       tags: profile
       when: provision_corpusops_localsettings_profile
-    - role: corpusops.roles/services_firewall_fail2ban
+    - include_role: {name: corpusops.roles/services_firewall_fail2ban}
       tags: fail2ban
       when: provision_corpusops_services_firewall_fail2ban
     - include_role: {name: corpusops.roles/localsettings_apparmor}
