@@ -102,11 +102,11 @@
                 corpusops_localsettings_dns_servers or
                 corpusops_localsettings_dns_search) | length > 0 %}
           {% set corpusops_localsettings_minikube = corpusops_localsettings_minikube
-                | default(True) %}
+                | default(false) %}
           {% set corpusops_localsettings_makinastates = corpusops_localsettings_makinastates
-                | default(True) %}
+                | default(False) %}
           {% set corpusops_localsettings_kubectl = corpusops_localsettings_kubectl
-                | default(True) %}
+                | default(False) %}
           {% set corpusops_services_backup_dbsmartbackup = corpusops_services_backup_dbsmartbackup
                 | default(False) %}
           provision_corpusops_localsettings_minikube: {{ corpusops_localsettings_minikube }}
