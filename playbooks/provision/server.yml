@@ -101,6 +101,18 @@
           {% set corpusops_localsettings_dns = (
                 corpusops_localsettings_dns_servers or
                 corpusops_localsettings_dns_search) | length > 0 %}
+          {% set corpusops_localsettings_minikube = corpusops_localsettings_minikube
+                | default(True) %}
+          {% set corpusops_localsettings_makinastates = corpusops_localsettings_makinastates
+                | default(True) %}
+          {% set corpusops_localsettings_kubectl = corpusops_localsettings_kubectl
+                | default(True) %}
+          {% set corpusops_services_backup_dbsmartbackup = corpusops_services_backup_dbsmartbackup
+                | default(False) %}
+          provision_corpusops_localsettings_minikube: {{ corpusops_localsettings_minikube }}
+          provision_corpusops_localsettings_makinastates: {{ corpusops_localsettings_makinastates }}
+          provision_corpusops_localsettings_kubectl: {{ corpusops_localsettings_kubectl }}
+          provision_corpusops_services_backup_dbsmartbackup: {{ corpusops_services_backup_dbsmartbackup }}
           provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
           provision_corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
           provision_corpusops_services_db_postgresql_client: {{ corpusops_services_db_postgresql_client }}
@@ -157,6 +169,9 @@
     - include_role: {name: corpusops.roles/localsettings_locales}
       tags: locales
       when: provision_corpusops_localsettings_locales
+    - include_role: {name: corpusops.roles/localsettings_makinastates}
+      tags: makinastates
+      when: provision_corpusops_localsettings_makinastates
     - include_role: {name: corpusops.roles/localsettings_timezone}
       tags: timezone
       when: provision_corpusops_localsettings_timezone
@@ -172,6 +187,9 @@
     - include_role: {name: corpusops.roles/localsettings_profile}
       tags: profile
       when: provision_corpusops_localsettings_profile
+    - role: corpusops.roles/services_firewall_fail2ban
+      tags: fail2ban
+      when: provision_corpusops_services_firewall_fail2ban
     - include_role: {name: corpusops.roles/localsettings_apparmor}
       tags: apparmor
       when: provision_corpusops_localsettings_apparmor
@@ -190,6 +208,12 @@
     - include_role: {name: corpusops.roles/localsettings_dockercompose}
       tags: dockercompose
       when: provision_corpusops_localsettings_dockercompose
+    - include_role: {name: corpusops.roles/localsettings_kubectl}
+      tags: kubectl
+      when: provision_corpusops_localsettings_kubectl
+    - include_role: {name: corpusops.roles/localsettings_minikube}
+      tags: minikube
+      when: provision_corpusops_localsettings_minikube
     - include_role: {name: corpusops.roles/localsettings_packer}
       tags: packer
       when: provision_corpusops_localsettings_packer
@@ -256,6 +280,9 @@
     - include_role: {name: corpusops.roles/services_db_postgis}
       tags: postgis
       when: provision_corpusops_services_db_postgis
+    - include_role: {name: corpusops.roles/services_backup_dbsmartbackup}
+      tags: dbsmartbackup
+      when: provision_corpusops_services_backup_dbsmartbackup
     - include_role: {name: corpusops.roles/localsettings_php}
       tags: php
       when: provision_corpusops_localsettings_php
