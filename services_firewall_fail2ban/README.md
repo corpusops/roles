@@ -2,7 +2,6 @@
 ## Documentation
 
 - Installs fail2ban on your host
-- You may have a look to [fail2ban_vhost](../fail2ban_vhost) role to configure additional vhosts
 
 ## Role variables
 To see variables for this role, call it directly via
