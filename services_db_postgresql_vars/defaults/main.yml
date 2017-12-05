@@ -13,8 +13,9 @@ corpusops_services_db_postgresql_client_packages_default:
   - 'libpq-dev'
   - 'python-psycopg2'
   - 'python3-psycopg2'
-  - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
   - 'postgresql-client-{corpusops_services_db_postgresql_version}'
+  # installs server !
+  # - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
 corpusops_services_db_postgresql_packages: null
 corpusops_services_db_postgresql_packages_default:
   - 'libpq-dev'
