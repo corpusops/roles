@@ -2,7 +2,7 @@
 - include_role:
     name: corpusops.roles/postgresql_extensions
   vars:
-    cops_postgresql_extensions:
+    _cops_postgresql_extensions:
       db: "{{cops_postgresql_install_postgis_vars.db}}"
       port: "{{cops_postgresql_install_postgis_vars.port}}"
       login_host: "{{cops_postgresql_install_postgis_vars.login_host}}"
