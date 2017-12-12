@@ -966,6 +966,10 @@ def copsf_to_namespace(ansible_vars,
         namespaced = copsf_format_resolve(namespaced,
                                           additional_namespaces=[ansible_vars],
                                           topdb=format_resolve_topdb)
+    if lowered:
+        namespaced = copsf_compute_lower(ansible_vars,
+                                         namespaced,
+                                         lowered)
     scope = namespaced
     if level < 1 and do_to_vars:
         scope, ansible_vars = copsf_registry_to_vars(
