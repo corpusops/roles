@@ -1,11 +1,23 @@
 ---
+corpusops_services_db_postgresql_cops_do_format_resolve: true
+corpusops_services_db_postgresql_cops_computed_defaults: []
+corpusops_services_db_postgresql_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_services_db_postgresql_cops_sub_os_append: {}
+corpusops_services_db_postgresql_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo',
+  'client_packages', ]
+corpusops_services_db_postgresql_cops_lowered: ['repo']
+corpusops_services_db_postgresql_cops_sub_namespaces:
+  pg_conf: {}
+  settings: {}
 corpusops_services_db_postgresql_activated: True
 corpusops_services_db_postgresql_repo_keys_url: null
 corpusops_services_db_postgresql_repo_keys: null
 corpusops_services_db_postgresql_repo_keys_default: [ACCC4CF8]
 corpusops_services_db_postgresql_keyserver: "hkp://keyserver.ubuntu.com:80"
 corpusops_services_db_postgresql_repo: null
-corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {ansible_distribution_release}-pgdg main"
+corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
 corpusops_services_db_postgresql_repo_redhat: "https://download.postgresql.com/linux/centos/postgresql-ce.repo"
 corpusops_services_db_postgresql_repo_fedora: "https://download.postgresql.com/linux/fedora/postgresql-ce.repo"
 corpusops_services_db_postgresql_client_packages: null
@@ -13,16 +25,16 @@ corpusops_services_db_postgresql_client_packages_default:
   - 'libpq-dev'
   - 'python-psycopg2'
   - 'python3-psycopg2'
-  - 'postgresql-client-{corpusops_services_db_postgresql_version}'
+  - 'postgresql-client-{version}'
   # installs server !
-  # - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
+  # - 'postgresql-contrib-{version}'
 corpusops_services_db_postgresql_packages: null
 corpusops_services_db_postgresql_packages_default:
   - 'libpq-dev'
-  - 'postgresql-{corpusops_services_db_postgresql_version}'
-  - 'postgresql-server-dev-{corpusops_services_db_postgresql_version}'
-  - 'postgresql-{corpusops_services_db_postgresql_version}-pgextwlist'
-  - 'postgresql-contrib-{corpusops_services_db_postgresql_version}'
+  - 'postgresql-{version}'
+  - 'postgresql-server-dev-{version}'
+  - 'postgresql-{version}-pgextwlist'
+  - 'postgresql-contrib-{version}'
 corpusops_services_db_postgresql_services: null
 corpusops_services_db_postgresql_group: postgres
 corpusops_services_db_postgresql_services_default: [postgresql]
@@ -31,23 +43,23 @@ corpusops_services_db_postgresql_filescopy: null
 corpusops_services_db_postgresql_filescopy_default: []
 corpusops_services_db_postgresql_files_apt: []
 corpusops_services_db_postgresql_prefix: "/etc/postgresql"
-corpusops_services_db_postgresql_vprefix: "{{corpusops_services_db_postgresql_prefix}}/{{corpusops_services_db_postgresql_version}}"
+corpusops_services_db_postgresql_vprefix: "{prefix}/{version}"
 corpusops_services_db_postgresql_files_default:
-  - {path: "{{corpusops_services_db_postgresql_vprefix}}/main/conf.d",
+  - {path: "{vprefix}/main/conf.d",
      owner: root, group: root, state: directory, mode: "0755"}
 corpusops_services_db_postgresql_configs: null
 corpusops_services_db_postgresql_configs_default:
-  - {name: "{{corpusops_services_db_postgresql_vprefix}}/main/pg_hba.conf",
+  - {name: "{vprefix}/main/pg_hba.conf",
     template: "../templates/etc/postgresql/main/pg_hba.conf",
     mode: "0644"}
-  - {name: "{{corpusops_services_db_postgresql_vprefix}}/main/conf.d/empty.conf",
+  - {name: "{vprefix}/main/conf.d/empty.conf",
     template: "../templates/etc/postgresql/main/conf.d/empty.conf",
     mode: "0644"}
-  - {name: "{{corpusops_services_db_postgresql_vprefix}}/main/postgresql.conf",
+  - {name: "{vprefix}/main/postgresql.conf",
     template: "../templates/etc/postgresql/main/postgresql.conf",
     mode: "0644"}
 corpusops_services_db_postgresql_wrapper_configs:
-  - {name: "/usr/bin/pg-wrapper-{{corpusops_services_db_postgresql_version}}.sh",
+  - {name: "/usr/bin/pg-wrapper-{version}.sh",
     template: "../templates/usr/bin/pg-wrapper.sh",
     mode: "0755"}
 corpusops_services_db_postgresql_wrapped_binaries: [
