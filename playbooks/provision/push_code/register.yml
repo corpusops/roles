@@ -20,7 +20,7 @@
                             'sync_mode', 'rsync').replace('/', '') }}"
       git_folder: "{{_cops_provision_push_code.git_folder|default('.git')}}"
       force_sync: |-
-        {% set ret = {'r': _cops_provision_push_code.get('force_sync', False)} %}
+        {% set ret = {'r': _cops_provision_push_code.get('force_sync', ___FORCE_COPS_PROVISION_PUSH_CODE)} %}
         {% if ((not _cops_provision_push_code.file_tests | default([])) or
                (not cops_drupal_push_already_done_.results)) %}
         {% set _ = ret.update({'r': True}) %}
