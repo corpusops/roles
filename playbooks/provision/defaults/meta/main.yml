@@ -1,5 +1,2 @@
 ---
 allow_duplicates: yes
-dependencies:
-- role: corpusops.roles/localsettings_php_vars
-- role: corpusops.roles/services_db_postgresql_vars

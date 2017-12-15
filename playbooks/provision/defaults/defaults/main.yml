@@ -1,6 +1,4 @@
 ---
-cops_pg_version: "{{corpusops_services_db_postgresql_vars.version}}"
-cops_php_version: "{{corpusops_localsettings_php_vars.version}}"
 cops_lang: "fr"
 cops_locale: "{{cops_lang}}_{{cops_lang.upper()}}"
 cops_timezone: Europe/Paris

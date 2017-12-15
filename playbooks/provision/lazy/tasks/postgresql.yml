@@ -1,28 +1,27 @@
 ---
+# MAYBE SET: corpusops_services_db_postgresql_version
 - become: true
+  tags: [cops_provision_postgresql]
   block:
     - include_tasks: ./load_vars.yml
-      tags: [cops_provision_postgresql]
+    - include_role: {name: "corpusops.roles/services_db_postgresql_vars"}
+      when: "not (corpusops_services_db_postgresql_version|default(''))"
     - shell: |
         set -ex
         test -e /usr/bin/psql
-        test -e /usr/bin/psql-{{cops_pg_version}}
+        test -e /usr/bin/psql-{{corpusops_services_db_postgresql_version}}
       failed_when: false
       changed_when: false
       register: cops_postgresql_test1
-      #no_log: true
       become_user: postgres
-      tags: [cops_provision_postgresql]
     - shell: |
         set -ex
-        echo "select 1"| psql-{{cops_pg_version}} -v ON_ERROR_STOP=1 -t -A -F",":
-        psql-{{cops_pg_version}} -t -A -F';;;' -c'\l'|egrep -iq {{cops_lang}}
+        echo "select 1"| psql-{{corpusops_services_db_postgresql_version}} -v ON_ERROR_STOP=1 -t -A -F",":
+        psql-{{corpusops_services_db_postgresql_version}} -t -A -F';;;' -c'\l'|egrep -iq {{cops_lang}}
       register: cops_postgresql_test2
       changed_when: false
       failed_when: false
-      #no_log: true
       become_user: postgres
-      tags: [cops_provision_postgresql]
     - set_fact:
         cacheable: false
         cops_postgresql_test3: false
