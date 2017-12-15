@@ -44,6 +44,7 @@ corpusops_services_virt_docker_configs_redhat:
      mode: "644"}
 corpusops_services_virt_docker_settings_DOCKERD: "/usr/bin/dockerd"
 corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
+corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: "--log-opt max-file=10 --log-opt max-size=10m"
 corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: ""
 corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: ""
 corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
