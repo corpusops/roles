@@ -386,6 +386,28 @@ def _str_resolve(new,
             if not unresolved_state:
                 # new value has been totally resolved
                 break
+    # if still unresolved try to fallback on python's resolve
+    if unresolved_state:
+        try:
+            fnew = new
+            if jinja:
+                # escape jinja strings
+                try:
+                    fnew.index('{{')
+                    fnew.index('}}')
+                    fnew = fnew.replace('{{', '{{{{').replace('}}', '}}}}')
+                except Exception:
+                    pass
+                try:
+                    fnew.index('{%')
+                    fnew.index('%}')
+                    fnew = fnew.replace('{%', '{{%').replace('%}', '%}}')
+                except Exception:
+                    pass
+            new = fnew.format(**original_dict)
+            unresolved_state = unresolved(new, jinja=jinja)
+        except Exception:
+            pass
     return new, new != init_new, unresolved_state
 
 
