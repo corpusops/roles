@@ -35,7 +35,7 @@ except ImportError:
 
 _STR_RESOLVED_CACHE = {}
 _RESOLVED_CACHE = {}
-is_really_a_var = re.compile('(\{[^:}]+\})', re.M | re.U)
+is_really_a_var = re.compile('(\{[^}]+\})', re.M | re.U)
 __fn = os.path.abspath(__file__)
 __n = os.path.splitext(os.path.basename(__fn))[0]
 __mod = os.path.dirname(__fn)
