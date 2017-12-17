@@ -63,6 +63,11 @@
   with_items: "{{corpusops_nginx_vhost_vars.configs}}"
   when: "(corpusops_nginx_vhost_vars.configs is not none and
           corpusops_nginx_vhost_vars.configs|length > 0)"
+- name: install conf.d dir
+  file:
+    path: "{{corpusops_nginx_vhost_site_link|copsf_api_dirname}}"
+    state: directory
+    mode: "755"
 - name: install conf.d link
   file:
     path: "{{corpusops_nginx_vhost_site_link}}"
