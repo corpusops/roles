@@ -4,7 +4,7 @@
   else return the value (remote version of lookup(password)
 
 ```yaml
-- include_role: corpusops.roles/get_secret_variable
+- include_role: {name: corpusops.roles/get_secret_variable}
   vars:
     _cops_get_secret_variable:
       name: name of the token
@@ -15,7 +15,7 @@
 
 Exemple:
 ```yaml
-- include_role: corpusops.roles/get_secret_variable
+- include_role: {name: corpusops.roles/get_secret_variable}
   vars:
     _cops_get_secret_variable:
       name: my_token
