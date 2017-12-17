@@ -1086,7 +1086,15 @@ def copsf_cwd(*args, **kw):
     return os.getcwd()
 
 
+def uniquify(seq):
+    '''uniquify a list'''
+    seen = set()
+    return [x for x in seq
+            if x not in seen and not seen.add(x)]
+
+
 __funcs__ = {
+    'copsf_uniquify': uniquify,
     'copsf_cwd': copsf_cwd,
     'copsf_to_lower': copsf_to_lower,
     'copsf_format_val': copsf_format_val,

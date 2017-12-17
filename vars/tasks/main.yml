@@ -32,8 +32,97 @@
   changed_when: False
   register: cops_test_services_mgr
   tags: [corpusops_vars, corpusops_vars_core]
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
+    content: |-
+      ---
+      {% set prefix = 'corpusops_core_' %}
+      {% set rprefix = 'corpusops_' %}
+      {% set snamespaced, vars = vars
+         | copsf_registry(prefix, global_scope=False) %}
+      {# environment #}
+      {% set envs = {'env': snamespaced['env']} %}
+      {% for curtest in [
+          ansible_fqdn, ansible_hostname,
+          inventory_hostname, inventory_hostname_short,
+        ] %}
+      {%  if (
+          (curtest.lower()
+           |regex_search('^(staging|qa|prod)', ignorecase=true)
+          ) or
+          (curtest.lower()
+           |regex_search(
+                '-'
+                '('
+                'mysql|redis|pgsql|postgresql'
+                '|es|mongod?b?|elasticsearch'
+                ')'
+                '($|\\.)'
+                , ignorecase=true)
+          )
+          ) and not envs.env %}
+      {%    set _ = envs.update({'env': 'prod'})%}
+      {%  endif %}
+      {% endfor %}
+      {% if envs.env != snamespaced['env']%}
+      {%  set _ = snamespaced.update({'env': envs.env}) %}
+      {% endif %}
+      {# vt #}
+      {% set vt = (ansible_virtualization_type|default(None) or '')|lower %}
+      {% set computed_defaults = [
+          ('vt', vt),
+          ('is_vagrant', vt == 'virtualbox'),
+          ('is_virtualbox', vt == 'virtualbox'),
+          ('is_vbox', vt == 'virtualbox'),
+          ('is_lxc', vt == 'lxc'),
+          ('is_docker', vt == 'docker'),
+          ('is_container', vt in ['lxc', 'docker']),
+          ('security', vt not in ['docker']),
+          ('server_type', (vt in ['docker', 'lxc'])
+                          | ternary(vt, 'baremetal')),
+      ] %}
+      {% for name, val in computed_defaults %}
+      {%  if snamespaced[name] is none %}
+      {%    set _ = snamespaced.update({name: val}) %}
+      {%  endif %}
+      {% endfor %}
+      {# Trick to reexport vars under corpuops_ prefix
+         without having all corpusops_.* variables in reg #}
+      {% set ret = {} %}
+      {% set snamespaced2 = (
+            snamespaced
+            | copsf_registry_to_vars(
+                vars, prefix, global_scope=True))[0] %}
+      {% set snamespaced1 = (
+            snamespaced
+            | copsf_registry_to_vars(
+                vars, rprefix, global_scope=True))[0] %}
+      {% set _= ret.update(snamespaced1) %}
+      {% set _= ret.update(snamespaced2) %}
+      {{ ret | to_json }}
   tags: [corpusops_vars, corpusops_vars_core]
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_network_live_' %}
+      {% set snamespaced = ({
+           prefix+'vars': (vars|copsnetf_live_settings(prefix))
+         } | copsf_registry_to_vars(
+               vars, prefix, global_scope=False))[0] %}
+      {{ snamespaced | to_json }}
+  tags: [corpusops_vars, corpusops_network]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set lprefix = 'corpusops_network_live_' %}
+      {% set prefix = 'corpusops_network_settings_' %}
+      {% set snamespaced = ({
+           prefix+'vars': (vars|copsnetf_settings(
+             lprefix, prefix))
+         } | copsf_registry_to_vars(
+               vars, prefix, global_scope=False))[0] %}
+      {{ snamespaced | to_json }}
+  tags: [corpusops_vars, corpusops_network]
+  no_log: "{{not (cops_vars_debug|default(false))}}"

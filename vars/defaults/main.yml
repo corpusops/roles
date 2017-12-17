@@ -1,4 +1,13 @@
 ---
+# registry compute settings
+corpusops_core_cops_do_format_resolve: true
+corpusops_core_cops_computed_defaults: []
+corpusops_core_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_core_cops_sub_os_append: {}
+corpusops_core_cops_lowered: ['repo']
+corpusops_core_cops_knobs: ['confdefault_dir']
+corpusops_core_cops_sub_namespaces: {}
+
 # one of : default, kvm, lxccontainer, baremetal, dockercontainer, vagrant
 corpusops_core_server_type: null
 corpusops_core_roles: "{{role_path | copsf_dirname}}"
@@ -11,13 +20,84 @@ corpusops_core_env: null
 # configure to be secure
 corpusops_core_security: false
 
+# virtualization
 corpusops_core_vt: null
-corpusops_core_is_lxc: null
+corpusops_core_is_vagrant: null
+corpusops_core_is_vbox: null
+corpusops_core_is_virtualbox: null
 corpusops_core_is_docker: null
 corpusops_core_is_container: null
-
 corpusops_core_has_services_manager: true
-corpusops_core_keyserver: keyserver.ubuntu.com
 
-corpusops_core_apps_path: /srv/apps
-corpusops_core_projects_path: /srv/projects
+# GPG servers
+corpusops_core_keyserver: keyserver.ubuntu.com
+corpusops_core_hkp_keyserver: "hkp://{{corpusops_core_keyserver}}:80"
+
+# path locations
+corpusops_core_var_run_dir: /var/run
+corpusops_core_confdefault_dir: null
+corpusops_core_confdefault_dir_debian: '{config_dir}/default'
+corpusops_core_confdefault_dir_redhat: '{config_dir}/sysconfig'
+corpusops_core_run_dir: /run
+corpusops_core_srv_path: /srv
+corpusops_core_apps_path: "{srv_path}/apps"
+corpusops_core_projects_path: "{srv_path}/projcts"
+corpusops_core_config_dir: /etc
+corpusops_core_ssl_config_dir: "{config_dir}/ssl"
+
+# log rotation opts
+corpusops_core_rotate_days: 365
+
+# network
+# get external ip
+corpusops_network_get_ext_ip: true
+# registry compute settings
+corpusops_network_live_cops_do_format_resolve: true
+corpusops_network_live_cops_computed_defaults: []
+corpusops_network_live_cops_flavors: []
+corpusops_network_live_cops_sub_os_append: {}
+corpusops_network_live_cops_lowered: []
+corpusops_network_live_cops_knobs: []
+corpusops_network_live_cops_sub_namespaces:
+  net:
+    all_ifaces: {}
+    real_ifaces: {}
+    bridge_ifaces: {}
+  have_ifs: {}
+# normally those are readonly
+corpusops_network_live_ext_ip_value: null
+corpusops_network_live_mainip: "{{vars|copsnetf_mainip}}"
+corpusops_network_live_hostname: "{{vars|copsnetf_hostname}}"
+corpusops_network_live_domain: "{{vars|copsnetf_domain}}"
+corpusops_network_live_fqdn: "{{vars|copsnetf_hostname(full=True)}}"
+corpusops_network_live_ext_ip: "{{vars|copsnetf_ext_ip}}"
+corpusops_network_live_net: "{{vars|copsnetf_default_net}}"
+corpusops_network_live_ip: "{{vars|copsnetf_mainip}}"
+corpusops_network_live_ip6: "{{vars|copsnetf_mainip6}}"
+corpusops_network_live_have_ifs:
+  docker: "{{vars|copsnetf_have_docker_if}}"
+  lxc: "{{vars|copsnetf_have_lxc_if}}"
+  vpn: "{{vars|copsnetf_have_vpn_if}}"
+#
+corpusops_network_settings_cops_do_format_resolve: true
+corpusops_network_settings_cops_computed_defaults: []
+corpusops_network_settings_cops_flavors: []
+corpusops_network_settings_cops_sub_os_append: {}
+corpusops_network_settings_cops_lowered: []
+corpusops_network_settings_cops_knobs: []
+corpusops_network_settings_cops_sub_namespaces:
+  interfaces: {}
+  reverse_proxy: {}
+#
+corpusops_network_settings_configuration_order: []
+corpusops_network_settings_reverse_proxy_is_proxified: null
+corpusops_network_settings_reverse_proxy_do_not_add_gw: false
+corpusops_network_settings_reverse_proxy_addresses: []
+# corpusops_network_settings_reverse_proxy_addresses:
+# - 1.2.3.4/24
+corpusops_network_settings_interfaces: {}
+# br1: {gateway: 192.168.1.1}
+corpusops_network_settings_ointerfaces: []
+# - {br0: {gateway: 192.168.1.1}}
+# Does the network base config file have to be managed via that
+corpusops_network_settings_managed: false

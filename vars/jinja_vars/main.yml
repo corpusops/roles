@@ -1,32 +1,4 @@
 ---
-{% set prefix = 'corpusops_core_' %}
-{% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
-{% set knobs = ['files', 'filescopy', 'packages', 'services', 'configs',
-               ] %}
-{% set computed_defaults = [] %}
-{% set lowered = [] %}
-{% set sub_namespaced = {'settings': {}} %}
-{% set namespaced = {} %}
-{% set subos_append = {} %}
-
-{% for v in knobs %}
-{%  set setted = {'s': False} %}
-{%  for os in flavors %}
-{%   if (
-        os == 'default' or
-        ansible_os_family.lower() == os or
-        ansible_lsb.id.lower() == os) %}
-{%    set vn = prefix + v %}
-{%    if vars[vn] is none %}
-{%      set os_vpref = vn + '_' + os %}
-{%      if os_vpref in vars and not setted.s %}
-{%        set _ = vars.update({vn: vars[os_vpref]}) %}
-{%        set _ = setted.update({'s': True}) %}
-{%      endif %}
-{%    endif %}
-{%   endif %}
-{%  endfor %}
-{% endfor %}
 
 {% set envs = {'env': vars[prefix+'env']} %}
 {% for curtest in [
