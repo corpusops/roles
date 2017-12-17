@@ -1,0 +1,30 @@
+---
+- group:
+    name: "{{corpusops_haproxy_registrations_vars.group}}"
+    system: true
+    state: present
+- user:
+    name: "{{corpusops_haproxy_registrations_vars.user}}"
+    group: "{{corpusops_haproxy_registrations_vars.group}}"
+    append: true
+    system: true
+    state: present
+- file:
+    state: directory
+    path: "{{corpusops_haproxy_registrations_vars.file|copsf_dirname}}"
+    owner: root
+    group: root
+    mode: "0755"
+- block:
+  - set_fact:
+      cacheable: false
+      cops_configs_files: "{{corpusops_haproxy_registrations_vars.files}}"
+      cops_configs_copys: "{{corpusops_haproxy_registrations_vars.filescopy}}"
+      cops_configs_templates: "{{corpusops_haproxy_registrations_vars.configs}}"
+  - include_role: {name: corpusops.roles/configs, private: true}
+- name: Check haproxy configs
+  shell: |
+    c=/usr/bin/cops_haproxy_wrapper.sh;
+    if [ -e $c ];then $c check;fi
+  changed_when: false
+  when: "corpusops_haproxy_registrations_vars.check_config"

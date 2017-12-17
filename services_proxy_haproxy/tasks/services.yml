@@ -1,0 +1,27 @@
+---
+- set_fact:
+    cacheable: false
+    corpusops_services_proxy_haproxy_service_state: >-
+      {% if (
+        corpusops_services_proxy_haproxy_configs_changed     |default(False) or
+        corpusops_services_proxy_haproxy_prequisites_changed |default(False)
+      )%}re{%endif%}started
+- set_fact:
+    cacheable: false
+    corpusops_services_proxy_haproxy_service_state: "{{corpusops_services_proxy_haproxy_service_state.strip()}}"
+- shell: systemctl daemon-reload
+  when: "(corpusops_services_proxy_haproxy_vars.activated and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_proxy_haproxy_vars.activated
+     | ternary(corpusops_services_proxy_haproxy_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_proxy_haproxy_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_proxy_haproxy_vars.services}}"
+  tags: corpusops_services_proxy_haproxy
+  when: "corpusops_vars.has_services_manager"
+- meta: flush_handlers

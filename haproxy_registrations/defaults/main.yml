@@ -1,0 +1,99 @@
+---
+# Allow to specify defaults in a prefix way and in a inline, flattened way
+corpusops_haproxy_registrations_cops_do_format_resolve: true
+corpusops_haproxy_registrations_cops_computed_defaults: []
+corpusops_haproxy_registrations_cops_flavors: []
+corpusops_haproxy_registrations_cops_sub_os_append: {}
+corpusops_haproxy_registrations_cops_lowered: []
+corpusops_haproxy_registrations_cops_knobs: []
+corpusops_haproxy_registrations_cops_sub_namespaces:
+  backend_opts: {}
+  frontend_opts: {}
+  frontends: {}
+  frontends: {}
+  backends: {}
+  listeners: {}
+  proxy_modes: {}
+  registrations: {}
+  ssl: {}
+corpusops_haproxy_registrations_frontends: {}
+corpusops_haproxy_registrations_backends: {}
+corpusops_haproxy_registrations_dispatchers: {}
+corpusops_haproxy_registrations_listeners: {}
+corpusops_haproxy_registrations_ssl_frontend_bind_options: "{{corpusops_services_proxy_haproxy_vars.ssl.frontend_bind_options}}"
+corpusops_haproxy_registrations_maincert_path: "{{corpusops_services_proxy_haproxy_vars.maincert_path}}"
+corpusops_haproxy_registrations_no_ipv6: "{{corpusops_services_proxy_haproxy_vars.no_ipv6}}"
+corpusops_haproxy_registrations_version: "{{corpusops_services_proxy_haproxy_vars.version}}"
+corpusops_haproxy_registrations_user: "{{corpusops_services_proxy_haproxy_vars.user}}"
+corpusops_haproxy_registrations_group: "{{corpusops_services_proxy_haproxy_vars.group}}"
+corpusops_haproxy_registrations_file: "{{corpusops_services_proxy_haproxy_vars.prefix}}/cfg.d/registrations.cfg"
+corpusops_haproxy_registrations_filescopy: []
+corpusops_haproxy_registrations_files: []
+corpusops_haproxy_registrations_configs:
+  - {name: "{file}",
+     template: "../templates/cfg.cfg",
+     owner: "{user}", group: root, mode: "0640"}
+corpusops_haproxy_registrations_check_config: true
+corpusops_haproxy_registrations_backend_opts_http_strict:
+- 'balance roundrobin'
+- 'option forwardfor'
+- 'option http-keep-alive'
+- 'option httpchk'
+- 'option log-health-checks'
+corpusops_haproxy_registrations_backend_opts_https_strict:
+- 'balance roundrobin'
+- 'option forwardfor'
+- 'option http-keep-alive'
+- 'http-request set-header X-FORWARDED-SSL %[ssl_fc]'
+- 'http-request set-header X-SSL %[ssl_fc]'
+- 'option httpchk'
+- 'option log-health-checks'
+corpusops_haproxy_registrations_backend_opts_http:
+- 'balance roundrobin'
+- 'option forwardfor'
+- 'option http-keep-alive'
+- 'option httpchk'
+- 'option log-health-checks'
+- 'http-check expect rstatus (2|3|4|5)[0-9][0-9]'
+corpusops_haproxy_registrations_backend_opts_https:
+- 'balance roundrobin'
+- 'option forwardfor'
+- 'option http-keep-alive'
+- 'http-request set-header X-FORWARDED-SSL %[ssl_fc]'
+- 'http-request set-header X-SSL %[ssl_fc]'
+- 'option httpchk'
+- 'option log-health-checks'
+- 'http-check expect rstatus (2|3|4|5)[0-9][0-9]'
+corpusops_haproxy_registrations_backend_opts_tcp: ['balance roundrobin']
+corpusops_haproxy_registrations_backend_opts_rabbitmq:
+- "balance roundrobin"
+- "option tcp-check"
+- "option clitcpka"
+- "timeout client 3h"
+corpusops_haproxy_registrations_backend_opts_redis:
+- 'option tcp-check'
+- 'tcp-check connect'
+- 'tcp-check send PING\r\n'
+- 'tcp-check expect string +PONG'
+- 'tcp-check send info\ replication\r\n'
+- 'tcp-check expect string role:master'
+- 'tcp-check send QUIT\r\n'
+- 'tcp-check expect string +OK'
+corpusops_haproxy_registrations_backend_opts_redis_auth:
+- 'option tcp-check'
+- 'tcp-check connect'
+- 'tcp-check send auth\ {password}\r\n'
+- 'tcp-check send PING\r\n'
+- 'tcp-check expect string +PONG'
+- 'tcp-check send info\ replication\r\n'
+- 'tcp-check expect string role:master'
+- 'tcp-check send QUIT\r\n'
+- 'tcp-check expect string +OK'
+corpusops_haproxy_registrations_frontend_opts_http: []
+corpusops_haproxy_registrations_frontend_opts_https: []
+corpusops_haproxy_registrations_proxy_modes_9200: 'http'
+corpusops_haproxy_registrations_proxy_modes_80: 'http'
+corpusops_haproxy_registrations_proxy_modes_443: 'https'
+corpusops_haproxy_registrations_proxy_modes_5672: 'rabbitmq'
+corpusops_haproxy_registrations_proxy_modes_6379: 'redis'
+corpusops_haproxy_registrations_proxy_modes_6378: 'redis'

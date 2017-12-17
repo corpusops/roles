@@ -1,0 +1,13 @@
+[Unit]
+Description=HAProxy Load Balancer
+After=network.target
+
+[Service]
+ExecStartPre=/usr/bin/cops_haproxy_wrapper.sh check systemd
+ExecStart=/usr/bin/cops_haproxy_wrapper.sh start systemd
+ExecReload=/bin/kill -USR2 $MAINPID
+KillMode=mixed
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

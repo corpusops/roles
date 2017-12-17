@@ -1,0 +1,33 @@
+---
+# load default variables, first pass, load not resolved values
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_haproxy_registrations_' %}
+      {% set snamespaced1 = vars|copsf_registry(
+           prefix, global_scope=False) %}
+      {{ {prefix+'vars': snamespaced1[0]} | to_json }}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+  tags: [corpusops_vars, corpusops_haproxy_registrations, corpusops_haproxy_registrations_vars]
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_haproxy_registrations_' %}
+      {% set snamespaced2 = (vars[prefix+'vars']
+        | copshaproxyf_make_registrations(ansible_vars=vars)) %}
+      {{ {prefix+'vars': snamespaced2} | to_json }}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+  tags: [corpusops_vars, corpusops_haproxy_registrations, corpusops_haproxy_registrations_vars]
+- name: Manage haproxy registrations
+  include_tasks: run.yml
+  tags: [corpusops_haproxy_registrations, corpusops_haproxy_registrations_gen]
+- name: reset haproxy registrations
+  include_jinja_vars:
+    content: |-
+      ---
+      {{{
+          'corpusops_haproxy_registrations_registrations': {},
+          'corpusops_haproxy_registrations_vars': {},
+      }|to_json}}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+  tags: [corpusops_vars, corpusops_haproxy_registrations, corpusops_haproxy_registrations_vars]

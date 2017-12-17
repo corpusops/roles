@@ -1,0 +1,25 @@
+---
+- set_fact:
+    cacheable: false
+    cops_haproxy_ssign_certc: "{{corpusops_services_proxy_haproxy_vars.selfsignedcert_dir}}/{{cn}}.crt"
+    cops_haproxy_ssign_certk: "{{corpusops_services_proxy_haproxy_vars.selfsignedcert_dir}}/{{cn}}.key"
+    cops_haproxy_ssign_certp: "{{corpusops_services_proxy_haproxy_vars.maincert_path}}.copshaproxyselfsigned.{{cn}}"
+- stat: {path: "{{cops_haproxy_ssign_certp}}"}
+  register: "corpusops_c_haproxy_ssign_cert"
+- when: "not corpusops_c_haproxy_ssign_cert.stat.exists"
+  name: "Generate selfsigned cert for {{cn}}"
+  block:
+  - shell: |-
+      {% set d = corpusops_services_proxy_haproxy_vars %}
+      {% set p = cops_haproxy_ssign_certp %}
+      {% set c = cops_haproxy_ssign_certc %}
+      {% set k = cops_haproxy_ssign_certk %}
+      set -eux
+      openssl req -new -nodes -x509 \
+        -subj "{{d.selfsignedcert_s}}/CN={{cn}}/" \
+        -days "{{d.selfsignedcert_d}}" \
+        -keyout "{{k}}" \
+        -out "{{c}}"
+      cat "{{c}}" "{{k}}" >"{{p}}"
+      chmod 0640 "{{p}}"
+      chown root:{{d.group}} "{{p}}"

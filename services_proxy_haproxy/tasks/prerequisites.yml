@@ -1,0 +1,64 @@
+---
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: present
+  with_items: '{{corpusops_services_proxy_haproxy_vars.packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_proxy_haproxy_vars.packages is not none and
+          corpusops_services_proxy_haproxy_vars.packages|length > 0)"
+  register: corpusops_services_proxy_haproxy_pkgst
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_proxy_haproxy_vars.packages is not none and
+          corpusops_services_proxy_haproxy_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_proxy_haproxy_vars.packages}}"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_proxy_haproxy_vars.packages is not none and
+          corpusops_services_proxy_haproxy_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_proxy_haproxy_vars.packages}}"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_services_proxy_haproxy_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_proxy_haproxy_vars.packages is not none and
+          corpusops_services_proxy_haproxy_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_proxy_haproxy_vars.packages is not none and
+          corpusops_services_proxy_haproxy_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_proxy_haproxy_vars.packages}}"
+- group:
+    name: "{{corpusops_services_proxy_haproxy_vars.group}}"
+    system: yes
+    state: present
+  when: "corpusops_services_proxy_haproxy_vars.group"
+- user:
+    name: "{{corpusops_services_proxy_haproxy_vars.user}}"
+    system: yes
+    group: "{{corpusops_services_proxy_haproxy_vars.group}}"
+  when: "corpusops_services_proxy_haproxy_vars.user"
+- set_fact:
+    cacheable: false
+    corpusops_services_proxy_haproxy_prequisites_changed: "{{(
+         corpusops_services_proxy_haproxy_pkgst.changed
+       )}}"

@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+# {% set data = corpusops_services_proxy_haproxy_vars %}
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin
+SCANNED_HAPROXY=$(which haproxy 2>/dev/null)
+SCANNED_HAPROXYW=$(which haproxy-systemd-wrapper 2>/dev/null)
+PIDFILE="/run/haproxy.pid"
+HAPROXY="${HAPROXY:-"${SCANNED_HAPROXY:-/usr/sbin/haproxy}"}"
+HAPROXYW="${HAPROXYW:-"${SCANNED_HAPROXYW:-/usr/sbin/haproxy-systemd-wrapper}"}"
+RUNDIR="${RUNDIR:-"/run/haproxy"}"
+# Set ENABLED to 1 if you want the init script to start haproxy
+#   (when using init, nowodays we use systemd).
+ENABLED="{{data.defaults.enabled}}"
+#EXTRAOPTS="-de -m 16"
+EXTRAOPTS="{% if data.defaults.extra_opts %}{{data.defaults.extra_opts}}{%endif%}"
+DEFAULT_PID_ARGS="-p $PIDFILE"
+PID_ARGS="${PID_ARGS-"$DEFAULT_PID_ARGS"}"
+
+CONFIG="${CONFIG:-"{{data.config.file}}"}"
+DEFAULT_CONFIG_DIR="{{data.prefix}}"
+CONFIGDIR="${CONFIGDIR:-"$DEFAULT_CONFIG_DIR"}"
+CONFIGDIRS="${CONFIGDIRS:-"$CONFIGDIR/cfg.d"}"
+
+CHECK_MODE=""
+for i in $@;do
+    if [ "x${i}" = "xcheck" ];then
+        CHECK_MODE=1
+    fi
+    if [ "x${i}" = "xsystemd" ];then
+        HAPROXYB=${HAPROXYB:-${HAPROXYW}}
+    fi
+done
+HAPROXYB=${HAPROXYB:-${HAPROXY}}
+
+# search recursivly in the configuration directory for extra config
+# files to load after the global config
+get_cfgs() {
+    local opts=""
+    while read cfgdir;do
+        if [ -e "${cfgdir}" ];then
+            while read f;do
+                if [[ -n "$f" ]];then
+                    rf=$(readlink -f "$f")
+                    if [ -f "$rf" ];then
+                        opts="${opts} -f ${rf}"
+                    fi
+                fi
+            done < <(find "${cfgdir}" -type f -name "*cfg" 2>/dev/null|sort -nk2)
+        fi
+    done <<< "$CONFIGDIRS"
+    echo "${opts}"
+}
+
+EXTRAOPTS="${EXTRAOPTS} $(get_cfgs)"
+export PATH HAPROXY CONFIG DEBUG EXTRAOPTS CHECK_MODE HAPROXYB
+# vim:set et sts=4 ts=4 tw=0 ft=sh:
