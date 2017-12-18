@@ -10,7 +10,6 @@ corpusops_haproxy_registrations_cops_sub_namespaces:
   backend_opts: {}
   frontend_opts: {}
   frontends: {}
-  frontends: {}
   backends: {}
   listeners: {}
   proxy_modes: {}

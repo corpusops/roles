@@ -39,9 +39,14 @@ corpusops_haproxy_registrations_registrations_<arbitrar id>:
         <frontend_port>:
             to_port: <dest_port>, # optional, default to <frontend_port>
             mode: <http/https/tcp/tcps/redis>
-      hosts: [<hosts_to_proxy_from>]      # only useful on http(s) mode
-      regexes: [<hosts_to_proxy_from>]    # only useful on http(s) mode
-      wildcards: [<hosts_to_proxy_from>]  # only useful on http(s) mode
+            # those opts act on frontend tied's backend
+            # ssl_terminated: true/false
+            # ssl_check: 'ssl verify none'
+            # inter_check: 'inter 1s'
+            # raw_srv: 'weight 100'
+      hosts: [<hosts_to_proxy_from>]     # only useful on http(s) mode
+      regexes: [<hosts_to_proxy_from>]   # only useful on http(s) mode
+      wildcards: [<hosts_to_proxy_from>] # only useful on http(s) mode
 ```
 
 Notes:
@@ -167,11 +172,26 @@ corpusops_haproxy_registrations_registrations_haredis:
     443:
       to_port: "180"
       ssl_terminated: true
+      # ssl_check: 'ssl verify none'
+      # inter_check: 'inter 1s'
+      # raw_srv: 'weight 100'
       # if backend is SSL, also try http if SSL port unavailable
       # if false, do not have the fallback (default: on)
       # http_fallback: false
       # if backend is SSL, also try http on this port
       # http_fallback_port: 80
+
+# other exmaple with regex
+corpusops_haproxy_registrations_registrations_haredis:
+- regexes: [".*"]
+  ip: "{{cops_zope_servers_ips}}"
+  frontends:
+    80:
+      to_port: "180"
+    443:
+      to_port: "180"
+      ssl_terminated: true
+
 ```
 
 #### Redis auth is supported this way
