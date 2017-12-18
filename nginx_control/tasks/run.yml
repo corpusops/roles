@@ -9,7 +9,9 @@
     name: "{{item}}"
   with_items: "{{corpusops_services_http_nginx_vars.services}}"
   when: "(corpusops_nginx_control_vars.handle_nginx and
-          ternary(corpusops_nginx_control_vars.state in ['started', 'reloaded'] and
+          (corpusops_services_http_nginx_vars.activated
+           | ternary(corpusops_nginx_control_vars.state, 'stopped')
+          ) in ['started', 'reloaded'] and
           corpusops_vars.has_services_manager)"
 - service:
     state: "{{corpusops_services_http_nginx_vars.activated
