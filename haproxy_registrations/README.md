@@ -7,7 +7,7 @@ Managment of haproxy objects
 - see [haproxy_server role](../services_proxy_haproxy)
 - see [defaults](./defaults/main.yml)
 - see [template](./templates/cfg.cfg)
-- see [tests](./test.yml)- see [haproxy_server role](../services_proxy_haproxy)
+- see [tests](./test.yml)
 
 ### Configure haproxy objects
 - tasks/main.yml
