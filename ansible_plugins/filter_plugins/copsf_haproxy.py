@@ -255,6 +255,9 @@ def register_servers_to_backends(data,
                                  frontends=None,
                                  hosts=None,
                                  backends=None,
+                                 ssl_check=None,
+                                 inter_check=None,
+                                 raw_srv=None,
                                  ssl_terminated=None,
                                  http_fallback_port=None,
                                  http_fallback=None):
@@ -267,7 +270,14 @@ def register_servers_to_backends(data,
     if ssl_terminated is None:
         ssl_terminated = False
     if http_fallback is None:
-        http_fallback = True
+        if not ssl_terminated:
+            http_fallback = True
+    if raw_srv is None:
+        raw_srv = ''
+    if ssl_check is None:
+        ssl_check = 'ssl verify none'
+    if inter_check is None:
+        inter_check = 'inter 20s'
     if http_fallback_port is None:
         http_fallback_port = 80
     if backends is None:
@@ -284,20 +294,30 @@ def register_servers_to_backends(data,
         hmode = 'http'
         #  we try first a backend over https, and if not present on http #}
         if mode.startswith('https'):
-            slug = ' ssl verify none'
-            if ssl_terminated:
-                slug = ''
-            servers = [{'name': 'srv_{0}_ssl'.format(sane_ip),
+            servers = []
+            if not ssl_terminated:
+                servers.append(
+                    {'name': 'srv_{0}_ssl'.format(sane_ip),
                         'bind': '{0}:{1}'.format(ip, to_port),
-                        'opts': 'check weight 100 inter 1s{0}'.format(slug)}]
+                        'opts': 'check weight 100 {0} {1} {2}'.format(
+                            inter_check, ssl_check, raw_srv)})
+            else:
+                servers.append(
+                    {'name': 'srv_{0}_ssl'.format(sane_ip),
+                        'bind': '{0}:{1}'.format(ip, to_port),
+                        'opts': 'check weight 100 {0} {2}'.format(
+                            inter_check, ssl_check, raw_srv)})
             if http_fallback:
                 servers.insert(0, {'name': 'srv_{0}_clear'.format(sane_ip),
-                                   'bind': '{0}:{1}'.format(ip, http_fallback_port),
-                                   'opts': 'check weight 50 inter 1s backup'})
+                                   'bind': '{0}:{1}'.format(
+                                       ip, http_fallback_port),
+                                   'opts': ('check weight 50'
+                                            ' {0} backup {1}').format(
+                                                inter_check, raw_srv)})
         else:
             servers = [{'name': 'srv_{0}'.format(sane_ip),
                         'bind': '{0}:{1}'.format(ip, to_port),
-                        'opts': 'check inter 1s'}]
+                        'opts': 'check {0} {1}'.format(inter_check, raw_srv)}]
 
     elif mode in [
         'rabbitmq', 'tcp', 'tcps',
@@ -307,7 +327,7 @@ def register_servers_to_backends(data,
         servers = [
                {'name': 'srv_{0}'.format(sane_ip),
                 'bind': '{0}:{1}'.format(ip, to_port),
-                'opts': 'check inter 1s'}]
+                'opts': 'check {0}'.format(inter_check)}]
     if not hmode.startswith('http'):
         aclmodes = (('default', ['one_backend']),)
     else:
@@ -363,6 +383,9 @@ def make_registrations(data, ansible_vars=None):
                 user = fdata.get('user', None)
                 password = fdata.get('password', None)
                 ssl_terminated = fdata.get('ssl_terminated', None)
+                inter_check = fdata.get('inter_check', None)
+                raw_srv = fdata.get('raw_srv', None)
+                ssl_check = fdata.get('ssl_check', None)
                 http_fallback = fdata.get('http_fallback', None)
                 http_fallback_port = fdata.get('http_fallback_port', None)
                 mode = fdata.get('mode', proxy_modes.get(sport, 'tcp'))
@@ -383,6 +406,9 @@ def make_registrations(data, ansible_vars=None):
                         hosts=hosts, wildcards=wildcards,
                         regexes=regexes,
                         ssl_terminated=ssl_terminated,
+                        inter_check=inter_check,
+                        raw_srv=raw_srv,
+                        ssl_check=ssl_check,
                         http_fallback_port=http_fallback_port,
                         http_fallback=http_fallback,
                         frontends=frontends,

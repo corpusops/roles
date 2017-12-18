@@ -88,7 +88,7 @@ corpusops_services_proxy_haproxy_prefix: "{{corpusops_vars.config_dir}}/{name}"
 corpusops_services_proxy_haproxy_rotate: "{{corpusops_vars.rotate_days}}"
 corpusops_services_proxy_haproxy_config_global_logfacility: 'local0'
 # upgrade to info to debug,  activation of keepalive in cloud confs
-corpusops_services_proxy_haproxy_config_global_loglevel: 'info'
+corpusops_services_proxy_haproxy_config_global_loglevel: 'warning'
 corpusops_services_proxy_haproxy_config_global_loghost: '127.0.0.1'
 corpusops_services_proxy_haproxy_config_global_nbproc: ''
 corpusops_services_proxy_haproxy_config_global_node: "{{ansible_fqdn}}"
