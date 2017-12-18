@@ -368,17 +368,20 @@ def make_registrations(data, ansible_vars=None):
                     backends=backends,
                     wildcards=wildcards,
                     regexes=regexes)
-                backends = register_servers_to_backends(
-                    data,
-                    port=port, ip=payload['ip'],
-                    to_port=to_port, mode=mode,
-                    user=user, password=password,
-                    hosts=hosts, wildcards=wildcards,
-                    regexes=regexes,
-                    ssl_terminated=ssl_terminated,
-                    http_fallback=http_fallback,
-                    frontends=frontends,
-                    backends=backends)
+                if not isinstance(payload['ip'], list):
+                    payload['ip'] = payload['ip']
+                for ip in payload['ip']:
+                    backends = register_servers_to_backends(
+                        data,
+                        port=port, ip=ip,
+                        to_port=to_port, mode=mode,
+                        user=user, password=password,
+                        hosts=hosts, wildcards=wildcards,
+                        regexes=regexes,
+                        ssl_terminated=ssl_terminated,
+                        http_fallback=http_fallback,
+                        frontends=frontends,
+                        backends=backends)
     return data
 
 

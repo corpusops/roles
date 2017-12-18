@@ -37,6 +37,8 @@
         - ip: 10.0.3.21
           hosts: [www.super7.com]
           frontends: {443: {}}
+        - ip: [10.0.3.28, 10.0.3.29]
+          hosts: [www.super28.com]
     - stat: "path={{item}}"
       register: nginx_test_files
       with_items:

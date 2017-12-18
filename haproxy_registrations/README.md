@@ -97,6 +97,8 @@ If we have a minion haproxy1 and want to proxy to myapp2-1 on http &
 https when a request targeting "www.super.com" arrise. all we have to do
 is to:
 
+- **ip can be a list !**
+
 ```yaml
 corpusops_haproxy_registrations_registrations_haproxy1:
   - ip: 10.0.3.14
