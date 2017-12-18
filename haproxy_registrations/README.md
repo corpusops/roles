@@ -15,7 +15,7 @@ Managment of haproxy objects
     - include_role: {name: corpusops.roles/haproxy_registrations}
       vars:
         _corpusops_haproxy_registrations:
-          cfg: /etc/haproxy/cfg.d/mycfg.cfg
+          file: /etc/haproxy/cfg.d/registrations.cfg
           frontends: {list of raw frontends}
           backends: {list or raw backends}
           listeners: {list of raw listeners}
