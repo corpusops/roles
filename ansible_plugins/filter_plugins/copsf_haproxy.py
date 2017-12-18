@@ -256,6 +256,7 @@ def register_servers_to_backends(data,
                                  hosts=None,
                                  backends=None,
                                  ssl_terminated=None,
+                                 http_fallback_port=None,
                                  http_fallback=None):
     '''
     Register a specific minion as a backend server
@@ -267,6 +268,8 @@ def register_servers_to_backends(data,
         ssl_terminated = False
     if http_fallback is None:
         http_fallback = True
+    if http_fallback_port is None:
+        http_fallback_port = 80
     if backends is None:
         backends = OrderedDict()
     sane_ip = sanitize(ip)
@@ -289,7 +292,7 @@ def register_servers_to_backends(data,
                         'opts': 'check weight 100 inter 1s{0}'.format(slug)}]
             if http_fallback:
                 servers.insert(0, {'name': 'srv_{0}_clear'.format(sane_ip),
-                                   'bind': '{0}:{1}'.format(ip, 80),
+                                   'bind': '{0}:{1}'.format(ip, http_fallback_port),
                                    'opts': 'check weight 50 inter 1s backup'})
         else:
             servers = [{'name': 'srv_{0}'.format(sane_ip),
@@ -361,6 +364,7 @@ def make_registrations(data, ansible_vars=None):
                 password = fdata.get('password', None)
                 ssl_terminated = fdata.get('ssl_terminated', None)
                 http_fallback = fdata.get('http_fallback', None)
+                http_fallback_port = fdata.get('http_fallback_port', None)
                 mode = fdata.get('mode', proxy_modes.get(sport, 'tcp'))
                 frontends = register_frontend(
                     data, port=port, mode=mode, hosts=hosts,
@@ -379,6 +383,7 @@ def make_registrations(data, ansible_vars=None):
                         hosts=hosts, wildcards=wildcards,
                         regexes=regexes,
                         ssl_terminated=ssl_terminated,
+                        http_fallback_port=http_fallback_port,
                         http_fallback=http_fallback,
                         frontends=frontends,
                         backends=backends)

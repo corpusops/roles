@@ -156,6 +156,24 @@ corpusops_haproxy_registrations_registrations_haredis:
       6378: {mode: redis}
 ```
 
+#### SSL terminator / offloader
+```yaml
+corpusops_haproxy_registrations_registrations_haredis:
+- hosts: ["foobar"]
+  ip: "1.2.2.4"
+  frontends:
+    80:
+      to_port: "180"
+    443:
+      to_port: "180"
+      ssl_terminated: true
+      # if backend is SSL, also try http if SSL port unavailable
+      # if false, do not have the fallback (default: on)
+      # http_fallback: false
+      # if backend is SSL, also try http on this port
+      # http_fallback_port: 80
+```
+
 #### Redis auth is supported this way
 
 ```yaml
