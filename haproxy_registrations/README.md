@@ -3,9 +3,11 @@
 Managment of haproxy objects
 
 - see [filter plugin](../ansible_plugins/filter_plugins/copsf_haproxy.py)
+- see [haproxy_server role vars](../services_proxy_haproxy_vars)
+- see [haproxy_server role](../services_proxy_haproxy)
 - see [defaults](./defaults/main.yml)
 - see [template](./templates/cfg.cfg)
-- see [tests](./test.yml)
+- see [tests](./test.yml)- see [haproxy_server role](../services_proxy_haproxy)
 
 ### Configure haproxy objects
 - tasks/main.yml
@@ -19,7 +21,7 @@ Managment of haproxy objects
           listeners: {list of raw listeners}
           dispatchers: {list of raw dispatchers}
           registrations: {specific list of registrations (avoid corpusops_haproxy_registrations_registrations_*)}
-        ```
+    ```
 
 ## Idea
 - We provide a facility to auto configure HTTP/HTTPS/REDIS/TCP backends
