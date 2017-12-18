@@ -22,10 +22,17 @@
     }
     if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc| /sbin\/init$";then
      cret=0
-    elif has_command systemctl && systemctl status >/dev/null 2>&1;then
-     cret=0
-    else
-     cret=1
+    fi
+    if [ "x${cret}" != "x0" ];then
+      if has_command systemctl;then
+        systemctl status >/dev/null 2>&1
+        sret=$?
+        if [ "x${sret}" = "x0" ];then
+         cret=0
+        fi
+      else
+       cret=1
+      fi
     fi
     exit ${cret}
   failed_when: False
@@ -72,6 +79,8 @@
       {% set vt = (ansible_virtualization_type|default(None) or '')|lower %}
       {% set computed_defaults = [
           ('vt', vt),
+          ('has_services_manager',
+            cops_test_services_mgr.rc==0),
           ('is_vagrant', vt == 'virtualbox'),
           ('is_virtualbox', vt == 'virtualbox'),
           ('is_vbox', vt == 'virtualbox'),

@@ -4,7 +4,7 @@
     corpusops_services_firewall_fail2ban_service_state: >-
       {% if (
         (corpusops_services_firewall_fail2ban_configs_changed     |default(False)) or
-        (corpusops_services_firewall_fail2ban_prequisites_changed |default(False)) 
+        (corpusops_services_firewall_fail2ban_prequisites_changed |default(False))
       )%}re{%endif%}started
 - set_fact:
     corpusops_services_firewall_fail2ban_service_state: "{{corpusops_services_firewall_fail2ban_service_state.strip()}}"
