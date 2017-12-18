@@ -33,7 +33,8 @@
   register: cops_test_services_mgr
   tags: [corpusops_vars, corpusops_vars_core]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_jinja_vars:
+- name: core
+  include_jinja_vars:
     content: |-
       ---
       {% set prefix = 'corpusops_core_' %}
@@ -82,6 +83,7 @@
                           | ternary(vt, 'baremetal')),
       ] %}
       {% for name, val in computed_defaults %}
+      {%  set _ = snamespaced.setdefault(name, none) %}
       {%  if snamespaced[name] is none %}
       {%    set _ = snamespaced.update({name: val}) %}
       {%  endif %}
@@ -102,7 +104,8 @@
       {{ ret | to_json }}
   tags: [corpusops_vars, corpusops_vars_core]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_jinja_vars:
+- name: network(setting)
+  include_jinja_vars:
     content: |-
       ---
       {% set prefix = 'corpusops_network_live_' %}
@@ -113,7 +116,8 @@
       {{ snamespaced | to_json }}
   tags: [corpusops_vars, corpusops_network]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_jinja_vars:
+- name: network(live)
+  include_jinja_vars:
     content: |-
       ---
       {% set lprefix = 'corpusops_network_live_' %}

@@ -25,6 +25,7 @@ corpusops_core_security: false
 # vt: which vt tech: docker, lxc, etc (default: ansible_virtualization_type)
 corpusops_core_vt: null
 corpusops_core_is_vagrant: null
+corpusops_core_is_lxc: null
 corpusops_core_is_vbox: null
 corpusops_core_is_virtualbox: null
 corpusops_core_is_docker: null
