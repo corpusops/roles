@@ -39,6 +39,15 @@
           frontends: {443: {}}
         - ip: [10.0.3.28, 10.0.3.29]
           hosts: [www.super28.com]
+        - hosts: ["{{cops_zope_domain}}"]
+          ip: "{{cops_zope_servers_ips}}"
+          frontends:
+            80:
+              to_port: "{{cops_zope_http_port}}"
+            443:
+              to_port: "{{cops_zope_http_port}}"
+              ssl_terminated: true
+              http_fallback: false
     - stat: "path={{item}}"
       register: nginx_test_files
       with_items:
