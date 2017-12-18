@@ -17,5 +17,7 @@
       domain: _
       server_aliases: []
       is_default_server: "{{corpusops_nginx_default_vhost_vars.is_default_server}}"
+      ssl_port: "{{corpusops_nginx_default_vhost_vars.ssl_port}}"
+      port: "{{corpusops_nginx_default_vhost_vars.port}}"
       install: "{{corpusops_nginx_default_vhost_vars.install}}"
       check_config: "{{corpusops_nginx_default_vhost_vars.check_config}}"
