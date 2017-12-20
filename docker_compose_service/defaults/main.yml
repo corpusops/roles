@@ -11,3 +11,4 @@ docker_compose_service:
   restart_sec: "0"
   timeout_sec: "300"
   #restart_sec: "10"
+  state: started
