@@ -1030,7 +1030,6 @@ def copsf_registry(ansible_vars,
                    update_mode=None,
                    **kw):
     pr = None
-    profile = True
     if namespaced is not None and update_mode is None:
         update_mode = True
     if profile:
