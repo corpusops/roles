@@ -131,7 +131,7 @@ corpusops_services_http_nginx_wwwdir: "/srv/www"
 corpusops_services_http_nginx_epoll: false
 corpusops_services_http_nginx_is_reverse_proxied: false
 corpusops_services_http_nginx_sendfile: true
-corpusops_services_http_nginx_reverse_proxy_addresses: []
+corpusops_services_http_nginx_reverse_proxy_addresses: ["127.0.0.1"]
 corpusops_services_http_nginx_s_prerequisites: true
 corpusops_services_http_nginx_s_configuration: true
 corpusops_services_http_nginx_s_crypto: true
