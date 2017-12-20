@@ -73,6 +73,7 @@
         src: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}/"
         dest: "{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}/"
         rsync_opts: "{{__cops_provision_push_code_vars.git_rsync_opts}}"
+        rsync_path: "{{__cops_provision_push_code_vars.rsync_path}}"
       when: not __cops_provision_push_code_vars.origin in ['localhost']
     - name: "git file sync: synchronise files inside the environment"
       synchronize:
@@ -81,6 +82,7 @@
         src: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}/"
         dest: "{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}/"
         rsync_opts: "{{__cops_provision_push_code_vars.git_rsync_opts}}"
+        rsync_path: "{{__cops_provision_push_code_vars.rsync_path}}"
       when: __cops_provision_push_code_vars.origin in ['localhost']
   - when: (__cops_provision_push_code_vars.force_sync)
     block:

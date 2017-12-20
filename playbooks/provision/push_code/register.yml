@@ -3,7 +3,7 @@
     path: "{{_cops_provision_push_code.path}}/{{d}}"
   loop_control: {loop_var: d}
   with_items: "{{_cops_provision_push_code.file_tests | default([])}}"
-  register: cops_drupal_push_already_done_
+  register: cops_drupal_push_already_done
 - register: __cops_provision_push_code
   debug:
     msg:
@@ -13,6 +13,7 @@
       dest: "{{_cops_provision_push_code.dest|default(
                  _cops_provision_push_code.path)}}"
       path: "{{_cops_provision_push_code.path}}"
+      askpass: "{{__cops_provision_push_code_askpass.path}}"
       parent_dest: "{{_cops_provision_push_code.parent_dest|default(none)}}"
       parent_path: "{{_cops_provision_push_code.parent_path|default(none)}}"
       trailing_slash: "{% if _cops_provision_push_code.get('is_directory', True) %}/{%endif%}"
@@ -56,6 +57,12 @@
         {{(_cops_provision_push_code.get('git_rsync_opts', []) or ['-azv'])}}
       rsync_opts: |-
         {{(_cops_provision_push_code.get('rsync_opts', []) or ["-azv"])}}
+      rsync_path: "{%
+        if _cops_provision_push_code.get('rsync_path', None)
+        %}{{_cops_provision_push_code.rsync_path}}{%
+        elif ansible_become_pass|default(false)
+        %}SUDO_ASKPASS=\"{{__cops_provision_push_code_askpass.path}}\" sudo -A rsync
+        {% endif %}"
 - set_fact:
     cacheable: false
     __cops_provision_push_subs: |-
@@ -70,3 +77,4 @@
 - include_tasks: register_sub.yml
   with_items: ["{{__cops_provision_push_subs}}"]
   loop_control: {loop_var: sub_module}
+
