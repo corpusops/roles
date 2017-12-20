@@ -1,0 +1,4 @@
+---
+# mostly needed to populate hosts vars from facts
+- hosts: "{{hosts|default('all')}}"
+  tasks: [setup]
