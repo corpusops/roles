@@ -16,8 +16,6 @@ corpusops_nginx_vhost_ssl_key: null
 corpusops_nginx_vhost_site_template: "../templates/site.conf"
 # those variable should mostly be good defaults
 corpusops_nginx_vhost_redirect_aliases: false
-corpusops_nginx_vhost_force_reload: true
-corpusops_nginx_vhost_force_restart: false
 corpusops_nginx_vhost_check_config: false
 corpusops_nginx_vhost_is_default_server: false
 corpusops_nginx_vhost_http2: false
