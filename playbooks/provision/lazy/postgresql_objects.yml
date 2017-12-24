@@ -1,0 +1,4 @@
+---
+- hosts: "{{hosts|default('all')}}"
+  tasks:
+    - include_tasks: ./tasks/postgresql_objects.yml

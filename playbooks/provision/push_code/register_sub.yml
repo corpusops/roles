@@ -1,0 +1,20 @@
+---
+- include_tasks: register.yml
+  vars:
+    _cops_provision_push_code:
+      path: "{{sub_module[0].path}}"
+      dest: "{{sub_module[1].dest}}/{{sub_module[0].path}}"
+      parent_path: "{{sub_module[1].path}}"
+      parent_dest: "{{sub_module[1].dest}}"
+      owner: "{{sub_module[0].owner|default(sub_module[1].owner)}}"
+      group: "{{sub_module[0].group|default(sub_module[1].group)}}"
+      origin_path: "{{sub_module[1].src}}/{{sub_module[0].path}}"
+      origin: "{{sub_module[1].origin}}"
+      rsync_opts: "{{sub_module[0].rsync_opts|default(sub_module[1].rsync_opts)}}"
+      git_rsync_opts: "{{sub_module[0].git_rsync_opts|default(sub_module[1].git_rsync_opts)}}"
+      file_tests: "{{sub_module[0].file_tests|default([])}}"
+      sub_paths: "{{sub_module[0].sub_paths|default([])}}"
+      is_directory: "{{sub_module[0].is_directory|default(True)}}"
+      is_submodule: "{{sub_module[0].is_submodule|default(False)}}"
+      sync_mode: "{{sub_module[0].sync_mode|default(sub_module[1].sync_mode)}}"
+      git_folder: "{{sub_module[0].git_folder|default(sub_module[1].git_folder)}}"

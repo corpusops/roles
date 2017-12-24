@@ -1,0 +1,9 @@
+---
+- block:
+  - include_tasks: ./load_vars.yml
+  - shell: |
+      rm -vf /var/cache/apt/archives/*deb
+      rm -rf  /var/lib/apt/lists/*
+    changed_when: false
+    tags: [cops_provision_cleanup]
+    when: ansible_os_family.lower() in ['debian']

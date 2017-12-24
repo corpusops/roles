@@ -1,0 +1,27 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/lxc_stop
+      corpusops_lxc_from_container: "{{container}}"
+    - role: corpusops.roles/lxc_create
+      corpusops_lxc_container_name: "{{image}}"
+      corpusops_lxc_auto_start: "0"
+      corpusops_lxc_from_container: "{{container}}"
+    - role: corpusops.roles/lxc_start
+      corpusops_lxc_container_name: "{{image}}"
+- hosts: all
+  vars:
+    lxc_path: "{{corpusops_lxc_vars['path']}}"
+  tasks:
+    - name: "Synchronise image from container"
+      shell: |
+        rsync -Aazv --delete \
+          '{{lxc_path}}/{{container}}/rootfs/' \
+          '{{lxc_path}}/{{image}}/rootfs/'
+- hosts: all
+  roles:
+    - role: corpusops.roles/lxc_snapshot
+      corpusops_lxc_container_name: "{{image}}"
+    - role: corpusops.roles/lxc_stop
+      corpusops_lxc_from_container: "{{image}}"
+

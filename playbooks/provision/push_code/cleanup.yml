@@ -1,0 +1,4 @@
+---
+- file:
+    state: absent
+    dest: "{{__cops_provision_push_code_askpass.path}}"

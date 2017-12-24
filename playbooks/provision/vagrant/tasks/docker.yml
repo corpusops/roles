@@ -1,0 +1,6 @@
+---
+- block:
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_docker]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/docker.yml"
+  tags: [cops_provision_docker]

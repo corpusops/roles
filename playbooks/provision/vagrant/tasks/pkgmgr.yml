@@ -1,0 +1,5 @@
+---
+- block:
+  - include_tasks: load_vars.yml
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/pkgmgr.yml"
+  tags: [cops_provision_pkgmgr]

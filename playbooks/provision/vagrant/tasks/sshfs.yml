@@ -1,0 +1,6 @@
+---
+- block:
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_sshfs]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/sshfs.yml"
+  tags: [cops_provision_sshfs]

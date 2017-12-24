@@ -1,0 +1,6 @@
+---
+- block:
+    - include_tasks: ./load_vars.yml
+      tags: [cops_provision_syncsshkeys]
+    - include_role: {name: corpusops.roles/ssh_synckeys}
+      tags: [cops_provision_syncsshkeys]

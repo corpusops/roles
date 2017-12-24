@@ -1,0 +1,36 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/lxc_sshauth
+    - role: corpusops.roles/lxc_register
+
+- include: "../server.yml"
+  vars:
+    provision_host: "{{lxc_container_name}}"
+    corpusops_localsettings_apparmor: False
+    corpusops_localsettings_autoupgrades: True
+    corpusops_localsettings_basepkgs: True
+    corpusops_localsettings_dns: False
+    corpusops_localsettings_vim: True
+    corpusops_localsettings_editor: True
+    corpusops_localsettings_etckeeper: False
+    corpusops_localsettings_git: True
+    corpusops_localsettings_golang: False
+    corpusops_localsettings_jdk: False
+    corpusops_localsettings_locales: True
+    corpusops_localsettings_timezone: True
+    corpusops_localsettings_nscd: True
+    corpusops_localsettings_pkgmgr: True
+    corpusops_localsettings_profile: True
+    corpusops_localsettings_screen: True
+    corpusops_localsettings_ssh: True
+    corpusops_localsettings_sudo: True
+    corpusops_services_base_cron: True
+    corpusops_services_base_ntp: False
+    corpusops_services_base_sshd: True
+    corpusops_services_firewall_fail2ban: False
+    corpusops_services_magicbridge: False
+    corpusops_services_virt_lxc: False
+    corpusops_services_virt_docker: False
+    # To reactivate maybe at a later time
+    corpusops_localsettings_sysctls: False

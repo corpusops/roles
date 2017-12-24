@@ -1,0 +1,10 @@
+---
+- hosts: "{{hosts|default('all')}}"
+  tasks:
+    - name: >
+            salt-call
+            {{function|default('state.sls')}}
+            {{saltargs|default('')}}
+      saltcall:
+        function: "{{function|default('state.sls')}}"
+        args: "{{saltargs|default('')}}"

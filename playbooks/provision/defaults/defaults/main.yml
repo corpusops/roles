@@ -1,0 +1,4 @@
+---
+cops_lang: "fr"
+cops_locale: "{{cops_lang}}_{{cops_lang.upper()}}"
+cops_timezone: Europe/Paris
