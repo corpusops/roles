@@ -1,0 +1,7 @@
+---
+- hosts: "{{hosts|default('all')}}"
+  become: true
+  roles:
+    - role: corpusops.roles/vars
+  tasks:
+    - include_tasks: ./tasks/locales.yml

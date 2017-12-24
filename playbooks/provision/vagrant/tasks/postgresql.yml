@@ -1,0 +1,6 @@
+---
+- block:
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_postgresql]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/postgresql.yml"
+  tags: [cops_provision_postgresql]

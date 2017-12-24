@@ -1,0 +1,10 @@
+---
+- name: setup ssh askpass script
+  copy:
+    content: |
+      #!/usr/bin/env sh
+      echo "{{ansible_become_pass}}"
+    dest: "{{__cops_provision_push_code_askpass.path}}"
+    mode: 0750
+    owner: "{{ansible_user}}"
+    group: "root"

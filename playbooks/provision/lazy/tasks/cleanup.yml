@@ -1,0 +1,8 @@
+---
+- become: true
+  block:
+  - include_tasks: ./load_vars.yml
+    tags: [cops_provision_cleanup]
+- include_tasks: "{{cops_playbooks}}/provision/install/tasks/cleanup.yml"
+  when: not vars.get('SKIP_CLEANUP', False) or vars.get('FORCE_CLEANUP', False)
+  tags: [cops_provision_cleanup]

@@ -1,0 +1,6 @@
+---
+- block:
+    - include_tasks: load_vars.yml
+      tags: [cops_provision_makinastates]
+- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/makinastates.yml"
+  tags: [cops_provision_makinastates]

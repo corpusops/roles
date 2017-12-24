@@ -1,0 +1,33 @@
+---
+- name: deploy code container inside the target environment
+  file:
+    state: directory
+    path: "{{d}}"
+    owner: "{{__cops_provision_push_code_vars.owner}}"
+    group: "{{__cops_provision_push_code_vars.group}}"
+  changed_when: False
+  loop_control: {loop_var: d}
+  with_items: ["{{__cops_provision_push_code_vars.dest}}"]
+  when: __cops_provision_push_code_vars.force_sync
+- name: synchronise files inside the environment (deleguation)
+  delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+  synchronize:
+    compress: false
+    ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"
+    src: "{{__cops_provision_push_code_vars.src}}{{__cops_provision_push_code_vars.trailing_slash}}"
+    dest: "{{__cops_provision_push_code_vars.dest}}{{__cops_provision_push_code_vars.trailing_slash}}"
+    rsync_opts: "{{__cops_provision_push_code_vars.rsync_opts}}"
+    rsync_path: "{{__cops_provision_push_code_vars.rsync_path}}"
+  when: (__cops_provision_push_code_vars.force_sync and
+         not __cops_provision_push_code_vars.origin in ['localhost'])
+- name: synchronise files inside the environment
+  synchronize:
+    compress: false
+    ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"
+    src: "{{__cops_provision_push_code_vars.src}}{{__cops_provision_push_code_vars.trailing_slash}}"
+    dest: "{{__cops_provision_push_code_vars.dest}}{{__cops_provision_push_code_vars.trailing_slash}}"
+    rsync_opts: "{{__cops_provision_push_code_vars.rsync_opts}}"
+    rsync_path: "{{__cops_provision_push_code_vars.rsync_path}}"
+  when: (__cops_provision_push_code_vars.force_sync and
+         __cops_provision_push_code_vars.origin in ['localhost'])
+

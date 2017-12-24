@@ -1,0 +1,14 @@
+---
+# Variable may be overidden from inventory (salt_pillar)
+# see ansible/roles/makinastates_lxc_vars/defaults/main.yml
+# (see the 'all' statement, must be called with -l indicating the host(s) where
+# to create such a container
+#
+# eg:
+#     bin/ansible-playbook p*/c*/*/create_container.yml \
+#         -l my_baremetal.foo.net \
+#         -e 'lxc_container_name=vm.foo.net'
+#
+- include: lxc_container/create.yml
+- include: lxc_container/provision.yml
+

@@ -1,0 +1,7 @@
+---
+# MAYBE SET: corpusops_localsettings_php_version
+- block:
+    - include_role: {name: "{{cops_playbooks}}/provision/defaults"}
+    - include_role: {name: "corpusops.roles/localsettings_php"}
+    - include_role: {name: "corpusops.roles/services_php_fpm"}
+  tags: [cops_provision_fpm]

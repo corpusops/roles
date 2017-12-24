@@ -1,0 +1,10 @@
+---
+- become: true
+  block:
+    - include_tasks: ./load_vars.yml
+      tags: [cops_provision_postgresql_objects]
+- include_tasks: "{{cops_playbooks}}/provision/install/tasks/postgresql_objects.yml"
+  tags: [cops_provision_postgresql_objects]
+  when: >-
+    ((not vars.get('SKIP_SETUP_POSTGRESQL', False)) or
+     (vars.get('FORCE_SETUP_POSTGRESQL', False)))

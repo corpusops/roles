@@ -1,0 +1,4 @@
+---
+- become: true
+  block:
+    - include_tasks: "{{cops_playbooks}}/provision/install/tasks/load_vars.yml"
