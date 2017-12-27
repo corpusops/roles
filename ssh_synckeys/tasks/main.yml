@@ -1,14 +1,8 @@
 ---
 - name: "corpusops_ssh_synckeys preflight check - SKIPTEST"
-  debug:
-    msg: "{{corpusops_ssh_synckeys | default(True) }}"
+  debug: {msg: "{{corpusops_ssh_synckeys | default(True) }}"}
   register: corpusops_ssh_synckeys_can_run
   tags: ssh_synckeys
-- include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: cops_ssh_synckeys
-  tags: [ssh_synckeys, vars]
-  when: "corpusops_ssh_synckeys_can_run.msg == True"
 - include_tasks: run.yml
   tags: [ssh_synckeys, ssh_synckeys_run]
   when: "corpusops_ssh_synckeys_can_run.msg == True"

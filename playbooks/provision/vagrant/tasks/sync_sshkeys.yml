@@ -1,10 +1,10 @@
 ---
-- block:
-    - include_tasks: load_vars.yml
-      tags: [cops_provision_syncsshkeys]
-- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/sync_sshkeys.yml"
-  vars:
-     _cops_ssh_synckeys:
-      from_users: [ubuntu, vagrant]
-      to_user: root
-  tags: [cops_provision_syncsshkeys]
+- tags: [cops_provision_syncsshkeys]
+  block:
+  - set_fact:
+      cacheable: false
+      _cops_ssh_synckeys:
+        from_users: [ubuntu, vagrant]
+        to_user: root
+  - include_tasks: load_vars.yml
+  - include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/sync_sshkeys.yml"
