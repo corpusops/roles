@@ -1,2 +1,2 @@
 ---
-- include_role: {name: "{{cops_playbooks}}/provision/defaults"} 
+- include_role: {name: "{{cops_playbooks}}/provision/defaults"}

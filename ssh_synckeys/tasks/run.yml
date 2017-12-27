@@ -1,11 +1,16 @@
 ---
-#- debug: {msg: "{{cops_ssh_synckeys_vars}}"}
+#- debug: {msg: "{{cops_vars_debug}}"}
+- include_role: {name: corpusops.roles/vars_registry}
+  vars: {cops_vars_registry_target: cops_ssh_synckeys}
+  tags: [ssh_synckeys, vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+  when: "corpusops_ssh_synckeys_can_run.msg == True"
 - set_fact:
     cacheable: false
     to_user: "{{cops_ssh_synckeys_vars.to_user}}"
     from_users: "{{cops_ssh_synckeys_vars.from_users}}"
   failed_when: not to_user or not from_users
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - shell: |
       i="{{to_user}}";
       h=$(getent passwd $i | cut -f6 -d:);
@@ -23,7 +28,7 @@
     mode: "0700"
     path: "{{uh}}/.ssh"
   become: true
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - shell: |-
     for i in {{cops_ssh_synckeys_vars.from_users|join(' ')}};do
       h=$( getent passwd $i | cut -f6 -d: ; );
@@ -38,7 +43,9 @@
   with_items: "{{cops_homes.stdout.splitlines()}}"
   changed_when: false
   register: cops_homesc
-- name: Synchronise vagrant home ssh keys to root
+- name: "Synchronise \
+    {{cops_ssh_synckeys_vars.from_users|join(' ')}} \
+    home ssh keys to {{to_user}}"
   blockinfile:
     path: "{{uh}}/.ssh/authorized_keys"
     marker: "# -- {mark} ANSIBLE MANAGED BLOCK --"
@@ -50,4 +57,4 @@
       {{i.stdout}}
       {% endfor %}
   become: true
-  no_log: true
+  no_log: "{{not (cops_vars_debug|default(false))}}"
