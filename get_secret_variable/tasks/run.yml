@@ -1,33 +1,28 @@
 ---
-- stat:
-    path: "{{cops_get_secret_variable_vars.path}}"
-  register: get_secret_variable_container
-  failed_when: false
-- file:
-    state: directory
-    mode: "0700"
-    path: "{{cops_get_secret_variable_vars.path}}"
-  when: "not get_secret_variable_container.stat.exists"
-- shell: cat "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}" 2>/dev/null
-  failed_when: false
-  register: cops_get_secret_variable_variable_cmd
-  changed_when: false
-  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+- {shell: 'id -u', register: cops_c_whoami, changed_when: false}
 - set_fact:
     cacheable: false
-    cops_get_secret_variable_value: "{{cops_get_secret_variable_variable_cmd.stdout.strip() or (cops_get_secret_variable_vars.length|copsf_secure_password)}}"
-  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
-- copy:
-    mode: "0600"
-    content: "{{cops_get_secret_variable_value}}"
-    dest: "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}"
-- include_jinja_vars:
-    content: |
-      {{{
-        cops_get_secret_variable_vars.name: cops_get_secret_variable_value} | to_json }}
-  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
-- set_fact:
-    cacheable: false
-    get_secret_variable_container: ""
-    cops_get_secret_variable_variable_cmd: ""
-  no_log: True
+    cops_c_secvarredo: false
+    cops_get_secret_variable_become: null
+    cops_get_secret_variable_become_user: null
+- block:
+  - include_tasks: _run.yml
+  rescue:
+  - set_fact:
+      cacheable: false
+      cops_c_secvarredo: true
+      cops_get_secret_variable_become: true
+      cops_get_secret_variable_become_user: root
+    when: cops_c_whoami.stdout != '0'
+  - set_fact:
+      cacheable: false
+      cops_c_secvarfailed: true
+- when: cops_c_secvarredo
+  block:
+  - name: retry get_var as root
+    include_tasks: _run.yml
+  - set_fact:
+     cacheable: false
+     cops_c_secvarfailed: false
+- debug: {msg=ok}
+  failed_when: cops_c_secvarfailed
