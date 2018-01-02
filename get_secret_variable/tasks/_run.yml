@@ -1,0 +1,34 @@
+- become: "{{cops_get_secret_variable_become}}"
+  become_user: "{{cops_get_secret_variable_become_user}}"
+  block:
+  - stat: {path: "{{cops_get_secret_variable_vars.path}}"}
+    register: get_secret_variable_container
+    failed_when: false
+  - file:
+      state: directory
+      mode: "0700"
+      path: "{{cops_get_secret_variable_vars.path}}"
+    when: "not get_secret_variable_container.stat.exists"
+  - shell: cat "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}" 2>/dev/null
+    failed_when: false
+    register: cops_get_secret_variable_variable_cmd
+    changed_when: false
+    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+  - set_fact:
+      cacheable: false
+      cops_get_secret_variable_value: "{{cops_get_secret_variable_variable_cmd.stdout.strip() or (cops_get_secret_variable_vars.length|copsf_secure_password)}}"
+    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+  - copy:
+      mode: "0600"
+      content: "{{cops_get_secret_variable_value}}"
+      dest: "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}"
+  - include_jinja_vars:
+      content: |
+        {{{
+          cops_get_secret_variable_vars.name: cops_get_secret_variable_value} | to_json }}
+    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+  - set_fact:
+      cacheable: false
+      get_secret_variable_container: ""
+      cops_get_secret_variable_variable_cmd: ""
+    no_log: True
