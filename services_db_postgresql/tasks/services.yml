@@ -30,7 +30,7 @@
   when: "corpusops_vars.has_services_manager and ansible_service_mgr in ['systemd']"
 - set_fact:
     cacheable: false
-    cops_pg_service: "{{cops_pg_service.stdout.strip()}}"
+    cops_pg_service: "{{cops_pg_service.get('stdout', '').strip()}}"
 # try to restart if down
 - shell: "systemctl status {{cops_pg_service}}"
   tags: corpusops_services_db_postgresql_status
