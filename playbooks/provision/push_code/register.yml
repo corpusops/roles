@@ -3,7 +3,7 @@
     path: "{{_cops_provision_push_code.path}}/{{d}}"
   loop_control: {loop_var: d}
   with_items: "{{_cops_provision_push_code.file_tests | default([])}}"
-  register: cops_drupal_push_already_done
+  register: cops_push_codes_already_done
 - register: __cops_provision_push_code
   debug:
     msg:
@@ -23,10 +23,10 @@
       force_sync: |-
         {% set ret = {'r': _cops_provision_push_code.get('force_sync', ___FORCE_COPS_PROVISION_PUSH_CODE)} %}
         {% if ((not _cops_provision_push_code.file_tests | default([])) or
-               (not cops_drupal_push_already_done_.results)) %}
+               (not cops_push_codes_already_done.results)) %}
         {% set _ = ret.update({'r': True}) %}
         {% else %}
-        {% for i in cops_drupal_push_already_done_.results %}
+        {% for i in cops_push_codes_already_done.results %}
         {% if not i.stat.exists %}
         {% set _ = ret.update({'r': True}) %}
         {% endif %}
