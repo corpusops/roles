@@ -12,14 +12,6 @@
       ---
       {% set n = 'corpusops_nginx_vhost_vars' %}
       {% set res = vars[n] %}
-      {% set restarthanders = res.rhandlers %}
-      # force nginx reload/restart via vhost variables
-      {% for i in ['restart', 'reload'] %}
-      {%   if res['force_'+i] not in restarthanders %}
-      {%     set _ = restarthanders.append(
-               i+'_nginx_via_corpusops_nginx_vhost') %}
-      {%   endif %}
-      {% endfor %}
       {% set _ = res.update({
           'small_name': res.small_name.replace(
           '.', '_').replace('-', '_').replace('*', 'star')}) %}
