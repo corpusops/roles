@@ -5,6 +5,13 @@
     cops_c_secvarredo: false
     cops_get_secret_variable_become: null
     cops_get_secret_variable_become_user: null
+- set_fact:
+    cacheable: false
+    cops_c_secvarredo: false
+    cops_get_secret_variable_become: true
+    cops_get_secret_variable_become_user: root
+    cops_c_secvarfailed: false
+    when: cops_c_whoami.stdout == '0'
 - block:
   - include_tasks: _run.yml
   rescue:
@@ -24,5 +31,6 @@
   - set_fact:
      cacheable: false
      cops_c_secvarfailed: false
-- debug: {msg=ok}
+- debug:
+    msg: ok
   failed_when: cops_c_secvarfailed
