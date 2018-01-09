@@ -1,0 +1,20 @@
+galaxy_info:
+  min_ansible_version: 2.0
+  platforms:
+  - name: GenericLinux
+    versions:
+    - all
+    - any
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+dependencies:
+- role: corpusops.roles/services_db_mysql_vars
+  tags: [corpusops_mysql_role]
+- role: corpusops.roles/services_db_mysql_pkgmgr
+  tags: [corpusops_mysql_pkgmgrd_role]
+- role: corpusops.roles/services_db_mysql_client
+  tags: [corpusops_mysql_clientd_role]

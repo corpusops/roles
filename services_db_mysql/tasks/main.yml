@@ -1,0 +1,26 @@
+---
+- name: "corpusops_services_db_mysql preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_db_mysql | default(True) }}"
+  register: corpusops_services_db_mysql_can_run
+  tags: [corpusops_services_db_mysql]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  tags: [corpusops_services_db_mysql,
+         mysql_prerequisites,
+         corpusops_services_db_mysql_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  tags: [corpusops_services_db_mysql,
+         mysql_configuration,
+         corpusops_services_db_mysql_configuration]
+- include_tasks: wrappers.yml
+  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  tags: [corpusops_services_db_mysql,
+         mysql_wrappers,
+         corpusops_services_db_mysql_wrappers]
+- include_tasks: services.yml
+  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  tags: [corpusops_services_db_mysql,
+         mysql_services,
+         corpusops_services_db_mysql_services]
