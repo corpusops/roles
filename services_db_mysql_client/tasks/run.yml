@@ -1,0 +1,41 @@
+---
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: present
+  with_items: '{{corpusops_services_db_mysql_vars.client_packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_mysql_vars.client_packages is not none and
+          corpusops_services_db_mysql_vars.client_packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_db_mysql_vars.client_packages is not none and
+          corpusops_services_db_mysql_vars.client_packages|length > 0)"
+  with_items: "{{corpusops_services_db_mysql_vars.client_packages}}"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_db_mysql_vars.client_packages is not none and
+          corpusops_services_db_mysql_vars.client_packages|length > 0)"
+  with_items: "{{corpusops_services_db_mysql_vars.client_packages}}"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_db_mysql_vars.client_packages is not none and
+          corpusops_services_db_mysql_vars.client_packages|length > 0)"
+  with_items: "{{corpusops_services_db_mysql_vars.client_packages}}"

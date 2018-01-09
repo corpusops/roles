@@ -1,0 +1,148 @@
+---
+corpusops_services_db_mysql_cops_do_format_resolve: false
+corpusops_services_db_mysql_cops_computed_defaults: []
+corpusops_services_db_mysql_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_services_db_mysql_cops_sub_os_append: {}
+corpusops_services_db_mysql_cops_knobs: [
+  'py_packages',
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo',
+  'client_packages', ]
+corpusops_services_db_mysql_cops_lowered: ['repo']
+corpusops_services_db_mysql_cops_sub_namespaces:
+  settings: {}
+  modes: {}
+corpusops_services_db_mysql_secret_variables:
+- root_password
+corpusops_services_db_mysql_activated: True
+corpusops_services_db_mysql_repo_keys_url: null
+corpusops_services_db_mysql_repo_keys: null
+corpusops_services_db_mysql_repo_keys_default: []
+corpusops_services_db_mysql_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_db_mysql_repo: null
+#corpusops_services_db_mysql_repo_debian: "deb http://apt.mysql.org/pub/repos/apt/ {{ansible_distribution_release}}-mysqldg main"
+corpusops_services_db_mysql_repo_debian: null
+corpusops_services_db_mysql_repo_redhat: null
+corpusops_services_db_mysql_repo_fedora: null
+corpusops_services_db_mysql_client_packages: null
+corpusops_services_db_mysql_client_packages_default:
+- "mysql-client-{version}"
+- "libmysqlclient-dev"
+corpusops_services_db_mysql_py_packages: null
+corpusops_services_db_mysql_py_packages_default:
+- "python-mysqldb"
+- "python3-mysqldb"
+corpusops_services_db_mysql_packages: null
+corpusops_services_db_mysql_packages_default:
+- "libmysqlclient-dev"
+- 'mysql-server-{version}'
+corpusops_services_db_mysql_selfsignedcert_dir: "/etc/mysql/ssl"
+corpusops_services_db_mysql_services: null
+corpusops_services_db_mysql_group: mysql
+corpusops_services_db_mysql_services_default: [mysql]
+corpusops_services_db_mysql_files: null
+corpusops_services_db_mysql_filescopy: null
+corpusops_services_db_mysql_filescopy_default: []
+corpusops_services_db_mysql_files_apt: []
+corpusops_services_db_mysql_prefix: "{{corpusops_vars.config_dir}}/mysql"
+corpusops_services_db_mysql_vprefix: "{prefix}/{version}"
+corpusops_services_db_mysql_sharedir: "{{corpusops_vars.share_dir}}/mysql"
+corpusops_services_db_mysql_datadir: "{{corpusops_vars.var_lib_dir}}/mysql"
+corpusops_services_db_mysql_tmpdir: "{{corpusops_vars.tmp_dir}}"
+corpusops_services_db_mysql_logdir: "{{corpusops_vars.log_dir}}/mysql"
+corpusops_services_db_mysql_var_log: "{logdir}"
+corpusops_services_db_mysql_basedir: "{{corpusops_vars.usr_dir}}"
+corpusops_services_db_mysql_sockdir: "{{corpusops_vars.run_dir}}/mysqld"
+corpusops_services_db_mysql_files_default:
+  - {path: "{{corpusops_vars.unit_dir}}/mysql.service.d",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{prefix}/conf.d",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{prefix}/mysql.conf.d/mysqld_safe_syslog.cnf",
+     owner: root, group: root, state: absent}
+  - {path: "{prefix}/mysql.conf.d/mysqld.cnf",
+     owner: root, group: root, state: absent}
+corpusops_services_db_mysql_configs: null
+corpusops_services_db_mysql_configs_default:
+  - {name: "{prefix}/conf.d/local.cnf",
+    template: "../templates/etc/mysql/conf.d/local.cnf",
+    mode: "0644"}
+  - {name: "{{corpusops_vars.unit_dir}}/mysql.service.d/mysql.conf",
+    template: "../templates/etc/systemd/system/mysql.service.d/mysql.conf",
+    mode: "0644"}
+corpusops_services_db_mysql_wrapper_configs:
+  - {name: "/usr/bin/mysql-wrapper-{version}.sh",
+    template: "../templates/usr/bin/mysql-wrapper.sh",
+    mode: "0755"}
+corpusops_services_db_mysql_wrapped_binaries: [
+  vacuumdb, dropdb, clusterdb, reindexdb, mysql_dump, mysql_basebackup,
+  mysql_receivexlog, psql, createdb, dropuser, mysql_dumpall, createuser,
+  mysql_restore, mysql_isready, createlang, droplang]
+corpusops_services_db_mysql_dist: "{{ansible_distribution_release}}"
+corpusops_services_db_mysql_user: 'mysql'
+corpusops_services_db_mysql_version: '5.7'
+corpusops_services_db_mysql_conf_ssl_cert_file: '/etc/ssl/certs/mysql.pem'
+corpusops_services_db_mysql_conf_ssl_key_file: '/etc/ssl/private/mysql.key'
+corpusops_services_db_mysql_conf_extras:
+ - "# comment in mysql.conf"
+ - "# mysetting = value"
+corpusops_services_db_mysql_conn_password: null
+corpusops_services_db_mysql_conn_user: null
+corpusops_services_db_mysql_root_password: null
+corpusops_services_db_mysql_root_user: root
+corpusops_services_db_mysql_use_mem: null
+corpusops_services_db_mysql_bind_address: '0.0.0.0'
+corpusops_services_db_mysql_conn_host: 'localhost'
+corpusops_services_db_mysql_conn_pass: None
+corpusops_services_db_mysql_character_set: 'utf8'
+corpusops_services_db_mysql_collate: 'utf8_general_ci'
+corpusops_services_db_mysql_noDNS: True
+corpusops_services_db_mysql_isPercona: False
+corpusops_services_db_mysql_isOracle: True
+corpusops_services_db_mysql_isMariaDB: False
+corpusops_services_db_mysql_ssl: True
+corpusops_services_db_mysql_port: '3306'
+corpusops_services_db_mysql_cert_domain: mysql
+corpusops_services_db_mysql_cert: null
+corpusops_services_db_mysql_cert_key: null
+corpusops_services_db_mysql_cert_path: "{prefix}/ssl/mysql.crt"
+corpusops_services_db_mysql_cert_full_path: "{prefix}/ssl/mysql.full.crt"
+corpusops_services_db_mysql_cert_key_path: "{prefix}/ssl/mysql.key"
+corpusops_services_db_mysql_selfsignedcert_s: "/C=US/ST=Oregon/L=Portland/O=IT/"
+corpusops_services_db_mysql_selfsignedcert_d: "365000"
+corpusops_services_db_mysql_nb_connections: null
+corpusops_services_db_mysql_memory_usage_percent: null
+corpusops_services_db_mysql_mode: "{{corpusops_vars.env}}"
+corpusops_services_db_mysql_modes_default:
+  number_of_table_indicator: 400
+  innodb_flush_method: 'O_DSYNC'
+  innodb_flush_log_at_trx_commit: 1
+  nb_connections: 25
+  memory_usage_percent: 15
+corpusops_services_db_mysql_modes_prod:
+  number_of_table_indicator: 1000
+  innodb_flush_method: 'O_DIRECT'
+  innodb_flush_log_at_trx_commit: 2
+  nb_connections: 250
+  memory_usage_percent: 30
+corpusops_services_db_mysql_users: []
+corpusops_services_db_mysql_dbs: []
+corpusops_services_db_mysql_privs: []
+# computed by the filter or the autotune
+corpusops_services_db_mysql_full_mem: null
+corpusops_services_db_mysql_nb_cpus: null
+corpusops_services_db_mysql_available_mem: null
+corpusops_services_db_mysql_query_cache_size_M: null
+corpusops_services_db_mysql_innodb_buffer_pool_size_M: null
+corpusops_services_db_mysql_innodb_buffer_pool_instances: null
+corpusops_services_db_mysql_innodb_log_buffer_size_M: null
+corpusops_services_db_mysql_innodb_flush_method: null
+corpusops_services_db_mysql_innodb_flush_log_at_trx_commit: null
+corpusops_services_db_mysql_innodb_thread_concurrency: null
+corpusops_services_db_mysql_sync_binlog: null
+corpusops_services_db_mysql_innodb_additional_mem_pool_size_M: null
+corpusops_services_db_mysql_table_definition_cache: null
+corpusops_services_db_mysql_table_open_cache: null
+corpusops_services_db_mysql_open_file_limit: null
+corpusops_services_db_mysql_tmp_table_size_M: null
+corpusops_services_db_mysql_number_of_table_indicator: null

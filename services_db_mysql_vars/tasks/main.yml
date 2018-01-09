@@ -1,0 +1,25 @@
+---
+# Generate passwords on remote box if not found in registry
+- name: "Setup secrets"
+  include_tasks: "../../playbooks/utils/set_secret_variables.yml"
+  loop_control: {loop_var: secretvariables}
+  with_items:
+    - variables: "{{corpusops_services_db_mysql_secret_variables}}"
+      registry_prefix: corpusops_services_db_mysql_
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_services_db_mysql_' %}
+      {% set snamespaced, vars = vars
+          | copsf_registry(prefix) %}
+      {% set data, vars = snamespaced[prefix+'vars']
+          | copsf_mysql(vars, prefix)%}
+      {{ (data
+         | copsf_format_resolve(additional_namespaces=[vars])
+         | copsf_registry_to_vars(
+             vars, prefix, global_scope=True)
+         )[0]
+         | to_json}}
+  tags: [corpusops_vars, corpusops_services_db_mysql_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
