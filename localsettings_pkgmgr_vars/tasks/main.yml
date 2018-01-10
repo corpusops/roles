@@ -3,38 +3,7 @@
     content: |-
       ---
       {% set prefix = 'corpusops_localsettings_pkgmgr_' %}
-      {% set  _ = vars.update({prefix+'dist': ansible_lsb.codename}) %}
-      {% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
-      {% set knobs = ['files', 'filescopy', 'configs', 'packages', 'services',
-                      'mirror', 'comps', 'sources_lists', 'rpm_mirrors',
-                      'rpm_repos', 'base_rpm_repos'
-                     ] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'settings': {}} %}
-      {% set namespaced = {} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
-      {% set namespaced = snamespaced[prefix+'vars'] %}
-      {% if ansible_os_family.lower() == 'redhat' %}
-      {%  set pk = 'rpm_repos' %}
-      {%  set k = 'base_rpm_repos' %}
-      {%  if vars.get(k, []) %}
-      {%    set _ = namespaced[pk].extend(namespaced[k])%}
-      {%  endif %}
-      {%  for mirror in namespaced.get(pk, []) %}
-      {%    set _ = mirror.update({'gpgkey': mirror.get('gpgkey', '').format(**vars)}) %}
-      {%  endfor %}
-      {% endif %}
-      {{ (snamespaced[prefix+'vars']
-           | copsf_registry_to_vars(
-               vars, prefix, global_scope=True)
-             )[0] | to_json}}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {{ snamespaced | to_json}}
   tags: [corpusops_vars, corpusops_localsettings_pkgmgr_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
