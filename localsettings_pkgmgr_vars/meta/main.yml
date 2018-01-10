@@ -13,3 +13,4 @@ galaxy_info:
     - all
 dependencies:
 - role: corpusops.roles/vars
+- role: corpusops.roles/lsb_release

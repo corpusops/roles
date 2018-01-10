@@ -1,8 +1,18 @@
 ---
+corpusops_localsettings_pkgmgr_cops_do_format_resolve: true
+corpusops_localsettings_pkgmgr_cops_computed_defaults: []
+corpusops_localsettings_pkgmgr_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_pkgmgr_cops_sub_os_append: {}
+corpusops_localsettings_pkgmgr_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'mirror', 'comps', 'sources_lists', 'rpm_mirrors',
+  'rpm_repos', 'base_rpm_repos']
+corpusops_localsettings_pkgmgr_cops_lowered: []
+corpusops_localsettings_pkgmgr_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_pkgmgr_packages: null
 corpusops_localsettings_pkgmgr_packages_debian: [software-properties-common]
-corpusops_localsettings_pkgmgr_packages_ubuntu: [
-  software-properties-common]
+corpusops_localsettings_pkgmgr_packages_ubuntu: [software-properties-common]
 corpusops_localsettings_pkgmgr_configs: null
 corpusops_localsettings_pkgmgr_configs_ubuntu:
   - {'name': '/etc/apt/sources.list', 'mode': '644'}
@@ -22,7 +32,9 @@ corpusops_localsettings_pkgmgr_apt_clean: false
 corpusops_localsettings_pkgmgr_apt_clean_configs:
   - {'name': '/etc/apt/apt.conf.d/99clean', 'mode': '644'}
 corpusops_localsettings_pkgmgr_files: []
-corpusops_localsettings_pkgmgr_dist: '<CODENAME_MUST_BE_REPLACED>'
+corpusops_localsettings_pkgmgr_dist: "{ldist}"
+corpusops_localsettings_pkgmgr_ldist: "{{'{0}'.format(ansible_lsb.codename).lower()}}"
+corpusops_localsettings_pkgmgr_odist: "{{'{0}'.format(ansible_lsb.codename)}}"
 corpusops_localsettings_pkgmgr_force_apt_ipv4: true
 corpusops_localsettings_pkgmgr_force_apt_ipv6: false
 corpusops_localsettings_pkgmgr_comps: null
@@ -32,7 +44,9 @@ corpusops_localsettings_pkgmgr_mirror: null
 # ovh is down a lot of time recently
 # corpusops_localsettings_pkgmgr_mirror_debian_archive: 'http://archive.debian.org/debian/'
 # corpusops_localsettings_pkgmgr_mirror_ubuntu: 'http://mirror.ovh.net/ftp.ubuntu.com/ubuntu/'
-corpusops_localsettings_pkgmgr_mirror_ubuntu: 'http://fr.archive.ubuntu.com/ubuntu/'
+corpusops_localsettings_pkgmgr_mirror_fr_ubuntu: 'http://fr.archive.ubuntu.com/ubuntu/'
+corpusops_localsettings_pkgmgr_mirror_dist_ubuntu: 'http://archive.ubuntu.com/ubuntu/'
+corpusops_localsettings_pkgmgr_mirror_ubuntu: '{mirror_fr_ubuntu}'
 corpusops_localsettings_pkgmgr_mirror_debian_archive: 'http://archive.debian.org/debian/'
 corpusops_localsettings_pkgmgr_mirror_debian: 'http://ftp.fr.debian.org/debian/'
 corpusops_localsettings_pkgmgr_sources_lists: null
@@ -53,44 +67,44 @@ corpusops_localsettings_pkgmgr_sources_lists_debian:
  - 'deb {mirror} {dist} {comps}'
  - 'deb-src {mirror} {dist} {comps}'
 corpusops_localsettings_pkgmgr_partner_mirror: 'http://archive.canonical.com/ubuntu'
+corpusops_localsettings_pkgmgr_lsb_release_major: "{{ansible_lsb.release[0]}}"
 corpusops_localsettings_pkgmgr_rpm_mirrors: null
 corpusops_localsettings_pkgmgr_rpm_mirrors_default: []
 corpusops_localsettings_pkgmgr_rpm_mirrors_centos:
   - 'http://centos.mirrors.ovh.net/ftp.centos.org'
-corpusops_localsettings_pkgmgr_rpm_repos: []
-corpusops_localsettings_pkgmgr_base_rpm_repos: null
-corpusops_localsettings_pkgmgr_base_rpm_repos_default: []
-corpusops_localsettings_pkgmgr_base_rpm_repos_centos:
-  - name: base
-    repo: os
-    desc: Base
-    gpgcheck: true
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
-    mirrorlist: "file:///etc/corpusops_rpms_mirrors.base"
-    file: 'CentOS-Base'
-  - name: updates
-    gpgcheck: true
-    desc: Updates
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
-    mirrorlist: "file:///etc/corpusops_rpms_mirrors.updates"
-    file: 'CentOS-Base'
-  - name: extras
-    desc: Extras
-    gpgcheck: true
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
-    mirrorlist: "file:///etc/corpusops_rpms_mirrors.extras"
-    file: 'CentOS-Base'
-  - name: centosplus
-    desc: Plus
-    gpgcheck: true
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
-    mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
-    file: 'CentOS-Base'
+corpusops_localsettings_pkgmgr_base_rpm_repos: "{{corpusops_localsettings_pkgmgr_rpm_repos}}"
+corpusops_localsettings_pkgmgr_rpm_repos: null
+corpusops_localsettings_pkgmgr_rpm_repos_centos;:
+- name: base
+  repo: os
+  desc: Base
+  gpgcheck: true
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{lsb_release_major}"
+  mirrorlist: "file:///etc/corpusops_rpms_mirrors.base"
+  file: 'CentOS-Base'
+- name: updates
+  gpgcheck: true
+  desc: Updates
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{lsb_release_major}"
+  mirrorlist: "file:///etc/corpusops_rpms_mirrors.updates"
+  file: 'CentOS-Base'
+- name: extras
+  desc: Extras
+  gpgcheck: true
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{lsb_release_major}"
+  mirrorlist: "file:///etc/corpusops_rpms_mirrors.extras"
+  file: 'CentOS-Base'
+- name: centosplus
+  desc: Plus
+  gpgcheck: true
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{lsb_release_major}"
+  mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
+  file: 'CentOS-Base'
 corpusops_localsettings_pkgmgr_epel:
   - name: epel
     desc: epel
     gpgcheck: true
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{ansible_lsb[release][0]}"
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{lsb_release_major}"
     mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
     file: 'CentOS-Base'
 _repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version|default('7') }}.noarch.rpm"
