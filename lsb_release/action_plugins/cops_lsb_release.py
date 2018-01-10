@@ -68,6 +68,10 @@ class ActionModule(ActionBase):
             if redefine:
                 results['ansible_lsb'] = ansible_lsb
         self.show_content = True
+        cacheable = True
         result = {'ansible_facts':  results,
+                  '_ansible_facts_cacheable': cacheable,
+                  'ansible_facts_cacheable': cacheable,
                   '_ansible_no_log': not self.show_content}
+
         return result
