@@ -13,10 +13,8 @@
 - name: ensure running
   debug:
     msg: "LXC is running"
-  failed_when:  |
-    {% set st = corpusops_lxc_register_lxcs.msg.get(
-      lxc_container_name, {}).get('state', 'UNKNOWN') %}
-    {% if st != 'RUNNING' %}True{%else%}False{%endif%}
+  failed_when: ["(corpusops_lxc_register_lxcs.msg.get(
+      lxc_container_name, {}).get('state', 'UNKNOWN') not in ['RUNNING'])"]
   tags: corpusops_lxc_register,corpusops_lxc_register_ip
 - name: get ip
   shell: |
