@@ -10,18 +10,27 @@
 ```yaml
 - include_role: corpusops.roles/sshkeys
   vars:
-    cops_sshkeys_removed:
-      root:
-        - key: "ssh-rsa xxxx"
-        - key: "ssh-rsa xxxx"
-          comment: foobar
-          key_options: ""
-    cops_sshkeys_added:
-      root:
-        - key: "ssh-rsa xxxx"
-        - key: "ssh-rsa xxxx"
-          path: "/foo/authorized_keys"
-          manage_dir: false
-          comment: foobar
-          key_options: ""
+     _cops_sshkeys:
+        removed:
+          root:
+            # all:
+            #   delete: for all users with a authorized_keys
+            #   add: for all users with a valid home
+            # null: only for user (key)
+            mode: null / all
+            ssh_keys:
+            - key: "ssh-rsa xxxx"
+            - key: "ssh-rsa xxxx"
+              comment: foobar
+              key_options: ""
+        added:
+          root:
+            mode: null / all
+            ssh_keys:
+            - key: "ssh-rsa xxxx", remove_for_all: true
+            - key: "ssh-rsa xxxx"
+              path: "/foo/authorized_keys"
+              manage_dir: false
+              comment: foobar
+              key_options: ""
 ```

@@ -1,20 +1,22 @@
 ---
 - hosts: all
-  vars:
-    cops_sshkeys_removed:
-      root:
-        - key: "ssh-rsa xxxx"
-        - key: "ssh-rsa xxxx"
-          comment: foobar
-          key_options: ""
-    cops_sshkeys_added:
-      root:
-        - key: "ssh-rsa xxxx"
-        - key: "ssh-rsa xxxx"
-          path: "/foo/authorized_keys"
-          manage_dir: false
-          comment: foobar
-          key_options: ""
-  roles:
-    - {name: corpusops.roles/sshkeys}
-
+  tasks:
+    - include_role:
+        name: corpusops.roles/sshkeys
+      vars:
+        cops_sshkeys_removed:
+          root:
+          ssh_keys:
+            - key: "ssh-rsa xxxx"
+            - key: "ssh-rsa xxxx"
+              comment: foobar
+              key_options: ""
+        cops_sshkeys_added:
+          root:
+            ssh_keys:
+            - key: "ssh-rsa xxxx"
+            - key: "ssh-rsa xxxx"
+              path: "/foo/authorized_keys"
+              manage_dir: false
+              comment: foobar
+              key_options: ""
