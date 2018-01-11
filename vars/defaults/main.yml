@@ -38,7 +38,15 @@ corpusops_core_keyserver: keyserver.ubuntu.com
 corpusops_core_hkp_keyserver: "hkp://{{corpusops_core_keyserver}}:80"
 
 # path locations
-corpusops_core_var_run_dir: /var/run
+corpusops_core_var_dir: /var
+corpusops_core_share_dir: "{usr_dir}/share"
+corpusops_core_var_run_dir: "{run_dir}"
+corpusops_core_var_lib_dir: "{var_dir}/lib"
+corpusops_core_lib_dir: "{usr_dir}/lib"
+corpusops_core_unit_dir: "{config_dir}/systemd/sytem"
+corpusops_core_log_dir: "{var_dir}/log"
+corpusops_core_tmp_dir: "/tmp"
+corpusops_core_usr_dir: "/usr"
 corpusops_core_confdefault_dir: null
 corpusops_core_confdefault_dir_debian: '{config_dir}/default'
 corpusops_core_confdefault_dir_redhat: '{config_dir}/sysconfig'
@@ -47,7 +55,9 @@ corpusops_core_srv_path: /srv
 corpusops_core_apps_path: "{srv_path}/apps"
 corpusops_core_projects_path: "{srv_path}/projects"
 corpusops_core_config_dir: /etc
+corpusops_core_secrets_dir: "{config_dir}/secrets"
 corpusops_core_ssl_config_dir: "{config_dir}/ssl"
+corpusops_core_ssl_dir: "{ssl_config_dir}"
 
 # log rotation opts
 corpusops_core_rotate_days: 365
