@@ -4,11 +4,14 @@
     msg: "{{corpusops_sshkeys | default(True) }}"
   register: corpusops_sshkeys_can_run
   tags: sshkeys
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- debug: {msg: {"{{_cops_sshkeys}}"}}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: cops_sshkeys
+  vars: {cops_vars_registry_target: cops_sshkeys}
   tags: [sshkeys, vars]
   when: "corpusops_sshkeys_can_run.msg == True"
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [sshkeys, sshkeys_run]
   when: "corpusops_sshkeys_can_run.msg == True"

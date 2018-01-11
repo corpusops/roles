@@ -1,13 +1,39 @@
 ---
-#- debug: msg="{{subitem}}"
-- authorized_key:
-    state: "{{state}}"
-    user: "{{subitem.key}}"
-    key: "{{item.key}}"
-    key_options: "{{item.key_options|default(omit)}}"
-    manage_dir: "{{item.manage_dir|default(omit)}}"
-    path: "{{item.path|default(omit)}}"
-    comment: "{{item.comment|default(omit)}}"
-    validate_certs: "{{item.validate_certs|default(omit)}}"
-    exclusive: "{{item.exclusive|default(omit)}}"
-  with_items: "{{subitem.value}}"
+- when: "(subitem.value.mode|default('')) == 'all'"
+  block:
+  - shell: |
+           if [ -e /etc/passwd ];then cat /etc/passwd;fi
+    changed_when: false
+    register: cops_sshkeys_users_pre
+    no_log: "{{not (cops_vars_debug|default(false))}}"
+  - shell: |
+      {% for i in cops_sshkeys_users_pre.stdout.splitlines() %}
+      {% set j = i.split(':') %}
+      {% set u = j[0] %}
+      {% set h = j[5] %}
+      {% if state not in ['absent'] %}
+      if [ -e "{{h}}" ];then
+         echo {{u}};
+      fi
+      {% else %}
+      if ( find "{{h}}/.ssh/authorized_keys"* >/dev/null 2>&1; );then
+        echo {{u}};
+      fi
+      {% endif %}
+      {% endfor %}
+    changed_when: false
+    register: cops_sshkeys_users_post
+    no_log: "{{not (cops_vars_debug|default(false))}}"
+  - set_fact:
+      cacheable: false
+      cops_sshkeys_users_final: "{{cops_sshkeys_users_post.stdout.split()}}"
+- when: "(subitem.value.mode|default('')) != 'all'"
+  block:
+  - set_fact:
+      cacheable: false
+      cops_sshkeys_users_final: "{{[subitem.key]}}"
+- include_tasks: _manage_key.yml
+  with_items: "{{cops_sshkeys_users_final}}"
+  loop_control: {loop_var: subuser}
+  register: cops_sshkeys_removed_retin
+  tags: [sshkeys, sshkeys_manage]

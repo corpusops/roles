@@ -1,0 +1,15 @@
+---
+#- debug: {msg: "{{subuser}}"}
+#- debug: {msg: "{{subitem.value.ssh_keys}}"}
+- authorized_key:
+    state: "{{state}}"
+    user: "{{subuser}}"
+    key: "{{subkey.key}}"
+    key_options: "{{subkey.key_options|default(subitem.value.key_options|default(omit))}}"
+    manage_dir: "{{subkey.manage_dir|default(subitem.value.manage_dir|default(omit))}}"
+    path: "{{subkey.path|default(subitem.value.path|default(omit))}}"
+    comment: "{{subkey.comment|default(subitem.value.comment|default(omit))}}"
+    validate_certs: "{{subkey.validate_certs|default(subitem.value.validate_certs|default(omit))}}"
+    exclusive: "{{subkey.exclusive|default(subitem.value.exclusive|default(omit))}}"
+  loop_control: {loop_var: subkey}
+  with_items: "{{subitem.value.ssh_keys}}"
