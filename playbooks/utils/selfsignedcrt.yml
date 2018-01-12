@@ -1,0 +1,68 @@
+---
+- set_fact:
+    cacheable: false
+    cn: "{{certdata.cn}}"
+    selfsigned_directory: "{{selfsigned_directory
+           |default('{0}/selfsigned'.format(corpusops_vars.ssl_dir))}}"
+- set_fact:
+    cacheable: false
+    selfsigned_gen_cert_path: "{{certdata.gen_cert_path
+      |default('{0}/{1}.crt'.format(selfsigned_directory, cn))}}"
+    selfsigned_gen_key_path: "{{certdata.gen_key_path
+      |default('{0}/{1}.key'.format(selfsigned_directory, cn))}}"
+    selfsigned_dest_cert_full_path: "{{certdata.dest_cert_full_path
+      |default('{0}/certs/{1}.full.crt'.format(corpusops_vars.ssl_dir, cn))}}"
+    selfsigned_dest_cert_path: "{{certdata.dest_cert_path
+      |default('{0}/certs/{1}.crt'.format(corpusops_vars.ssl_dir, cn))}}"
+    selfsigned_dest_key_path: "{{certdata.dest_key_path
+      |default('{0}/private/{1}.key'.format(corpusops_vars.ssl_dir, cn))}}"
+    selfsigned_subject: "{{certdata.subject
+                           |default('/C=US/ST=Oregon/L=Portland/O=IT/')}}"
+    selfsigned_days: "{{certdata.days|default('365000')}}"
+- stat: {path: "{{selfsigned_dest_cert_path}}"}
+  register: "corpusops_c_testex_ssign_cert"
+- when: "not corpusops_c_testex_ssign_cert.stat.exists"
+  name: "Generate selfsigned cert for {{cn}}"
+  block:
+  - file:
+      state: directory
+      path: "{{item|copsf_dirname}}"
+    with_items:
+      - "{{selfsigned_gen_key_path}}"
+      - "{{selfsigned_gen_cert_path}}"
+      - "{{selfsigned_dest_key_path}}"
+      - "{{selfsigned_dest_cert_full_path}}"
+      - "{{selfsigned_dest_key_path}}"
+  - shell: |-
+      {% set c = selfsigned_gen_cert_path %}
+      {% set k = selfsigned_gen_key_path %}
+      set -eux
+      openssl req -new -nodes -x509 \
+        -subj "{{selfsigned_subject}}/CN={{cn}}/" \
+        -days "{{selfsigned_days}}" \
+        -keyout "{{k}}" -out "{{c}}"
+  - shell: "cat {{selfsigned_gen_cert_path}}"
+    register: cert
+  - shell: "cat {{selfsigned_gen_key_path}}"
+    register: key
+  - copy:
+      mode: "0640"
+      dest: "{{selfsigned_dest_cert_path}}"
+      content: "{{cert.stdout}}"
+      force: true
+      owner: "{{certdata.owner|default(omit)}}"
+      group: "{{certdata.group|default(omit)}}"
+  - copy:
+      mode: "0640"
+      dest: "{{selfsigned_dest_key_path}}"
+      content: "{{key.stdout}}"
+      force: true
+      owner: "{{certdata.owner|default(omit)}}"
+      group: "{{certdata.group|default(omit)}}"
+  - copy:
+      mode: "0640"
+      dest: "{{selfsigned_dest_cert_full_path}}"
+      content: "{{cert.stdout+'\n'+key.stdout}}"
+      force: true
+      owner: "{{certdata.owner|default(omit)}}"
+      group: "{{certdata.group|default(omit)}}"
