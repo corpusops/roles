@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+  - include_role: {private: true, name: corpusops.roles/ssl_ca_signed_cert}
+    with_items: [{cn: foobar}]
+    loop_control: {loop_var: _ssl_ca_signed_cert}
