@@ -63,9 +63,7 @@
                                      res[n],
                                      additional_namespaces=[vars])) %}
       {%  else %}
-      {%   set _ = res.update(res
-                              | copsf_format_resolve(
-                                  res[n], additional_namespaces=[vars, res])) %}
+      {%   set _ = res|copsf_registry_and_defaults(n, vars) %}
       {%   set _ = vars.update(res) %}
       {%  endif %}
       {% endif %}
