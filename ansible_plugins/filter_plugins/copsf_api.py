@@ -727,6 +727,8 @@ def copsf_load_registry_pre(ansible_vars,
         pre_prefix = '{0}'.format(prefix[:-1])
     pre = ansible_vars.get(pre_prefix, {})
     registry = registry or ansible_vars.get(prefix, {})
+    if registry is None:
+        registry = {}
     if (
         isinstance(pre, dict) and
         isinstance(registry, dict)
@@ -1092,7 +1094,23 @@ def uniquify(seq):
             if x not in seen and not seen.add(x)]
 
 
+def registry_and_defaults(registry, prefix, ansible_vars, format_resolve=True):
+    registry_defaults = {}
+    for a in [b for b in registry]:
+        if a.endswith('__REGISTRY_DEFAULT'):
+            registry_defaults[a] = registry.pop(a)
+    if format_resolve:
+        registry.update(
+            copsf_format_resolve(
+                registry,
+                registry[prefix],
+                additional_namespaces=[ansible_vars, registry]))
+    registry.update(registry_defaults)
+    return registry, registry_defaults
+
+
 __funcs__ = {
+    'copsf_registry_and_defaults': registry_and_defaults,
     'copsf_uniquify': uniquify,
     'copsf_cwd': copsf_cwd,
     'copsf_to_lower': copsf_to_lower,
