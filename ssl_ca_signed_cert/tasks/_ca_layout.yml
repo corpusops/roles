@@ -1,0 +1,35 @@
+---
+- file:
+    state: directory
+    path: "{{item}}"
+    owner: "{{ca_dir.owner or omit}}"
+    group: "{{ca_dir.group or omit}}"
+  with_items:
+    - "{{ca_dir.directory}}"
+    - "{{ca_dir.directory}}/certs"
+    - "{{ca_dir.directory}}/csr"
+    - "{{ca_dir.directory}}/newcerts"
+    - "{{ca_dir.directory}}/crl"
+- file:
+    state: directory
+    path: "{{item}}"
+    mode: "0700"
+    owner: "{{ca_dir.owner or omit}}"
+    group: "{{ca_dir.group or omit}}"
+  with_items:
+    - "{{ca_dir.directory}}/private"
+- copy:
+    content: "1000"
+    force: false
+    dest: "{{ca_dir.directory}}/{{item}}"
+    mode: "0700"
+    owner: "{{ca_dir.owner or omit}}"
+    group: "{{ca_dir.group or omit}}"
+  with_items: [serial, crlnumber]
+- copy:
+    content: ""
+    force: false
+    dest: "{{ca_dir.directory}}/index.txt"
+    mode: "0700"
+    owner: "{{ca_dir.owner or omit}}"
+    group: "{{ca_dir.group or omit}}"
