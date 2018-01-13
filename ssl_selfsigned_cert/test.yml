@@ -1,0 +1,7 @@
+---
+- hosts: all
+  tasks:
+    - set_fact: {cacheable: false, ssl_selfsigned_cert_cn: foobare}
+    - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}
+    - set_fact: {cacheable: false, ssl_selfsigned_cert_cn: foomuche}
+    - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}

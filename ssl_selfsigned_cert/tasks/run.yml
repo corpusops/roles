@@ -1,0 +1,49 @@
+---
+- stat: {path: "{{ssl_selfsigned_cert_vars.dest_cert_path}}"}
+  register: "corpusops_c_testex_ssign_cert"
+- when: "not corpusops_c_testex_ssign_cert.stat.exists"
+  name: "Generate ssl_selfsigned cert for {{ssl_selfsigned_cert_vars.cn}}"
+  block:
+  - file:
+      state: directory
+      path: "{{item|copsf_dirname}}"
+    with_items:
+      - "{{ssl_selfsigned_cert_vars.gen_key_path}}"
+      - "{{ssl_selfsigned_cert_vars.gen_cert_path}}"
+      - "{{ssl_selfsigned_cert_vars.dest_key_path}}"
+      - "{{ssl_selfsigned_cert_vars.dest_cert_full_path}}"
+      - "{{ssl_selfsigned_cert_vars.dest_key_path}}"
+  - shell: |-
+      {% set c = ssl_selfsigned_cert_vars.gen_cert_path %}
+      {% set k = ssl_selfsigned_cert_vars.gen_key_path %}
+      set -eux
+      openssl req -new -nodes -x509 \
+        -subj "{{ssl_selfsigned_cert_vars.subject}}/CN={{ssl_selfsigned_cert_vars.cn}}/" \
+        -days "{{ssl_selfsigned_cert_vars.days}}" \
+        -keyout "{{k}}" -out "{{c}}"
+  - shell: "cat {{ssl_selfsigned_cert_vars.gen_cert_path}}"
+    register: cert
+  - shell: "cat {{ssl_selfsigned_cert_vars.gen_key_path}}"
+    register: key
+  - copy:
+      mode: "0640"
+      dest: "{{ssl_selfsigned_cert_vars.dest_cert_path}}"
+      content: "{{cert.stdout}}"
+      force: true
+      owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
+      group: "{{ssl_selfsigned_cert_vars.group or omit}}"
+  - copy:
+      mode: "0640"
+      dest: "{{ssl_selfsigned_cert_vars.dest_key_path}}"
+      content: "{{key.stdout}}"
+      force: true
+      owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
+      group: "{{ssl_selfsigned_cert_vars.group or omit}}"
+  - copy:
+      mode: "0640"
+      dest: "{{ssl_selfsigned_cert_vars.dest_cert_full_path}}"
+      content: "{{cert.stdout+'\n'+key.stdout}}"
+      force: true
+      owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
+      group: "{{ssl_selfsigned_cert_vars.group or omit}}"
+
