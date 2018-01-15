@@ -1,4 +1,15 @@
 ---
+
+corpusops_services_virt_docker_cops_do_format_resolve: true
+corpusops_services_virt_docker_cops_computed_defaults: []
+corpusops_services_virt_docker_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_virt_docker_cops_sub_os_append: {}
+corpusops_services_virt_docker_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo',]
+corpusops_services_virt_docker_cops_lowered: ['repo', 'repo_keys_url']
+corpusops_services_virt_docker_cops_sub_namespaces:
+  settings: {}
 corpusops_services_virt_docker_activated: True
 corpusops_services_virt_docker_group: docker
 corpusops_services_virt_docker_repo: null
@@ -42,11 +53,13 @@ corpusops_services_virt_docker_configs_redhat:
      mode: "644"}
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
      mode: "644"}
+corpusops_services_virt_docker_userland_proxy: 'true'
+corpusops_services_virt_docker_storage_driver: overlay2
 corpusops_services_virt_docker_settings_DOCKERD: "/usr/bin/dockerd"
 corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
 corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: "--log-opt max-file=10 --log-opt max-size=10m"
-corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: ""
-corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: ""
+corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: "--storage-driver={storage_driver}"
+corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: "--userland-proxy={userland_proxy}"
 corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
 corpusops_services_virt_docker_settings_INSECURE_REGISTRY: ""
 corpusops_services_virt_docker_settings_http_proxy: ""
