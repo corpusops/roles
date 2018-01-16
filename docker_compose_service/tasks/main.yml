@@ -1,8 +1,7 @@
 ---
 # mangle variables
 - include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: docker_compose_service
+  vars: {cops_vars_registry_target: docker_compose_service}
   tags: [corpusops_docker_compose_service, corpusops_docker_compose_service_vars]
 # do the real stuff
 - name: install docker compose service
