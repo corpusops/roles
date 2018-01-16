@@ -1,0 +1,48 @@
+- shell: |
+    {{corpusops_php_ext_vars.phpquery}} -S -v {{corpusops_php_ext_vars.version}}
+  register: cops_sapis
+  changed_when: false
+- set_fact:
+    cacheable: false
+    corpusops_php_ext_csapi: "{{(corpusops_php_ext_vars.sapi
+      | cops_sapi(cops_sapis.stdout)) }}"
+- shell: |-
+    {% set v = corpusops_php_ext_vars.version %}
+    {% set ext = corpusops_php_ext_vars.ext %}
+    d="{{corpusops_php_ext_vars.etc}}/{{item}}/conf.d"
+    if ( {{ corpusops_php_ext_vars.phpquery }} -q -v {{v}} -s {{item}} -m {{ext}}; );then
+      echo "already done" >&2
+      exit 0
+    fi
+    {{ corpusops_php_ext_vars.phpenmod}} -v {{v}} -s {{item}} {{ext}} && echo copsextmod >&2
+  with_items: "{{corpusops_php_ext_csapi}}"
+  when: "corpusops_php_ext_vars.activation_status"
+  register: corpusops_php_ext_installed
+  changed_when: "'copsextmod' in corpusops_php_ext_installed.stderr"
+  failed_when: >-
+    (
+    ('doesn\'t exist' in corpusops_php_ext_installed.stderr) or
+    (corpusops_php_ext_installed.rc != 0)
+    )
+- shell: |-
+    {% set v = corpusops_php_ext_vars.version %}
+    {% set ext = corpusops_php_ext_vars.ext %}
+    d="{{corpusops_php_ext_vars.etc}}/{{item}}/conf.d"
+    if ! ( {{ corpusops_php_ext_vars.phpquery }} -q -v {{v}} -s {{item}} -m {{ext}}; );then
+      echo "no {{ext}} for {{item}}"
+      exit 0
+    fi
+    if ! ( find "$d/"*"-{{ext}}.ini"* -mindepth 0 -maxdepth 0 2>/dev/null; );then
+      echo alreadydone >&2
+      exit 0
+    fi
+    {{ corpusops_php_ext_vars.phpdismod}} -v {{v}} -s {{item}} {{ext}} && echo copsdextmod >&2
+  when: "not corpusops_php_ext_vars.activation_status"
+  failed_when: >-
+    (
+    ('doesn\'t exist' in corpusops_php_ext_deinstalled.stderr) or
+    (corpusops_php_ext_deinstalled.rc != 0)
+    )
+  register: corpusops_php_ext_deinstalled
+  changed_when: "'copsdextmod' in corpusops_php_ext_deinstalled.stderr"
+  with_items: "{{corpusops_php_ext_csapi}}"

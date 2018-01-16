@@ -40,4 +40,5 @@
         name: corpusops.roles/php_ext
       vars:
         corpusops_php_ext_ext: posix
+        corpusops_php_ext_exts: [posix]
         corpusops_php_ext_activation_status: true
