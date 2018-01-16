@@ -14,13 +14,13 @@
   tags: [corpusops_services_db_mysql,
          mysql_configuration,
          corpusops_services_db_mysql_configuration]
-- include_tasks: wrappers.yml
-  when: 'corpusops_services_db_mysql_can_run.msg == True'
-  tags: [corpusops_services_db_mysql,
-         mysql_wrappers,
-         corpusops_services_db_mysql_wrappers]
 - include_tasks: services.yml
   when: 'corpusops_services_db_mysql_can_run.msg == True'
   tags: [corpusops_services_db_mysql,
          mysql_services,
          corpusops_services_db_mysql_services]
+- include_tasks: checkroot.yml
+  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  tags: [corpusops_services_db_mysql,
+         mysql_checkroot,
+         corpusops_services_db_mysql_checkroot]

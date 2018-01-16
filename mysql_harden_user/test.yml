@@ -1,0 +1,12 @@
+---
+- hosts: all
+  roles:
+  - name: corpusops.roles/services_db_mysql_vars
+    tags: [test_vars, vars]
+- hosts: all
+  roles:
+  - name: corpusops.roles/services_db_mysql
+    tags: [test_setup, setup]
+- hosts: all
+  tasks:
+  - include_role: {name: corpusops.roles/mysql_harden_user}
