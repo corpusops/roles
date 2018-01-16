@@ -1,0 +1,17 @@
+---
+- include_tasks: with_mysql.yml
+  when: mysql_57onward
+- include_tasks: with_mysqladmin.yml
+  when: not mysql_57onward
+
+- name: security-check-empty-mysql-root-access-socket-tcp
+  shell: |
+   if echo "select 'connected'"|mysql -u root -h localhost;then
+    echo "PROBLEM MYSQL ROOT ACESS without password is allowed (socket mode)"
+   fi
+   if echo "select 'connected'"|mysql -u root -h 127.0.0.1;then
+    echo "PROBLEM MYSQL ROOT ACCESS without password is allowed (tcp-ip mode)"
+   fi
+  failed_when: ["'PROBLEM' in cops_c_mysql_c_connect.stderr"]
+  register: cops_c_mysql_c_connect
+  changed_when: false

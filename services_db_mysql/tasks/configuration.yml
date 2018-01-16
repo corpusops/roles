@@ -2,15 +2,18 @@
 - when: "not (corpusops_services_db_mysql_vars.cert|copsf_asbool)"
   tags: [mysql_crt, mysql_crt_main]
   block:
-  - include_tasks: ../../playbooks/utils/selfsignedcrt.yml
+  - include_role: {name: corpusops.roles/ssl_ca_signed_cert}
     with_items:
       - cn: "{{corpusops_services_db_mysql_vars.cert_domain}}"
         owner: root
+        ca_name: mysql
         group: "{{corpusops_services_db_mysql_vars.group}}"
         dest_cert_full_path: "{{corpusops_services_db_mysql_vars.cert_full_path}}"
         dest_cert_path: "{{corpusops_services_db_mysql_vars.cert_path}}"
         dest_key_path: "{{corpusops_services_db_mysql_vars.cert_key_path}}"
-    loop_control: {loop_var: certdata}
+        days: "{{corpusops_services_db_mysql_vars.cert_days}}"
+        subject: "{{corpusops_services_db_mysql_vars.cert_subject}}"
+    loop_control: {loop_var: _ssl_ca_signed_cert}
 - when: "corpusops_services_db_mysql_vars.cert|copsf_asbool"
   tags: [mysql_crt, mysql_crt_selfsigned]
   block:

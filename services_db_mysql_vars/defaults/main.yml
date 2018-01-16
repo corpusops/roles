@@ -70,25 +70,15 @@ corpusops_services_db_mysql_configs_default:
   - {name: "{{corpusops_vars.unit_dir}}/mysql.service.d/mysql.conf",
     template: "../templates/etc/systemd/system/mysql.service.d/mysql.conf",
     mode: "0644"}
-corpusops_services_db_mysql_wrapper_configs:
-  - {name: "/usr/bin/mysql-wrapper-{version}.sh",
-    template: "../templates/usr/bin/mysql-wrapper.sh",
-    mode: "0755"}
-corpusops_services_db_mysql_wrapped_binaries: [
-  vacuumdb, dropdb, clusterdb, reindexdb, mysql_dump, mysql_basebackup,
-  mysql_receivexlog, psql, createdb, dropuser, mysql_dumpall, createuser,
-  mysql_restore, mysql_isready, createlang, droplang]
 corpusops_services_db_mysql_dist: "{{ansible_distribution_release}}"
 corpusops_services_db_mysql_user: 'mysql'
 corpusops_services_db_mysql_version: '5.7'
-corpusops_services_db_mysql_conf_ssl_cert_file: '/etc/ssl/certs/mysql.pem'
-corpusops_services_db_mysql_conf_ssl_key_file: '/etc/ssl/private/mysql.key'
 corpusops_services_db_mysql_conf_extras:
  - "# comment in mysql.conf"
  - "# mysetting = value"
 corpusops_services_db_mysql_conn_password: null
 corpusops_services_db_mysql_conn_user: null
-corpusops_services_db_mysql_root_password: null
+corpusops_services_db_mysql_: null
 corpusops_services_db_mysql_root_user: root
 corpusops_services_db_mysql_use_mem: null
 corpusops_services_db_mysql_bind_address: '0.0.0.0'
@@ -108,8 +98,8 @@ corpusops_services_db_mysql_cert_key: null
 corpusops_services_db_mysql_cert_path: "{prefix}/ssl/mysql.crt"
 corpusops_services_db_mysql_cert_full_path: "{prefix}/ssl/mysql.full.crt"
 corpusops_services_db_mysql_cert_key_path: "{prefix}/ssl/mysql.key"
-corpusops_services_db_mysql_selfsignedcert_s: "/C=US/ST=Oregon/L=Portland/O=IT/"
-corpusops_services_db_mysql_selfsignedcert_d: "365000"
+corpusops_services_db_mysql_cert_subject: "/C=US/ST=Oregon/L=Portland/O=IT/"
+corpusops_services_db_mysql_cert_days: "365000"
 corpusops_services_db_mysql_nb_connections: null
 corpusops_services_db_mysql_memory_usage_percent: null
 corpusops_services_db_mysql_mode: "{{corpusops_vars.env}}"

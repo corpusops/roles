@@ -1,0 +1,23 @@
+---
+- name: "Setup secrets"
+  include_tasks: "../../playbooks/utils/set_secret_variables.yml"
+  loop_control: {loop_var: secretvariables}
+  with_items:
+    - variables: [password]
+      registry_prefix: cops_mysql_harden_user_
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_role: {name: corpusops.roles/vars_registry}
+  vars: {cops_vars_registry_target: cops_mysql_harden_user}
+  tags: [mysql_harden_user]
+  register: mysql_harden_user_test
+- name: "mysql_harden_user preflight check - SKIPTEST"
+  assert:
+    that:
+      - "cops_mysql_harden_user_vars.password|copsf_asbool"
+    msg: "nok"
+  register: mysql_harden_user_can_run
+  failed_when: false
+  tags: [mysql_harden_user]
+- include_tasks: run.yml
+  when: 'mysql_harden_user_can_run.msg != "nok"'
+  tags: [mysql_harden_user, mysql_harden_user_conf]
