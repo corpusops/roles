@@ -853,6 +853,7 @@ def copsf_to_namespace(ansible_vars,
                        lowered=None,
                        level=0,
                        computed_defaults=None,
+                       duplicated_defaults=None,
                        format_resolve_topdb=None,
                        subos_append=None,
                        prefixes=None,
@@ -913,12 +914,30 @@ def copsf_to_namespace(ansible_vars,
                                  (registry_suffix))) or
                              (var.startswith(prefix+prefix)) or
                              (not var.startswith(prefix)))]
-    for var in ansible_vars_keys:
+    for var in ansible_vars_keys[:]:
         svar = var.split(prefix, 1)[1]
         ansible_vars = register_default_val(
             ansible_vars, svar, prefix,
             registry_suffix, sub_registries_key)
         namespaced[svar] = ansible_vars[var]
+        # each ___default suffixed var initialize the ___default
+        # stripped var to its value if not already done
+        if svar.endswith('___default'):
+            dvar = var[:-10]
+            sdvar = svar[:-10]
+            if sdvar:
+                try:
+                    ansible_vars_keys.index(dvar)
+                except ValueError:
+                    ansible_vars_keys.append(sdvar)
+                    val = namespaced[svar]
+                    try:
+                        namespaced[sdvar] = copy.deepcopy(val)
+                    except Exception:
+                        try:
+                            namespaced[sdvar] = copy.deepcopy(val)
+                        except Exception:
+                            namespaced[sdvar] = copy.copy(val)
     # compute those args only after registry can give behavior !
     if subos_append is None:
         subos_append = namespaced.get('cops_subos_append', {})
@@ -940,6 +959,8 @@ def copsf_to_namespace(ansible_vars,
         format_resolve_topdb = namespaced.get('cops_format_resolve_topdb', False)  # noqa
     if do_format_resolve is None:
         do_format_resolve = namespaced.get('cops_do_format_resolve', False)
+    if duplicated_defaults is None:
+        duplicated_defaults = namespaced.get('cops_duplicated_defaults', [])
     if flavors is None:
         flavors = namespaced.get('cops_flavors', [])
     #
@@ -1026,6 +1047,7 @@ def copsf_registry(ansible_vars,
                    global_scope=True,
                    name_prefix=None,
                    sub_namespaced=None,
+                   duplicated_defaults=None,
                    profile=False,
                    registryvars_suffix=REGISTRYVARS_SUFFIX,
                    registry_suffix=REGISTRY_DEFAULT_SUFFIX,
@@ -1065,6 +1087,7 @@ def copsf_registry(ansible_vars,
             namespaced=namespaced,
             name_prefix=name_prefix,
             registryvars_suffix=registryvars_suffix,
+            duplicated_defaults=duplicated_defaults,
             sub_namespaced=sub_namespaced,
             registry_suffix=registry_suffix)
     except Exception:
