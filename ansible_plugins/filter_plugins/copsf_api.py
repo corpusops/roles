@@ -913,12 +913,30 @@ def copsf_to_namespace(ansible_vars,
                                  (registry_suffix))) or
                              (var.startswith(prefix+prefix)) or
                              (not var.startswith(prefix)))]
-    for var in ansible_vars_keys:
+    for var in ansible_vars_keys[:]:
         svar = var.split(prefix, 1)[1]
         ansible_vars = register_default_val(
             ansible_vars, svar, prefix,
             registry_suffix, sub_registries_key)
         namespaced[svar] = ansible_vars[var]
+        # each ___default suffixed var initialize the ___default
+        # stripped var to its value if not already done
+        if svar.endswith('___default'):
+            dvar = var[:-10]
+            sdvar = svar[:-10]
+            if sdvar:
+                try:
+                    ansible_vars_keys.index(dvar)
+                except ValueError:
+                    ansible_vars_keys.append(sdvar)
+                    val = namespaced[svar]
+                    try:
+                        namespaced[sdvar] = copy.deepcopy(val)
+                    except Exception:
+                        try:
+                            namespaced[sdvar] = copy.deepcopy(val)
+                        except Exception:
+                            namespaced[sdvar] = copy.copy(val)
     # compute those args only after registry can give behavior !
     if subos_append is None:
         subos_append = namespaced.get('cops_subos_append', {})
