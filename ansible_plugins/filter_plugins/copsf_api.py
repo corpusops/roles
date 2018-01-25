@@ -127,6 +127,7 @@ def dictupdate(dest, upd, recursive_update=True):
             # this mapping is not a dict
             for k in upd:
                 dest[k] = upd[k]
+        return dest
     return dest
 
 @contextlib.contextmanager  # noqa
