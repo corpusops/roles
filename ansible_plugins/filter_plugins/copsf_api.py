@@ -98,7 +98,10 @@ def dictupdate(dest, upd, recursive_update=True):
             try:
                 msg = "{0}\ndest: {1}".format(msg, dest, upd)
             except Exception:
-                msg = "{1}\nupd: {2}".format(msg, dest, upd)
+                try:
+                    msg = "{0}\nupd: {2}".format(msg, dest, upd)
+                except Exception:
+                    pass
         raise TypeError(msg)
     updkeys = list(upd.keys())
     if not set(list(dest.keys())) & set(updkeys):
@@ -124,7 +127,7 @@ def dictupdate(dest, upd, recursive_update=True):
             # this mapping is not a dict
             for k in upd:
                 dest[k] = upd[k]
-        return dest
+    return dest
 
 @contextlib.contextmanager  # noqa
 def wait_lock(
