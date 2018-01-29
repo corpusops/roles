@@ -12,5 +12,4 @@ galaxy_info:
     versions:
     - all
 dependencies:
-- role: corpusops.roles/localsettings_docker
-- role: corpusops.roles/services_virt_docker_vars
+- role: corpusops.roles/vars
