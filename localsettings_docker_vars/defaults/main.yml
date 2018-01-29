@@ -1,0 +1,33 @@
+---
+
+corpusops_localsettings_docker_cops_do_format_resolve: true
+corpusops_localsettings_docker_cops_computed_defaults: []
+corpusops_localsettings_docker_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_docker_cops_sub_os_append: {}
+corpusops_localsettings_docker_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo',]
+corpusops_localsettings_docker_cops_lowered: ['repo', 'repo_keys_url']
+corpusops_localsettings_docker_cops_sub_namespaces:
+  settings: {}
+corpusops_localsettings_docker_activated: True
+corpusops_localsettings_docker_group: docker
+corpusops_localsettings_docker_repo: null
+corpusops_localsettings_docker_repo_keys_url: null
+corpusops_localsettings_docker_repo_keys_url_default: "https://download.docker.com/linux/{ansible_distribution}/gpg"
+corpusops_localsettings_docker_repo_keys_url_redhat: "https://download.docker.com/linux/centos/gpg"
+corpusops_localsettings_docker_repo_keys_url_debian: "https://download.docker.com/linux/{ansible_distribution}/gpg"
+corpusops_localsettings_docker_repo_keys: null
+corpusops_localsettings_docker_repo_keys_default: [58118E89F3A912897C070ADBF76221572C52609D]
+corpusops_localsettings_docker_keyserver: "hkp://p80.pool.sks-keyservers.net:80"
+corpusops_localsettings_docker_repo_debian: 'deb [arch=amd64] https://download.docker.com/linux/{ansible_distribution} {ansible_distribution_release} stable edge'
+corpusops_localsettings_docker_repo_redhat: 'https://download.docker.com/linux/centos/docker-ce.repo'
+corpusops_localsettings_docker_repo_fedora: 'https://download.docker.com/linux/fedora/docker-ce.repo'
+corpusops_localsettings_docker_packages: null
+corpusops_localsettings_docker_packages_default: [docker-ce]
+corpusops_localsettings_docker_files: null
+corpusops_localsettings_docker_files_default: []
+corpusops_localsettings_docker_filescopy: null
+corpusops_localsettings_docker_filescopy_default: []
+corpusops_localsettings_docker_configs: null
+corpusops_localsettings_docker_configs_default: []
