@@ -71,6 +71,8 @@
                 | default(True) %}
           {% set corpusops_services_virt_lxc = corpusops_services_virt_lxc
                 | default(False) %}
+          {% set corpusops_localsettings_docker = corpusops_localsettings_docker
+                | default(False) %}
           {% set corpusops_services_virt_docker = corpusops_services_virt_docker
                 | default(False) %}
           {% set corpusops_services_firewall_ms_iptables = corpusops_services_firewall_ms_iptables
@@ -115,6 +117,7 @@
           provision_corpusops_services_backup_dbsmartbackup: {{ corpusops_services_backup_dbsmartbackup }}
           provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
           provision_corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
+          provision_corpusops_localsettings_docker: {{ corpusops_localsettings_docker }}
           provision_corpusops_services_db_postgresql_client: {{ corpusops_services_db_postgresql_client }}
           provision_corpusops_services_db_postgresql_pkgmgr: {{ corpusops_services_db_postgresql_pkgmgr }}
           provision_corpusops_services_db_postgresql: {{ corpusops_services_db_postgresql }}
@@ -205,6 +208,9 @@
     - include_role: {name: corpusops.roles/localsettings_git}
       tags: git
       when: provision_corpusops_localsettings_git
+    - include_role: {name: corpusops.roles/localsettings_docker}
+      tags: dockerclient
+      when: provision_corpusops_localsettings_docker
     - include_role: {name: corpusops.roles/localsettings_dockercompose}
       tags: dockercompose
       when: provision_corpusops_localsettings_dockercompose
@@ -261,10 +267,10 @@
       when: provision_corpusops_services_virt_docker
     - include_role: {name: corpusops.roles/services_misc_xvfb}
       tags: xvfb
-      when: provision_corpusops_services_virt_docker
+      when: provision_corpusops_services_misc_xvfb
     - include_role: {name: corpusops.roles/services_misc_robotframework}
       tags: robotframework
-      when: provision_corpusops_services_virt_docker
+      when: provision_corpusops_services_misc_robotframework
     - include_role: {name: corpusops.roles/services_http_nginx}
       tags: nginx
       when: provision_corpusops_services_http_nginx
