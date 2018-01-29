@@ -44,7 +44,7 @@ corpusops_services_virt_docker_userland_proxy: 'true'
 corpusops_services_virt_docker_storage_driver: overlay2
 corpusops_services_virt_docker_settings_DOCKERD: "/usr/bin/dockerd"
 corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
-corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: "--log-opt max-file=10 --log-opt max-size=10m"
+corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: "--log-opt max-file=10 --log-opt max-size=10m --experimental"
 corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: "--storage-driver={storage_driver}"
 corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: "--userland-proxy={userland_proxy}"
 corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
