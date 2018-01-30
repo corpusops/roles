@@ -7,7 +7,13 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.repo_keys is not none and
           corpusops_localsettings_docker_vars.repo_keys|length > 0)"
+  ignore_errors: true
   register: corpusops_localsettings_docker_key
+- name: "Alternative | Add Docker apt key."
+  shell: >
+    curl -sSL "{{corpusops_localsettings_docker_vars.repo_keys_url}}"
+    |sudo apt-key add -
+  when: corpusops_localsettings_docker_key|failed
 - name: remove docker setup
   file:
     path:  /etc/apt/sources.list.d/docker.list
@@ -39,10 +45,8 @@
 - name: install python pre - prerequisites
   pip:
     executable: /usr/bin/pip
-    name: "{{ dockeritemb }}"
+    name: "{{corpusops_localsettings_docker_vars.py_packages}}"
     state: present
-  with_items: "{{corpusops_localsettings_docker_vars.py_packages}}"
-  loop_control: {loop_var: dockeritemb}
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
