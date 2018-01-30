@@ -166,7 +166,7 @@ run_test() { ( run_test_ "${@}"; ) }
 
 
 cd "${W}"
-ROLES=${@-}
+ROLES=${TEST_ROLES-${@-}}
 TEST_VARS_ROLES=${TEST_VARS_ROLES:-${TRAVIS}}
 FROM_HISTORY=${FROM_HISTORY:-${TRAVIS}}
 USE_LOCAL_DIFF="${USE_LOCAL_DIFF-1}"
