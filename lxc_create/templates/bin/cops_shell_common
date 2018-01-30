@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+ANSIBLE_FILTER_OUTPUT="(^("
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(included|skipping):|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(task|play)\s+(recap|\[(debug|all|include|setup)\])|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*$|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(ok|changed):\s+\[localhost\]( => {)?$|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*(\"msg|([{}]$))"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
+DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
+COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
+BASE_PREPROVISION_IMAGES="ubuntu:latest_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:16.04_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:14.04_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/centos:7_preprovision"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:16.04"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:14.04"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/centos:7"
+BASE_IMAGES="$BASE_PREPROVISION_IMAGES $BASE_CORE_IMAGES"
 
 # W is script_dir/..
 W=${W:-$(pwd)}
@@ -11,110 +29,25 @@ NORMAL="\\e[0;0m"
 NO_COLOR=${NO_COLORS-${NO_COLORS-${NOCOLOR-${NOCOLORS-}}}}
 LOGGER_NAME=${LOGGER_NAME:-corpusops_build}
 ERROR_MSG="There were errors"
-ANSIBLE_FILTER_OUTPUT="(^("
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(included|skipping):|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(task|play)\s+(recap|\[(debug|all|include|setup)\])|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*$|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(ok|changed):\s+\[localhost\]( => {)?$|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*(\"msg|([{}]$))"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
-DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
-COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
-
-
-has_command() {
-    ret=1
-    if which which >/dev/null 2>/dev/null;then
-      if which "${@}" >/dev/null 2>/dev/null;then
-        ret=0
-      fi
-    else
-      if command -v "${@}" >/dev/null 2>/dev/null;then
-        ret=0
-      else
-        if hash -r "${@}" >/dev/null 2>/dev/null;then
-            ret=0
-        fi
-      fi
-    fi
-    return ${ret}
-}
-
-get_command() {
-    local p=
-    local cmd="${@}"
-    if which which >/dev/null 2>/dev/null;then
-        p=$(which "${cmd}" 2>/dev/null)
-    fi
-    if [ "x${p}" = "x" ];then
-        p=$(export IFS=:;
-            echo "${PATH-}" | while read -ra pathea;do
-                for pathe in "${pathea[@]}";do
-                    pc="${pathe}/${cmd}";
-                    if [ -x "${pc}" ]; then
-                        p="${pc}"
-                    fi
-                done
-                if [ "x${p}" != "x" ]; then echo "${p}";break;fi
-            done )
-    fi
-    if [ "x${p}" != "x" ];then
-        echo "${p}"
-    fi
-}
-
-get_random_slug() {
-    len=${1:-32}
-    strings=${2:-'a-zA-Z0-9'}
-    echo "$(cat /dev/urandom \
-        | tr -dc "$strings" \
-        | fold -w ${len} \
-        | head -n 1)"
-}
-
-reset_colors() {
-    if [[ -n ${NO_COLOR} ]]; then
-        BLUE=""
-        YELLOW=""
-        RED=""
-        CYAN=""
-    fi
-}
-
+do_trap_() { rc=$?;func=$1;sig=$2;${func};if [ "x${sig}" != "xEXIT" ];then kill -${sig} $$;fi;exit $rc; }
+do_trap() { rc=${?};func=${1};shift;sigs=${@};for sig in ${sigs};do trap "do_trap_ ${func} ${sig}" "${sig}";done; }
 log_() {
-    reset_colors
-    logger_color=${1:-${RED}}
-    msg_color=${2:-${YELLOW}}
+    reset_colors;msg_color=${2:-${YELLOW}};
+    logger_color=${1:-${RED}};
+    logger_slug="${logger_color}[${LOGGER_NAME}]${NORMAL} ";
     shift;shift;
-    logger_slug="${logger_color}[${LOGGER_NAME}]${NORMAL} "
-    if [[ -n ${NO_LOGGER_SLUG} ]];then
-        logger_slug=""
-    fi
+    if [[ -n ${NO_LOGGER_SLUG} ]];then logger_slug="";fi
     printf "${logger_slug}${msg_color}$(echo "${@}")${NORMAL}\n" >&2;
     printf "" >&2;  # flush
 }
-
-log() {
-    log_ "${RED}" "${CYAN}" "${@}"
-}
-
-cronolog() {
-    log_ "${RED}" "${CYAN}" "($(get_chrono)) ${@}"
-}
-
-warn() {
-    log_ "${RED}" "${CYAN}" "${YELLOW}[WARN] ${@}${NORMAL}"
-}
-
-
-bs_log(){
-    log_ "${RED}" "${YELLOW}" "${@}"
-}
-
-bs_yellow_log(){
-    log_ "${YELLOW}" "${YELLOW}" "${@}"
-}
-
+reset_colors() { if [[ -n ${NO_COLOR} ]];then BLUE="";YELLOW="";RED="";CYAN="";fi; }
+log() { log_ "${RED}" "${CYAN}" "${@}"; }
+get_chrono() { date "+%F_%H-%M-%S"; }
+cronolog() { log_ "${RED}" "${CYAN}" "($(get_chrono)) ${@}"; }
+debug() { if [[ -n "${DEBUG// }" ]];then log_ "${YELLOW}" "${YELLOW}" "${@}"; fi; }
+warn() { log_ "${RED}" "${CYAN}" "${YELLOW}[WARN] ${@}${NORMAL}"; }
+bs_log(){ log_ "${RED}" "${YELLOW}" "${@}"; }
+bs_yellow_log(){ log_ "${YELLOW}" "${YELLOW}" "${@}"; }
 may_die() {
     reset_colors
     thetest=${1:-1}
@@ -129,42 +62,14 @@ may_die() {
         exit $rc
     fi
 }
-
-die() {
-    may_die 1 1 "${@}"
-}
-
+die() { may_die 1 1 "${@}"; }
 die_in_error_() {
-    ret=${1}
-    shift
-    msg="${@:-"$ERROR_MSG"}"
-    may_die "${ret}" "${ret}" "${msg}"
+    ret=${1}; shift; msg="${@:-"$ERROR_MSG"}";may_die "${ret}" "${ret}" "${msg}";
 }
-
-die_in_error() {
-    die_in_error_ "${?}" "${@}"
-}
-
-debug() {
-    if [[ -n "${DEBUG// }" ]];then
-        log_ "${YELLOW}" "${YELLOW}" "${@}"
-    fi
-}
-
-test_silent_log() {
-    ( [[ -z ${NO_SILENT-} ]] && \
-        ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] ) )
-}
-
-test_silent() {
-    ( [[ -z ${NO_SILENT-} ]] && \
-        ( [[ -n ${SILENT-} ]] || test_silent_log ) )
-}
-
-silent_run_post() {
-    if [ -e "${tmpf}" ];then rm -f "${tmpf}";fi
-}
-
+die_in_error() { die_in_error_ "${?}" "${@}"; }
+test_silent_log() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] ) ); }
+test_silent() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT-} ]] || test_silent_log ) ); }
+silent_run_post() { if [ -e "${tmpf}" ];then rm -f "${tmpf}";fi; }
 silent_run_() {
     tmpf=$(mktemp)
     local ret=
@@ -184,153 +89,19 @@ silent_run_() {
     fi
     return ${ret}
 }
-
-silent_run() {
-    ( silent_run_ "${@}" ; )
-}
-
-run_silent() {
-    SILENT=${SILENT-1} silent_run "${@}"
-}
-
-vvv() {
-    debug "${@}"
-    silent_run "${@}"
-}
-
-vv() {
-    log "${@}"
-    silent_run "${@}"
-}
-
-silent_vv() {
-    SILENT_LOG=${SILENT_LOG-} SILENT=${SILENT-1} vv "${@}"
-}
-
-usage() {
-    die 128 "No usage found"
-}
-
-cleanup_docker_tag() {
-    echo "${@}" | sed -re "s/\.|[-_]//g" \
-        | awk '{print tolower($0)}'
-}
-
-parse_cli_common() {
-    USAGE=
-    for i in ${@-};do
-        case ${i} in
-            --no-color|--no-colors|--nocolor|--no-colors)
-                NO_COLOR=1;;
-            -h|--help)
-                USAGE=1;;
-            *) :;;
-        esac
-    done
-    reset_colors
-    if [[ -n ${USAGE} ]]; then
-        usage
-    fi
-}
-
-parse_cli() {
-    parse_cli_common "${@}"
-}
-
-get_chrono() {
-    date "+%F_%H-%M-%S"
-}
-
-get_full_chrono() {
-    date "+%F_%H-%M-%S-%N"
-}
-
-get_images() {
-    docker images --no-trunc -q "${@}" 2>/dev/null | sort -u
-}
-
-get_image() {
-    get_images "${@}" | head -n 1
-}
-
-get_docker_ids() {
-    docker inspect -f '{{.Id}}' "${@}" 2>/dev/null
-}
-
-get_ancestor_from_dockerfile() {
-    local dockerfile=${1}
-    local ancestor=
-    if [[ -e "${dockerfile}" ]] && egrep -q ^FROM "${dockerfile}"; then
-        ancestor=$(egrep ^FROM "${dockerfile}"\
-            | head -n1 | awk '{print $2}' | xargs -n1| sort -u )
-    fi
-    echo ${ancestor}
-}
-
-sane_container_name() {
-    local n=${1}
-    n=${n//:/}
-    n=${n//_/}
-    n=${n//-/}
-    n=${n//\//}
-    n=${n//\./}
-    echo $n
-}
-
-get_container_id() {
-    local n=${1}
-    local cid=$(docker     ps -q -a --filter 'name='$n)
-    echo "${cid}"
-}
-
-save_container() {
-    local n="${1}"
-    local d="${2:-${n}}"
-    local running=$(docker ps -q    --filter 'name='$n)
-    if [[ -n "${running}" ]];then
-        vv docker kill "${running}"
-    fi
-    local cid=$(get_container_id $n)
-    if [[ -n "${cid}" ]];then
-        vv docker commit "$cid" "$d"
-        vv docker rm "$cid"
-    else
-        img=${initial_img}
-    fi
-}
-
-do_tmp_cleanup() {
-    local tmp_dockers=$2
-    local tmp_files=$1
-    local tmp_imgs=$3
-    log "Post cleanup"
-    for tmp_file in ${tmp_files};do
-        if [ -e "${tmp_file}" ]; then
-            vv rm -f "${tmp_file}"
-        fi
-    done
-    for test_docker in ${tmp_dockers};do
-        test_dockerid=$(vvv get_container_id ${test_docker})
-        if [[ "${test_dockerid}" != "" ]]; then
-            log "Removing produced test docker ${test_docker}"
-            docker rm -f "${test_dockerid}"
-        fi
-    done
-    for test_tag in ${tmp_imgs};do
-        test_tagid=$(vvv get_image ${test_tag})
-        if [[ "${test_tagid}" != "" ]]; then
-            log "Removing produced test image: ${test_tag}"
-            docker rmi "${test_tagid}"
-        fi
-    done
-}
-
-set_lang() {
-    locale=${1:-C}
-    export LANG=${locale}
-    export LC_ALL=${locale}
-}
-
+silent_run() { ( silent_run_ "${@}" ; ); }
+run_silent() { SILENT=${SILENT-1} silent_run "${@}"; }
+vvv() { debug "${@}";silent_run "${@}"; }
+vv() { log "${@}";silent_run "${@}";}
+silent_vv() { SILENT_LOG=${SILENT_LOG-} SILENT=${SILENT-1} vv "${@}"; }
+version_lte() { [  "$1" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
+version_lt() { [ "$1" = "$2" ] && return 1 || version_lte $1 $2; }
+version_gte() { [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
+version_gt() { [ "$1" = "$2" ] && return 1 || version_gte $1 $2; }
+is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux"; }
+is_debian_like() { echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"; }
+is_redhat_like() { echo $DISTRIB_ID | egrep -iq "fedora|centos|redhat|red-hat"; }
+set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
 detect_os() {
     # this function should be copiable in other scripts, dont use adjacent functions
     UNAME="${UNAME:-"$(uname | awk '{print tolower($1)}')"}"
@@ -371,17 +142,170 @@ detect_os() {
     fi
     export DISTRIB_ID DISTRIB_CODENAME DISTRIB_RELEASE
 }
+output_in_error() {
+    slug_to_call="${@}"
+    NO_OUTPUT="${NO_OUTPUT-1}"
+    DO_OUTPUT_TIMER="${DO_OUTPUT_TIMER-1}"
+    if [[ -n ${DO_OUTPUT_TIMER} ]] || [[ -n $NO_OUTPUT ]];then
+        LOG=$(mktemp)
+    fi
+    if [[ -n ${DO_OUTPUT_TIMER} ]]; then
+        TMP=$(mktemp)
+        ( i=0;\
+          while test -f $TMP;do\
+           i=$((++i));\
+           if [ `expr $i % 120` -eq 0 ];then \
+             log "BuildInProgress($LOG): ${slug_to_call}";\
+             i=0;\
+           fi;\
+           sleep 1;\
+          done;\
+          log "done: ${slug_to_call}"; ) &
+    fi
+    if [[ -n $NO_OUTPUT ]]; then
+        log "Log: $LOG for ${YELLOW}$slug_to_call"
+        ${slug_to_call} >"$LOG" 2>&1
+        ret=${?}
+        if [ -e "$LOG" ];then
+            if [ "x${ret}" != "x0" ];then
+                vv cat "$LOG" >&2
+            fi
+            rm -f "$LOG"
+        fi
+    else
+        ${slug_to_call}
+        ret=${?}
+    fi
+    if [[ -n $DO_OUTPUT_TIMER ]]; then rm -f "${TMP}";fi
+    if [[ -z ${OUTPUT_IN_ERROR_NO_WAIT-} ]];then wait;fi
+    return ${ret}
+}
+has_command() {
+    ret=1
+    if which which >/dev/null 2>/dev/null;then
+      if which "${@}" >/dev/null 2>/dev/null;then
+        ret=0
+      fi
+    else
+      if command -v "${@}" >/dev/null 2>/dev/null;then
+        ret=0
+      else
+        if hash -r "${@}" >/dev/null 2>/dev/null;then
+            ret=0
+        fi
+      fi
+    fi
+    return ${ret}
+}
+get_command() {
+    local p=
+    local cmd="${@}"
+    if which which >/dev/null 2>/dev/null;then
+        p=$(which "${cmd}" 2>/dev/null)
+    fi
+    if [ "x${p}" = "x" ];then
+        p=$(export IFS=:;
+            echo "${PATH-}" | while read -ra pathea;do
+                for pathe in "${pathea[@]}";do
+                    pc="${pathe}/${cmd}";
+                    if [ -x "${pc}" ]; then
+                        p="${pc}"
+                    fi
+                done
+                if [ "x${p}" != "x" ]; then echo "${p}";break;fi
+            done )
+    fi
+    if [ "x${p}" != "x" ];then
+        echo "${p}"
+    fi
+}
+cleanup_docker_tag() { echo "${@}"|sed -re "s/\.|[-_]//g"|awk '{print tolower($0)}'; }
+get_container_id() { local n=${1};local cid=$(docker ps -q -a --filter 'name='$n); echo "${cid}"; }
+sane_container_name() { local n=${1};n=${n//:/};n=${n//_/};n=${n//-/};n=${n//\//};n=${n//\./};echo $n; }
+get_images() { docker images --no-trunc -q "${@}" 2>/dev/null|awk '!seen[$0]++'; }
+get_image() { get_images "${@}" | head -n 1; }
+get_docker_ids() { docker inspect -f '{{.Id}}' "${@}" 2>/dev/null; }
+save_container() {
+    local n="${1}"
+    local d="${2:-${n}}"
+    local running=$(docker ps -q    --filter 'name='$n)
+    if [[ -n "${running}" ]];then
+        vv docker kill "${running}"
+    fi
+    local cid=$(get_container_id $n)
+    if [[ -n "${cid}" ]];then
+        vv docker commit "$cid" "$d"
+        vv docker rm "$cid"
+    else
+        img=${initial_img}
+    fi
+}
+get_git_changeset() { ( cd "${1:-$(pwd)}" && git log HEAD|head -n1|awk '{print $2}'); }
+get_git_branch() {
+   ( cd "${1:-$(pwd)}" &&\
+     git rev-parse --abbrev-ref HEAD | grep -v HEAD || \
+     git describe --exact-match HEAD 2> /dev/null || \
+     git rev-parse HEAD)
+}
+get_git_branchs() { ( cd "${1:-$(pwd)}" && git branch|sed -e "s/^\*\? \+//g"); }
+get_full_chrono() { date "+%F_%H-%M-%S-%N"; }
+get_random_slug() { len=${1:-32};strings=${2:-'a-zA-Z0-9'};echo "$(cat /dev/urandom|tr -dc "$strings"|fold -w ${len}|head -n 1)"; }
+may_sudo() { if [ "$(whoami)" != "root" ];then echo "sudo $([[ -z $DIRECT_SUDO ]] && echo "-HE")";fi; }
+usage() { die 128 "No usage found"; }
 
-is_archlinux_like() {
-    echo $DISTRIB_ID | egrep -iq "archlinux"
+parse_cli_common() {
+    USAGE=
+    for i in ${@-};do
+        case ${i} in
+            --no-color|--no-colors|--nocolor|--no-colors)
+                NO_COLOR=1;;
+            -h|--help)
+                USAGE=1;;
+            *) :;;
+        esac
+    done
+    reset_colors
+    if [[ -n ${USAGE} ]]; then
+        usage
+    fi
 }
 
-is_debian_like() {
-    echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"
+parse_cli() { parse_cli_common "${@}"; }
+
+get_ancestor_from_dockerfile() {
+    local dockerfile=${1}
+    local ancestor=
+    if [[ -e "${dockerfile}" ]] && egrep -q ^FROM "${dockerfile}"; then
+        ancestor=$(egrep ^FROM "${dockerfile}"\
+            | head -n1 | awk '{print $2}' | xargs -n1| sort -u )
+    fi
+    echo ${ancestor}
 }
 
-is_redhat_like() {
-    echo $DISTRIB_ID | egrep -iq "fedora|centos|redhat|red-hat"
+do_tmp_cleanup() {
+    local tmp_dockers=$2
+    local tmp_files=$1
+    local tmp_imgs=$3
+    log "Post cleanup"
+    for tmp_file in ${tmp_files};do
+        if [ -e "${tmp_file}" ]; then
+            vv rm -f "${tmp_file}"
+        fi
+    done
+    for test_docker in ${tmp_dockers};do
+        test_dockerid=$(vvv get_container_id ${test_docker})
+        if [[ "${test_dockerid}" != "" ]]; then
+            log "Removing produced test docker ${test_docker}"
+            docker rm -f "${test_dockerid}"
+        fi
+    done
+    for test_tag in ${tmp_imgs};do
+        test_tagid=$(vvv get_image ${test_tag})
+        if [[ "${test_tagid}" != "" ]]; then
+            log "Removing produced test image: ${test_tag}"
+            docker rmi "${test_tagid}"
+        fi
+    done
 }
 
 filtered_ansible_playbook_custom() {
@@ -397,65 +321,6 @@ filtered_ansible_playbook_custom() {
 filtered_ansible_playbook() {
     filtered_ansible_playbook_ "" "${@}"
 
-}
-
-output_in_error() {
-    slug_to_call="${@}"
-    NO_OUTPUT="${NO_OUTPUT-}"
-    DO_OUTPUT_TIMER="${DO_OUTPUT_TIMER-1}"
-    if [[ -z $NO_OUTPUT ]]; then
-        DO_OUTPUT_TIMER=""
-    else
-        LOG=$(mktemp)
-    fi
-    if [[ -n ${DO_OUTPUT_TIMER} ]]; then
-        TMP=$(mktemp)
-        ( i=0;\
-          while test -f $TMP;do\
-           i=$((++i));\
-           if [[ $i == 120 ]];then \
-             log "BuildInProgress($LOG): ${slug_to_call}";\
-             i=0;\
-           fi;\
-           sleep 1;\
-          done;\
-          log "done: ${slug_to_call}"; ) &
-    fi
-    if [[ -n $NO_OUTPUT ]]; then
-        log "Log: $LOG"
-        ${slug_to_call} >"$LOG" 2>&1
-        ret=${?}
-        if [ -e "$LOG" ];then
-            if [ "x${ret}" != "x0" ];then
-                vv cat "$LOG" >&2
-            fi
-            rm -f "$LOG"
-        fi
-    else
-        ${slug_to_call}
-        ret=${?}
-    fi
-    if [[ -n $DO_OUTPUT_TIMER ]]; then
-        rm -f "${TMP}"
-    fi
-    return ${ret}
-}
-
-get_git_changeset() {
-   ( cd "${1:-$(pwd)}" &&\
-     git log HEAD|head -n1|awk '{print $2}')
-}
-
-get_git_branch() {
-   ( cd "${1:-$(pwd)}" &&\
-     git rev-parse --abbrev-ref HEAD | grep -v HEAD || \
-     git describe --exact-match HEAD 2> /dev/null || \
-     git rev-parse HEAD)
-}
-
-get_git_branchs() {
-   ( cd "${1:-$(pwd)}" &&\
-       git branch|sed -e "s/^\*\? \+//g")
 }
 
 update_wd_to_br() {
@@ -508,43 +373,6 @@ upgrade_wd_to_br() {
     )
 }
 
-do_trap_() {
-    rc=$?
-    func=$1
-    sig=$2
-    ${func}
-    if [ "x${sig}" != "xEXIT" ];then
-        kill -${sig} $$
-    fi
-    exit $rc
-}
-
-do_trap() {
-    rc=${?}
-    func=${1}
-    shift
-    sigs=${@}
-    for sig in ${sigs};do
-        trap "do_trap_ ${func} ${sig}" "${sig}"
-    done
-}
-
-version_lte() {
-    [  "$1" = "$(printf "$1\n$2" | sort -V | head -n1)" ]
-}
-
-version_lt() {
-    [ "$1" = "$2" ] && return 1 || version_lte $1 $2
-}
-
-version_gte() {
-    [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]
-}
-
-version_gt() {
-    [ "$1" = "$2" ] && return 1 || version_gte $1 $2
-}
-
 get_python2_() {
     local py2=
     for i in python2.7 python2.6 python-2.7 python-2.6 python-2;do
@@ -590,14 +418,27 @@ make_virtualenv() {
     fi
 }
 
-may_sudo() {
-    if [ "$(whoami)" != "root" ];then
-        echo "sudo $([[ -z $DIRECT_SUDO ]] &&  echo "-HE")"
+ensure_last_python_requirement() {
+    local i=
+    local copt=
+    local PIP_CACHE=${PIP_CACHE:-${VENV_PATH}/cache}
+    if pip --help | grep -q download-cache; then
+        copt="--download-cache"
+    else
+        copt="--cache-dir"
     fi
+    for i in $@;do
+        log "Installing last version of $i"
+        pip install -U $copt "${PIP_CACHE}" $i
+    done
 }
 
-
 detect_os no_fail
+IMAGES=${IMAGES-}
+export IMAGES \
+    BASE_IMAGES \
+    BASE_CORE_IMAGES \
+    BASE_PREPROVISION_IMAGES
 
 if echo "${0}" | egrep -q 'cops_shell_common$';then
     if declare -f "$1" >/dev/null 2>&1; then
