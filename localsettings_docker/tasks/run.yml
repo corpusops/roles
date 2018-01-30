@@ -37,16 +37,10 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.repo is not none)"
   register: corpusops_localsettings_docker_repoa
-- apt:
-    update_cache: yes
+- apt: {update_cache: yes}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_repoa.changed or
           corpusops_localsettings_docker_key.changed)"
-- name: install python pre - prerequisites
-  pip:
-    executable: /usr/bin/pip
-    name: "{{corpusops_localsettings_docker_vars.py_packages}}"
-    state: present
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -98,6 +92,11 @@
           corpusops_localsettings_docker_vars.packages|length > 0)"
   register: corpusops_localsettings_docker_c_pkg_rh
   loop_control: {loop_var: dockeritemh}
+- name: install python pre - prerequisites
+  pip:
+    executable: /usr/bin/pip
+    name: "{{corpusops_localsettings_docker_vars.py_packages}}"
+    state: present
 - group:
     name: "{{corpusops_localsettings_docker_vars.group}}"
     system: yes
