@@ -1,6 +1,17 @@
 ---
 - when: "ansible_os_family.lower() in ['debian']"
   block:
+  - name: install python_sni packages
+    block:
+    - package:
+        cache_valid_time: '{{60*60}}'
+        update_cache: yes
+        name: [apt-transport-https, ca-certificates, curl]
+        state: present
+      register: corpusops_localsettings_python_sni_c_prepkgs
+  - shell: update-ca-certificates
+    changed_when: false
+    when: "corpusops_localsettings_python_sni_c_prepkgs|changed"
   - when: "(ansible_distribution.lower() == 'ubuntu' and
             ansible_distribution_major_version|copsf_looseversion
             < '15'|copsf_looseversion)"
@@ -13,14 +24,10 @@
         state: present
     - name: install python pre - prerequisites - pre ubuntu16.04
       pip:
-        executable: /usr/bin/pip2
-        name: [setuptools]
-        state: latest
-    - name: install python pre - prerequisites - pre ubuntu16.04
-      pip:
-        executable: /usr/bin/pip2
+        executable: "{{item}}"
         name: [urllib3, pyopenssl, ndg-httpsclient, pyasn1]
-        state: present
+        state: latest
+      with_items: [/usr/bin/pip2]
   - when: "not (ansible_distribution.lower() == 'ubuntu' and
                 ansible_distribution_major_version|copsf_looseversion
                 < '15'|copsf_looseversion)"
@@ -29,16 +36,6 @@
       package:
         cache_valid_time: '{{60*60}}'
         update_cache: yes
-        name: [python-urllib3, python-openssl, python-pyasn1, python-ndg-httpsclient]
+        name: [python-urllib3, python-openssl,
+               python-pyasn1, python-ndg-httpsclient]
         state: present
-- name: install python_sni packages
-  block:
-  - package:
-      cache_valid_time: '{{60*60}}'
-      update_cache: yes
-      name: [apt-transport-https, ca-certificates, curl]
-      state: present
-    register: corpusops_localsettings_python_sni_c_prepkgs
-  - shell: update-ca-certificates
-    changed_when: false
-    when: "corpusops_localsettings_python_sni_c_prepkgs|changed"
