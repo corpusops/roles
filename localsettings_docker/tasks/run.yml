@@ -1,38 +1,5 @@
 ---
-- name: install pre -py- prerequisites
-  package:
-    cache_valid_time: '{{60*60}}'
-    update_cache: yes
-    name: "{{dockeritema}}"
-    state: present
-  with_items: [python-pip, python-dev, libffi-dev, libssl-dev]
-  loop_control: {loop_var: dockeritema}
-  when: "(ansible_distribution.lower() in ['ubuntu'] and
-          ansible_distribution_major_version < '15' )"
-  tags: corpusops_localsettings_docker
-- name: install python pre - prerequisites
-  pip:
-    executable: /usr/bin/pip
-    name: "{{ dockeritemb }}"
-    state: present
-  with_items: [urllib3, pyopenssl, ndg-httpsclient, pyasn1]
-  loop_control: {loop_var: dockeritemb}
-  when: "(ansible_distribution.lower() in ['ubuntu'] and
-          ansible_distribution_major_version < '15' )"
-  tags: corpusops_localsettings_docker
 #
-- name: install pre - prerequisites
-  package:
-    cache_valid_time: '{{60*60}}'
-    update_cache: yes
-    name: "{{dockeritemc}}"
-    state: present
-  with_items: [apt-transport-https, ca-certificates, curl]
-  loop_control: {loop_var: dockeritemc}
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_localsettings_docker_vars.packages is not none and
-          corpusops_localsettings_docker_vars.packages|length > 0)"
-  tags: corpusops_localsettings_docker
 - name: install localsettings_docker repokey
   apt_key:
     url: '{{corpusops_localsettings_docker_vars.repo_keys_url}}'
@@ -41,14 +8,12 @@
           corpusops_localsettings_docker_vars.repo_keys is not none and
           corpusops_localsettings_docker_vars.repo_keys|length > 0)"
   register: corpusops_localsettings_docker_key
-  tags: corpusops_localsettings_docker
 - name: remove docker setup
   file:
     path:  /etc/apt/sources.list.d/docker.list
     state: absent
   when: "(ansible_os_family.lower() in ['debian'] and
           ansible_env.get('TRAVIS', '') | copsf_bool)"
-  tags: corpusops_localsettings_docker
 - name: debug travis
   shell: |
         cd /etc/apt/sources.list.d
@@ -58,7 +23,6 @@
         done
   when: "(ansible_os_family.lower() in ['debian'] and
           ansible_env.get('TRAVIS', '') | copsf_bool)"
-  tags: corpusops_localsettings_docker
 - name: install localsettings_docker repo
   apt_repository:
     repo: '{{corpusops_localsettings_docker_vars.repo}}'
@@ -67,13 +31,18 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.repo is not none)"
   register: corpusops_localsettings_docker_repoa
-  tags: corpusops_localsettings_docker
 - apt:
     update_cache: yes
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_repoa.changed or
           corpusops_localsettings_docker_key.changed)"
-  tags: corpusops_localsettings_docker
+- name: install python pre - prerequisites
+  pip:
+    executable: /usr/bin/pip
+    name: "{{ dockeritemb }}"
+    state: present
+  with_items: "{{corpusops_localsettings_docker_vars.py_packages}}"
+  loop_control: {loop_var: dockeritemb}
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -85,7 +54,6 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
-  tags: corpusops_localsettings_docker
   register: corpusops_localsettings_docker_c_pkg_deb
 - name: update & install prerequisites
   package:
@@ -96,7 +64,6 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
-  tags: corpusops_localsettings_docker
   with_items: "{{corpusops_localsettings_docker_vars.packages}}"
   loop_control: {loop_var: dockeritemk}
 - name: update & install prerequisites (yum-utils)
@@ -108,13 +75,11 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
-  tags: corpusops_localsettings_docker
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{dockeritemi}}"
   with_items: ["{{corpusops_localsettings_docker_vars.repo}}"]
   loop_control: {loop_var: dockeritemi}
-  tags: corpusops_localsettings_docker
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
@@ -122,13 +87,11 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{dockeritemh}}'
+    name: "{{corpusops_localsettings_docker_vars.packages}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
-  tags: corpusops_localsettings_docker
-  with_items: "{{corpusops_localsettings_docker_vars.packages}}"
   register: corpusops_localsettings_docker_c_pkg_rh
   loop_control: {loop_var: dockeritemh}
 - group:
@@ -136,7 +99,6 @@
     system: yes
     state: present
   register: corpusops_localsettings_docker_c_group
-  tags: corpusops_localsettings_docker
 - include_role: {name: corpusops.roles/configs, private: true}
   vars:
     cops_configs_files: "{{corpusops_localsettings_docker_vars.files}}"
