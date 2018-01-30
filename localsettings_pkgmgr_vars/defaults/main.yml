@@ -6,7 +6,7 @@ corpusops_localsettings_pkgmgr_cops_sub_os_append: {}
 corpusops_localsettings_pkgmgr_cops_knobs: [
   'files', 'filescopy', 'configs', 'packages', 'services',
   'mirror', 'comps', 'sources_lists', 'rpm_mirrors',
-  'rpm_repos', 'base_rpm_repos']
+  'base_rpm_repos', 'rpm_repos', 'base_rpm_repos']
 corpusops_localsettings_pkgmgr_cops_lowered: []
 corpusops_localsettings_pkgmgr_cops_sub_namespaces:
   settings: {}
@@ -71,10 +71,9 @@ corpusops_localsettings_pkgmgr_lsb_release_major: "{{ansible_lsb.release[0]}}"
 corpusops_localsettings_pkgmgr_rpm_mirrors: null
 corpusops_localsettings_pkgmgr_rpm_mirrors_default: []
 corpusops_localsettings_pkgmgr_rpm_mirrors_centos:
-  - 'http://centos.mirrors.ovh.net/ftp.centos.org'
-corpusops_localsettings_pkgmgr_base_rpm_repos: "{{corpusops_localsettings_pkgmgr_rpm_repos}}"
+  - "http://centos.mirrors.ovh.net/ftp.centos.org"
 corpusops_localsettings_pkgmgr_rpm_repos: null
-corpusops_localsettings_pkgmgr_rpm_repos_centos;:
+corpusops_localsettings_pkgmgr_rpm_repos_centos:
 - name: base
   repo: os
   desc: Base
@@ -100,6 +99,8 @@ corpusops_localsettings_pkgmgr_rpm_repos_centos;:
   gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{lsb_release_major}"
   mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
   file: 'CentOS-Base'
+corpusops_localsettings_pkgmgr_base_rpm_repos: null
+corpusops_localsettings_pkgmgr_base_rpm_repos_centos: "{{corpusops_localsettings_pkgmgr_rpm_repos_centos}}"
 corpusops_localsettings_pkgmgr_epel:
   - name: epel
     desc: epel
