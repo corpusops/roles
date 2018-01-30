@@ -42,6 +42,7 @@ def main():
         required_one_of=[['state', 'enabled', 'masked', 'daemon_reload']],
     )
     systemctl = module.get_bin_path('systemctl')
+    from pdb_clone import pdb as pdbc;pdbc.set_trace_remote()  ## Breakpoint ##
     tgtp = '/etc/systemd/system/multi-user.target.wants'
     paths = ['/etc/systemd/system',
              '/run/systemd/system',
@@ -87,7 +88,7 @@ def main():
                 os.makedirs(tgtp)
                 done.append('Created target: {0}'.format(tgtp))
                 changed = True
-            if os.path.exists(tgt) or  os.path.islink(tgt):
+            if os.path.exists(tgt) or os.path.islink(tgt):
                 rp = os.readlink(tgt)
                 if (rp != out) or not module.params['enabled']:
                     os.unlink(tgt)
@@ -100,6 +101,7 @@ def main():
             result['cops_service'] = done
             result['changed'] = changed
     module.exit_json(**result)
+
 
 if __name__ == '__main__':
     main()

@@ -25,6 +25,8 @@ class ActionModule(ActionBase):
         '''.'''
         if task_vars is None:
             task_vars = dict()
+        self._supports_check_mode = True
+        self._supports_async = True
 
         result = super(ActionModule, self).run(tmp, task_vars)
 
@@ -36,8 +38,8 @@ class ActionModule(ActionBase):
                     module = self._templar.template("{{hostvars['%s']['ansible_service_mgr']}}" % self._task.delegate_to)
                 else:
                     module = self._templar.template('{{ansible_service_mgr}}')
-            except:
-                pass # could not get it from template!
+            except Exception:
+                pass  # could not get it from template!
 
         if module == 'auto':
             facts = self._execute_module(module_name='setup', module_args=dict(gather_subset='!all', filter='ansible_service_mgr'), task_vars=task_vars)

@@ -1,0 +1,36 @@
+---
+- hosts: all
+  tasks:
+    - include_role: {name: corpusops.roles/vars}
+    - when: ansible_service_mgr=='systemd'
+      no_log: true
+      block:
+      - copy:
+          dest: "{{corpusops_vars.unit_dir}}/copsatest.service"
+          mode: "0644"
+          content: |
+            [Unit]
+            Description=ansible test compagnion
+            [Service]
+            Type=oneshot
+            ExecStart=/bin/echo "$(date) start">>/test_service
+            ExecStop=/bin/echo "$(date) start">>/test_service
+            ExecRestart=/bin/echo "$(date) start">>/test_service
+            ExecReload=/bin/echo "$(date) start">>/test_service
+            [Install]
+            WantedBy=multi-user.target
+      - shell: systemctl daemon-reload
+      - no_log: false
+        block:
+        - cops_service:
+            name: copsatest
+            enabled: true
+            state: started
+      always:
+      - when: ansible_service_mgr=='systemd'
+        no_log: true
+        block:
+        #- file:
+        #    state: absent
+        #    path: "{{corpusops_vars.unit_dir}}/copsatest.service"
+        - shell: systemctl daemon-reload
