@@ -98,8 +98,9 @@
     py="{{ansible_python.executable}}"
     pip="{{corpusops_localsettings_docker_vars.pip}}"
     $py -c 'import setuptools' || $py $pip install setuptools
-    $py $pip install {{
-      corpusops_localsettings_docker_vars.py_packages
+    $py $pip install \
+    {{corpusops_localsettings_docker_vars.pip_args}} \
+    {{corpusops_localsettings_docker_vars.py_packages
       |join(' ')}}
   changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
   register: corpusops_localsettings_docker_c_pyinst
