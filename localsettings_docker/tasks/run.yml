@@ -97,6 +97,7 @@
   shell: |
     py="{{ansible_python.executable}}"
     pip="{{corpusops_localsettings_docker_vars.pip}}"
+    $py -c 'import setuptools' || $py $pip install setuptools
     $py $pip install {{
       corpusops_localsettings_docker_vars.py_packages
       |join(' ')}}
