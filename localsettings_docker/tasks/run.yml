@@ -93,6 +93,9 @@
           corpusops_localsettings_docker_vars.packages|length > 0)"
   register: corpusops_localsettings_docker_c_pkg_rh
   loop_control: {loop_var: dockeritemh}
+# dont use pip module which isnt very reliable with old
+# pip installs (like we have on stock ubuntu-trusty
+# (SNI madness, look at me)
 - name: install python pre - prerequisites
   shell: |
     py="{{ansible_python.executable}}"
