@@ -23,7 +23,7 @@ corpusops_localsettings_docker_keyserver: "hkp://p80.pool.sks-keyservers.net:80"
 corpusops_localsettings_docker_repo_debian: 'deb [arch=amd64] https://download.docker.com/linux/{ansible_distribution} {ansible_distribution_release} stable edge'
 corpusops_localsettings_docker_repo_redhat: 'https://download.docker.com/linux/centos/docker-ce.repo'
 corpusops_localsettings_docker_repo_fedora: 'https://download.docker.com/linux/fedora/docker-ce.repo'
-corpusops_localsettings_docker_py_packages: ['docker[tls]']
+corpusops_localsettings_docker_py_packages: ['setuptools', 'docker[tls]']
 corpusops_localsettings_docker_packages: null
 corpusops_localsettings_docker_packages_default: [
   python-pip, docker-ce]
@@ -33,3 +33,4 @@ corpusops_localsettings_docker_filescopy: null
 corpusops_localsettings_docker_filescopy_default: []
 corpusops_localsettings_docker_configs: null
 corpusops_localsettings_docker_configs_default: []
+corpusops_localsettings_docker_pip: "$(which pip)"
