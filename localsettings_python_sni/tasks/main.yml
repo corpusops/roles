@@ -25,12 +25,14 @@
   - name: install python pre - prerequisites - pre ubuntu16.04
     shell: |
       py="{{item}}"
-      imports="import pyasn1;import OpenSSL;import asn1crypto;"
+      imports="import pyasn1;import OpenSSL;import asn1crypto"
       imports="$imports;import urllib3;import cryptography"
       pip=/usr/bin/pip
       if ! ( $py -c "$imports" );then
         $py $pip install -U --force setuptools &&\
-          $py $pip install urllib3 pyopenssl ndg-httpsclient pyasn1 &&\
+          $py $pip install \
+            backports.ssl_match_hostname urllib3 \
+            pyopenssl ndg-httpsclient pyasn1 &&\
           echo "changed=yes" >&2
       fi
     with_items: ["{{ansible_python.executable}}"]
