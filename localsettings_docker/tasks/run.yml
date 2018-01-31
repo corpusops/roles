@@ -96,7 +96,7 @@
 - name: install python pre - prerequisites
   shell: |
     py="{{ansible_python.executable}}"
-    pip=$(which pip)
+    pip="{{corpusops_localsettings_docker_vars.pip}}"
     $py $pip install {{
       corpusops_localsettings_docker_vars.py_packages
       |join(' ')}}
