@@ -94,14 +94,14 @@
   register: corpusops_localsettings_docker_c_pkg_rh
   loop_control: {loop_var: dockeritemh}
 - name: install python pre - prerequisites
-    shell: |
-      py="{{ansible_python.executable}}"
-      pip=$(which pip)
-      $py $pip install {{
-        corpusops_localsettings_docker_vars.py_packages
-        |join(' ')}}
-    changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
-    register: corpusops_localsettings_docker_c_pyinst
+  shell: |
+    py="{{ansible_python.executable}}"
+    pip=$(which pip)
+    $py $pip install {{
+      corpusops_localsettings_docker_vars.py_packages
+      |join(' ')}}
+  changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
+  register: corpusops_localsettings_docker_c_pyinst
 - group:
     name: "{{corpusops_localsettings_docker_vars.group}}"
     system: yes
