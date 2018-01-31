@@ -12,30 +12,38 @@
   - shell: update-ca-certificates
     changed_when: false
     when: "corpusops_localsettings_python_sni_c_prepkgs|changed"
-  - when: "(ansible_distribution.lower() == 'ubuntu' and
-            ansible_distribution_major_version|copsf_looseversion
-            < '15'|copsf_looseversion)"
-    block:
-    - name: install pre - prerequisites
-      package:
-        cache_valid_time: '{{60*60}}'
-        update_cache: yes
-        name: [python-pip, python-dev, libffi-dev, libssl-dev]
-        state: present
-    - name: install python pre - prerequisites - pre ubuntu16.04
-      pip:
-        executable: "{{item}}"
-        name: [urllib3, pyopenssl, ndg-httpsclient, pyasn1]
-        state: latest
-      with_items: [/usr/bin/pip2]
-  - when: "not (ansible_distribution.lower() == 'ubuntu' and
-                ansible_distribution_major_version|copsf_looseversion
-                < '15'|copsf_looseversion)"
-    block:
-    - name: install pre - prerequisites
-      package:
-        cache_valid_time: '{{60*60}}'
-        update_cache: yes
-        name: [python-urllib3, python-openssl,
-               python-pyasn1, python-ndg-httpsclient]
-        state: present
+- when: "(ansible_distribution.lower() == 'ubuntu' and
+          ((ansible_distribution_major_version|copsf_looseversion)
+           < ('15'|copsf_looseversion)))"
+  block:
+  - name: install pre - prerequisites
+    package:
+      cache_valid_time: '{{60*60}}'
+      update_cache: yes
+      name: [python-pip, python-dev, libffi-dev, libssl-dev]
+      state: present
+  - name: install python pre - prerequisites - pre ubuntu16.04
+    shell: |
+      py="{{item}}"
+      imports="import pyasn1;import OpenSSL;import asn1crypto;"
+      imports="$imports;import urllib3;import cryptography"
+      pip=/usr/bin/pip
+      if ! ( $py -c "$imports" );then
+        $py $pip install -U --force setuptools &&\
+          $py $pip install urllib3 pyopenssl ndg-httpsclient pyasn1 &&\
+          echo "changed=yes" >&2
+      fi
+    with_items: ["{{ansible_python.executable}}"]
+    register: cops_oldubuntu_backport_sni
+    changed_when: '"changed=yes" in cops_oldubuntu_backport_sni.stderr'
+- when: "not (ansible_distribution.lower() == 'ubuntu' and
+          ((ansible_distribution_major_version|copsf_looseversion)
+           < ('15'|copsf_looseversion)))"
+  block:
+  - name: install pre - prerequisites
+    package:
+      cache_valid_time: '{{60*60}}'
+      update_cache: yes
+      name: [python-urllib3, python-openssl,
+             python-pyasn1, python-ndg-httpsclient]
+      state: present
