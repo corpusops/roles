@@ -14,19 +14,11 @@
     shell: >
       curl -sSL "{{corpusops_localsettings_docker_vars.repo_keys_url}}"
       |sudo apt-key add -
+    register: corpusops_localsettings_docker_key
 - name: remove docker setup
   file:
     path:  /etc/apt/sources.list.d/docker.list
     state: absent
-  when: "(ansible_os_family.lower() in ['debian'] and
-          ansible_env.get('TRAVIS', '') | copsf_bool)"
-- name: debug travis
-  shell: |
-        cd /etc/apt/sources.list.d
-        for i in *;do
-          echo "----LIST: $i----"
-          cat "$i"
-        done
   when: "(ansible_os_family.lower() in ['debian'] and
           ansible_env.get('TRAVIS', '') | copsf_bool)"
 - name: install localsettings_docker repo
@@ -40,7 +32,7 @@
 - apt: {update_cache: yes}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_repoa.changed or
-          corpusops_localsettings_docker_key.changed)"
+          corpusops_localsettings_docker_key|changed)"
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
