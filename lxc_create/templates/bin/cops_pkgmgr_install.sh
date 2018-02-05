@@ -1,13 +1,443 @@
 #!/usr/bin/env bash
-cd "$(dirname ${0})"
-W=$(cd .. && pwd)
-LOGGER_NAME=pkgmgr
+ANSIBLE_FILTER_OUTPUT="(^("
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(included|skipping):|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(task|play)\s+(recap|\[(debug|all|include|setup)\])|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*$|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(ok|changed):\s+\[localhost\]( => {)?$|"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*(\"msg|([{}]$))"
+ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
+DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
+COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
+BASE_PREPROVISION_IMAGES="ubuntu:latest_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:16.04_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:14.04_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/centos:7_preprovision"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:16.04"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:14.04"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/centos:7"
+BASE_IMAGES="$BASE_PREPROVISION_IMAGES $BASE_CORE_IMAGES"
 
-sc=cops_shell_common
-[[ ! -e $sc ]] && echo "missing $sc" >&2
-. $sc || exit 1
+# scripts vars
+SCRIPT=$0
+LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
+SCRIPT_NAME=$(basename "${SCRIPT}")
+SCRIPT_DIR=$(cd "$(dirname $0)" && pwd)
+# OW: from where script was called (must be defined from callee)
+OW="${OW:-$(pwd)}"
+# W is script_dir/..
+W=${W:-$(cd "$SCRIPT_DIR/.." && pwd)}
+# colors
+RED="\\e[0;31m"
+CYAN="\\e[0;36m"
+YELLOW="\\e[0;33m"
+NORMAL="\\e[0;0m"
+NO_COLOR=${NO_COLORS-${NO_COLORS-${NOCOLOR-${NOCOLORS-}}}}
+LOGGER_NAME=${LOGGER_NAME:-corpusops_build}
+ERROR_MSG="There were errors"
+do_trap_() { rc=$?;func=$1;sig=$2;${func};if [ "x${sig}" != "xEXIT" ];then kill -${sig} $$;fi;exit $rc; }
+do_trap() { rc=${?};func=${1};shift;sigs=${@};for sig in ${sigs};do trap "do_trap_ ${func} ${sig}" "${sig}";done; }
+parse_cli() { parse_cli_common "${@}"; }
+parse_cli_common() {
+    USAGE=
+    for i in ${@-};do
+        case ${i} in
+            --no-color|--no-colors|--nocolor|--no-colors)
+                NO_COLOR=1;;
+            -h|--help)
+                USAGE=1;;
+            *) :;;
+        esac
+    done
+    reset_colors
+    if [[ -n ${USAGE} ]]; then
+        usage
+    fi
+}
+log_() {
+    reset_colors;msg_color=${2:-${YELLOW}};
+    logger_color=${1:-${RED}};
+    logger_slug="${logger_color}[${LOGGER_NAME}]${NORMAL} ";
+    shift;shift;
+    if [[ -n ${NO_LOGGER_SLUG} ]];then logger_slug="";fi
+    printf "${logger_slug}${msg_color}$(echo "${@}")${NORMAL}\n" >&2;
+    printf "" >&2;  # flush
+}
+reset_colors() { if [[ -n ${NO_COLOR} ]];then BLUE="";YELLOW="";RED="";CYAN="";fi; }
+log() { log_ "${RED}" "${CYAN}" "${@}"; }
+get_chrono() { date "+%F_%H-%M-%S"; }
+cronolog() { log_ "${RED}" "${CYAN}" "($(get_chrono)) ${@}"; }
+debug() { if [[ -n "${DEBUG// }" ]];then log_ "${YELLOW}" "${YELLOW}" "${@}"; fi; }
+warn() { log_ "${RED}" "${CYAN}" "${YELLOW}[WARN] ${@}${NORMAL}"; }
+bs_log(){ log_ "${RED}" "${YELLOW}" "${@}"; }
+bs_yellow_log(){ log_ "${YELLOW}" "${YELLOW}" "${@}"; }
+may_die() {
+    reset_colors
+    thetest=${1:-1}
+    rc=${2:-1}
+    shift
+    shift
+    if [ "x${thetest}" != "x0" ]; then
+        if [[ -z "${NO_HEADER-}" ]]; then
+            NO_LOGGER_SLUG=y log_ "" "${CYAN}" "Problem detected:"
+        fi
+        NO_LOGGER_SLUG=y log_ "${RED}" "${RED}" "$@"
+        exit $rc
+    fi
+}
+die() { may_die 1 1 "${@}"; }
+die_in_error_() {
+    ret=${1}; shift; msg="${@:-"$ERROR_MSG"}";may_die "${ret}" "${ret}" "${msg}";
+}
+die_in_error() { die_in_error_ "${?}" "${@}"; }
+has_command() {
+    ret=1
+    if which which >/dev/null 2>/dev/null;then
+      if which "${@}" >/dev/null 2>/dev/null;then
+        ret=0
+      fi
+    else
+      if command -v "${@}" >/dev/null 2>/dev/null;then
+        ret=0
+      else
+        if hash -r "${@}" >/dev/null 2>/dev/null;then
+            ret=0
+        fi
+      fi
+    fi
+    return ${ret}
+}
+pipe_return() {
+    local filter=$1;shift;local command=$@;
+    (((($command; echo $? >&3) | $filter >&4) 3>&1) | (read xs; exit $xs)) 4>&1;
+}
+output_in_error() { ( do_trap output_in_error_post EXIT TERM QUIT INT;\
+                      output_in_error_ "${@}" ; ); }
+output_in_error_(){
+    if [[ -n ${OUTPUT_IN_ERROR_DEBUG-} ]];then set -x;fi
+    if [[ -n $TRAVIS ]] || [[ -n $GITLAB_CI ]];then
+        DEFAULT_CI_BUILD=y
+    fi
+    CI_BUILD="${CI_BUILD-${DEFAULT_CI_BUILD-}}"
+    if [[ -n $CI_BUILD ]];then
+        DEFAULT_NO_OUTPUT=y
+        DEFAULT_DO_OUTPUT_TIMER=y
+    fi
+    VERBOSE="${VERBOSE-}"
+    TIMER_FREQUENCE="${TIMER_FREQUENCE:-120}"
+    NO_OUTPUT="${NO_OUTPUT-${DEFAULT_NO_OUTPUT-1}}"
+    DO_OUTPUT_TIMER="${DO_OUTPUT_TIMER-$DEFAULT_DO_OUTPUT_TIMER}"
+    LOG=${LOG-}
+    if [[ -n $NO_OUTPUT ]];then
+        if [[ -z "${LOG}" ]];then
+            LOG=$(mktemp)
+            DEFAULT_CLEANUP_LOG=y
+        else
+            DEFAULT_CLEANUP_LOG=
+        fi
+    else
+        DEFAULT_CLEANUP_LOG=
+    fi
+    CLEANUP_LOG=${CLEANUP_LOG:-${DEFAULT_CLEANUP_LOG}}
+    if [[ -n $VERBOSE ]];then
+        log "Running$([[ -n $LOG ]] && echo "($LOG)"; ): $@";
+    fi
+    TMPTIMER=
+    if [[ -n ${DO_OUTPUT_TIMER} ]]; then
+        TMPTIMER=$(mktemp)
+        ( i=0;\
+          while test -f $TMPTIMER;do\
+           i=$((++i));\
+           if [ `expr $i % $TIMER_FREQUENCE` -eq 0 ];then \
+               log "BuildInProgress$([[ -n $LOG ]] && echo "($LOG)"; ): ${@}";\
+             i=0;\
+           fi;\
+           sleep 1;\
+          done;\
+          if [[ -n $VERBOSE ]];then log "done: ${@}";fi; ) &
+    fi
+    if [[ -n $NO_OUTPUT ]];then
+        "${@}" >>"$LOG" 2>&1;ret=$?
+    else
+        if [[ -n $LOG ]] && has_command tee;then
+            pipe_return "tee -a $LOG" "${@}";ret=$?
+        else
+            "${@}";ret=$?
+        fi
+    fi
+    if [[ -e "$TMPTIMER" ]]; then rm -f "${TMPTIMER}";fi
+    if [[ -z ${OUTPUT_IN_ERROR_NO_WAIT-} ]];then wait;fi
+    if [ -e "$LOG" ] &&  [[ "${ret}" != "0" ]] && [[ -n $NO_OUTPUT ]];then
+        cat "$LOG" >&2
+    fi
+    if [[ -n ${OUTPUT_IN_ERROR_DEBUG-} ]];then set +x;fi
+    return ${ret}
+}
+output_in_error_post() {
+    if [[ -e "$TMPTIMER" ]]; then rm -f "${TMPTIMER}";fi
+    if [[ -e "$LOG" ]] && [[ -n $CLEANUP_LOG ]];then rm -f "$LOG";fi
+}
+test_silent_log() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] ) ); }
+test_silent() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT-} ]] || test_silent_log ) ); }
+silent_run_() { (LOG=${SILENT_LOG:-${LOG}};NO_OUTPUT=;\
+                 if test_silent;then NO_OUTPUT=y;fi;output_in_error "$@";) }
+silent_run() { ( silent_run_ "${@}" ; ); }
+run_silent() { SILENT=${SILENT-1} silent_run "${@}"; }
+vvv() { debug "${@}";silent_run "${@}"; }
+vv() { log "${@}";silent_run "${@}";}
+silent_vv() { SILENT_LOG=${SILENT_LOG-} SILENT=${SILENT-1} vv "${@}"; }
+version_lte() { [  "$1" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
+version_lt() { [ "$1" = "$2" ] && return 1 || version_lte $1 $2; }
+version_gte() { [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
+version_gt() { [ "$1" = "$2" ] && return 1 || version_gte $1 $2; }
+is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux"; }
+is_debian_like() { echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"; }
+is_redhat_like() { echo $DISTRIB_ID | egrep -iq "fedora|centos|redhat|red-hat"; }
+set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
+detect_os() {
+    # this function should be copiable in other scripts, dont use adjacent functions
+    UNAME="${UNAME:-"$(uname | awk '{print tolower($1)}')"}"
+    PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    SED="sed"
+    if [ "x${UNAME}" != "xlinux" ] && hash -r gsed >/dev/null 2>&1; then
+        SED=gsed
+    fi
+    DISTRIB_CODENAME=""
+    DISTRIB_ID=""
+    DISTRIB_RELEASE=""
+    if hash -r lsb_release >/dev/null 2>&1; then
+        DISTRIB_ID=$(lsb_release -si)
+        DISTRIB_CODENAME=$(lsb_release -sc)
+        DISTRIB_RELEASE=$(lsb_release -sr)
+    elif [ -e /etc/lsb-release ];then
+        debug "No lsb_release, sourcing manually /etc/lsb-release"
+        DISTRIB_ID=$(. /etc/lsb-release;echo ${DISTRIB_ID})
+        DISTRIB_CODENAME=$(. /etc/lsb-release;echo ${DISTRIB_CODENAME})
+        DISTRIB_RELEASE=$(. /etc/lsb-release;echo ${DISTRIB_RELEASE})
+    elif [ -e /etc/os-release ];then
+        DISTRIB_ID=$(. /etc/os-release;echo $ID)
+        DISTRIB_CODENAME=$(. /etc/os-release;echo $VERSION)
+        DISTRIB_CODENAME=$(echo $DISTRIB_CODENAME |sed -e "s/.*(\([^)]\+\))/\1/")
+        DISTRIB_RELEASE=$(. /etc/os-release;echo $VERSION_ID)
+    elif [ -e /etc/redhat-release ];then
+        RHRELEASE=$(cat /etc/redhat-release)
+        DISTRIB_CODENAME=${RHRELEASE}
+        DISTRIB_RELEASE=${RHRELEASE}
+        DISTRIB_ID=${RHRELEASE}
+        DISTRIB_CODENAME=$(echo $DISTRIB_CODENAME |sed -e "s/.*(\([^)]\+\))/\1/")
+        DISTRIB_RELEASE=$(echo $DISTRIB_RELEASE |sed -e "s/release \([0-9]\)/\1/")
+        DISTRIB_ID=$(echo $DISTRIB_ID | awk '{print tolower($1)}')
+    else
+        if ! ( echo ${@-} | grep -q no_fail );then
+            echo "unexpected case, no lsb_release" >&2
+            exit 1
+        fi
+    fi
+    export DISTRIB_ID DISTRIB_CODENAME DISTRIB_RELEASE
+}
+get_command() {
+    local p=
+    local cmd="${@}"
+    if which which >/dev/null 2>/dev/null;then
+        p=$(which "${cmd}" 2>/dev/null)
+    fi
+    if [ "x${p}" = "x" ];then
+        p=$(export IFS=:;
+            echo "${PATH-}" | while read -ra pathea;do
+                for pathe in "${pathea[@]}";do
+                    pc="${pathe}/${cmd}";
+                    if [ -x "${pc}" ]; then
+                        p="${pc}"
+                    fi
+                done
+                if [ "x${p}" != "x" ]; then echo "${p}";break;fi
+            done )
+    fi
+    if [ "x${p}" != "x" ];then
+        echo "${p}"
+    fi
+}
+cleanup_docker_tag() { echo "${@}"|sed -re "s/\.|[-_]//g"|awk '{print tolower($0)}'; }
+get_container_id() { local n=${1};local cid=$(docker ps -q -a --filter 'name='$n); echo "${cid}"; }
+sane_container_name() { local n=${1};n=${n//:/};n=${n//_/};n=${n//-/};n=${n//\//};n=${n//\./};echo $n; }
+get_images() { docker images --no-trunc -q "${@}" 2>/dev/null|awk '!seen[$0]++'; }
+get_image() { get_images "${@}" | head -n 1; }
+get_docker_ids() { docker inspect -f '{{.Id}}' "${@}" 2>/dev/null; }
+save_container() {
+    local n="${1}"
+    local d="${2:-${n}}"
+    local running=$(docker ps -q    --filter 'name='$n)
+    if [[ -n "${running}" ]];then
+        vv docker kill "${running}"
+    fi
+    local cid=$(get_container_id $n)
+    if [[ -n "${cid}" ]];then
+        vv docker commit "$cid" "$d"
+        vv docker rm "$cid"
+    else
+        img=${initial_img}
+    fi
+}
+get_git_changeset() { ( cd "${1:-$(pwd)}" && git log HEAD|head -n1|awk '{print $2}'); }
+get_git_branch() {
+   ( cd "${1:-$(pwd)}" &&\
+     git rev-parse --abbrev-ref HEAD | grep -v HEAD || \
+     git describe --exact-match HEAD 2> /dev/null || \
+     git rev-parse HEAD)
+}
+get_git_branchs() { ( cd "${1:-$(pwd)}" && git branch|sed -e "s/^\*\? \+//g"); }
+get_full_chrono() { date "+%F_%H-%M-%S-%N"; }
+get_random_slug() { len=${1:-32};strings=${2:-'a-zA-Z0-9'};echo "$(cat /dev/urandom|tr -dc "$strings"|fold -w ${len}|head -n 1)"; }
+may_sudo() {
+    if [ "$(whoami)" != "root" ] && [ -z "${NO_SUDO-}" ];then
+        echo "sudo $([[ -z $DIRECT_SUDO ]] && echo "-HE")"
+    fi
+}
+get_ancestor_from_dockerfile() {
+    local dockerfile=${1}
+    local ancestor=
+    if [[ -e "${dockerfile}" ]] && egrep -q ^FROM "${dockerfile}"; then
+        ancestor=$(egrep ^FROM "${dockerfile}"\
+            | head -n1 | awk '{print $2}' | xargs -n1| sort -u )
+    fi
+    echo ${ancestor}
+}
+do_tmp_cleanup() {
+    local tmp_dockers=$2
+    local tmp_files=$1
+    local tmp_imgs=$3
+    log "Post cleanup"
+    for tmp_file in ${tmp_files};do
+        if [ -e "${tmp_file}" ]; then
+            vv rm -f "${tmp_file}"
+        fi
+    done
+    for test_docker in ${tmp_dockers};do
+        test_dockerid=$(vvv get_container_id ${test_docker})
+        if [[ "${test_dockerid}" != "" ]]; then
+            log "Removing produced test docker ${test_docker}"
+            docker rm -f "${test_dockerid}"
+        fi
+    done
+    for test_tag in ${tmp_imgs};do
+        test_tagid=$(vvv get_image ${test_tag})
+        if [[ "${test_tagid}" != "" ]]; then
+            log "Removing produced test image: ${test_tag}"
+            docker rmi "${test_tagid}"
+        fi
+    done
+}
+update_wd_to_br() {
+    (
+        local wd="${2:-$(pwd)}"
+        local up_branch="${1}"
+        cd "${wd}" || die "${wd} does not exists"
+        if ! git diff --exit-code -q;then
+            git stash
+        fi &&\
+        vv git pull origin "${up_branch}"
+    )
 
-detect_os
+}
+upgrade_wd_to_br() {
+    (
+        local wd="${2:-$(pwd)}"
+        local up_branch="${1}"
+        cd "${wd}" || die "${wd} does not exists"
+        local test_branch="${3:-$(get_git_branch)}"
+        local existing_gitmodules="$(git submodule status|awk '{print $2}')"
+        if [ "x${test_branch}" != "x${up_branch}" ];then
+            warn "Upgrading $wd to branch: $up_branch"
+            git fetch --all || die "git fetch in $wd failed"
+            if get_git_branchs | egrep -q "^${up_branch}$";then
+                vv git checkout ${up_branch} &&\
+                    vv git reset --hard origin/${up_branch}
+            else
+                vv git checkout origin/${up_branch} -b ${up_branch}
+            fi
+        fi
+        update_wd_to_br $(get_ansible_branch) "${VENV_PATH}/src/ansible" &&\
+        while read subdir;do
+            subdir=$(echo $subdir|sed -e "s/^\.\///g")
+            if [ -h "${subdir}/.git" ] || [ -f "${subdir}/.git" ];then
+                debug "Checking if ${subdir} is always a submodule"
+                if [ -e .gitmodules ] && ( grep -q -- "${subdir}" .gitmodules );then
+                    debug "${subdir} is always a gitmodule"
+                else
+                    warn "${subdir} is not a git submodule anymore"
+                    vv rm -rf "${subdir}"
+                fi
+            fi
+        done < <( echo "${existing_gitmodules}" )
+        if [ -e .gitmodules ];then
+            warn "Upgrading submodules in $wd"
+            vv git submodule update --recursive
+        fi
+    )
+}
+get_python2_() {
+    local py2=
+    for i in python2.7 python2.6 python-2.7 python-2.6 python-2;do
+        local lpy=$(get_command $i 2>/dev/null)
+        if [[ -n $lpy ]] && ( ${lpy} -V 2>&1| egrep -qi 'python 2' );then
+            py2=${lpy}
+            break
+        fi
+    done
+    echo $py2
+}
+get_python2() { ( deactivate 2>/dev/null;get_python2_; ) }
+make_virtualenv() {
+    local py=${1:-$(get_python2)}
+    local venv_path=${2-${VENV_PATH:-$(pwd)/venv}}
+    local PIP_CACHE=${PIP_CACHE:-${venv_path}/cache}
+    if     [ ! -e "${venv_path}/bin/activate" ] \
+        || [ ! -e "${venv_path}/lib" ] \
+        || [ ! -e "${venv_path}/include" ] \
+        ; then
+        bs_log "Creating virtualenv in ${venv_path}"
+        if [ ! -e "${PIP_CACHE}" ]; then
+            mkdir -p "${PIP_CACHE}"
+        fi
+        if [ ! -e "${venv_path}" ]; then
+            mkdir -p "${venv_path}"
+        fi
+    virtualenv \
+        $( [[ -n $py ]] && echo "--python=$py"; ) \
+        --system-site-packages --unzip-setuptools \
+        "${venv_path}" &&\
+    ( . "${venv_path}/bin/activate" &&\
+      "${venv_path}/bin/easy_install" -U setuptools &&\
+      "${venv_path}/bin/pip" install -U pip &&\
+      deactivate; )
+    fi
+}
+ensure_last_python_requirement() {
+    local i=
+    local copt=
+    local PIP_CACHE=${PIP_CACHE:-${VENV_PATH}/cache}
+    if pip --help | grep -q download-cache; then
+        copt="--download-cache"
+    else
+        copt="--cache-dir"
+    fi
+    for i in $@;do
+        log "Installing last version of $i"
+        pip install -U $copt "${PIP_CACHE}" $i
+    done
+}
+filtered_ansible_playbook_custom() {
+    filter=${1:-${ANSIBLE_FILTER_OUTPUT}}
+    shift
+    (((( \
+        vv bin/ansible-playbook  "${@}" ; echo $? >&3) \
+        | egrep -iv "${filter}" >&4) 3>&1) \
+        | (read xs; exit $xs)) 4>&1
+    return $?
+}
+filtered_ansible_playbook() { filtered_ansible_playbook_ "" "${@}"; }
+usage() { die 128 "No usage found"; }
+# END: corpusops common glue
 
 usage() {
     echo '
@@ -309,7 +739,6 @@ prepare_install() {
                         candidates="${candidates} ${i}"
                     else
                         secondround="${secondround} ${i}"
-                        warn "Package '${i}' not found before update"
                     fi
                 else
                     debug "Package '${i}' found"
@@ -324,7 +753,6 @@ prepare_install() {
                         candidates="${candidates} ${i}"
                     else
                         secondround_extra="${secondround_extra} ${i}"
-                        warn "EXTRA Package '${i}' not found before update"
                     fi
                 else
                     debug "EPackage '${i}' found"
@@ -337,6 +765,12 @@ prepare_install() {
             if [ "x${DO_UPDATE}" = "xdefault" ];then
                 DO_UPDATE=""
             fi
+        fi
+        if [[ -n $secondround ]];then
+            warn "Packages $(echo ${secondround}) not found before update"
+        fi
+        if [[ -n $secondround_extra ]];then
+            warn "EXTRA Packages $(echo ${secondround_extra}) not found before update"
         fi
         #
         #
@@ -423,6 +857,7 @@ install() {
     fi
 }
 
+detect_os
 parse_cli "${@}"
 setup
 prepare_install  # calls: update
