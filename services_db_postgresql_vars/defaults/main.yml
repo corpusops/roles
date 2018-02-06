@@ -68,7 +68,7 @@ corpusops_services_db_postgresql_wrapped_binaries: [
   pg_restore, pg_isready, createlang, droplang]
 corpusops_services_db_postgresql_dist: "{{ansible_distribution_release}}"
 corpusops_services_db_postgresql_user: 'postgres'
-corpusops_services_db_postgresql_version: '9.6'
+corpusops_services_db_postgresql_version: '10'
 corpusops_services_db_postgresql_encoding: 'utf8'
 corpusops_services_db_postgresql_locale: 'fr_FR.UTF-8'
 corpusops_services_db_postgresql_postgis_db: 'postgis'
