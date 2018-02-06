@@ -75,36 +75,36 @@
     - ``cops_vars_registry_name``: final variable name
 
 ### Updating a complex variable: tips'n'tricks
-- To let users redefine/rework later in the deployment process lists or dict, we added the ``__default`` machinery:
+- To let users redefine/rework later in the deployment process lists or dict, we added the ``<triple_>default``: ``___default`` machinery:
     ```yaml
     ---
-    foo_muche__default: [1, 2]
-    # => 
-    foo_muche__default: [1, 2]
+    foo_muche___default: [1, 2]
+    # =>
+    foo_muche___default: [1, 2]
     foo_muche: [1, 2]
-    foo_vars: 
+    foo_vars:
       muche: [1, 2]
-      muche__default: [1, 2]
+      muche___default: [1, 2]
     ```
-- Then later, to update a list, you can use something like the    
+- Then later, to update a list, you can use something like the
 
   ```yaml
   custom_muche: [3, 4]
-  foo_muche: "{{foo_muche___default+custom_muche}}"
+  foo_muche: "{{foo_muche____default+custom_muche}}"
   ```
-    
-- Then later, to update a dict, you can use something like the    
+
+- Then later, to update a dict, you can use something like the
 
   ```yaml
-  foo_muche__default: {1: 2}
+  foo_muche___default: {1: 2}
   custom_muche: {3, 4}
   foo_muche: "{{(
-      ( vars['foo_muche__default']|copsf_deepcopy)
+      ( vars['foo_muche___default']|copsf_deepcopy)
       | copsf_dictupdate(custom_muche)
       | to_json
       )}}"
   ```
-    
+
 
 ## Role variables
 To see variables for this role, call it directly via
