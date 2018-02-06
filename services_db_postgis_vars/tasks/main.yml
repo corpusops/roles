@@ -26,7 +26,9 @@
       {% endif %}
 
       {% if not namespaced['version'] %}
-      {% if   (vars[pgprefix+'version'] | copsf_looseversion) >= ('9.6'|copsf_looseversion)  %}
+      {% if   (vars[pgprefix+'version'] | copsf_looseversion) >= ('10'|copsf_looseversion)  %}
+      {% set _ = namespaced.update({'version': '2.4'}) %}
+      {% elif   (vars[pgprefix+'version'] | copsf_looseversion) >= ('9.6'|copsf_looseversion)  %}
       {% set _ = namespaced.update({'version': '2.3'}) %}
       {% elif (vars[pgprefix+'version'] | copsf_looseversion) >= ('9.4|copsf_looseversion')  %}
       {% set _ = namespaced.update({'version': '2.2'}) %}
