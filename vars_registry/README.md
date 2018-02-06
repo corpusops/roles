@@ -74,7 +74,7 @@
     - ``cops_vars_registry_overrides``: variable to get overrides from
     - ``cops_vars_registry_name``: final variable name
 
-### tricks
+### Updating a complex variable: tips'n'tricks
 - To let users redefine/rework later in the deployment process lists or dict, we added the ``__default`` machinery:
     ```yaml
     ---
@@ -86,6 +86,13 @@
       muche: [1, 2]
       muche__default: [1, 2]
     ```
+- Then later, to update a dict, you can use something like the    
+
+  ```yaml
+  custom_muche: [3, 4]
+  foo_muche: "{{foo_muche___default+custom_muche}}"
+  ```
+    
 
 ## Role variables
 To see variables for this role, call it directly via
