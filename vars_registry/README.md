@@ -74,6 +74,19 @@
     - ``cops_vars_registry_overrides``: variable to get overrides from
     - ``cops_vars_registry_name``: final variable name
 
+### tricks
+- To let users redefine/rework later in the deployment process lists or dict, we added the ``__default`` machinery:
+    ```yaml
+    ---
+    foo_muche__default: [1, 2]
+    # => 
+    foo_muche__default: [1, 2]
+    foo_muche: [1, 2]
+    foo_vars: 
+      muche: [1, 2]
+      muche__default: [1, 2]
+    ```
+
 ## Role variables
 To see variables for this role, call it directly via
 ```bash
