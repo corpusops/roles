@@ -86,11 +86,23 @@
       muche: [1, 2]
       muche__default: [1, 2]
     ```
-- Then later, to update a dict, you can use something like the    
+- Then later, to update a list, you can use something like the    
 
   ```yaml
   custom_muche: [3, 4]
   foo_muche: "{{foo_muche___default+custom_muche}}"
+  ```
+    
+- Then later, to update a dict, you can use something like the    
+
+  ```yaml
+  foo_muche__default: {1: 2}
+  custom_muche: {3, 4}
+  foo_muche: "{{(
+      ( vars['foo_muche__default']|copsf_deepcopy)
+      | copsf_dictupdate(custom_muche)
+      | to_json
+      )}}"
   ```
     
 
