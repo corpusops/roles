@@ -1,0 +1,8 @@
+---
+- shell: id -u
+  register: cops_supereditors_user
+  changed_when: false
+- include_jinja_vars:
+    content: |
+      ---
+      cops_supereditors: [{{cops_supereditors_user.stdout}}]
