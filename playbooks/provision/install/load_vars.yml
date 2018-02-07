@@ -1,6 +1,4 @@
 ---
 - hosts: "{{hosts|default('all')}}"
-  become: true
   tasks:
-    - include_tasks: ./tasks/load_vars.yml
-
+  - include_tasks: tasks/load_vars.yml
