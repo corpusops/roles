@@ -1,4 +1,45 @@
 ---
+corpusops_localsettings_basepkgs_cops_do_format_resolve: true
+corpusops_localsettings_basepkgs_cops_computed_defaults: []
+corpusops_localsettings_basepkgs_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_basepkgs_cops_subos_append:
+  ubuntu:
+    os: debian
+    vars: ['packages', 'packages_nonminimal']
+corpusops_localsettings_basepkgs_cops_knobs: [
+  'files', 'filescopy', 'services', 'configs', 'packages',
+  'mirror', 'comps', 'repo', 'version', 'versions',
+  'packages_nonminimal', 'packages_not_in_docker',
+  'bins', 'configs', 'sources_lists',
+  ]
+corpusops_localsettings_basepkgs_cops_lowered: ['repo']
+corpusops_localsettings_basepkgs_cops_sub_namespaces:
+  settings: {}
+corpusops_localsettings_basepkgs_activated: True
+corpusops_localsettings_basepkgs_dist: "{{ansible_lsb.codename}}"
+corpusops_localsettings_basepkgs_packages_not_in_docker: null
+corpusops_localsettings_basepkgs_packages_not_in_docker_debian:
+      - bash-completion
+      - busybox-static
+      - dosfstools
+      - dmidecode
+      - ifupdown
+      - lsof
+      - openssh-client
+      - screen
+      - time
+      - uuid-runtime
+      - procps
+corpusops_localsettings_basepkgs_packages_not_in_docker_redhat:
+      - bash-completion
+      - dmidecode
+      - dosfstools
+      - lsof
+      - mailcap
+      - openssh-clients
+      - passwd
+      - screen
+      - time
 corpusops_localsettings_basepkgs_packages: null
 corpusops_localsettings_basepkgs_packages_debian:
       - acl
