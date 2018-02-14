@@ -63,7 +63,7 @@ corpusops_localsettings_basepkgs_packages_debian:
       - file
       - findutils
       - ifupdown
-      - language-selector-common
+      - "{% if ansible_distribution.lower() in ['ubuntu']%}language-selector-common{%else%}{# noop pkg #}dpkg{%endif%}"
       - locales
       - logrotate
       - lsb-release
