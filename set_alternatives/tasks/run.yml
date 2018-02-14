@@ -6,7 +6,7 @@
     {% set q='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set q=''%}{% endif %}
     {% set atarget = adata.get(
       'target', '/usr/bin/{0}'.format(aname)).format(**vars) %}
-    set -e; {# set -x;#}
+    set -e;
     abspath() {
       realpath $(readlink -f "{{atarget}}" || : ; ) 2>/dev/null || : ;
     }
@@ -18,45 +18,55 @@
     {%    set itarget = idata.get('target', i).format(**vars) %}
     if [ "x{{itarget}}" != "x" ];then
       aitarget=$(abspath "{{itarget}}")
-      if [ "x${resetto}" = "x" ] && \
-         [ -e "{{itarget}}" ];then
+      if [ "x${resetto}" = "x" ] && [ -e "{{itarget}}" ];then
           afound="1"
           if [ "x${current}" != "x${aitarget}" ];then
             resetto="{{itarget}}"
           fi
+      else
+        echo "{{itarget}} not found">&2
       fi
     fi
     {%  endfor %}
     {% endfor %}
-    if [ "x${afound}" != "x" ];then
-      echo "{{aname}} alternative will change to ${resetto}";
-      if update-alternatives --help | grep -q remove-all;then
-        {# ubuntu #}
-        update-alternatives {{q}} --remove-all {{aname}} || true;
-      elif [ -e /var/lib/alternatives/{{aname}} ];then
-        {# redhat #}
-        rm -f /var/lib/alternatives/{{aname}};
+    if ( which update-alternatives >/dev/null 2>&1 );then
+      if [ "x${afound}" != "x" ];then
+        echo "{{aname}} alternative will change to ${resetto}";
+        if update-alternatives --help | grep -q remove-all;then
+          {# ubuntu #}
+          update-alternatives {{q}} --remove-all {{aname}} || true;
+        elif [ -e /var/lib/alternatives/{{aname}} ];then
+          {# redhat #}
+          rm -f /var/lib/alternatives/{{aname}};
+        fi
+      else
+        echo "{{aname}} alternative not found"
+        exit 1
       fi
-    else
-      echo "{{aname}} alternative not found"
+      {% for binaries in adata.bins %}
+      {%  set aloop = loop %}
+      {%  for i, idata in binaries.items() %}
+      {%    set itarget = idata.get('target', i) %}
+      if [ -e "{{itarget}}" ];then
+        update-alternatives {{q}} \
+          --install "{{atarget}}" "{{aname}}" "{{itarget}}" {{aloop.index0}}
+      fi
+      {%  endfor %}
+      {% endfor %}
+    elif [ "x$resetto" = "x" ] && [ "x$current" = "x" ];then
+      echo "no target to reset to (candidate: $(abspath "{{atarget}}")"
       exit 1
     fi
-    {% for binaries in adata.bins %}
-    {%  set aloop = loop %}
-    {%  for i, idata in binaries.items() %}
-    {%    set itarget = idata.get('target', i) %}
-    if [ -e "{{itarget}}" ];then
-      update-alternatives {{q}} \
-        --install "{{atarget}}" "{{aname}}" "{{itarget}}" {{aloop.index0}}
-    fi
-    {%  endfor %}
-    {% endfor %}
     if [ "x${resetto}" != "x" ];then
-      update-alternatives --set {{aname}} ${resetto}
-      echo "{{aname}} alternative changed";
+      if ( which update-alternatives >/dev/null 2>&1 );then
+        update-alternatives --set {{aname}} ${resetto}
+        echo "{{aname}} alternative changed";
       else
-        echo "{{aname}} alternative already set";
+          ln -vfs "$resetto" "{{atarget}}"
       fi
+    else
+      echo "{{aname}} alternative already set";
+    fi
     echo "{{aname}} alternative set"
   register: corpusops_set_alternatives
   with_dict: "{{alternatives}}"

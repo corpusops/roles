@@ -108,11 +108,12 @@
       {{ {'r': ret} | to_json }}
   changed_when: False
   register: install_one_archivetr
+- debug: {msg: "{{archive_vars.app_path}}"}
 - name: get archive - SHA CRC
   get_url:
     remote_src: true
     url: "{{archive_vars.urls.archive}}"
-    dest: "{{archive_vars.app_path}}"
+    dest: "{{archive_vars.app_path}}/{{archive_basename}}"
     mode: "{{archive_vars.mode}}"
     checksum: "{{install_shamode.msg}}:{{install_one_shas.stdout.split()[0]}}"
   when: "not corpusops_uo_tests.msg.done and install_one_archivetr.msg.r"
@@ -121,7 +122,7 @@
   get_url:
     remote_src: true
     url: "{{archive_vars.urls.archive}}"
-    dest: "{{archive_vars.app_path}}"
+    dest: "{{archive_vars.app_path}}/{{archive_basename}}"
     mode: "{{archive_vars.mode}}"
   when: "(not corpusops_uo_tests.msg.done and
           not corpusops_uo_tests.msg.verify_sha1 and
