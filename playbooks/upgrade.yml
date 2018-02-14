@@ -14,13 +14,15 @@
       tags: [cops, upgrade_cops]
       shell: |-
              cd "{{cops_root}}"
-             git pull
+             gargs=$(if [ "x$(git config user.email)" = "x" ];then echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops";fi)
+             git $gargs pull
              bin/install.sh -C -s
       when: "cops_stat.stat.exists"
     - name: upgrade ms
       tags: [ms, upgrade_ms]
       shell: |-
              cd "{{ms_root}}"
-             git pull
+             gargs=$(if [ "x$(git config user.email)" = "x" ];then echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops";fi)
+             git $gargs pull
              bin/boot-salt2.sh -C --synchronize-code
       when: "ms_stat.stat.exists"

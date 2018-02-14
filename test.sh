@@ -92,7 +92,11 @@ install_cached_corpusops() {
     fi &&\
     if [[ -n "$FORCE_PULL" ]];then
         echo "Sync corpusops from origin (only bootstrap)"
-        ( cd "$LOCAL_COPS_ROOT" && git pull; )
+        ( cd "$LOCAL_COPS_ROOT" && \
+          gargs=$(if [ "x$(git config user.email)" = "x" ];then \
+            echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops" \
+          fi) && \
+          git $gargs pull; )
     fi &&\
     if [[ -n "${SYNC_CORPUSOPS-}" ]];then
         log "Sync back local corpusops tree to image"
@@ -252,4 +256,4 @@ if [[ ${ret_vars} != 0 ]];then
     ret=57
 fi
 exit ${ret}
-# vim:set et sts=4 ts=4 tw=80:
+# vim:set et sts=4 ts=4 tw=0:
