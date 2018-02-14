@@ -8,62 +8,64 @@
   when: "(ansible_os_family == 'Debian' and
           corpusops_localsettings_locales_vars.packages is not none and
           corpusops_localsettings_locales_vars.packages|length > 0)"
-  tags: corpusops_localsettings_locales
 - shell: locale -a | sed -re "s/utf8/UTF-8/g"
   failed_when: False
   changed_when: False
   register: corpusops_localsettings_locales_installed_locales
-  tags: corpusops_localsettings_locales
+
 - shell: |
     {% set localeo = item %}
     {% set locale = localeo.replace(
           '-', '').replace(
             'utf8', 'UTF-8').replace(
               'UTF8', 'UTF-8') %}
-    {% if '@' in locale %}
-    {%   set cp = locale.split('@', 1)[1] %}
-    {%   set lang = locale.split('@', 1)[0] %}
-    {% elif '.' in locale %}
-    {%   set cp = locale.split('.', 1)[1] %}
+    {% if '.' in locale %}
+    {%   set cp = locale.split('.', 1)[1].split('@', 1)[0] %}
     {%   set lang = locale.split('.', 1)[0] %}
     {% else %}
     {%   set cp = None  %}
-    {%   set lang = locale %}
+    {% endif %}
+    {% if '@' in locale %}
+    {%  set variant = '@'+locale.split('@', 1)[0] %}
+    {% else %}
+    {%  set variant = '' %}
     {% endif %}
     set -ex
     {% if ansible_os_family.lower() in ['debian'] %}
+    if [ -e /etc/locale.gen ] && ! (
+      egrep -q "^{{lang.lower()}}.*{{variant}}.*{{cp.lower()}}" /etc/locale.gen
+    );then
+      echo "Adding {{lang}} {{cp}} to gen"
+      echo "{{lang}}{% if 'iso' not in cp.lower() %}.{{cp}}{%endif%}{{variant}} {{cp}}">>/etc/locale.gen
+    fi
     locale-gen {{locale}}
     {%   if localeo != locale %}
     locale-gen {{localeo}}
     {%   endif %}
     {% endif %}
     {% if ansible_os_family.lower() in ['redhat'] %}
-    localedef -c -f {{cp}} -i {{lang}} {{locale}}
+    localedef -c {%if cp %}-f {{cp}}{%endif%} -i {{lang}} {{locale}}
     {%   if localeo != locale %}
-    localedef -c -f {{cp}} -i {{lang}} {{localeo}}
+    localedef -c {%if cp %}-f {{cp}}{%endif%} -i {{lang}} {{localeo}}
     {%   endif %}
     {% endif %}
   with_items: '{{corpusops_localsettings_locales_vars.locales}}'
   when: 'item not in corpusops_localsettings_locales_installed_locales.stdout_lines'
-  tags: corpusops_localsettings_locales
 - shell: locale -a | sed -re "s/utf8/UTF-8/g"
   failed_when: False
   changed_when: False
   register: corpusops_localsettings_locales_installed_locales2
-  tags: corpusops_localsettings_locales
 
 - name: Ensure that specified locales exist
   debug: msg=locales
   failed_when: "(item not in
                  corpusops_localsettings_locales_installed_locales2.stdout_lines)"
   with_items: '{{corpusops_localsettings_locales_vars.locales}}'
-  tags: corpusops_localsettings_locales
 
 - shell: which update-locale
   failed_when: False
   changed_when: False
   register: corpusops_localsettings_locales_has_updatelocales
-  tags: corpusops_localsettings_locales
   when: "ansible_os_family.lower() in ['debian']"
 - shell: |
     grep -q \
@@ -72,7 +74,6 @@
   failed_when: False
   changed_when: False
   register: corpusops_localsettings_locales_installed_default
-  tags: corpusops_localsettings_locales
   when: "ansible_os_family.lower() in ['debian']"
 - name: Set default system locale
   debconf:
@@ -82,7 +83,6 @@
     value: '{{corpusops_localsettings_locales_vars.locale}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_locales_vars.locale is not none)"
-  tags: corpusops_localsettings_locales
 - shell: |
     update-locale LANG="{{ corpusops_localsettings_locales_vars.locale}}"
   when: "(
@@ -102,5 +102,3 @@
   with_items: "{{corpusops_localsettings_locales_vars.configs}}"
   when: "(corpusops_localsettings_locales_vars.configs is not none and
           corpusops_localsettings_locales_vars.configs|length > 0)"
-  tags: corpusops_localsettings_locales
-
