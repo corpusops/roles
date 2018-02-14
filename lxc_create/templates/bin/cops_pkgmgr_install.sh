@@ -1,32 +1,46 @@
 #!/usr/bin/env bash
-ANSIBLE_FILTER_OUTPUT="(^("
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(included|skipping):|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(task|play)\s+(recap|\[(debug|all|include|setup)\])|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*$|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}(ok|changed):\s+\[localhost\]( => {)?$|"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}\s*(\"msg|([{}]$))"
-ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
-DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
+# BEGIN: corpusops common glue
+# scripts vars
+SCRIPT=$0
+LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
+SCRIPT_NAME=$(basename "${SCRIPT}")
+SCRIPT_DIR=$(cd "$(dirname $0)" && pwd)
+SCRIPT_ROOT=${SCRIPT_ROOT:-$(dirname $SCRIPT_DIR)}
+# OW: from where script was called (must be defined from callee)
+OW="${OW:-$(pwd)}"
+# W is script_dir/..
+W=${OVERRIDEN_W:-$(cd "$SCRIPT_DIR/.." && pwd)}
+#
+#
+DEFAULT_COPS_ROOT="/srv/corpusops/corpusops.bootstrap"
+DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap"
+#
+SYSTEM_COPS_ROOT=${SYSTEM_COPS_ROOT-$DEFAULT_COPS_ROOT}
+DOCKER_COPS_ROOT=${DOCKER_COPS_ROOT-$SYSTEM_COPS_ROOT}
 COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
 BASE_PREPROVISION_IMAGES="ubuntu:latest_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:16.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:14.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/centos:7_preprovision"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
+
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:16.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:14.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/centos:7"
 BASE_IMAGES="$BASE_PREPROVISION_IMAGES $BASE_CORE_IMAGES"
-
-# scripts vars
-SCRIPT=$0
-LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
-SCRIPT_NAME=$(basename "${SCRIPT}")
-SCRIPT_DIR=$(cd "$(dirname $0)" && pwd)
-# OW: from where script was called (must be defined from callee)
-OW="${OW:-$(pwd)}"
-# W is script_dir/..
-W=${W:-$(cd "$SCRIPT_DIR/.." && pwd)}
+EXP_PREPROVISION_IMAGES=""
+EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES archlinux:latest_preprovision"
+EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:latest_preprovision"
+EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:stretch_preprovision"
+EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:jessie_preprovision"
+EXP_CORE_IMAGES=""
+EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/archlinux:latest"
+EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:latest"
+EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:stretch"
+EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:jessie"
+EXP_IMAGES="$EXP_PREPROVISION_IMAGES $EXP_CORE_IMAGES"
+#
 # colors
 RED="\\e[0;31m"
 CYAN="\\e[0;36m"
@@ -37,22 +51,8 @@ LOGGER_NAME=${LOGGER_NAME:-corpusops_build}
 ERROR_MSG="There were errors"
 do_trap_() { rc=$?;func=$1;sig=$2;${func};if [ "x${sig}" != "xEXIT" ];then kill -${sig} $$;fi;exit $rc; }
 do_trap() { rc=${?};func=${1};shift;sigs=${@};for sig in ${sigs};do trap "do_trap_ ${func} ${sig}" "${sig}";done; }
-parse_cli() { parse_cli_common "${@}"; }
-parse_cli_common() {
-    USAGE=
-    for i in ${@-};do
-        case ${i} in
-            --no-color|--no-colors|--nocolor|--no-colors)
-                NO_COLOR=1;;
-            -h|--help)
-                USAGE=1;;
-            *) :;;
-        esac
-    done
-    reset_colors
-    if [[ -n ${USAGE} ]]; then
-        usage
-    fi
+is_ci() {
+    return $( ( [[ -n ${TRAVIS-} ]] || [[ -n ${GITLAB_CI} ]] );echo $?;)
 }
 log_() {
     reset_colors;msg_color=${2:-${YELLOW}};
@@ -90,6 +90,25 @@ die_in_error_() {
     ret=${1}; shift; msg="${@:-"$ERROR_MSG"}";may_die "${ret}" "${ret}" "${msg}";
 }
 die_in_error() { die_in_error_ "${?}" "${@}"; }
+die_() { NO_HEADER=y die_in_error_ $@; }
+sdie() { NO_HEADER=y die $@; }
+parse_cli() { parse_cli_common "${@}"; }
+parse_cli_common() {
+    USAGE=
+    for i in ${@-};do
+        case ${i} in
+            --no-color|--no-colors|--nocolor|--no-colors)
+                NO_COLOR=1;;
+            -h|--help)
+                USAGE=1;;
+            *) :;;
+        esac
+    done
+    reset_colors
+    if [[ -n ${USAGE} ]]; then
+        usage
+    fi
+}
 has_command() {
     ret=1
     if which which >/dev/null 2>/dev/null;then
@@ -115,7 +134,7 @@ output_in_error() { ( do_trap output_in_error_post EXIT TERM QUIT INT;\
                       output_in_error_ "${@}" ; ); }
 output_in_error_(){
     if [[ -n ${OUTPUT_IN_ERROR_DEBUG-} ]];then set -x;fi
-    if [[ -n $TRAVIS ]] || [[ -n $GITLAB_CI ]];then
+    if is_ci;then
         DEFAULT_CI_BUILD=y
     fi
     CI_BUILD="${CI_BUILD-${DEFAULT_CI_BUILD-}}"
@@ -179,20 +198,31 @@ output_in_error_post() {
 }
 test_silent_log() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] ) ); }
 test_silent() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT-} ]] || test_silent_log ) ); }
-silent_run_() { (LOG=${SILENT_LOG:-${LOG}};NO_OUTPUT=;\
-                 if test_silent;then NO_OUTPUT=y;fi;output_in_error "$@";) }
+silent_run_() {
+    (LOG=${SILENT_LOG:-${LOG}};
+     NO_OUTPUT=${NO_OUTPUT-};\
+     if test_silent;then NO_OUTPUT=y;fi;output_in_error "$@";)
+}
 silent_run() { ( silent_run_ "${@}" ; ); }
-run_silent() { SILENT=${SILENT-1} silent_run "${@}"; }
+run_silent() {
+    (
+    DEFAULT_RUN_SILENT=1;
+    if [[ -n ${NO_SILENT-} ]];then DEFAULT_RUN_SILENT=;fi;
+    SILENT=${SILENT-DEFAULT_RUN_SILENT} silent_run "${@}";
+    )
+}
 vvv() { debug "${@}";silent_run "${@}"; }
-vv() { log "${@}";silent_run "${@}";}
-silent_vv() { SILENT_LOG=${SILENT_LOG-} SILENT=${SILENT-1} vv "${@}"; }
+vv() { log "${@}";silent_run "${@}"; }
+silent_vv() { SILENT=${SILENT-1} vv "${@}"; }
+quiet_vv() { if [[ -z ${QUIET-} ]];then log "${@}";fi;run_silent "${@}";}
 version_lte() { [  "$1" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_lt() { [ "$1" = "$2" ] && return 1 || version_lte $1 $2; }
 version_gte() { [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_gt() { [ "$1" = "$2" ] && return 1 || version_gte $1 $2; }
-is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux"; }
+is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux|arch"; }
 is_debian_like() { echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"; }
-is_redhat_like() { echo $DISTRIB_ID | egrep -iq "fedora|centos|redhat|red-hat"; }
+is_redhat_like() { echo $DISTRIB_ID \
+        | egrep -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)"; }
 set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
 detect_os() {
     # this function should be copiable in other scripts, dont use adjacent functions
@@ -327,17 +357,22 @@ do_tmp_cleanup() {
         fi
     done
 }
+may_autoadd_git_author() {
+    if [ "x$(git config user.email)" = "x" ];then 
+        echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops"
+    fi
+}
 update_wd_to_br() {
     (
         local wd="${2:-$(pwd)}"
         local up_branch="${1}"
         cd "${wd}" || die "${wd} does not exists"
-        if ! git diff --exit-code -q;then
-            git stash
+        if ! git diff --quiet;then
+            vvv git $(may_autoadd_git_author) stash
+            die_in_error "${wd}: changes can't be stashed"
         fi &&\
-        vv git pull origin "${up_branch}"
+            vv git $(may_autoadd_git_author) pull origin "${up_branch}"
     )
-
 }
 upgrade_wd_to_br() {
     (
@@ -356,7 +391,7 @@ upgrade_wd_to_br() {
                 vv git checkout origin/${up_branch} -b ${up_branch}
             fi
         fi
-        update_wd_to_br $(get_ansible_branch) "${VENV_PATH}/src/ansible" &&\
+        update_wd_to_br "$up_branch" "$wd" &&\
         while read subdir;do
             subdir=$(echo $subdir|sed -e "s/^\.\///g")
             if [ -h "${subdir}/.git" ] || [ -f "${subdir}/.git" ];then
@@ -375,7 +410,7 @@ upgrade_wd_to_br() {
         fi
     )
 }
-get_python2_() {
+get_python2() {
     local py2=
     for i in python2.7 python2.6 python-2.7 python-2.6 python-2;do
         local lpy=$(get_command $i 2>/dev/null)
@@ -386,11 +421,29 @@ get_python2_() {
     done
     echo $py2
 }
-get_python2() { ( deactivate 2>/dev/null;get_python2_; ) }
 make_virtualenv() {
     local py=${1:-$(get_python2)}
-    local venv_path=${2-${VENV_PATH:-$(pwd)/venv}}
+    local DEFAULT_VENV_PATH=$SCRIPT_ROOT/venv
+    local venv_path=${2-${VENV_PATH:-$DEFAULT_VENV_PATH}}
+    local venv=$(get_command $(basename ${VIRTUALENV_BIN:-virtualenv}))
     local PIP_CACHE=${PIP_CACHE:-${venv_path}/cache}
+    if [ "x${DEFAULT_VENV_PATH}" != "${venv_path}" ];then
+        if [ ! -e "${venv_path}" ];then
+            mkdir -p "${venv_path}"
+        fi
+        if [ -e "${DEFAULT_VENV_PATH}" ] && \
+            [ "$DEFAULT_VENV_PATH" != "$venv_path" ] &&\
+            [ ! -h "${DEFAULT_VENV_PATH}" ];then
+            die "$DEFAULT_VENV_PATH is not a symlink but we want to create it"
+        fi
+        if [ -h $DEFAULT_VENV_PATH ] &&\
+            [ "x$(readlink $DEFAULT_VENV_PATH)" != "$venv_path" ];then
+            rm -f "${DEFAULT_VENV_PATH}"
+        fi
+        if [ ! -e $DEFAULT_VENV_PATH ];then
+            ln -s "${venv_path}" "${DEFAULT_VENV_PATH}"
+        fi
+    fi
     if     [ ! -e "${venv_path}/bin/activate" ] \
         || [ ! -e "${venv_path}/lib" ] \
         || [ ! -e "${venv_path}/include" ] \
@@ -402,7 +455,7 @@ make_virtualenv() {
         if [ ! -e "${venv_path}" ]; then
             mkdir -p "${venv_path}"
         fi
-    virtualenv \
+    $venv \
         $( [[ -n $py ]] && echo "--python=$py"; ) \
         --system-site-packages --unzip-setuptools \
         "${venv_path}" &&\
@@ -413,29 +466,27 @@ make_virtualenv() {
     fi
 }
 ensure_last_python_requirement() {
+    local PIP=${PIP:-pip}
+    local COPS_PYTHON=${COPS_PYTHON:-python}
     local i=
+    local PIP_CACHE=${PIP_CACHE:-${VENV_PATH:-$(pwd)}/cache}
+    # inside the for loop as at first pip can not have the opts
+    # but can be upgraded to have them after
     local copt=
-    local PIP_CACHE=${PIP_CACHE:-${VENV_PATH}/cache}
-    if pip --help | grep -q download-cache; then
+    if "$py" "$PIP" --help | grep -q download-cache; then
         copt="--download-cache"
-    else
+    elif $PIP --help | grep -q cache-dir; then
         copt="--cache-dir"
     fi
-    for i in $@;do
-        log "Installing last version of $i"
-        pip install -U $copt "${PIP_CACHE}" $i
-    done
+    log "Installing last version of $@"
+    if [[ -n "$copt" ]];then
+        vvv "$COPS_PYTHON" "$PIP" install \
+            --src "$(get_eggs_src_dir)" -U $copt "${PIP_CACHE}" $@
+    else
+        vvv "$COPS_PYTHON" "$PIP" install \
+            --src "$(get_eggs_src_dir)" -U $@
+    fi
 }
-filtered_ansible_playbook_custom() {
-    filter=${1:-${ANSIBLE_FILTER_OUTPUT}}
-    shift
-    (((( \
-        vv bin/ansible-playbook  "${@}" ; echo $? >&3) \
-        | egrep -iv "${filter}" >&4) 3>&1) \
-        | (read xs; exit $xs)) 4>&1
-    return $?
-}
-filtered_ansible_playbook() { filtered_ansible_playbook_ "" "${@}"; }
 usage() { die 128 "No usage found"; }
 # END: corpusops common glue
 
@@ -448,11 +499,11 @@ OS SUPPORT: debian(& ubuntu) / archlinux / red-hat (centos/rh/fedora)
 [WANTED_EXTRA_PACKAGES="vim"] \
 [WANTED_EXTRA_PACKAGES="nano"] \
 [DO_SETUP=y] [SKIP_SETUP=y] \
-[DO_UPGRADE=y] [SKIP_UPGRADE=y] \
+[DO_UPDATE=y] [SKIP_UPDATE=y] \
 [DO_UPGRADE=y] [SKIP_UPGRADE=y] \
 [DO_INSTALL=y] [SKIP_INSTALL=y] \
 [DEBUG=y"] \
-    '"${0}"' [--help] [packagea] [packageb]'
+    '"${0}"' [--check-os] [--help] [packagea] [packageb]'
 }
 
 APT_CONF_FILE="/etc/apt/apt.conf.d/01buildconfig"
@@ -462,39 +513,54 @@ SKIP_SETUP=${SKIP_SETUP-}
 SKIP_INSTALL=${SKIP_INSTALL-}
 SKIP_UPDATE=${SKIP_UPDATE-}
 SKIP_UPGRADE=${SKIP_UPGRADE-}
+DO_SETUP=${DO_SETUP-default}
 DO_UPGRADE=${DO_UPGRADE-}
 DO_UPDATE=${DO_UPDATE-default}
-DO_SETUP=${DO_SETUP-default}
 DO_INSTALL=${DO_INSTALL-default}
+CHECK_OS=${CHECK_OS-}
 container=${container-}
 
 ###
 i_y() {
     if [[ -n ${NONINTERACTIVE} ]]; then
-        echo "-y"
+        if is_archlinux_like;then
+            echo "--noconfirm"
+        else
+            echo "-y"
+        fi
     fi
 }
 
 ###
 is_pacman_available() {
-    return 1
+    for i in $@;do
+        if ! ( pacman -Si $(i_y) "$i" >/devnull 2>&1 ||\
+                pacman -Sg $(i_y) "$i" >/devnull 2>&1; );then
+            return 1
+        fi
+    done
+    return 0
 }
 
 is_pacman_installed() {
-    return 1
+    for i in $@;do
+        if ! ( pacman -Qi $(i_y) "$i" >/devnull 2>&1; ); then
+            return 1
+        fi
+    done
+    return 0
 }
 
 pacman_update() {
-    return 1
+    vv pacman -Sy $(i_y)
 }
 
 pacman_upgrade() {
-    return 1
+    vv pacman -Syu $(i_y)
 }
 
 pacman_install() {
-    return 1
-    vvv pacman install $@
+    vvv pacman -S $(i_y) $@
 }
 
 ensure_command() {
@@ -507,7 +573,10 @@ ensure_command() {
 }
 
 pacman_setup() {
-    :
+    ensure_command awk core/gawk
+    ensure_command sort core/coreutils
+    ensure_command egrep core/grep
+    ensure_command which core/which
 }
 
 ###
@@ -696,23 +765,28 @@ parse_cli() {
     WANTED_PACKAGES=${WANTED_PACKAGES-}
     for i in ${@-};do
         case $i in
+            --check-os) CHECK_OS=1;;
             --help|-h) :;;
             *) WANTED_PACKAGES="${WANTED_PACKAGES} ${i}";;
         esac
     done
-    if echo ${DISTRIB_ID} | egrep -iq "ubuntu|debian|linuxmint";then
+    if ( is_debian_like; );then
         INSTALLER=aptget
-    elif echo ${DISTRIB_ID} | egrep -iq "archlinux";then
+    elif ( is_archlinux_like; );then
         INSTALLER=pacman
-    elif echo ${DISTRIB_ID} | egrep -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)";then
+    elif ( is_redhat_like; );then
         INSTALLER=yum
         if has_command dnf;then
             INSTALLER=dnf
         fi
     else
-        die "Not supported os ${DISTRIB_ID}"
+        sdie "Not supported os: ${DISTRIB_ID}"
     fi
     debug "INSTALLER: ${INSTALLER}"
+    if [[ -n $CHECK_OS ]];then
+        warn "OS is supported"
+        exit 0
+    fi
 }
 
 update() {
@@ -785,7 +859,7 @@ prepare_install() {
                     if is_${INSTALLER}_available ${i}; then
                         candidates="${candidates} ${i}"
                     else
-                        die "Package '${i}' not found"
+                        sdie "Package '${i}' not found"
                     fi
                 else
                     debug "PostPackage '${i}' found"
