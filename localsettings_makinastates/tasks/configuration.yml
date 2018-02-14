@@ -8,11 +8,12 @@
         "{{corpusops_localsettings_makinastates_vars.url}}" \
         "{{corpusops_localsettings_makinastates_vars.path}}" -b \
         "{{corpusops_localsettings_makinastates_vars.branch}}"
+      gargs=$(if [ "x$(git config user.email)" = "x" ];then echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops";fi)
       cd "{{corpusops_localsettings_makinastates_vars.path}}"
       if ! git diff --quiet; then
-        git stash
+        git $gargs stash
       fi
-      git pull
+      git $gargs pull
     fi
   tags: [clone,
          corpusops_localsettings_makinastates_clone]

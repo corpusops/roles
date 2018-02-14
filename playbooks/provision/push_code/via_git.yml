@@ -90,7 +90,8 @@
       shell: |-
           set -ex;
           cd  "{{__cops_provision_push_code_vars.dest}}";
-          if ! ( git stash; );then echo nothing to stack >&2;fi;
+          gargs=$(if [ "x$(git config user.email)" = "x" ];then echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops";fi)
+          if ! ( git $gargs stash; );then echo nothing to stack >&2;fi;
       register: cops_sync_code_push_code_git_commit_stash
       changed_when: false
     - name: "git remote repo: Reset to wanted commit"
@@ -145,7 +146,8 @@
       shell: |-
           set -ex;
           cd  "{{__cops_provision_push_code_vars.dest}}";
-          if ! ( git stash; );then echo nothing to stack >&2;fi;
+          gargs=$(if [ "x$(git config user.email)" = "x" ];then echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops";fi)
+          if ! ( git $gargs stash; );then echo nothing to stack >&2;fi;
       register: cops_sync_code_push_code_git_commit_stash
       changed_when: false
   - name: "git remote submodule: Update submodule"
