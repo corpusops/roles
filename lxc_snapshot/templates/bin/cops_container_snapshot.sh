@@ -46,6 +46,7 @@ REMOVE="
 /tmp/.saltcloud
 /root/.cache
 /srv/makina-states/var/
+/srv/corpusops/corpusops.bootstrap/venv/cache/
 /home/*/.cache
 "
 # directories to empty out or files to wipe content from
