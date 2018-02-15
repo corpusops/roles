@@ -1,28 +1,5 @@
 ---
-- become: true
-  block:
-    - include_tasks: ./load_vars.yml
-      tags: [cops_provision_sshfs]
-    - shell: |
-        set -ex
-        test -e /usr/bin/sshfs
-      failed_when: false
-      changed_when: false
-      register: cops_sshfs_test1
-      no_log: true
-      tags: [cops_provision_sshfs]
-    - shell: |
-        set -ex
-        test -e /usr/bin/sshfs
-      register: cops_sshfs_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-      tags: [cops_provision_sshfs]
-- include_tasks: ../../install/tasks/sshfs.yml
-  tags: [cops_provision_sshfs]
-  when: >-
-    (((not vars.get('SKIP_INSTALL_SSHFS', False)) and
-     ((cops_sshfs_test2.rc !=0) or
-      (cops_sshfs_test1.rc !=0))) or
-     (vars.get('FORCE_INSTALL_SSHFS', False)))
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_sshfs
+    allow_duplicates: false

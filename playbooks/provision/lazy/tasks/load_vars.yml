@@ -1,2 +1,5 @@
 ---
-- include_tasks: "{{cops_playbooks}}/provision/install/tasks/load_vars.yml"
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_load_vars
+    allow_duplicates: false

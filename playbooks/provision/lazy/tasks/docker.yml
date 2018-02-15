@@ -1,23 +1,5 @@
 ---
-- block:
-    - include_tasks: ./load_vars.yml
-      tags: [cops_provision_docker]
-    - shell: docker ps
-      failed_when: false
-      changed_when: false
-      register: cops_docker_test1
-      no_log: true
-      tags: [cops_provision_docker]
-    - shell: test -e /etc/default/docker
-      register: cops_docker_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-      tags: [cops_provision_docker]
-- include_tasks: "{{cops_playbooks}}/provision/install/tasks/docker.yml"
-  when: >-
-    (((not vars.get('SKIP_INSTALL_DOCKER', False)) and
-      ((cops_docker_test2.rc !=0) or
-      (cops_docker_test1.rc !=0))) or
-     (vars.get('FORCE_INSTALL_DOCKER', False)))
-  tags: [cops_provision_docker]
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_docker
+    allow_duplicates: false

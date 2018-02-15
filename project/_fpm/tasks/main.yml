@@ -1,0 +1,13 @@
+---
+# MAYBE SET: corpusops_localsettings_php_version
+- tags: [cops_provision_fpm]
+  block:
+  - include_role:
+      name: "corpusops.roles/project/_settings"
+      allow_duplicates: false
+  - include_role:
+      name: "corpusops.roles/localsettings_php"
+      allow_duplicates: false
+  - include_role:
+      name: "corpusops.roles/services_php_fpm"
+      allow_duplicates: false

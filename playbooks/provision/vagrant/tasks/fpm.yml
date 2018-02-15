@@ -1,6 +1,6 @@
 ---
-- block:
-    - include_tasks: load_vars.yml
-      tags: [cops_provision_fpm]
-- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/fpm.yml"
-  tags: [cops_provision_fpm]
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/vagrant_fpm
+    allow_duplicates: false
+

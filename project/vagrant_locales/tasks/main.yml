@@ -1,0 +1,9 @@
+---
+- tags: [cops_provision_locales]
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/lazy_locales
+      allow_duplicates: false

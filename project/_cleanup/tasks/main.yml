@@ -1,0 +1,11 @@
+---
+- tags: [cops_provision_cleanup]
+  block:
+  - include_role:
+      name: corpusops.roles/project/_load_vars
+      allow_duplicates: false
+  - shell: |
+      rm -vf /var/cache/apt/archives/*deb
+      rm -rf  /var/lib/apt/lists/*
+    changed_when: false
+    when: ansible_os_family.lower() in ['debian']

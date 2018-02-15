@@ -1,29 +1,5 @@
 ---
-# MAYBE SET: corpusops_localsettings_php_version
-- become: true
-  tags: [cops_provision_fpm]
-  block:
-    - include_tasks: ./load_vars.yml
-    - include_role: {name: "corpusops.roles/services_php_fpm_vars"}
-      when: "not (corpusops_localsettings_php_version|default(''))"
-    - shell: |
-        set -ex
-        test -e /usr/bin/php{{corpusops_localsettings_php_version}}
-      failed_when: false
-      changed_when: false
-      register: cops_fpm_test1
-      no_log: true
-    - shell: |
-        set -ex
-        test -e /usr/local/bin/composer
-      register: cops_fpm_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-- include_tasks: "{{corpusops_localsettings_php_version}}/provision/install/tasks/fpm.yml"
-  tags: [cops_provision_fpm]
-  when: >-
-    (((not vars.get('SKIP_INSTALL_FPM', False)) and
-     ((cops_fpm_test2.rc !=0) or
-      (cops_fpm_test1.rc !=0))) or
-     (vars.get('FORCE_INSTALL_FPM', False)))
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_fpm
+    allow_duplicates: false

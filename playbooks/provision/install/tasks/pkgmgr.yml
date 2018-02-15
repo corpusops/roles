@@ -1,2 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/localsettings_pkgmgr}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/pkgmgr
+    allow_duplicates: false

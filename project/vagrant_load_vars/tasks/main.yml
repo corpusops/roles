@@ -1,0 +1,33 @@
+---
+- tags: [cops_provision_load_vars]
+  become: true
+  block:
+    - name: "VAGRANT: read provision_settings"
+      shell: cat /root/vagrant/provision_machines.json
+      changed_when: false
+      register: provision_machines_raw
+      no_log: "{{not (cops_vars_debug|default(false))}}"
+    - name: "VAGRANT: read provision_settings"
+      shell: cat /root/vagrant/provision_settings.json
+      changed_when: false
+      register: provision_settings_raw
+      no_log: "{{not (cops_vars_debug|default(false))}}"
+    - set_fact:
+        cacheable: false
+        vboxes_cops: "{{provision_machines_raw.stdout|from_json}}"
+        vbox_cops: "{{provision_settings_raw.stdout|from_json}}"
+      no_log: "{{not (cops_vars_debug|default(false))}}"
+    - debug:
+        msg:
+          vboxes_cops: "{{vboxes_cops}}"
+          vbox_cops: "{{vbox_cops}}"
+      when: vboxes_cops.DEBUG
+# cant inline the task as we dinamically include a module
+# we need also to dynamically load the task
+- include_role:
+    name: corpusops.roles/project/lazy_load_vars
+    allow_duplicates: false
+- include_role:
+    name: corpusops.roles/project/_current_user_is_supereditor
+    allow_duplicates: false
+  when: not (SKIP_SET_SUPERDITOR|default(False))

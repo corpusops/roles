@@ -1,5 +1,5 @@
 ---
-- tags: [cops_provision_syncsshkeys]
-  block:
-    - include_tasks: ./load_vars.yml
-    - include_role: {name: corpusops.roles/ssh_synckeys}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/sync_sshkeys
+    allow_duplicates: false

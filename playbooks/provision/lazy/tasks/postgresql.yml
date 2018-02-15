@@ -1,38 +1,5 @@
 ---
-# MAYBE SET: corpusops_services_db_postgresql_version
-- become: true
-  tags: [cops_provision_postgresql]
-  block:
-    - include_tasks: ./load_vars.yml
-    - include_role: {name: "corpusops.roles/services_db_postgresql_vars"}
-      when: "not (corpusops_services_db_postgresql_version|default(''))"
-    - shell: |
-        set -ex
-        test -e /usr/bin/psql
-        test -e /usr/bin/psql-{{corpusops_services_db_postgresql_version}}
-      failed_when: false
-      changed_when: false
-      register: cops_postgresql_test1
-      become_user: postgres
-    - shell: |
-        set -ex
-        echo "select 1"| psql-{{corpusops_services_db_postgresql_version}} -v ON_ERROR_STOP=1 -t -A -F",":
-        psql-{{corpusops_services_db_postgresql_version}} -t -A -F';;;' -c'\l'|egrep -iq {{cops_lang}}
-      register: cops_postgresql_test2
-      changed_when: false
-      failed_when: false
-      become_user: postgres
-    - set_fact:
-        cacheable: false
-        cops_postgresql_test3: false
-  rescue:
-    - set_fact:
-        cacheable: false
-        cops_postgresql_test3: True
-- include_tasks: "{{cops_playbooks}}/provision/install/tasks/postgresql.yml"
-  tags: [cops_provision_postgresql]
-  when: >-
-    (((not vars.get('SKIP_INSTALL_POSTGRESQL', False)) and
-     ((cops_postgresql_test3 or cops_postgresql_test2.rc !=0) or
-      (cops_postgresql_test3 or cops_postgresql_test1.rc !=0))) or
-     (vars.get('FORCE_INSTALL_POSTGRESQL', False)))
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_postgresql
+    allow_duplicates: false

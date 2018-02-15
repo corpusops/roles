@@ -1,0 +1,9 @@
+---
+- tags: [cops_provision_syncsshkeys]
+  block:
+  - include_role:
+      name: corpusops.roles/localsettings_timezone
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/ssh_synckeys
+      allow_duplicates: false
