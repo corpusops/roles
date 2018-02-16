@@ -1,10 +1,6 @@
 ---
-- block:
-  - include_tasks: load_vars.yml
-  - shell: |
-      # rm this cron on vagrant
-      rm -vf /etc/cron.daily/mlocate
-    changed_when: false
-    tags: [cops_provision_cleanup]
-- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/cleanup.yml"
-  tags: [cops_provision_cleanup]
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/vagrant_cleanup
+    allow_duplicates: false
+

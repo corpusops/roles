@@ -1,0 +1,11 @@
+---
+- tags: [cops_provision_cleanup]
+  become: true
+  block:
+  - include_role:
+      name: corpusops.roles/project/lazy_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/_cleanup
+      allow_duplicates: false
+    when: not vars.get('SKIP_CLEANUP', False) or vars.get('FORCE_CLEANUP', False)

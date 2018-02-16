@@ -1,2 +1,5 @@
 ---
-- include_role: {name: "corpusops.roles/project/defaults"}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/load_vars
+    allow_duplicates: false

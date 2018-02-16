@@ -1,0 +1,36 @@
+---
+# Wait for the following vars:
+#  FORCE_COPS_PROVISION_PUSH_CODE: true/false
+#  _cops_provision_push_code:
+#   path: destination path
+#   owner: default: root
+#   group: default: root
+#   origin_path: origin path
+#   origin: origin inventory name (default localhost)
+#   rsync_opts: rsync knobs
+#   rsync_path: rsync path
+#   file_tests: skip if listed files are there (relative path)
+#   sub_paths: submodules to sync (in the form see bellow)
+#   is_directory: (bool) is a dir (add / to end of rsync cmds)
+#   is_submodule: (bool) is a git submodule
+#   update_opts: default: --recursive: opts for submodule update when submodule
+#   sync_mode:
+#      rsync: bare sync asked folders (use case: vagrant/test)
+#      git: sync inner git folders and reset --hard on HEAD commits (use case: staging/prod)
+#   git_folder: git folder (.git)
+- set_fact:
+    cacheable: false
+    __cops_provision_push_codes: "{{__cops_provision_push_codes|default([])}}"
+    ___FORCE_COPS_PROVISION_PUSH_CODE: "{{FORCE_COPS_PROVISION_PUSH_CODE|default(false)}}"
+- block:
+    - tempfile: {}
+      register: __cops_provision_push_code_askpass
+    - include_tasks: setup_askpass.yml
+      when: "ansible_become_pass|default(false)"
+    - include_tasks: register.yml
+    - include_tasks: "via_{{__cops_provision_push_code_vars.sync_mode}}.yml"
+      loop_control: {loop_var: __cops_provision_push_code_vars}
+      with_items: "{{__cops_provision_push_codes}}"
+  always:
+    - include_tasks: cleanup.yml
+      when: "ansible_become_pass|default(false)"

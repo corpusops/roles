@@ -1,3 +1,6 @@
 ---
-- block:
-    - setup: {}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/vagrant_setup
+    allow_duplicates: false
+

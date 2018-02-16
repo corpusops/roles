@@ -1,2 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/localsettings_locales}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/locales
+    allow_duplicates: false
