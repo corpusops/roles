@@ -1,29 +1,5 @@
 ---
-- become: true
-  block:
-    - include_tasks: ./load_vars.yml
-      tags: [cops_provision_makinastates]
-    - shell: |
-        set -ex
-        test -e /srv/makina-states/.git
-      failed_when: false
-      changed_when: false
-      register: cops_makinastates_test1
-      no_log: true
-      tags: [cops_provision_makinastates]
-    - shell: |
-        set -ex
-        test -e /srv/makina-states/venv/bin/ansible
-        test -e /srv/makina-states/venv/bin/salt-call
-      register: cops_makinastates_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-      tags: [cops_provision_makinastates]
-- include_tasks: "{{cops_playbooks}}/install/tasks/makinastates.yml"
-  when: >-
-    (((not vars.get('SKIP_INSTALL_MAKINASTATES', False)) and
-     ((cops_makinastates_test2.rc !=0) or
-      (cops_makinastates_test1.rc !=0))) or
-     (vars.get('FORCE_INSTALL_MAKINASTATES', False)))
-  tags: [cops_provision_makinastates]
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_makinastates
+    allow_duplicates: false

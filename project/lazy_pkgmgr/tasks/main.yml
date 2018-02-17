@@ -1,0 +1,21 @@
+---
+- tags: [cops_provision_pkgmgr]
+  become: true
+  block:
+  - include_role:
+      name: corpusops.roles/project/lazy_load_vars
+      allow_duplicates: false
+  - shell: |
+      set -ex
+      grep -qi "ansible managed" /etc/apt/sources.list
+      test "$(ls -1  /var/lib/apt/lists/|wc -l)" -gt 10
+    register: cops_pkgmgr_test2
+    changed_when: false
+    failed_when: false
+  - include_role:
+      name: corpusops.roles/project/_pkgmgr
+      allow_duplicates: false
+    when: >-
+      (((not vbox_cops.get('SKIP_INSTALL_PKGMGR', False)) and
+       (cops_pkgmgr_test2.rc !=0)) or
+       (vbox_cops.get('FORCE_INSTALL_PKGMGR', False)))

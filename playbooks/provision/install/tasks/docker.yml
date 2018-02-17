@@ -1,2 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/services_virt_docker}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/docker
+    allow_duplicates: false

@@ -1,25 +1,5 @@
 ---
 - hosts: "{{controllers|default('localhost')}}"
   tasks:
-    - include_role: {name: corpusops.roles/ansible_plugins}
-    - block:
-      - file:
-          path: "{{bkey_path.value.path|copsf_dirname}}"
-          state: directory
-          mode: "0700"
-        loop_control: {loop_var: bkey_path}
-        with_dict: "{{cops_deploy_ssh_key_paths}}"
-      - copy:
-          dest: "{{akey_path.value.path}}"
-          content: "{{akey_path.value.private}}"
-          mode: "0600"
-          force: true
-        loop_control: {loop_var: akey_path}
-        with_dict: "{{cops_deploy_ssh_key_paths}}"
-      - copy:
-          dest: "{{ckey_path.value.path}}.pub"
-          content: "{{ckey_path.value.pub}}"
-          mode: "0600"
-          force: true
-        loop_control: {loop_var: ckey_path}
-        with_dict: "{{cops_deploy_ssh_key_paths}}"
+  - include_tasks: tasks/deploy_key_setup.yml
+

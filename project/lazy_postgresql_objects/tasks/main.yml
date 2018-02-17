@@ -1,0 +1,12 @@
+---
+- tags: [cops_provision_postgresql_objects]
+  when: >-
+    ((not vars.get('SKIP_SETUP_POSTGRESQL', False)) or
+     (vars.get('FORCE_SETUP_POSTGRESQL', False)))
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/_postgresql_objects
+      allow_duplicates: false

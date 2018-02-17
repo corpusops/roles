@@ -1,6 +1,5 @@
 ---
-# MAYBE SET: corpusops_services_db_postgresql_version
-- block:
-    - include_role: {name: "{{cops_playbooks}}/provision/defaults"}
-    - include_role: {name: "corpusops.roles/services_db_postgresql"}
-  tags: [cops_provision_postgresql]
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/postgresql
+    allow_duplicates: false

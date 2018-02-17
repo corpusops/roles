@@ -1,62 +1,8 @@
 ---
-- name: 'install alternatives'
-  shell: |
-    {% set aname = item.key.format(**vars) %}
-    {% set adata = item.value %}
-    {% set q='--quiet'%}{% if ansible_os_family.lower() in ['redhat'] %}{% set q=''%}{% endif %}
-    {% set atarget = adata.get(
-      'target', '/usr/bin/{0}'.format(aname)).format(**vars) %}
-    set -ex;
-    abspath() {
-      realpath $(readlink -f "{{atarget}}" || : ; ) 2>/dev/null || : ;
-    }
-    resetto="";afound="";aset="";
-    current=$(abspath "{{atarget}}")
-    if [ ! -e "${current}" ];then current="";fi
-    {%  for binaries in adata.bins %}
-    {%  for i, idata in binaries.items() %}
-    {%    set itarget = idata.get('target', i).format(**vars) %}
-    if [ "x{{itarget}}" != "x" ];then
-      aitarget=$(abspath "{{itarget}}")
-      if [ "x${resetto}" = "x" ] && \
-         [ -e "{{itarget}}" ];then
-          afound="1"
-          if [ "x${current}" != "x${aitarget}" ];then
-            resetto="{{itarget}}"
-          fi
-      fi
-    fi
-    {%  endfor %}
-    {% endfor %}
-    if [ "x${afound}" != "x" ];then
-      echo "{{aname}} alternative will change to ${resetto}";
-      if update-alternatives --help | grep -q remove-all;then
-        {# ubuntu #}
-        update-alternatives {{q}} --remove-all {{aname}} || true;
-      elif [ -e /var/lib/alternatives/{{aname}} ];then
-        {# redhat #}
-        rm -f /var/lib/alternatives/{{aname}};
-      fi
-    else
-      echo "{{aname}} alternative not found"
-      exit 1
-    fi
-    {% for binaries in adata.bins %}
-    {%  set aloop = loop %}
-    {%  for i, idata in binaries.items() %}
-    {%    set itarget = idata.get('target', i) %}
-    if [ -e "{{itarget}}" ];then
-      update-alternatives {{q}} \
-        --install "{{atarget}}" "{{aname}}" "{{itarget}}" {{aloop.index0}}
-    fi
-    {%  endfor %}
-    {% endfor %}
-    if [ "x${resetto}" != "x" ];then
-      update-alternatives --set {{aname}} ${resetto}
-      echo "{{aname}} alternative changed";
-      else
-        echo "{{aname}} alternative already set";
-      fi
-    echo "{{aname}} alternative set"
-  register: corpusops_set_alternatives
-  changed_when: "'alternative changed' in corpusops_set_alternatives.stdout"
+# retrocompat !
+- debug: {msg: "{{item}}"}
+  register: set_alternatives_forwarder
+- include_role:
+    name: corpusops.roles/utils/set_alternatives
+    allow_duplicates: false
+  vars: {item: "{{set_alternatives_forwarder.msg}}"}

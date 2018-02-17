@@ -1,0 +1,9 @@
+---
+- tags: [cops_provision_pkgmgr]
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/lazy_pkgmgr
+      allow_duplicates: false

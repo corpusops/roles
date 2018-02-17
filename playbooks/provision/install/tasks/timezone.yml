@@ -1,2 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/localsettings_timezone}
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/timezone
+    allow_duplicates: false

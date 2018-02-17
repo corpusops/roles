@@ -1,0 +1,9 @@
+---
+- tags: [cops_provision_postgresql]
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/lazy_postgresql
+      allow_duplicates: false

@@ -1,0 +1,9 @@
+---
+- tags: [cops_provision_makinastates]
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/lazy_makinastates
+      allow_duplicates: false

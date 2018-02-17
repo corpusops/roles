@@ -1,0 +1,21 @@
+---
+- when: "ansible_os_family.lower() in ['debian']"
+  tags: [cops_provision_sshfs]
+  block:
+  - name: Install sshfs (debian)
+    package:
+        cache_valid_time: '{{60*60}}'
+        update_cache: yes
+        name: "{{item}}"
+        state: installed
+    with_items: [sshfs]
+- when: "ansible_os_family.lower() in ['redhat']"
+  tags: [cops_provision_sshfs]
+  block:
+  - name: Install sshfs (redhat)
+    package:
+        update_cache: yes
+        enablerepo: epel-testing
+        name: 'yum-utils'
+        state: present
+    with_items: [sshfs]

@@ -1,0 +1,15 @@
+---
+- include_role:
+    name: "corpusops.roles/provision/defaults"
+    allow_duplicates: false
+- include_tasks: role.yml
+  with_items: "{{cops_postgresql_roles|default([])}}"
+  tags: [postgresql, postgresql_manage_content, postgresql_manage_roles]
+- include_tasks: db.yml
+  with_items: "{{cops_postgresql_databases|default([])}}"
+  no_log: true
+  tags: [postgresql, postgresql_manage_content, postgresql_manage_dbs]
+- include_tasks: privs.yml
+  no_log: true
+  with_items: "{{cops_postgresql_privs|default([])}}"
+  tags: [postgresql, postgresql_manage_content, postgresql_manage_privs]

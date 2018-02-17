@@ -1,0 +1,13 @@
+---
+- tags: [cops_provision_syncsshkeys]
+  become: true
+  block:
+  - include_role:
+      name: corpusops.roles/project/lazy_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/_sync_sshkeys
+      allow_duplicates: false
+    when: >-
+      (not vars.get('SKIP_SYNCSSHKEYS', False) or
+       vars.get('FORCE_SYNCSSHKEYS', False))

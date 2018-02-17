@@ -1,0 +1,13 @@
+---
+- tags: [cops_provision_cleanup]
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/lazy_cleanup
+      allow_duplicates: false
+  - shell: |
+      # rm this cron on vagrant
+      rm -vf /etc/cron.daily/mlocate
+    changed_when: false

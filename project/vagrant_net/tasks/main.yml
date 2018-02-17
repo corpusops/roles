@@ -1,0 +1,30 @@
+---
+- tags: [cops_provision_net]
+  block:
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - changed_when: false
+    shell: |
+        {% set HOSTNAME = vbox_cops.HOSTNAME %}
+        {% set FQDN = vbox_cops.FQDN %}
+        set -ex
+        echo '{{HOSTNAME}}' > /etc/hostname
+        hostname '{{HOSTNAME}}'
+        sed -i -re "/::1 .*(localhost|{{FQDN}}|{{HOSTNAME}}).*/d" /etc/hosts
+        sed -i -re "/127.0.0.1 .*(localhost|{{FQDN}}|{{HOSTNAME}}).*/d" /etc/hosts
+        sed -i '1i::1 {{FQDN}} {{HOSTNAME}}' /etc/hosts
+        sed -i '1i127.0.0.1 {{FQDN}} {{HOSTNAME}}' /etc/hosts
+        echo "::1 {{FQDN}} {{HOSTNAME}}" >> /etc/hosts
+        echo "127.0.0.1 {{FQDN}} {{HOSTNAME}}" >> /etc/hosts
+        sed -i -re "/^nameserver /d" /etc/resolv.conf
+        DNS_SERVERS={{vbox_cops.DNS_SERVERS}}
+        if [ "x${DNS_SERVERS}" != "x" ];then
+          echo > /etc/resolv.conf
+          for i in $DNS_SERVERS;do
+              echo "nameserver $i" >> /etc/resolv.conf
+          done
+        fi
+    when: |
+        ((not vbox_cops.get('SKIP_CONFIGURE_NET', False)) or
+          vbox_cops.get('FORCE_CONFIGURE_NET', False))

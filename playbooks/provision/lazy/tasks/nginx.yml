@@ -1,31 +1,5 @@
 ---
-- become: true
-  block:
-    - include_tasks: ./load_vars.yml
-      tags: [cops_provision_nginx]
-    - shell: |
-        set -ex
-        test -e /usr/sbin/nginx
-      failed_when: false
-      changed_when: false
-      register: cops_nginx_test1
-      no_log: true
-      tags: [cops_provision_nginx]
-    - shell: |
-        set -ex
-        test -e /etc/nginx/sites-enabled/default
-        systemctl status nginx
-        test -e /etc/nginx/proxy_params
-        egrep -iq  "Ansible managed" /etc/nginx/nginx.conf
-      register: cops_nginx_test2
-      changed_when: false
-      failed_when: false
-      no_log: true
-      tags: [cops_provision_nginx]
-- include_tasks: ../../install/tasks/nginx.yml
-  tags: [cops_provision_nginx]
-  when: >-
-    (((not vars.get('SKIP_INSTALL_NGINX', False)) and
-     ((cops_nginx_test2.rc !=0) or
-      (cops_nginx_test1.rc !=0))) or
-     (vars.get('FORCE_INSTALL_NGINX', False)))
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/lazy_nginx
+    allow_duplicates: false

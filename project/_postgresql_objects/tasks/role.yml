@@ -1,0 +1,6 @@
+---
+- include_role:
+    name: corpusops.roles/postgresql_role
+    allow_duplicates: false
+  vars:
+    _cops_postgresql_role: "{{item}}"
