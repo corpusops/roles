@@ -1,0 +1,10 @@
+---
+# MAYBE SET: corpusops_services_db_postgresql_version
+- tags: [cops_provision_postgresql]
+  block:
+  - include_role:
+      name: "corpusops.roles/project/_settings"
+      allow_duplicates: false
+  - include_role:
+      name: "corpusops.roles/services_db_postgresql"
+      allow_duplicates: false

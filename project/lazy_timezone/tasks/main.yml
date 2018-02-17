@@ -1,0 +1,20 @@
+---
+- tags: [cops_provision_timezone]
+  become: true
+  block:
+  - include_role:
+      name: corpusops.roles/project/lazy_load_vars
+      allow_duplicates: false
+  - shell: |
+      set -ex
+      xxd  /etc/timezone |egrep -iq {{cops_timezone}}
+    register: cops_timezone_test2
+    changed_when: false
+    failed_when: false
+  - include_role:
+      name: corpusops.roles/project/_timezone
+      allow_duplicates: false
+    when: >-
+      (((not vars.get('SKIP_INSTALL_TIMEZONE', False)) and
+       (cops_timezone_test2.rc !=0)) or
+       (vars.get('FORCE_INSTALL_TIMEZONE', False)))

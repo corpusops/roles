@@ -1,6 +1,6 @@
 ---
-- block:
-    - include_tasks: load_vars.yml
-      tags: [cops_provision_postgresql_objects]
-- include_tasks: "{{cops_playbooks}}/provision/lazy/tasks/postgresql_objects.yml"
-  tags: [cops_provision_postgresql_objects]
+# retrocompat !
+- include_role:
+    name: corpusops.roles/project/vagrant_postgresql_objects
+    allow_duplicates: false
+

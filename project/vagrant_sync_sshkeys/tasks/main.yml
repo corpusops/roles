@@ -1,0 +1,14 @@
+---
+- tags: [cops_provision_syncsshkeys]
+  block:
+  - set_fact:
+      cacheable: false
+      _cops_ssh_synckeys:
+        from_users: [ubuntu, vagrant]
+        to_user: root
+  - include_role:
+      name: corpusops.roles/project/vagrant_load_vars
+      allow_duplicates: false
+  - include_role:
+      name: corpusops.roles/project/lazy_sync_sshkeys
+      allow_duplicates: false
