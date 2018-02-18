@@ -1,4 +1,5 @@
 ---
+- debug: {msg: "{{_cops_provision_push_code}}"}
 - stat:
     path: "{{_cops_provision_push_code.path}}/{{d}}"
   loop_control: {loop_var: d}

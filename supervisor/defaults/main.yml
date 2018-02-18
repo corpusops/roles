@@ -1,0 +1,129 @@
+---
+cops_supervisor_name: default
+cops_supervisor_disabled: "{{not corpusops_localsettings_supervisor_activated}}"
+cops_supervisor_cops_do_format_resolve: true
+cops_supervisor_cops_computed: null
+cops_supervisor_cops_computed_defaults: []
+cops_supervisor_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+cops_supervisor_cops_sub_os_append: {}
+cops_supervisor_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo',]
+cops_supervisor_cops_lowered: ['repo']
+cops_supervisor_cops_sub_namespaces:
+  supervisord: {}
+  supervisorctl: {}
+  inet_http_server: {}
+  unix_http_server: {}
+  program: {}
+  passwords: {}
+cops_supervisor_filescopy: null
+cops_supervisor_filescopy_default: []
+cops_supervisor_files: null
+cops_supervisor_files_default:
+  - {path: "{prefix}",
+     owner: "{user}", group: "{group}", state: directory, mode: "0755"}
+  - {path: "{conf}",
+     owner: "{user}", group: "{group}", state: directory, mode: "0755"}
+  - {path: "{includes_dir}",
+     owner: "{user}", group: "{group}", state: directory, mode: "0755"}
+  - {path: "{includes_dir}",
+     owner: "{user}", group: "{group}", state: directory, mode: "0755"}
+  - {path: "{logdir}",
+     owner: "{user}", group: "{group}", state: directory, mode: "0755"}
+cops_supervisor_control_user: root
+cops_supervisor_control_group: root
+cops_supervisor_configs: null
+cops_supervisor_configs_default:
+  - {name: "{config}",
+     template: "{config_template}",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "{ctl}",
+     template: "{ctl_template}",
+     owner: "{control_user}", group: "{control_group}", state: directory, mode: "750"}
+  - {name: "{initd}",
+     template: "etc/init.d/supervisord",
+     owner: root, group: root, state: directory, mode: "755"}
+  - {name: "/etc/systemd/system/{service}.service",
+     template: "{unit_template}",
+     owner: root, group: root, state: directory, mode: "0644"}
+  - {name: "/etc/logrotate.d/{service}.conf",
+     template: "{logrotate_template}",
+     owner: root, group: root, state: directory, mode: "0644"}
+cops_supervisor_config: "{conf}/supervisord-{name}.conf"
+cops_supervisor_config_template: "etc/supervisord.conf"
+cops_supervisor_logrotate_template: "etc/logrotate.d/supervisord.conf"
+cops_supervisor_unit_template: "etc/systemd/system/supervisord.service"
+cops_supervisor_ctl_template: "usr/bin/supervisorctl"
+cops_supervisor_rotate: "{{corpusops_vars.rotate_days}}"
+cops_supervisor_includes_dir: "{conf}/includes-{name}"
+cops_supervisor_includes: >
+ {includes_dir}/*.conf
+ {includes_dir}/*.ini
+# parameters to set in supervisor configuration section
+cops_supervisor_username: 'admin'
+cops_supervisor_passwords: {}
+cops_supervisor_password:                  null
+cops_supervisor_inet_http_server_password: "{password}"
+cops_supervisor_unix_http_server_password: "{password}"
+cops_supervisor_supervisorctl_password:    "{password}"
+cops_supervisor_pidfile: "{{corpusops_vars.var_run_dir}}/supervisord-{name}.pid"
+cops_supervisor_killmode: control-group
+cops_supervisor_restartsec: 50s
+cops_supervisor_timeoutstopsec: 10s
+cops_supervisor_restart: on-failure
+cops_supervisor_restart_target: all
+cops_supervisor_logdir: "{{corpusops_vars.log_dir}}/supervisord-{name}"
+cops_supervisor_sock: "/tmp/cops_supervisor_{name}.sock"
+cops_supervisor_program_autostart: 'true'
+cops_supervisor_program_autorestart: 'true'
+cops_supervisor_program_stopwaitsecs: '10'
+cops_supervisor_program_startsecs: '10'
+cops_supervisor_program_umask: '022'
+cops_supervisor_inet_http_server_enabled: false
+cops_supervisor_inet_http_server_port: 9001
+cops_supervisor_inet_http_server_username: '{username}'
+cops_supervisor_unix_http_server_enabled: true
+cops_supervisor_unix_http_server_file: "{sock}"
+cops_supervisor_unix_http_server_chmod: '0777'
+cops_supervisor_unix_http_server_chown: 'nobody:nogroup'
+cops_supervisor_unix_http_server_username: '{username}'
+cops_supervisor_extra_conf: {}
+cops_supervisor_programs_defaults:
+  stdout_logfile: AUTO
+  stderr_logfile: AUTO
+  stdout_logfile_maxbytes: "{{cops_supervisor_supervisord_logfile_maxbytes}}"
+  stdout_capture_maxbytes: "{{cops_supervisor_supervisord_logfile_maxbytes}}"
+  loglevel: "{{cops_supervisor_supervisord_loglevel}}"
+  stdout_logfile_backups: "{{cops_supervisor_supervisord_logfile_backups}}"
+  stderr_logfile_backups: "{{cops_supervisor_supervisord_logfile_backups}}"
+cops_supervisor_supervisord_identifier: 'supervisor-{name}'
+cops_supervisor_supervisord_logdir: "{logdir}"
+cops_supervisor_supervisord_logfile: "{logdir}/supervisord.log"
+cops_supervisor_supervisord_pidfile: "{pidfile}"
+cops_supervisor_supervisord_logfile_maxbytes: '50MB'
+cops_supervisor_supervisord_logfile_backups: '10'
+cops_supervisor_supervisord_loglevel: 'info'
+cops_supervisor_supervisord_nodaemon: 'false'
+cops_supervisor_supervisord_minfds: '1024'
+cops_supervisor_supervisord_minprocs: '200'
+cops_supervisor_supervisord_umask: '022'
+cops_supervisor_supervisord_user: 'root'
+cops_supervisor_supervisord_directory: '/'
+cops_supervisor_supervisord_tmpdir: '/tmp'
+cops_supervisor_supervisord_nocleanup: 'true'
+cops_supervisor_supervisord_childlogdir: '{logdir}'
+cops_supervisor_supervisord_strip_ansi: 'false'
+cops_supervisor_supervisord_environment: ''
+cops_supervisor_supervisorctl_serverurl: 'unix://{sock}'
+cops_supervisor_supervisorctl_username: "{username}"
+cops_supervisor_supervisorctl_history_file: '{conf}/history-{name}'
+cops_supervisor_supervisorctl_prompt: "supervisorctl-{name}"
+cops_supervisor_venv: "{{corpusops_localsettings_supervisor_vars.venv}}"
+cops_supervisor_prefix: "{{corpusops_localsettings_supervisor_vars.prefix}}"
+cops_supervisor_initd: "/etc/init.d/{service}"
+cops_supervisor_ctl: "/usr/bin/{service}_ctl"
+cops_supervisor_conf: "{prefix}/etc"
+cops_supervisor_service: "cops_supervisor.{name}"
+cops_supervisor_user: "{{corpusops_localsettings_supervisor_vars.user}}"
+cops_supervisor_group: "{{corpusops_localsettings_supervisor_vars.group}}"

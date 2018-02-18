@@ -1,0 +1,44 @@
+---
+# Generate passwords onremote box if not found in registry
+- set_fact:
+    cacheable: false
+    cops_supervisor_name: "{{cops_supervisor_name}}"
+- name: "Setup secrets"
+  include_role: {name: corpusops.roles/get_secret_variable}
+  loop_control: {loop_var: _cops_get_secret_variable}
+  with_items:
+    - name: "cops_supervisor_passwords_{{cops_supervisor_name}}"
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set n = cops_supervisor_name %}
+      {% set prefix = 'cops_supervisor_' %}
+      {% set p = vars[prefix+'passwords_'+n] %}
+      {% set _ = vars.update({prefix+'password':p}) %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {{ (snamespaced[prefix+'vars']
+          |copsf_format_resolve(additional_namespaces=[vars])
+          |copsf_registry_to_vars(vars, prefix, global_scope=True)
+         )[0]
+         | to_json}}
+  tags: [corpusops_vars, corpusops_localsettings_supervisor_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{cops_supervisor_vars.files}}"
+    cops_configs_copys: "{{cops_supervisor_vars.filescopy}}"
+    cops_configs_templates: "{{cops_supervisor_vars.configs}}"
+  tags: [supervisor_configs]
+- set_fact:
+    cacheable: false
+    cops_supervisor_filest: "{{cops_configs_files_results}}"
+    cops_supervisor_filesct: "{{cops_configs_copys_results}}"
+    cops_supervisor_configst: "{{cops_configs_templates_results}}"
+  tags: [supervisor_configs]
+- set_fact:
+    cacheable: false
+    cops_supervisor_configs_changed: "{{(
+      cops_supervisor_filest|changed or
+      cops_supervisor_filesct|changed or
+      cops_supervisor_configst|changed)}}"

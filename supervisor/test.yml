@@ -1,0 +1,51 @@
+---
+- hosts: all
+  tasks:
+    - include_role: {name: corpusops.roles/localsettings_supervisor}
+      tags: [supervisor_setup]
+    - set_fact:
+        user: root
+        group: root
+        env:
+          A: 1
+          B: 2
+    - include_role: {name: corpusops.roles/supervisor, private: true}
+      vars:
+        _cops_supervisor:
+          name: supervifoo
+          extra_conf:
+          - kind: program
+            name: "supervifoo-{name}2"
+            data:
+              command: >
+                 /bin/sh
+                 -c "while  true;do echo \"from env:2$A 2$B\";sleep 300;done"
+              environment: >
+                {%-for i,val in env.items() -%}
+                {{i}}="{{val}}"{%-
+                  if loop.index<env|length-%},{%-
+                    endif%}
+                {%- endfor %}
+              uid: "{{user}}"
+              gid: "{{group}}"
+              directory: "/tmp"
+              startsecs: "10"
+              killasgroup: true
+          - kind: program
+            name: "supervifoo-{name}"
+            data:
+              command: >
+                 /bin/sh
+                 -c "while  true;do echo \"from env:$A $B\";sleep 300;done"
+              environment: >
+                {%-for i,val in env.items() -%}
+                {{i}}="{{val}}"{%-
+                  if loop.index<env|length-%},{%-
+                    endif%}
+                {%- endfor %}
+              uid: "{{user}}"
+              gid: "{{group}}"
+              directory: "/tmp"
+              startsecs: "10"
+              killasgroup: true
+# vim:set ft=sls:

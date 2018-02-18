@@ -1,0 +1,73 @@
+---
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: installed
+  with_items: '{{corpusops_localsettings_supervisor_vars.packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_supervisor_vars.packages is not none and
+          corpusops_localsettings_supervisor_vars.packages|length > 0)"
+  register: corpusops_localsettings_supervisor_pkgst
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_supervisor_vars.packages is not none and
+          corpusops_localsettings_supervisor_vars.packages|length > 0)"
+  with_items: "{{corpusops_localsettings_supervisor_vars.packages}}"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_supervisor_vars.packages is not none and
+          corpusops_localsettings_supervisor_vars.packages|length > 0)"
+  with_items: "{{corpusops_localsettings_supervisor_vars.packages}}"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_localsettings_supervisor_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_supervisor_vars.packages is not none and
+          corpusops_localsettings_supervisor_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_localsettings_supervisor_vars.packages is not none and
+          corpusops_localsettings_supervisor_vars.packages|length > 0)"
+  with_items: "{{corpusops_localsettings_supervisor_vars.packages}}"
+- group:
+    name: "{{corpusops_localsettings_supervisor_vars.group}}"
+    system: yes
+    state: present
+  when: "corpusops_localsettings_supervisor_vars.group|default(none)"
+- user:
+    name: "{{corpusops_localsettings_supervisor_vars.user}}"
+    system: yes
+    group: "{{corpusops_localsettings_supervisor_vars.group}}"
+  when: "corpusops_localsettings_supervisor_vars.user|default(none)"
+- tags: [corpusops_localsettings_supervisor_venv]
+  block:
+  - pip:
+      name: "{{corpusops_localsettings_supervisor_vars.requirements}}"
+      state: present
+      virtualenv: "{{corpusops_localsettings_supervisor_vars.venv}}"
+      virtualenv_python: "{{corpusops_localsettings_supervisor_vars.python}}"
+    register: corpusops_localsettings_supervisor_venvt
+- set_fact:
+    cacheable: false
+    corpusops_localsettings_supervisor_prequisites_changed: "{{(
+         corpusops_localsettings_supervisor_pkgst.changed or
+         corpusops_localsettings_supervisor_venvt.changed
+       )}}"

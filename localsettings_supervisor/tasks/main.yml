@@ -1,0 +1,16 @@
+---
+- name: "corpusops_localsettings_supervisor preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_supervisor | default(True) }}"
+  register: corpusops_localsettings_supervisor_can_run
+  tags: [corpusops_localsettings_supervisor]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_localsettings_supervisor_can_run.msg == True'
+  tags: [corpusops_localsettings_supervisor,
+         supervisor_prerequisites,
+         corpusops_localsettings_supervisor_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_localsettings_supervisor_can_run.msg == True'
+  tags: [corpusops_localsettings_supervisor,
+         supervisor_configuration,
+         corpusops_localsettings_supervisor_configuration]
