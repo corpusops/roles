@@ -1,0 +1,19 @@
+# {{ansible_managed }}
+# {% set data = cops_supervisor_vars %}
+[Unit]
+Description={{data.name}}
+After=syslog.target network.target
+
+[Service]
+ExecStart=/bin/sh -c ". {{data.venv}}/bin/activate;supervisord -n -c {{data.config}}"
+ExecStop=/bin/sh -c "if ! {{data.ctl}} $OPTIONS shutdown;then {{data.ctl}} $OPTIONS shutdown 2>&1|egrep -qi authentication;fi"
+ExecReload=/bin/sh -c "{{data.ctl}} $OPTIONS reload && {{data.ctl}} $OPTIONS restart {{data.restart_target}}"
+Restart={{data.restart}}
+KillMode={{data.killmode}}
+RestartSec={{data.restartsec}}
+TimeoutStopSec={{data.timeoutstopsec}}
+IgnoreSIGPIPE=no
+GuessMainPID=no
+
+[Install]
+WantedBy=multi-user.target

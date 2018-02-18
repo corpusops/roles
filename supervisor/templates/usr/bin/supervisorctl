@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# {% set data = cops_supervisor_vars %}
+. {{data.venv}}/bin/activate
+exec {{data.venv}}/bin/supervisorctl \
+  -c "{{data.config}}" \
+  -u "{{data.supervisorctl.username}}" \
+  -p "{{data.password}}" \
+  "$@"

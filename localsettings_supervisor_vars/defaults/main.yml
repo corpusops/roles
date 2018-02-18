@@ -1,0 +1,36 @@
+---
+corpusops_localsettings_supervisor_cops_do_format_resolve: true
+corpusops_localsettings_supervisor_cops_computed_defaults: []
+corpusops_localsettings_supervisor_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_localsettings_supervisor_cops_sub_os_append: {}
+corpusops_localsettings_supervisor_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo', ]
+corpusops_localsettings_supervisor_cops_lowered: ['repo']
+corpusops_localsettings_supervisor_cops_sub_namespaces: {}
+corpusops_localsettings_supervisor_activated: True
+corpusops_localsettings_supervisor_repo_keys_url: null
+corpusops_localsettings_supervisor_repo_keys: null
+corpusops_localsettings_supervisor_repo_keys_default: []
+corpusops_localsettings_supervisor_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_localsettings_supervisor_repo: null
+corpusops_localsettings_supervisor_packages: null
+corpusops_localsettings_supervisor_packages_default: []
+corpusops_localsettings_supervisor_services: null
+corpusops_localsettings_supervisor_requirements: ['supervisor==3.2.0']
+corpusops_localsettings_supervisor_group: supervisor
+corpusops_localsettings_supervisor_user: root
+corpusops_localsettings_supervisor_files: null
+corpusops_localsettings_supervisor_files_default:
+  - {path: "{prefix}",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{venv}",
+     owner: "{user}", group: "{group}", state: directory, mode: "0755"}
+corpusops_localsettings_supervisor_filescopy: null
+corpusops_localsettings_supervisor_filescopy_default: []
+corpusops_localsettings_supervisor_files_apt: []
+corpusops_localsettings_supervisor_configs: null
+corpusops_localsettings_supervisor_python: /usr/bin/python2
+corpusops_localsettings_supervisor_configs_default: []
+corpusops_localsettings_supervisor_prefix: "{{corpusops_vars.apps_path}}/supervisor"
+corpusops_localsettings_supervisor_venv: "{prefix}/venv"
