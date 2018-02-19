@@ -6,7 +6,7 @@ from ansible.plugins.action import ActionBase
 import re
 
 
-DBUS_RE = re.compile('failed.*d-?bus', re.I|re.U|re.M)
+DBUS_RE = re.compile('failed.*d?-?bus', re.I|re.U|re.M)
 
 __metaclass__ = type
 
