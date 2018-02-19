@@ -42,7 +42,6 @@ def main():
         required_one_of=[['state', 'enabled', 'masked', 'daemon_reload']],
     )
     systemctl = module.get_bin_path('systemctl')
-    from pdb_clone import pdb as pdbc;pdbc.set_trace_remote()  ## Breakpoint ##
     tgtp = '/etc/systemd/system/multi-user.target.wants'
     paths = ['/etc/systemd/system',
              '/run/systemd/system',
