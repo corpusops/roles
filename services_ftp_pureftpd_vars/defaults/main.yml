@@ -1,0 +1,109 @@
+---
+corpusops_services_ftp_pureftpd_cops_do_format_resolve: true
+corpusops_services_ftp_pureftpd_cops_computed_defaults: []
+corpusops_services_ftp_pureftpd_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_services_ftp_pureftpd_cops_sub_os_append: {}
+corpusops_services_ftp_pureftpd_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services_ftp',
+  'repo_keys', 'repo_keys_url', 'repo', ]
+corpusops_services_ftp_pureftpd_cops_lowered: ['repo']
+corpusops_services_ftp_pureftpd_cops_sub_namespaces: {conf: {}}
+corpusops_services_ftp_pureftpd_activated: True
+corpusops_services_ftp_pureftpd_repo_keys_url: null
+corpusops_services_ftp_pureftpd_repo_keys: null
+corpusops_services_ftp_pureftpd_repo_keys_default: []
+corpusops_services_ftp_pureftpd_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_ftp_pureftpd_repo: null
+corpusops_services_ftp_pureftpd_packages: null
+corpusops_services_ftp_pureftpd_packages_default: |
+  {%- set res = ['pure-ftpd'] %}
+  {%- if corpusops_services_ftp_pureftpd_conf_LDAPConfigFile %}
+  {%-   set _ = res.append('pure-ftpd-ldap')%}
+  {%- endif %}
+  {%- if corpusops_services_ftp_pureftpd_conf_MySQLConfigFile %}
+  {%-   set _ = res.append('pure-ftpd-mysql')%}
+  {%- endif %}
+  {%- if corpusops_services_ftp_pureftpd_conf_PGSQLConfigFile %}
+  {%-   set _ = res.append('pure-ftpd-postgresql')%}
+  {%- endif %}
+  {{- res | to_json }}
+corpusops_services_ftp_pureftpd_services: ['pure-ftpd']
+corpusops_services_ftp_pureftpd_group: pureftpd
+corpusops_services_ftp_pureftpd_user: root
+corpusops_services_ftp_pureftpd_files: null
+corpusops_services_ftp_pureftpd_files_default:
+  - {path: "{prefix}",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{prefix}/conf",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{prefix}/auth",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{prefix}/pureftpd.passwd",
+     owner: "root", group: "root", state: touch, mode: "0644"}
+corpusops_services_ftp_pureftpd_filescopy: null
+corpusops_services_ftp_pureftpd_filescopy_default: []
+corpusops_services_ftp_pureftpd_files_apt: []
+corpusops_services_ftp_pureftpd_configs: null
+corpusops_services_ftp_pureftpd_key: "{{corpusops_vars.config_dir}}/ssl/private/pure-ftpd.pem"
+corpusops_services_ftp_pureftpd_prefix: "{{corpusops_vars.config_dir}}/pure-ftpd"
+
+corpusops_services_ftp_pureftpd_configs_default:
+  - {name: "/etc/init.d/pure-ftpd",         mode: "0755"}
+  - {name: "/etc/default/pure-ftpd-common", mode: "0644"}
+corpusops_services_ftp_pureftpd_Virtualchroot: 'false'
+corpusops_services_ftp_pureftpd_InetdMode: 'standalone'
+corpusops_services_ftp_pureftpd_UploadUid: ''
+corpusops_services_ftp_pureftpd_UploadGid: ''
+corpusops_services_ftp_pureftpd_UploadScript: ''
+corpusops_services_ftp_pureftpd_conf_AllowAnonymousFXP: 'no'
+corpusops_services_ftp_pureftpd_conf_AllowDotFiles: ''
+corpusops_services_ftp_pureftpd_conf_AllowUserFXP: ''
+corpusops_services_ftp_pureftpd_conf_AltLog: 'clf:/var/log/pure-ftpd/transfer.log'
+corpusops_services_ftp_pureftpd_conf_AnonymousBandwidth: ''
+corpusops_services_ftp_pureftpd_conf_AnonymousCanCreateDirs: 'no'
+corpusops_services_ftp_pureftpd_conf_AnonymousCantUpload: 'yes'
+corpusops_services_ftp_pureftpd_conf_AnonymousOnly: ''
+corpusops_services_ftp_pureftpd_conf_AnonymousRatio: ''
+corpusops_services_ftp_pureftpd_conf_AntiWarez: ''
+corpusops_services_ftp_pureftpd_conf_AutoRename: ''
+corpusops_services_ftp_pureftpd_conf_Bind: ''
+corpusops_services_ftp_pureftpd_conf_BrokenClientsCompatibility: 'yes'
+corpusops_services_ftp_pureftpd_conf_CallUploadScript: ''
+corpusops_services_ftp_pureftpd_conf_ChrootEveryone: 'yes'
+corpusops_services_ftp_pureftpd_conf_ClientCharset: ''
+corpusops_services_ftp_pureftpd_conf_Daemonize: ""
+corpusops_services_ftp_pureftpd_conf_DisplayDotFiles: "yes"
+corpusops_services_ftp_pureftpd_conf_DontResolve: "yes"
+corpusops_services_ftp_pureftpd_conf_FSCharset: 'utf-8'
+corpusops_services_ftp_pureftpd_conf_IPV4Only: "yes"
+corpusops_services_ftp_pureftpd_conf_IPV6Only: ""
+corpusops_services_ftp_pureftpd_conf_KeepAllFiles: "no"
+corpusops_services_ftp_pureftpd_conf_LimitRecursion: "5000 500"
+corpusops_services_ftp_pureftpd_conf_LogPID: ""
+corpusops_services_ftp_pureftpd_conf_MaxClientsNumber: ""
+corpusops_services_ftp_pureftpd_conf_MaxClientsPerIP: ""
+corpusops_services_ftp_pureftpd_conf_MaxDiskUsage: "90"
+corpusops_services_ftp_pureftpd_conf_MinUID: '1000'
+corpusops_services_ftp_pureftpd_conf_NATmode: ""
+corpusops_services_ftp_pureftpd_conf_NoAnonymous: 'yes'
+corpusops_services_ftp_pureftpd_conf_NoChmod: ""
+corpusops_services_ftp_pureftpd_conf_NoRename: ""
+corpusops_services_ftp_pureftpd_conf_NoTruncate: ""
+corpusops_services_ftp_pureftpd_conf_Quota: ""
+corpusops_services_ftp_pureftpd_conf_SyslogFacility: ""
+corpusops_services_ftp_pureftpd_conf_TLS: "1"
+corpusops_services_ftp_pureftpd_conf_TrustedGID: ""
+corpusops_services_ftp_pureftpd_conf_TrustedIP: ""
+corpusops_services_ftp_pureftpd_conf_Umask: "133 022"
+corpusops_services_ftp_pureftpd_conf_UserBandwidth: ""
+corpusops_services_ftp_pureftpd_conf_UserRatio: ""
+corpusops_services_ftp_pureftpd_conf_VerboseLog: "yes"
+corpusops_services_ftp_pureftpd_conf_PassiveIP: ""
+corpusops_services_ftp_pureftpd_conf_PassivePortRange: ""
+corpusops_services_ftp_pureftpd_conf_PAMAuthentication: 'yes'
+corpusops_services_ftp_pureftpd_conf_UnixAuthentication: 'no'
+corpusops_services_ftp_pureftpd_conf_PureDB: '/etc/pure-ftpd/pureftpd.pdb'
+corpusops_services_ftp_pureftpd_conf_MySQLConfigFile: ""
+corpusops_services_ftp_pureftpd_conf_ExtAuth: ""
+corpusops_services_ftp_pureftpd_conf_LDAPConfigFile: ""
+corpusops_services_ftp_pureftpd_conf_PGSQLConfigFile: ""

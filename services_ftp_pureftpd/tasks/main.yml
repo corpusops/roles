@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_ftp_pureftpd preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_ftp_pureftpd | default(True) }}"
+  register: corpusops_services_ftp_pureftpd_can_run
+  tags: [corpusops_services_ftp_pureftpd]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_ftp_pureftpd_can_run.msg == True'
+  tags: [corpusops_services_ftp_pureftpd,
+         pureftpd_prerequisites,
+         corpusops_services_ftp_pureftpd_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_ftp_pureftpd_can_run.msg == True'
+  tags: [corpusops_services_ftp_pureftpd,
+         pureftpd_configuration,
+         corpusops_services_ftp_pureftpd_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_ftp_pureftpd_can_run.msg == True'
+  tags: [corpusops_services_ftp_pureftpd,
+         pureftpd_services,
+         corpusops_services_ftp_pureftpd_services]

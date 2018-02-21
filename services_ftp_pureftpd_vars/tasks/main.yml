@@ -1,0 +1,21 @@
+---
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_services_ftp_pureftpd_' %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {% set data = snamespaced[prefix+'vars'] %}
+      {% for setting in data['conf'] %}
+      {% set value = data['conf'][setting] %}
+      {% if value.strip()%}
+      {% set _ = data['conf'].update({setting: value + '\n'}) %}
+      {% set _ = data.update({'conf_'+setting: value + '\n'}) %}
+      {% endif %}
+      {% endfor %}
+      {{ (snamespaced[prefix+'vars']
+          |copsf_format_resolve(additional_namespaces=[vars])
+          |copsf_registry_to_vars(vars, prefix, global_scope=True)
+         )[0]
+         | to_json}}
+  tags: [corpusops_vars, corpusops_services_ftp_pureftpd_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
