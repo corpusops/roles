@@ -277,7 +277,7 @@ def copsf_bool(value, asbool=True):
         if value and asbool:
             low = value.lower().strip()
             if low in [
-                'non', 'no', 'n', 'off', '0',
+                'non', 'no', 'n', 'off', '0', '',
             ]:
                 return False
             if low in [
