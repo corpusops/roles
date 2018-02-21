@@ -1,10 +1,14 @@
 ---
+- debug: {msg: "{% if( cops_postgresql_role_vars.password or
+                    cops_postgresql_role_vars.encrypted
+                ) %}True{%else%}False{%endif %}"}
+  register: cops_postgresql_role_enc_
 - postgresql_user:
     name: "{{ cops_postgresql_role_vars.name}}"
     db: "{% if cops_postgresql_role_vars.db is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.db }}{%endif%}"
     password: "{% if cops_postgresql_role_vars.password is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.password }}{%endif%}"
     conn_limit: "{% if cops_postgresql_role_vars.conn_limit is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.conn_limit }}{%endif%}"
-    encrypted: "{% if cops_postgresql_role_vars.encrypted is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.encrypted }}{%endif%}"
+    encrypted: "{{ cops_postgresql_role_enc_.msg }}"
     expires: "{% if cops_postgresql_role_vars.expires is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.expires }}{%endif%}"
     fail_on_user: "{% if cops_postgresql_role_vars.fail_on_user is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.fail_on_user }}{%endif%}"
     no_password_changes: "{% if cops_postgresql_role_vars.no_password_changes is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.no_password_changes }}{%endif%}"
