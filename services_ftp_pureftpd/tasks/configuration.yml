@@ -1,0 +1,98 @@
+---
+- debug: {msg: "{{corpusops_services_ftp_pureftpd_vars.configs}}"}
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{corpusops_services_ftp_pureftpd_vars.files}}"
+    cops_configs_copys: "{{corpusops_services_ftp_pureftpd_vars.filescopy}}"
+    cops_configs_templates: "{{corpusops_services_ftp_pureftpd_vars.configs}}"
+  register: corpusops_services_ftp_pureftpd_configst1
+  tags: [pureftpd_configs]
+- set_fact:
+    cacheable: false
+    corpusops_services_ftp_pureftpd_filest: "{{cops_configs_files_results}}"
+    corpusops_services_ftp_pureftpd_filesct: "{{cops_configs_copys_results}}"
+    corpusops_services_ftp_pureftpd_configst: "{{cops_configs_templates_results}}"
+  register: corpusops_services_ftp_pureftpd_configst2
+  tags: [pureftpd_configs]
+- set_fact:
+    cacheable: false
+    corpusops_services_ftp_pureftpd_configs_changed: "{{(
+      corpusops_services_ftp_pureftpd_filest|changed or
+      corpusops_services_ftp_pureftpd_filesct|changed or
+      corpusops_services_ftp_pureftpd_configst|changed)}}"
+- tags: [pureftpd_knobs]
+  block:
+  - copy:
+      content: "{{item.value}}"
+      force: true
+      dest: "{{corpusops_services_ftp_pureftpd_vars.prefix}}/conf/{{item.key}}"
+      mode: "0644"
+      owner: root
+      group: root
+    register: corpusops_services_ftp_pureftpd_configst3
+    with_dict: |
+      {%- set res = {} %}
+      {%- set data = corpusops_services_ftp_pureftpd_vars %}
+      {%- set passive = data.conf['PassiveIP'] or data.conf['PassivePortRange']%}
+      {%- for setting, value in data.conf.items() %}
+      {%- if (
+          value.strip()
+          and (
+            not setting.startswith('Passive')
+            or (setting.startswith('Passive') and passive)
+          )
+         ) %}
+      {%- set _ = res.update({setting: value}) %}
+      {%- endif %}
+      {%- endfor %}
+      {{- res|to_json }}
+  - file:
+      state: link
+      path: "{{corpusops_services_ftp_pureftpd_vars.prefix}}/auth/50puredb"
+      src:  "{{corpusops_services_ftp_pureftpd_vars.prefix}}/conf/PureDB"
+  - file:
+      state: absent
+      dest: "{{corpusops_services_ftp_pureftpd_vars.prefix}}/conf/{{item.key}}"
+    register: corpusops_services_ftp_pureftpd_configst4
+    with_dict: |-
+      {%- set res = {} %}
+      {%- set data = corpusops_services_ftp_pureftpd_vars %}
+      {%- set passive = data.conf['PassiveIP'] or data.conf['PassivePortRange']%}
+      {%- for setting, value in data.conf.items() %}
+      {%- if not(
+          value.strip()
+          and (
+            not setting.startswith('Passive')
+            or (setting.startswith('Passive') and passive)
+          )
+         ) %}
+      {%- set _ = res.update({setting: value}) %}
+      {%- endif %}
+      {%- endfor %}
+      {{- res|to_json }}
+- blockinfile:
+    dest: "{{corpusops_vars.config_dir}}/shells"
+    marker: "# {mark} pureftpd cops shell"
+    insertafter: EOF
+    unsafe_writes: "{% if ansible_virtualization_type in ['docker']%}True{%else%}{{omit}}{%endif%}"
+    block: |
+           /bin/ftponly
+- shell: |
+    {% set key = corpusops_services_ftp_pureftpd_vars.key %}
+    if [ ! -e "{{key}}" ];then
+      openssl req -batch -x509 -nodes -days 36500 -newkey rsa:2048 \
+        -keyout "{{key}}" -out "{{key}}" \
+        -subj "/C=CC/ST=ST/L=Ll/O=OO/CN=CN/"
+    fi
+    chmod 600 "{{key}}"
+    chown root:root "{{key}}"
+  changed_when: false
+- shell: pure-pw mkdb
+  changed_when: false
+- set_fact:
+    cacheable: false
+    corpusops_services_ftp_pureftpd_configs_changed: "{{
+      (corpusops_services_ftp_pureftpd_configst4|default({}))|changed or
+      (corpusops_services_ftp_pureftpd_configst3|default({}))|changed or
+      (corpusops_services_ftp_pureftpd_configst2|default({}))|changed or
+      (corpusops_services_ftp_pureftpd_configst1|default({}))|changed}}"
