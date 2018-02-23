@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 # {{ansible_managed}}
 if [ -e /etc/profile ];then
     source /etc/profile || /bin/true
