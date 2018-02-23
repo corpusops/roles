@@ -23,6 +23,7 @@
   - set_fact:
       cacheable: false
       cops_sync_code_push_code_git_commit: "{{cops_sync_code_push_code_git_commitc.stdout.strip()}}"
+      cops_sync_code_push_code_git_twc: "{{__cops_provision_push_code_vars.dest|copsf_dirname}}/.{{__cops_provision_push_code_vars.dest|copsf_basename}}{{__cops_provision_push_code_vars.git_folder}}/"
 - when: not __cops_provision_push_code_vars.is_submodule
   block:
   - name: "git repo: ensure commit"
@@ -71,7 +72,7 @@
         compress: false
         ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"
         src: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}/"
-        dest: "{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}/"
+        dest: "{{cops_sync_code_push_code_git_twc}}"
         rsync_opts: "{{__cops_provision_push_code_vars.git_rsync_opts}}"
         rsync_path: "{{__cops_provision_push_code_vars.rsync_path}}"
       when: not __cops_provision_push_code_vars.origin in ['localhost']
@@ -80,7 +81,7 @@
         compress: false
         ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"
         src: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}/"
-        dest: "{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}/"
+        dest: "{{cops_sync_code_push_code_git_twc}}"
         rsync_opts: "{{__cops_provision_push_code_vars.git_rsync_opts}}"
         rsync_path: "{{__cops_provision_push_code_vars.rsync_path}}"
       when: __cops_provision_push_code_vars.origin in ['localhost']
@@ -98,6 +99,10 @@
       shell: |-
           set -ex;
           cd  "{{__cops_provision_push_code_vars.dest}}";
+          git fetch "{{cops_sync_code_push_code_git_twc}}";
+          if [ -e "{{cops_sync_code_push_code_git_twc}}/modules/" ];then
+            rsync -azv "{{cops_sync_code_push_code_git_twc}}/modules/" .git/modules/
+          fi
           git reset --hard "{{cops_sync_code_push_code_git_commit}}";
       register: cops_sync_code_push_code_git_commit_reset
       changed_when: false
