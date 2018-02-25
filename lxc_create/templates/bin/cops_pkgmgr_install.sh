@@ -49,6 +49,15 @@ NORMAL="\\e[0;0m"
 NO_COLOR=${NO_COLORS-${NO_COLORS-${NOCOLOR-${NOCOLORS-}}}}
 LOGGER_NAME=${LOGGER_NAME:-corpusops_build}
 ERROR_MSG="There were errors"
+uniquify_string() {
+    local pattern=$1
+    shift
+    echo "$@" \
+        | sed -e "s/${pattern}/\n/g" \
+        | awk '!seen[$0]++' \
+        | tr "\n" "${pattern}" \
+        | sed -e "s/^${pattern}\|${pattern}$//g"
+}
 do_trap_() { rc=$?;func=$1;sig=$2;${func};if [ "x${sig}" != "xEXIT" ];then kill -${sig} $$;fi;exit $rc; }
 do_trap() { rc=${?};func=${1};shift;sigs=${@};for sig in ${sigs};do trap "do_trap_ ${func} ${sig}" "${sig}";done; }
 is_ci() {
@@ -132,7 +141,7 @@ pipe_return() {
 }
 output_in_error() { ( do_trap output_in_error_post EXIT TERM QUIT INT;\
                       output_in_error_ "${@}" ; ); }
-output_in_error_(){
+output_in_error_() {
     if [[ -n ${OUTPUT_IN_ERROR_DEBUG-} ]];then set -x;fi
     if is_ci;then
         DEFAULT_CI_BUILD=y
@@ -175,13 +184,18 @@ output_in_error_(){
           done;\
           if [[ -n $VERBOSE ]];then log "done: ${@}";fi; ) &
     fi
+    # unset NO_OUTPUT= LOG= to prevent output_in_error children to be silent
+    # at first
+    reset_env="NO_OUTPUT LOG"
     if [[ -n $NO_OUTPUT ]];then
-        "${@}" >>"$LOG" 2>&1;ret=$?
+        ( unset $reset_env;"${@}" ) >>"$LOG" 2>&1;ret=$?
     else
         if [[ -n $LOG ]] && has_command tee;then
-            pipe_return "tee -a $LOG" "${@}";ret=$?
+            ( unset $reset_env; pipe_return "tee -a $tlog" "${@}"; )
+            ret=$?
         else
-            "${@}";ret=$?
+            ( unset $reset_env; "${@}"; )
+            ret=$?
         fi
     fi
     if [[ -e "$TMPTIMER" ]]; then rm -f "${TMPTIMER}";fi
@@ -358,7 +372,7 @@ do_tmp_cleanup() {
     done
 }
 may_autoadd_git_author() {
-    if [ "x$(git config user.email)" = "x" ];then 
+    if [ "x$(git config user.email)" = "x" ];then
         echo "-c user.name=Corpusops -c user.email=autocommiter@corpousops"
     fi
 }
