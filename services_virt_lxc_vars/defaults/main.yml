@@ -1,9 +1,14 @@
 ---
 corpusops_services_virt_lxc_activated: True
 corpusops_services_virt_lxc_packages: null
-corpusops_services_virt_lxc_packages_default: [
+corpusops_services_virt_lxc_packages_default: |
+  {% set d = [
     "lxc-templates", "lxc", "python3-lxc", "liblxc1",
-    "lxcfs", "dnsmasq", "cgmanager"]
+    "lxcfs", "dnsmasq", "cgmanager"] %}
+  {% if vars['ansible_distribution'] in ['Ubuntu'] and  (vars['ansible_distribution_version'] | copsf_looseversion >= '17.10') %}
+  {% set _ = d.pop(d.index('cgmanager')) %}
+  {% endif %}
+  {{ d | to_json }}
 corpusops_services_virt_lxc_packages_redhat: [
     "libcap-devel", "libcgroup",
     "wget", "bridge-utils",
