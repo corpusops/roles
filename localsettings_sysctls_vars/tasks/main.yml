@@ -1,23 +1,20 @@
 ---
+- stat: {path: "{{item.value}}"}
+  register: "_ca_corpusops_localsettings_sysctls_knobs_changed"
+  with_dict: "{{corpusops_localsettings_sysctls_knobs_changed}}"
+- debug:
+    msg: |
+      {%- set r = {} %}
+      {%- for i in _ca_corpusops_localsettings_sysctls_knobs_changed.results %}
+      {%- set _ = r.update({i.item.key: i}) %}
+      {%- endfor %}
+      {{- r | to_json }}
+  register: "_c_corpusops_localsettings_sysctls_knobs_changed"
 - include_jinja_vars:
     content: |-
       ---
       {% set prefix = 'corpusops_localsettings_sysctls_' %}
-      {% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
-      {% set knobs = ['files', 'filescopy', 'services', 'configs', 'packages',
-                     ] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'settings': {}} %}
-      {% set namespaced = {} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
 
       {% for sysctldata in namespaced['knobs'] %}
@@ -114,6 +111,11 @@
                   'fs.inotify.max_user_watches': '8192',
               }.get(sysctl, None) %}
       {%    endif %}
+      {% if (sysctl in _c_corpusops_localsettings_sysctls_knobs_changed.msg and
+             not _c_corpusops_localsettings_sysctls_knobs_changed.msg[
+                sysctl].stat.exists) %}
+      {%  set value = none %}
+      {% endif %}
       {%    if value is none %}
       {%      set _ = namespaced['disabled_knobs'].append(sysctl) %}
       {%    else %}

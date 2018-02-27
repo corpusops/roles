@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_sysctls_cops_do_format_resolve: true
+corpusops_localsettings_sysctls_cops_computed_defaults: []
+corpusops_localsettings_sysctls_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_sysctls_cops_sub_os_append: {}
+corpusops_localsettings_sysctls_cops_lowered: ['repo']
+corpusops_localsettings_sysctls_cops_knobs: [
+'files', 'filescopy', 'services', 'configs', 'packages', ]
+corpusops_localsettings_sysctls_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_sysctls_packages: null
 corpusops_localsettings_sysctls_packages_debian: [procps]
 corpusops_localsettings_sysctls_packages_ubuntu: []
@@ -36,3 +45,5 @@ corpusops_localsettings_sysctls_knobs:
   # Turn on window scaling which can be an option to enlarge the transfer window
   - {name: 'net.ipv4.tcp_window_scaling', value: '1'}
   - {name: 'net.ipv4.tcp_moderate_rcvbuf', value: '1'}
+corpusops_localsettings_sysctls_knobs_changed:
+  net.ipv4.tcp_tw_recycle: '/proc/sys/net/ipv4/tcp_tw_recycle'

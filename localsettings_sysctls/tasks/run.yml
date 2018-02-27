@@ -24,17 +24,14 @@
 - sysctl:
     sysctl_file: /etc/sysctl.d/corpusops.conf
     name: "{{item.name}}"
-    value: >
-           {% if ' ' in "{0}".format(item.value) %}
-           {% if 'mem' in item.name %}
-           '{{item.value}}'
-           {% else %}
-           {{item.value}}
-           {% endif%}
-           {% else %}
-           {{item.value}}
-           {% endif%}
+    value: "{{item.value}}"
     state: present
-  with_items: "{{corpusops_localsettings_sysctls_vars.knobs}}"
+  with_items: |-
+    {% set d = [] %}
+    {% for i in  corpusops_localsettings_sysctls_vars.knobs
+          if i.name not in corpusops_localsettings_sysctls_vars.disabled_knobs%}
+    {%  set _ = d.append(i) %}
+    {% endfor %}
+    {{ d | to_json }}
   tags: corpusops_localsettings_sysctls
 
