@@ -76,3 +76,4 @@
 - name: lxc prereq
   shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_prereqs.sh"
   tags: corpusops_lxc_create,corpusops_lxc_create_prereq
+- include_role: {name: corpusops.roles/lxc_remove_password}

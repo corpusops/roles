@@ -1,0 +1,4 @@
+---
+dependencies:
+- role: corpusops.roles/ansible_plugins
+- role: corpusops.roles/lxc_python

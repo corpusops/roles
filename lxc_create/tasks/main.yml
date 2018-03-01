@@ -54,3 +54,4 @@
     lxc_eth9_bridge: "{{corpusops_lxc_container_vars.msg['eth9_bridge']}}"
     lxc_eth9_ip: "{{corpusops_lxc_container_vars.msg['eth9_ip']}}"
     lxc_eth9_gateway: "{{corpusops_lxc_container_vars.msg['eth9_gateway']}}"
+    lxc_remove_password: "{{corpusops_lxc_container_vars.msg['remove_password']}}"

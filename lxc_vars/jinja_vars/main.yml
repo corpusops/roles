@@ -77,6 +77,7 @@
 {% for lxc in namespaced['containers'] %}
 {%  set lxcdata = namespaced['containers'][lxc] %}
 {%  for k in [
+      'remove_password',
       'included_config',
       'ssh_keys_paths', 'ssh_keys',
       'auto_start', 'container_name',  'path',
