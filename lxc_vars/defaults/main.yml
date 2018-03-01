@@ -18,6 +18,10 @@ corpusops_lxc_template_options: '-r {corpusops_lxc_ubuntu_release} --mirror "{co
 
 corpusops_lxc_auto_start: '1'
 
+# set to null or empty list to disable
+# auto password deletion, on containers
+# only ssh login is allowed by default
+corpusops_lxc_remove_password: [root, user, debian, ubuntu]
 
 corpusops_lxc_eth0_mac: null
 corpusops_lxc_eth0_bridge: copslxcbr

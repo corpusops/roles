@@ -1,0 +1,3 @@
+---
+lxc_remove_password: [root, user, debian, ubuntu]
+lxc_path: /var/lib/lxc

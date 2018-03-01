@@ -1,0 +1,17 @@
+---
+# map computation from lxcvar role back to clean variables
+- assert:
+    that: "vars.get(var, none) is not none"
+    msg: "{{var}} is None"
+  with_items: [lxc_container_name, lxc_remove_password]
+  loop_control: {loop_var: var}
+- include_role: {name: corpusops.roles/lxc_register}
+- name: lxc remove password for selected users
+  shell: |
+    if lxc-attach -P "{{lxc_path}}" -n {{lxc_container_name}} -- \
+      getent passwd "{{item}}";then
+      lxc-attach -P "{{lxc_path}}" -n {{lxc_container_name}} -- \
+      passwd -d "{{item}}"
+    fi
+  with_items: "{{lxc_remove_password}}"
+  changed_when: false
