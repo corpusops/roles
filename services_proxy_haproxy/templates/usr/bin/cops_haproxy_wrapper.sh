@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-if [ "x${DEBUG}" = "x" ];then
+if [ "x${DEBUG}" != "x" ];then
     set -x
 fi
 for i in /etc/default/haproxy /etc/sysconfig/haproxy;do
