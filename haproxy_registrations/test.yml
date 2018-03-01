@@ -3,6 +3,9 @@
   vars:
     corpusops_services_http_nginx_default_vhost_is_default_server: false
   tasks:
+    - set_fact:
+        cacheable: false
+        a: b
     - file:
         path: "{{item}}"
         state: absent
@@ -12,6 +15,9 @@
       vars:
         _corpusops_haproxy_registrations:
           file: "/tmp/haproxy/test1.cfg"
+        cops_zope_servers_ips: [1.2.3.4, 5.6.7.9]
+        cops_zope_domain: gfoobar.qsdf.com
+        cops_zope_http_port: 456
         corpusops_haproxy_registrations_registrations_b1:
         - ip: 10.0.3.14
           wildcards: ['*.www.super.com']

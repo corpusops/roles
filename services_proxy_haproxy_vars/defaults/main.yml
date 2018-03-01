@@ -154,3 +154,4 @@ corpusops_services_proxy_haproxy_default_stats_password: null
 corpusops_services_proxy_haproxy_stats_password: "{default_stats_password}"
 corpusops_services_proxy_haproxy_stats_enabled: true
 corpusops_services_proxy_haproxy_reverse_proxy_addresses: "{{corpusops_network_settings_vars.reverse_proxy.addresses}}"
+corpusops_services_proxy_haproxy_service_state: loaded

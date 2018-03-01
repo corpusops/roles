@@ -2,8 +2,8 @@
 # {{ ansible_managed }}
 # {% set data = corpusops_services_proxy_haproxy_vars %}
 PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin
-SCANNED_HAPROXY=$(which haproxy 2>/dev/null)
-SCANNED_HAPROXYW=$(which haproxy-systemd-wrapper 2>/dev/null)
+SCANNED_HAPROXY=$(which haproxy 2>/dev/null || /bin/true)
+SCANNED_HAPROXYW=$(which haproxy-systemd-wrapper 2>/dev/null || /bin/true)
 PIDFILE="/run/haproxy.pid"
 HAPROXY="${HAPROXY:-"${SCANNED_HAPROXY:-/usr/sbin/haproxy}"}"
 HAPROXYW="${HAPROXYW:-"${SCANNED_HAPROXYW:-/usr/sbin/haproxy-systemd-wrapper}"}"
@@ -45,7 +45,7 @@ get_cfgs() {
                         opts="${opts} -f ${rf}"
                     fi
                 fi
-            done < <(find "${cfgdir}" -type f -name "*cfg" 2>/dev/null|sort -nk2)
+            done < <(find "${cfgdir}" -type f -name "*cfg" 2>/dev/null|sort -nk2 || /bin/true)
         fi
     done <<< "$CONFIGDIRS"
     echo "${opts}"

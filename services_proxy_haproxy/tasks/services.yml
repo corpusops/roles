@@ -5,7 +5,7 @@
       {% if (
         corpusops_services_proxy_haproxy_configs_changed     |default(False) or
         corpusops_services_proxy_haproxy_prequisites_changed |default(False)
-      )%}re{%endif%}started
+      )%}re{%endif%}{{corpusops_services_proxy_haproxy_vars.service_state}}
 - set_fact:
     cacheable: false
     corpusops_services_proxy_haproxy_service_state: "{{corpusops_services_proxy_haproxy_service_state.strip()}}"
