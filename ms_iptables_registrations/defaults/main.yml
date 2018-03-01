@@ -10,7 +10,7 @@ corpusops_ms_iptables_registrations_cops_sub_namespaces:
   settings: {}
 corpusops_ms_iptables_registrations_user: root
 corpusops_ms_iptables_registrations_group: root
-corpusops_ms_iptables_registrations_file: "{{corpusops_services_firewall_ms_iptables_vars.conf_prefix}}/z_99_registrations.cfg"
+corpusops_ms_iptables_registrations_file: "{{corpusops_services_firewall_ms_iptables_vars.conf_prefix}}/z_99_registrations.json"
 corpusops_ms_iptables_registrations_filescopy: []
 corpusops_ms_iptables_registrations_files: []
 corpusops_ms_iptables_registrations_configs:
@@ -28,14 +28,14 @@ corpusops_ms_iptables_registrations_hard_policies: null
 corpusops_ms_iptables_registrations_open_policies: null
 corpusops_ms_iptables_registrations_flush_rules: null
 corpusops_ms_iptables_registrations_check_config: true
-corpusops_ms_iptables_registrations_knobs: [
-  "load_default_rules",
-  "load_default_flush_rules",
-  "load_default_hard_policies",
-  "ipv6",
-  "load_default_open_policies",
-  "policy",
-  "hard_policies",
-  "open_policies",
-  "rules",
-  "flush_rules"]
+corpusops_ms_iptables_registrations_knobs: 
+- load_default_rules
+- load_default_flush_rules
+- load_default_hard_policies
+- ipv6
+- load_default_open_policies
+- policy
+- hard_policies
+- open_policies
+- rules
+- flush_rules
