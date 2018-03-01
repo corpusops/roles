@@ -1,0 +1,5 @@
+---
+# master:  01032018
+lxc_python2_ver: "b7ec757d2bea1e5787c3e65b1359b8893491ef90"
+lxc_python2_url: "https://github.com/lxc/python2-lxc.git"
+lxc_python2_path: "/usr/src/python2-lxc"
