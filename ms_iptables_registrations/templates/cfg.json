@@ -1,0 +1,9 @@
+{%- set data = corpusops_ms_iptables_registrations_vars %}
+{%- set r = {} %}
+{%- for i in data.knobs %}
+{%-   set v = data[i] %}
+{%-   if v is not none %}
+{%-     set _ = r.update({i:v})%}
+{%-   endif %}
+{%- endfor %}
+{{- r | to_nice_json }}
