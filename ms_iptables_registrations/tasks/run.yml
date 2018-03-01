@@ -1,0 +1,35 @@
+---
+- group:
+    name: "{{corpusops_ms_iptables_registrations_vars.group}}"
+    system: true
+    state: present
+- user:
+    name: "{{corpusops_ms_iptables_registrations_vars.user}}"
+    group: "{{corpusops_ms_iptables_registrations_vars.group}}"
+    append: true
+    system: true
+    state: present
+- file:
+    state: directory
+    path: "{{corpusops_ms_iptables_registrations_vars.file|copsf_dirname}}"
+    owner: root
+    group: root
+    mode: "0755"
+- block:
+  - debug:
+      msg:
+        cops_configs_files: "{{corpusops_ms_iptables_registrations_vars.files}}"
+        cops_configs_copys: "{{corpusops_ms_iptables_registrations_vars.filescopy}}"
+        cops_configs_templates: "{{corpusops_ms_iptables_registrations_vars.configs}}"
+    register: configvarfw
+  - include_role: {name: corpusops.roles/configs, private: true}
+    vars:
+      cops_configs_files: "{{configvarfw.msg.cops_configs_files}}"
+      cops_configs_copys: "{{configvarfw.msg.cops_configs_copys}}"
+      cops_configs_templates: "{{configvarfw.msg.cops_configs_templates}}"
+- name: Check ms_iptables configs
+  file:
+    state: file
+    path: "{{corpusops_ms_iptables_registrations_vars.file}}"
+  changed_when: false
+  when: "corpusops_ms_iptables_registrations_vars.check_config"
