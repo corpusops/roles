@@ -1,1 +1,3 @@
 ---
+dependencies:
+- role: corpusops.roles/ansible_plugins
