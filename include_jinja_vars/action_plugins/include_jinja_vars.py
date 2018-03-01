@@ -12,6 +12,10 @@ from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.module_utils._text import to_native
 from ansible.plugins.action import ActionBase
 IS_JINJA = re.compile('{{.+}}|{%.+%}')
+import cProfile
+import tempfile
+
+_default = object()
 
 
 def magicstring(thestr):
@@ -68,29 +72,53 @@ def magicstring(thestr):
     return thestr
 
 
+def is_jinja(data):
+    if not isinstance(data, six.string_types):
+        return False
+    if '{{' in data:
+        return True
+    if '{%' in data:
+        return True
+    return False
+
+
 class ActionModule(ActionBase):
 
     TRANSFERS_FILES = False
 
-    def resolve(self, data):
+    def resolve(self, data, level=0):
+        if self.profile and not level:
+            self.pr.enable()
+        if self.debug_stack:
+            self.stack.append("r {0}".format(repr(data)))
+        if (
+            not data or not isinstance(
+                data, (list, set, tuple, dict) + six.string_types)
+        ):
+            return data
         if isinstance(data, (list, set, tuple)):
             items = []
             for i in data:
-                items.append(self.resolve(i))
+                items.append(self.resolve(i, level+1))
             data = type(data)(items)
-        if isinstance(data, six.string_types):
-            old_data = None
-            if ('{{' in data) or ('{%' in data):
-                while old_data != data:
-                    old_data = data
-                    data = self._templar.template(data)
         elif isinstance(data, dict):
             for item in [a for a in data]:
-                val = self.resolve(data.pop(item, None))
-                key = self.resolve(item)
+                val = self.resolve(data.pop(item, None), level+1)
+                key = self.resolve(item, level+1)
                 data[key] = val
-        else:
-            return data
+        elif isinstance(data, six.string_types):
+            old_data = None
+            while is_jinja(data) and old_data != data:
+                old_data = data
+                try:
+                    data = self.cache[old_data]
+                except KeyError:
+                    data = self._templar.template(old_data)
+                if self.debug_stack:
+                    self.stack.append(old_data)
+                self.cache[old_data] = data
+        if self.profile and not level:
+            self.pr.disable()
         return data
 
     def _mutually_exclusive(self):
@@ -138,8 +166,9 @@ class ActionModule(ActionBase):
     def _set_args(self):
         """ Set instance variables based on the arguments that were passed
         """
+        self.stack = []
         self.VALID_OPTIONS_ARGUMENTS = [
-            'cacheable',
+            'cacheable', 'profile', 'debug_stack',
         ]
         self.VALID_DIR_ARGUMENTS = [
             'dir', 'depth', 'files_matching', 'ignore_files'
@@ -161,6 +190,7 @@ class ActionModule(ActionBase):
             self.return_results_as_name = None
 
         self.cacheable = self._task.args.get('cacheable', False)
+        self.debug_stack = self._task.args.get('debug_stack', False)
 
         self.content_source = self._task.args.get('content', None)
         self.source_dir = self._task.args.get('dir', None)
@@ -203,6 +233,10 @@ class ActionModule(ActionBase):
 
         self.show_content = True
         self._set_args()
+        self.profile = self._task.args.get('profile', False)
+        if self.profile:
+            self.pr = cProfile.Profile()
+        self.cache = {}
         self._task_vars = task_vars
         if self._task._role:
             self._defaults = self._task._role.get_default_vars(
@@ -210,7 +244,10 @@ class ActionModule(ActionBase):
         else:
             self._defaults = {}
         for i, val in six.iteritems(self._defaults):
-            self._task_vars.setdefault(i, val)
+            try:
+                self._task_vars[i]
+            except KeyError:
+                self._task_vars[i] = val
 
         results = dict()
         if self.source_dir:
@@ -273,6 +310,13 @@ class ActionModule(ActionBase):
         result['_ansible_facts_cacheable'] = self.cacheable
         result['ansible_facts_cacheable'] = self.cacheable
 
+        if self.profile:
+            self.pr.disable()
+            fich, fic = tempfile.mkstemp()
+            fic = fic + '_' + 'cops_include_jinja_vars' + '_astat'
+            result['ansible_profile_file'] = fic
+            self.pr.dump_stats(fic)
+        result['stack'] = self.stack
         return result
 
     def _set_root_dir(self):
@@ -375,7 +419,7 @@ class ActionModule(ActionBase):
                 fdata = data
             else:
                 pdata = magicstring(data)
-                match = IS_JINJA.search(pdata)
+                match = is_jinja(pdata)
                 try:
                     fdata = self._loader.load(pdata, show_content)
                     if not isinstance(fdata, dict):
@@ -416,7 +460,8 @@ class ActionModule(ActionBase):
             )
         else:
             results.update(fdata)
-            results = self.resolve(results)
+            if results:
+                results = self.resolve(results)
         return failed, err_msg, results
 
     def _load_files_in_dir(self, root_dir, var_files):
