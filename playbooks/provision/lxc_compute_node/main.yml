@@ -1,0 +1,13 @@
+---
+- hosts: all
+  tasks:
+    - include_role: {name: corpusops.roles/services_virt_lxc}
+      tags: [lxc_setup]
+    - include_role: {name: corpusops.roles/services_proxy_haproxy}
+      tags: [lxc_haproxy]
+    - block:
+      - include_role: {name: corpusops.roles/haproxy_registrations}
+      - service: {name: haproxy, state: reloaded}
+      tags: [lxc_haproxy_registrations]
+    - include_role: {name: corpusops.roles/services_firewall_ms_iptables}
+      tags: [lxc_firewall]
