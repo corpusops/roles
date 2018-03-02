@@ -9,6 +9,5 @@
 #         -l my_baremetal.foo.net \
 #         -e 'lxc_container_name=vm.foo.net'
 #
-- include: lxc_container/create.yml
-- include: lxc_container/provision.yml
-
+- import_playbook: lxc_container/create.yml
+- import_playbook: lxc_container/provision.yml

@@ -15,3 +15,4 @@ galaxy_info:
 allow_duplicates: yes
 dependencies:
 - role: corpusops.roles/vars
+- role: corpusops.roles/services_virt_lxc_vars

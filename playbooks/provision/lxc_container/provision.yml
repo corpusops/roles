@@ -4,7 +4,7 @@
     - role: corpusops.roles/lxc_sshauth
     - role: corpusops.roles/lxc_register
 
-- include: "../server.yml"
+- import_playbook: "../server.yml"
   vars:
     provision_host: "{{lxc_container_name}}"
     corpusops_localsettings_apparmor: False

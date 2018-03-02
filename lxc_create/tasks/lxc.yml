@@ -52,6 +52,13 @@
     - bin/cops_lxc_init.sh
     - cops_lxc_prereqs.sh
     - cops_lxc_manage.sh
+- shell: lxc-start --version 2>&1
+  register: lxc_start_version
+  changed_when: false
+- set_fact:
+    cacheable: false
+    cops_lxc_version: "{{lxc_start_version.stdout}}"
+    cops_lxc_legacy: "{{lxc_start_version.stdout|copsf_looseversion < '2.1'}}"
 - name: lxc config (from template script)
   template:
     src: "../templates/lxc.conf"
