@@ -14,19 +14,31 @@ ansible-playbook -l LIMIT -vvv roles/corpusops.roles/lxc_vars/role.yml
 Basically, you ll want in your inventory:
 
 To configure globally:
-<pre>
+```yaml
 corpusops_lxc_ssh_keys: ["ssh-rsa AAAAB..== xx@foo"]
 corpusops_lxc_ssh_keys_paths: ["/tmp/foo.pub"]
-</pre>
-
+```
 
 To override for a specific container:
-<pre>
+```yaml
+_cops_lxc_sshauth:
+  mycontainer:
+    ssh_keys: ["ssh-rsa AAAAB..== xx@foo"]
+    ssh_keys_paths: ["/tmp/foo.pub"]
+```
+Or
+```yaml
+cops_lxc_sshauth_mycontainer:
+  ssh_keys: ["ssh-rsa AAAAB..== xx@foo"]
+  ssh_keys_paths: ["/tmp/foo.pub"]
+```
+
+Or (mainly for retrocompat):
+```yaml
 corpusops_lxc_containers_mycontainer:
   ssh_keys: ["ssh-rsa AAAAB..== xx@foo"]
   ssh_keys_paths: ["/tmp/foo.pub"]
-</pre>
-
+```
 
 ## Example use
 Configure your inventory (see above)
@@ -35,4 +47,4 @@ and to apply
 ```bash
 ansible-playbook -l my_lxcs_host.foo.net  -vvv roles/corpusops.roles/lxc_sshauth/role.yml \
    -e lxc_container_name=foo
-``` 
+```

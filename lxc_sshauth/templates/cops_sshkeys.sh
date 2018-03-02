@@ -25,7 +25,7 @@ while read f;do
         then
             echo "-CHANGED-Add $sshkey"
             ( printf "\n${sshkey}\n" | \
-				lxc-attach -P "${lxcp}" -n $container -- \
+                lxc-attach -P "${lxcp}" -n $container -- \
                 tee -a /root/.ssh/authorized_keys ) >/dev/null 2>&1
         fi
     done < <(cat "$f")

@@ -1,0 +1,18 @@
+---
+cops_lxc_sshauth_cops_do_format_resolve: true
+cops_lxc_sshauth_cops_computed_defaults: []
+cops_lxc_sshauth_cops_flavors: []
+cops_lxc_sshauth_cops_sub_os_append: {}
+cops_lxc_sshauth_cops_knobs: []
+cops_lxc_sshauth_cops_lowered: []
+cops_lxc_sshauth_cops_sub_namespaces: {}
+cops_lxc_sshauth_lxc_path: "{{corpusops_lxc_container_vars.msg.path}}"
+cops_lxc_sshauth_lxc_cpath: "{{corpusops_lxc_container_vars.msg.path}}/{{lxc_container_name}}"
+cops_lxc_sshauth_ssh_keys: "{{
+  vars.get('corpusops_lxc_containers', {}).get(lxc_container_name, {}).get(
+    'ssh_keys',
+    corpusops_lxc_ssh_keys)}}"
+cops_lxc_sshauth_ssh_keys_paths: "{{
+  vars.get('corpusops_lxc_containers', {}).get(lxc_container_name, {}).get(
+    'ssh_keys_paths',
+    corpusops_lxc_ssh_keys_paths)}}"

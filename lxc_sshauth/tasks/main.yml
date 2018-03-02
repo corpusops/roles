@@ -1,9 +1,16 @@
 ---
 # map computation from lxcvar role back to clean variables
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'cops_lxc_sshauth_' %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {{ snamespaced | to_json}}
+  tags: [corpusops_vars, cops_lxc_sshauth_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: run.yml
   vars:
-    lxc_path: "{{corpusops_lxc_container_vars.msg['path']}}"
-    lxc_cpath: "{{corpusops_lxc_container_vars.msg['path']}}/{{corpusops_lxc_container_vars.msg['container_name']}}"
-    lxc_container_name: "{{corpusops_lxc_container_vars.msg['container_name']}}"
-    ssh_keys_paths: "{{corpusops_lxc_container_vars.msg['ssh_keys_paths']}}"
-    ssh_keys: "{{corpusops_lxc_container_vars.msg['ssh_keys']}}"
+    lxc_path: "{{cops_lxc_sshauth_vars.lxc_path}}"
+    lxc_cpath: "{{cops_lxc_sshauth_vars.lxc_path}}/{{lxc_container_name}}"
+    ssh_keys_paths: "{{cops_lxc_sshauth_vars.ssh_keys_paths}}"
+    ssh_keys: "{{cops_lxc_sshauth_vars.ssh_keys}}"
