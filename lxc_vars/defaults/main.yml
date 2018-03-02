@@ -23,11 +23,11 @@ corpusops_lxc_auto_start: '1'
 # only ssh login is allowed by default
 corpusops_lxc_remove_password: [root, user, debian, ubuntu]
 
-corpusops_lxc_eth0_mac: null
 corpusops_lxc_eth0_bridge: copslxcbr
-corpusops_lxc_eth0_ip: null
-corpusops_lxc_eth0_gateway: null
-#corpusops_lxc_eth0_ip: '1.2.3.4/32'
+corpusops_lxc_eth0_ip: "{{lxc_ip|default(none)}}"
+corpusops_lxc_eth0_mac: "{{lxc_mac|default(none)}}"
+corpusops_lxc_eth0_gateway: "{% if corpusops_lxc_eth0_ip%}{{lxc_gateway|default(corpusops_services_virt_lxc_vars.gateway)}}{% else %}null{%endif%}"
+#corpusops_lxc_eth0_ip: "{{lxc_ip|default('1.2.3.4/32')}}"
 #corpusops_lxc_eth0_mac: 'aa:bb:cc:dd:ee:ff'
 
 corpusops_lxc_eth1_mac: null
