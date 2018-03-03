@@ -62,6 +62,7 @@ corpusops_localsettings_basepkgs_packages_debian:
       - ed
       - file
       - findutils
+      - git
       - ifupdown
       - "{% if ansible_distribution.lower() in ['ubuntu']%}language-selector-common{%else%}{# noop pkg #}dpkg{%endif%}"
       - locales
@@ -126,6 +127,7 @@ corpusops_localsettings_basepkgs_packages_redhat:
       - ed
       - file
       - findutils
+      - git
       - logrotate
       - lsof
       - gawk
