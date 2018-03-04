@@ -13,31 +13,31 @@
     dest: "{{lxc_cpath}}/{{item}}"
     mode: "0755"
   tags: corpusops_lxc_sshauth,corpusops_lxc_sshauth_scripts
-  with_items:
-    - cops_sshkeys.sh
+  with_items: [cops_sshkeys.sh]
 - name: ansible ssh key cleanup
   shell: |
     rm -f {{lxc_cpath}}/sshkeys/keypaths_*
     rm -f {{lxc_cpath}}/sshkeys/keys_*
   tags: corpusops_lxc_sshauth
   changed_when: False
-- name: ansible ssh key (paths)
-  copy:
-    src: "{{item.1}}"
-    dest: "{{lxc_cpath}}/sshkeys/keypaths_{{item.0}}.pub"
-    mode: "0644"
-  with_indexed_items: "{{ssh_keys_paths}}"
-  tags: corpusops_lxc_sshauth
+- name: get ssh key files content
+  shell: |-
+    set -ex
+    {% for i in ssh_keys_paths %}
+    cat {{i}}
+    {% endfor %}
+  delegate_to: "{{lxc_control_host}}"
+  register: _c_cops_sshauthkeyscontent
+  changed_when: false
+- name: ansible ssh keys file
   changed_when: False
-- name: ansible ssh key
-  copy:
-    content: |
-             {{item.1}}
-    dest: "{{lxc_cpath}}/sshkeys/keys_{{item.0}}.pub"
+  template:
+    src: '../templates/{{item}}'
+    dest: "{{lxc_cpath}}/sshkeys/{{item}}"
     mode: "0644"
-  with_indexed_items: "{{ssh_keys}}"
-  tags: corpusops_lxc_sshauth
-  changed_when: False
+    trim_blocks: false
+  tags: corpusops_lxc_sshauth,corpusops_lxc_sshauth_scripts
+  with_items: [sshkeys.pub]
 - name: ansible ssh key - auth
   shell: "{{lxc_cpath}}/cops_sshkeys.sh"
   register: corpusops_lxc_sshauth_res

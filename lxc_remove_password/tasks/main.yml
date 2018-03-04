@@ -5,7 +5,6 @@
     msg: "{{var}} is None"
   with_items: [lxc_container_name, lxc_remove_password]
   loop_control: {loop_var: var}
-- include_role: {name: corpusops.roles/lxc_register}
 - name: lxc remove password for selected users
   shell: |
     if lxc-attach -P "{{lxc_path}}" -n {{lxc_container_name}} -- \

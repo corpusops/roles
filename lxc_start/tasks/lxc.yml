@@ -15,7 +15,5 @@
 - name: Start lxc container
   shell: "lxc-start -d -n '{{lxc_container_name}}'"
   tags: corpusops_lxc_start,corpusops_lxc_start_ip
-  when:  |
-    {% set st = corpusops_lxc_start_lxcs.msg.get(
-      lxc_container_name, {}).get('state', 'UNKNOWN') not in ['RUNNING']  %}
-    {{st}}
+  when:  "(corpusops_lxc_start_lxcs.msg.get(
+      lxc_container_name, {}).get('state', 'UNKNOWN') not in ['RUNNING'])"

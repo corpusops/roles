@@ -1,9 +1,13 @@
 ---
 - name: lxc {{lxc_from_container}} config test
-  stat:
-    path: "{{lxc_path}}/{{lxc_from_container}}/config"
+  stat: {path: "{{lxc_path}}/{{lxc_from_container}}/config"}
   register: lxc_fstab_test
   tags: corpusops_lxc_create,corpusops_lxc_create_fstab
+- name: lxc {{lxc_container_name}} config test
+  stat: {path: "{{lxc_path}}/{{lxc_container_name}}/config"}
+  register: lxc_our_config
+- include_tasks: config.yml
+  when: lxc_our_config.stat.exists
 - name: "get rootfs of {{lxc_from_container}}"
   shell: |-
     cfg="{{lxc_path}}/{{lxc_from_container}}/config"
