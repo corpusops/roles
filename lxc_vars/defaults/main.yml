@@ -1,4 +1,15 @@
 ---
+corpusops_lxc_cops_do_format_resolve: true
+corpusops_lxc_cops_computed_defaults: ['template_options', 'included_config']
+corpusops_lxc_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_lxc_cops_sub_os_append: {}
+corpusops_lxc_cops_knobs: []
+corpusops_lxc_cops_lowered: []
+corpusops_lxc_cops_sub_namespaces:
+  containers: {}
+corpusops_lxc_cops_sub_sub_namespaces:
+  containers: {}
+
 # ssh keys allowed to connect as root inside the container
 corpusops_lxc_ssh_keys_paths: ["~/.ssh/id_rsa.pub"]
 corpusops_lxc_ssh_keys: []
@@ -76,6 +87,3 @@ corpusops_lxc_eth9_ip: null
 corpusops_lxc_eth9_gateway: null
 
 corpusops_lxc_containers: {}
-
-
-
