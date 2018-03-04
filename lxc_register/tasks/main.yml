@@ -1,6 +1,38 @@
 ---
-# map computation from lxcvar role back to clean variables
-- include_tasks: lxc.yml
-  vars:
-    lxc_path: "{{corpusops_lxc_container_vars.msg['path']}}"
-    lxc_container_name: "{{corpusops_lxc_container_vars.msg['container_name']}}"
+- name: get lxc status
+  shell: >-
+    lxc-ls --fancy -F 'NAME,STATE,AUTOSTART,GROUPS,IPV4,IPV6' \
+    | tail -n +2 | grep "{{lxc_container_name}}"
+  register: corpusops_lxc_register_lxcls
+  tags: corpusops_lxc_register,corpusops_lxc_register_ip
+  failed_when: False
+  changed_when: false
+- name: get lxc status - 2
+  debug:
+    msg: "{{corpusops_lxc_register_lxcls|lxc_lxcls_mangle(restrict_to=lxc_container_name)}}"
+  register: corpusops_lxc_register_lxcs
+- name: ensure running
+  assert:
+    that: ["(corpusops_lxc_register_lxcs.msg.get(
+      lxc_container_name, {}).get('state', 'UNKNOWN') in ['RUNNING'])"]
+    msg: "LXC {{lxc_container_name}} is not running"
+  tags: corpusops_lxc_register,corpusops_lxc_register_ip
+- name: get ip
+  shell: >-
+    lxc-attach -P {{corpusops_lxc_container_vars.msg['path']}}
+    -n {{lxc_container_name}} --
+    ip addr show eth0|grep inet|grep -v :|awk '{print $2}'|sed "s|/.*||g"|head -n1
+  register: corpusops_lxc_register_ip
+  tags: corpusops_lxc_register,corpusops_lxc_register_ip
+  changed_when: false
+- name: show ip
+  debug: {msg: {eth0ip: "{{corpusops_lxc_register_ip}}"}}
+  tags: corpusops_lxc_register,corpusops_lxc_register_ip
+- add_host:
+    name: "{{lxc_container_name}}"
+    groups: ["{{lxc_container_name}}_lxc"]
+    ansible_connection: "ssh"
+    ansible_host: "{{corpusops_lxc_register_ip.stdout}}"
+    ansible_port: 22
+    ansible_ssh_common_args: "{{1|lxc_ssh_connection_proxy(inventory_hostname, hostvars)}}"
+  register: cops_register_lxc_host

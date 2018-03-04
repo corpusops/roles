@@ -1,4 +1,5 @@
 ---
+lxc_control_host: localhost
 corpusops_lxc_cops_do_format_resolve: true
 corpusops_lxc_cops_computed_defaults: ['template_options', 'included_config']
 corpusops_lxc_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
@@ -37,7 +38,7 @@ corpusops_lxc_remove_password: [root, user, debian, ubuntu]
 corpusops_lxc_eth0_bridge: copslxcbr
 corpusops_lxc_eth0_ip: "{{lxc_ip|default(none)}}"
 corpusops_lxc_eth0_mac: "{{lxc_mac|default(none)}}"
-corpusops_lxc_eth0_gateway: "{% if corpusops_lxc_eth0_ip%}{{lxc_gateway|default(corpusops_services_virt_lxc_vars.gateway)}}{% else %}null{%endif%}"
+corpusops_lxc_eth0_gateway: "{% if corpusops_lxc_eth0_ip%}{{lxc_gateway|default(corpusops_services_virt_lxc_vars.gateway)}}{% else %}{{none}}{%endif%}"
 #corpusops_lxc_eth0_ip: "{{lxc_ip|default('1.2.3.4/32')}}"
 #corpusops_lxc_eth0_mac: 'aa:bb:cc:dd:ee:ff'
 

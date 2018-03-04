@@ -12,6 +12,7 @@
     lxc-ls -P "{{lxc_path}}" --fancy |tail -n +2|awk '{print $1}'|\
     egrep -q "^{{lxc_container_name}}$";echo $?
   register: corpusops_lxc_create_lxc_test
+  changed_when: false
   tags: corpusops_lxc_create,corpusops_lxc_create_lxc
 - include_tasks: manual_lxc_conf.yml
   when: 'corpusops_lxc_create_lxc_test.stdout == "0"'
@@ -52,27 +53,15 @@
     - bin/cops_lxc_init.sh
     - cops_lxc_prereqs.sh
     - cops_lxc_manage.sh
-- shell: lxc-start --version 2>&1
-  register: lxc_start_version
-  changed_when: false
-- set_fact:
-    cacheable: false
-    cops_lxc_version: "{{lxc_start_version.stdout}}"
-    cops_lxc_legacy: "{{lxc_start_version.stdout|copsf_looseversion < '2.1'}}"
-- name: lxc config (from template script)
-  template:
-    src: "../templates/lxc.conf"
-    dest: "{{lxc_path}}/{{lxc_container_name}}/config"
-    mode: "0600"
-    trim_blocks: false
-  register: corpusops_lxc_create_config
-  tags: corpusops_lxc_create,corpusops_lxc_create_lxc
+- include_tasks: config.yml
 - name: "RestartContainer{{lxc_container_name}}"
   shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_manage.sh restart"
   when: "corpusops_lxc_create_config.changed"
+  changed_when: false
   tags: corpusops_lxc_create,corpusops_lxc_create_prereq
 - name: "StartContainer{{lxc_container_name}}"
   shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_manage.sh start"
+  changed_when: false
   tags: corpusops_lxc_create,corpusops_lxc_create_prereq
 - name: lxc reset force
   shell: |
@@ -82,5 +71,6 @@
   when: "corpusops_lxc_create_lxc_test['stdout'] == '1'"
 - name: lxc prereq
   shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_prereqs.sh"
+  changed_when: false
   tags: corpusops_lxc_create,corpusops_lxc_create_prereq
 - include_role: {name: corpusops.roles/lxc_remove_password}

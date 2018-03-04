@@ -30,7 +30,7 @@ if ! which python >/dev/null 2>/dev/null;then
       exit 1
   fi
 fi
-rh="/sbin/cops_reset-host.py"
+rh="/bin/cops_reset-host.py"
 marker=/etc/lxc_reset_done
 if [ -e "$rh" ] && [ ! -e $marker ];then
     chmod +x "$rh" && \

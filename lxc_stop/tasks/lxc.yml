@@ -15,7 +15,6 @@
 - name: Stop lxc container
   shell: "lxc-stop -k -n '{{lxc_container_name}}'"
   tags: corpusops_lxc_stop,corpusops_lxc_stop_ip
-  when:  |
-    {% set st = corpusops_lxc_stop_lxcs.msg.get(
-      lxc_container_name, {}).get('state', 'UNKNOWN') in ['RUNNING']  %}
-    {{st}}
+  when:  "(corpusops_lxc_stop_lxcs.msg.get(
+              lxc_container_name, {}
+          ).get('state', 'UNKNOWN') in ['RUNNING'])"

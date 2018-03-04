@@ -1,4 +1,4 @@
 ---
-- hosts: all
-  roles:
-    - role: corpusops.roles/lxc_create
+- import_playbook: check.yml
+- hosts: "{{lxc_host|default('localhost')}}"
+  tasks: [include_role: {name: corpusops.roles/lxc_create}]

@@ -22,7 +22,7 @@ def ssh_connection_proxy(_, inventory_hostname, hostvars, *args, **kwargs):
     user = hostvars[inventory_hostname].get(
         'ansible_user', 'root')
     gw = hostvars[inventory_hostname].get(
-        'ansible_hostname', inventory_hostname)
+        'ansible_fqdn', inventory_hostname)
     gw_port = hostvars[inventory_hostname].get('ansible_port', None)
     if (
         (hostvars[inventory_hostname].get('ansible_connection', '')

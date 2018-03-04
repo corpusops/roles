@@ -3,4 +3,4 @@
 - include_tasks: run.yml
   vars:
     lxc_path: "{{corpusops_lxc_container_vars.msg['path']}}"
-    lxc_container_name: "{{corpusops_lxc_container_vars.msg['container_name']}}" 
+    lxc_container_name: "{{corpusops_lxc_container_vars.msg['container_name']}}"

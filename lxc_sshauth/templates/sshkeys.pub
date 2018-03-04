@@ -1,0 +1,4 @@
+{{ _c_cops_sshauthkeyscontent.stdout|default('') }}
+{% for i in ssh_keys %}
+{{i}}
+{% endfor %}

@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  vars: {ansible_connection: local}
+  tasks:
+    - with_items: [lxc_host, lxc_container_name]
+      assert:
+        that: ["{{item}} is not none"]
+        msg: "{{item}} is not defined"

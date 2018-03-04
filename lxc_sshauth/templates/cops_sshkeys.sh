@@ -2,7 +2,8 @@
 container=$(echo $(basename $(dirname $(readlink -f $0))))
 lxcap=$(echo $(dirname $(readlink -f $0)))
 lxcp=$(echo $(dirname $(dirname $(readlink -f $0))))
-if [ ! -e "$lxcap/sshkeys" ];then
+keysf="$lxcap/sshkeys.pub"
+if [ ! -e  ];then
     echo "No keys to add"
     exit 1
 fi
@@ -10,16 +11,17 @@ cd "$lxcap/sshkeys"
 if ! ( lxc-attach -e -P "${lxcp}" -n $container -- test  -e /root/.ssh );then
     echo "-CHANGED- Creating lxc root ssh folder"
     lxc-attach -P "${lxcp}" -n $container -- mkdir /root/.ssh
-    lxc-attach -P "${lxcp}" -n $container -- chmod 700 /root/.ssh
 fi
 if ! ( lxc-attach -e -P "${lxcp}" -n $container -- test -e /root/.ssh/authorized_keys );then
     echo "-CHANGED- Creating lxc root ssh authorized_keys"
     lxc-attach -e -P "${lxcp}" -n $container -- touch /root/.ssh/authorized_keys
-    lxc-attach -e -P "${lxcp}" -n $container -- chmod 700 /root/.ssh/authorized_keys
 fi
+lxc-attach -P "${lxcp}" -n $container -- /bin/sh -c "chmod 700 /root/.ssh;chmod 600 /root/.ssh/authorized_keys"
 while read f;do
     while read sshkey;do
-        if ! ( ( lxc-attach -e -P "${lxcp}" -n $container -- \
+        if echo "$sshkey" | egrep "^\s*$";then
+            echo empty line >&2
+        elif ! ( ( lxc-attach -e -P "${lxcp}" -n $container -- \
                    cat /root/.ssh/authorized_keys ) |\
              grep -q -- "$sshkey" );
         then

@@ -5,9 +5,12 @@
 # to create such a container
 #
 # eg:
-#     bin/ansible-playbook p*/c*/*/create_container.yml \
-#         -l my_baremetal.foo.net \
-#         -e 'lxc_container_name=vm.foo.net'
-#
+#   bin/ansible-playbook p*/c*/*/create_container.yml \
+#       -e 'lxc_host=bm.foo.net lxc_container_name=vm.foo.net'
+#       [ -e 'lxc_ip=1.2.3.4']
+#       [ -e 'lxc_mac=x:a:d:c:d:f']
+#       [ -e 'lxc_fromcontainer=tplcorpusops']
 - import_playbook: lxc_container/create.yml
+  tags: [lxc_create]
 - import_playbook: lxc_container/provision.yml
+  tags: [lxc_provision]
