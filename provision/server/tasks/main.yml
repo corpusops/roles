@@ -1,0 +1,283 @@
+---
+- name: SETUP
+  include_jinja_vars:
+    content: |
+      ---
+      {% set vt = corpusops_vars.vt %}
+      {% set is_docker    = corpusops_vars.is_docker %}
+      {% set is_lxc       = corpusops_vars.is_lxc %}
+      {% set is_container = corpusops_vars.is_container %}
+      {% set corpusops_localsettings_autoupgrades    = corpusops_localsettings_autoupgrades     | default(corpusops_vars.security) %}
+      {% set corpusops_localsettings_basepkgs        = corpusops_localsettings_basepkgs         | default(True) %}
+      {% set corpusops_localsettings_dockercompose   = corpusops_localsettings_dockercompose    | default(False) %}
+      {% set corpusops_localsettings_docker          = corpusops_localsettings_docker           | default(False) %}
+      {% set corpusops_localsettings_editor          = corpusops_localsettings_editor           | default(not is_docker) %}
+      {% set corpusops_localsettings_etckeeper       = corpusops_localsettings_etckeeper        | default(not is_docker) %}
+      {% set corpusops_localsettings_git             = corpusops_localsettings_git              | default(True) %}
+      {% set corpusops_localsettings_golang          = corpusops_localsettings_golang           | default(False) %}
+      {% set corpusops_localsettings_jdk             = corpusops_localsettings_jdk              | default(False) %}
+      {% set corpusops_localsettings_kubectl         = corpusops_localsettings_kubectl          | default(False) %}
+      {% set corpusops_localsettings_locales         = corpusops_localsettings_locales          | default(True) %}
+      {% set corpusops_localsettings_makinastates    = corpusops_localsettings_makinastates     | default(False) %}
+      {% set corpusops_localsettings_minikube        = corpusops_localsettings_minikube         | default(false) %}
+      {% set corpusops_localsettings_nodejs          = corpusops_localsettings_nodejs           | default(False) %}
+      {% set corpusops_localsettings_nscd            = corpusops_localsettings_nscd             | default(not is_docker) %}
+      {% set corpusops_localsettings_packer          = corpusops_localsettings_packer           | default(False) %}
+      {% set corpusops_localsettings_phantoms        = corpusops_localsettings_phantoms         | default(False) %}
+      {% set corpusops_localsettings_php             = corpusops_localsettings_php              | default(False) %}
+      {% set corpusops_localsettings_pkgmgr          = corpusops_localsettings_pkgmgr           | default(True) %}
+      {% set corpusops_localsettings_profile         = corpusops_localsettings_profile          | default(True) %}
+      {% set corpusops_localsettings_python_sni      = corpusops_localsettings_python_sni       | default(False) %}
+      {% set corpusops_localsettings_screen          = corpusops_localsettings_screen           | default(True) %}
+      {% set corpusops_localsettings_ssh             = corpusops_localsettings_ssh              | default(True) %}
+      {% set corpusops_localsettings_sudo            = corpusops_localsettings_sudo             | default(True) %}
+      {% set corpusops_localsettings_supervisor      = corpusops_localsettings_supervisor       | default(False) %}
+      {% set corpusops_localsettings_sysctls         = corpusops_localsettings_sysctls          | default(not is_docker) %}
+      {% set corpusops_localsettings_timezone        = corpusops_localsettings_timezone         | default(True) %}
+      {% set corpusops_localsettings_vim             = corpusops_localsettings_vim              | default(not is_docker) %}
+      {% set corpusops_services_backup_dbsmartbackup = corpusops_services_backup_dbsmartbackup  | default(False) %}
+      {% set corpusops_services_base_cron            = corpusops_services_base_cron             | default(True) %}
+      {% set corpusops_services_base_ntp             = corpusops_services_base_ntp              | default(not is_container) %}
+      {% set corpusops_services_base_sshd            = corpusops_services_base_sshd             | default(not is_docker) %}
+      {% set corpusops_services_base_ssh_server      = corpusops_services_base_ssh_server       | default(True) %}
+      {% set corpusops_services_db_mysql_client      = corpusops_services_db_mysql_client       | default(False) %}
+      {% set corpusops_services_db_mysql             = corpusops_services_db_mysql              | default(False) %}
+      {% set corpusops_services_db_mysql_pkgmgr      = corpusops_services_db_mysql_pkgmgr       | default(False) %}
+      {% set corpusops_services_db_postgis           = corpusops_services_db_postgis            | default(False) %}
+      {% set corpusops_services_db_postgresql_client = corpusops_services_db_postgresql_client  | default(False) %}
+      {% set corpusops_services_db_postgresql        = corpusops_services_db_postgresql         | default(False) %}
+      {% set corpusops_services_db_postgresql_pkgmgr = corpusops_services_db_postgresql_pkgmgr  | default(False) %}
+      {% set corpusops_services_firewall_ms_iptables = corpusops_services_firewall_ms_iptables  | default(False) %}
+      {% set corpusops_services_ftp_pureftpd         = corpusops_services_ftp_pureftpd          | default(False) %}
+      {% set corpusops_services_http_nginx           = corpusops_services_http_nginx            | default(False) %}
+      {% set corpusops_services_magicbridge          = corpusops_services_magicbridge           | default(False) %}
+      {% set corpusops_services_misc_robotframework  = corpusops_services_misc_robotframework   | default(False) %}
+      {% set corpusops_services_misc_xvfb            = corpusops_services_misc_xvfb             | default(False) %}
+      {% set corpusops_services_php_fpm              = corpusops_services_php_fpm               | default(False) %}
+      {% set corpusops_services_proxy_haproxy        = corpusops_services_proxy_haproxy         | default(False) %}
+      {% set corpusops_services_virt_docker          = corpusops_services_virt_docker           | default(False) %}
+      {% set corpusops_services_virt_lxc             = corpusops_services_virt_lxc              | default(False) %}
+      {% set corpusops_sshkeys                       = corpusops_sshkeys                        | default(True) %}
+      {% set corpusops_localsettings_dns_servers     = corpusops_localsettings_dns_servers      | default([]) %}
+      {% set corpusops_localsettings_dns_search      = corpusops_localsettings_dns_search       | default([]) %}
+      {% set corpusops_localsettings_apparmor        = corpusops_localsettings_apparmor
+                                                                                                | default(ansible_lsb.id == 'Ubuntu' and not is_container)
+                                                                                                | ternary(True, False) %}
+      {% set corpusops_services_firewall_fail2ban    = corpusops_services_firewall_fail2ban
+                                                                                                | default(corpusops_services_base_ssh_server and corpusops_vars.security)
+                                                                                                | ternary(True, False) %}
+      {% set corpusops_localsettings_dns = (
+            corpusops_localsettings_dns_servers or
+            corpusops_localsettings_dns_search) | length > 0 %}
+      provision_corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
+      provision_corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
+      provision_corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
+      provision_corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
+      provision_corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
+      provision_corpusops_localsettings_docker: {{ corpusops_localsettings_docker }}
+      provision_corpusops_localsettings_editor: {{ corpusops_localsettings_editor }}
+      provision_corpusops_localsettings_etckeeper: {{ corpusops_localsettings_etckeeper }}
+      provision_corpusops_localsettings_git: {{ corpusops_localsettings_git }}
+      provision_corpusops_localsettings_golang: {{ corpusops_localsettings_golang }}
+      provision_corpusops_localsettings_jdk: {{ corpusops_localsettings_jdk }}
+      provision_corpusops_localsettings_kubectl: {{ corpusops_localsettings_kubectl }}
+      provision_corpusops_localsettings_locales: {{ corpusops_localsettings_locales }}
+      provision_corpusops_localsettings_makinastates: {{ corpusops_localsettings_makinastates }}
+      provision_corpusops_localsettings_minikube: {{ corpusops_localsettings_minikube }}
+      provision_corpusops_localsettings_nodejs: {{ corpusops_localsettings_nodejs }}
+      provision_corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
+      provision_corpusops_localsettings_packer: {{ corpusops_localsettings_packer }}
+      provision_corpusops_localsettings_phantoms: {{ corpusops_localsettings_phantoms }}
+      provision_corpusops_localsettings_php: {{ corpusops_localsettings_php }}
+      provision_corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
+      provision_corpusops_localsettings_profile: {{ corpusops_localsettings_profile }}
+      provision_corpusops_localsettings_python_sni: {{ corpusops_localsettings_python_sni }}
+      provision_corpusops_localsettings_screen: {{ corpusops_localsettings_screen }}
+      provision_corpusops_localsettings_ssh: {{ corpusops_localsettings_ssh }}
+      provision_corpusops_localsettings_sudo: {{ corpusops_localsettings_sudo }}
+      provision_corpusops_localsettings_supervisor: {{ corpusops_localsettings_supervisor }}
+      provision_corpusops_localsettings_sysctls: {{ corpusops_localsettings_sysctls }}
+      provision_corpusops_localsettings_vim: {{ corpusops_localsettings_vim }}
+      provision_corpusops_services_backup_dbsmartbackup: {{ corpusops_services_backup_dbsmartbackup }}
+      provision_corpusops_services_base_cron: {{ corpusops_services_base_cron }}
+      provision_corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
+      provision_corpusops_services_base_sshd: {{ corpusops_services_base_sshd }}
+      provision_corpusops_services_db_mysql_client: {{ corpusops_services_db_mysql_client }}
+      provision_corpusops_services_db_mysql: {{ corpusops_services_db_mysql }}
+      provision_corpusops_services_db_mysql_pkgmgr: {{ corpusops_services_db_mysql_pkgmgr }}
+      provision_corpusops_services_db_postgis: {{ corpusops_services_db_postgis }}
+      provision_corpusops_services_db_postgresql_client: {{ corpusops_services_db_postgresql_client }}
+      provision_corpusops_services_db_postgresql: {{ corpusops_services_db_postgresql }}
+      provision_corpusops_services_db_postgresql_pkgmgr: {{ corpusops_services_db_postgresql_pkgmgr }}
+      provision_corpusops_services_firewall_fail2ban: {{ corpusops_services_firewall_fail2ban }}
+      provision_corpusops_services_firewall_ms_iptables: {{ corpusops_services_firewall_ms_iptables }}
+      provision_corpusops_services_ftp_pureftpd: {{ corpusops_services_ftp_pureftpd }}
+      provision_corpusops_services_http_nginx: {{ corpusops_services_http_nginx }}
+      provision_corpusops_services_magicbridge: {{ corpusops_services_magicbridge }}
+      provision_corpusops_services_misc_robotframework: {{ corpusops_services_misc_robotframework }}
+      provision_corpusops_services_misc_xvfb: {{ corpusops_services_misc_xvfb }}
+      provision_corpusops_services_php_fpm: {{ corpusops_services_php_fpm }}
+      provision_corpusops_services_proxy_haproxy: {{ corpusops_services_proxy_haproxy }}
+      provision_corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
+      provision_corpusops_services_virt_lxc: {{ corpusops_services_virt_lxc }}
+      provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
+  tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
+- include_role: {name: corpusops.roles/sshkeys}
+  tags: sshkeys
+  when: provision_corpusops_sshkeys
+- include_role: {name: corpusops.roles/localsettings_dns}
+  tags: dns
+  when: provision_corpusops_localsettings_dns
+- include_role: {name: corpusops.roles/localsettings_sysctls}
+  tags: sysctls
+  when: provision_corpusops_localsettings_sysctls
+- include_role: {name: corpusops.roles/localsettings_pkgmgr}
+  tags: pkgmgr
+  when: provision_corpusops_localsettings_pkgmgr
+- include_role: {name: corpusops.roles/localsettings_locales}
+  tags: locales
+  when: provision_corpusops_localsettings_locales
+- include_role: {name: corpusops.roles/localsettings_makinastates}
+  tags: makinastates
+  when: provision_corpusops_localsettings_makinastates
+- include_role: {name: corpusops.roles/localsettings_timezone}
+  tags: timezone
+  when: provision_corpusops_localsettings_timezone
+- include_role: {name: corpusops.roles/localsettings_autoupgrades}
+  tags: autoupgrades
+  when: provision_corpusops_localsettings_autoupgrades
+- include_role: {name: corpusops.roles/localsettings_basepkgs}
+  tags: basepkgs
+  when: provision_corpusops_localsettings_basepkgs
+- include_role: {name: corpusops.roles/services_firewall_ms_iptables}
+  tags: ms_iptables
+  when: provision_corpusops_services_firewall_ms_iptables
+- include_role: {name: corpusops.roles/localsettings_profile}
+  tags: profile
+  when: provision_corpusops_localsettings_profile
+- include_role: {name: corpusops.roles/services_firewall_fail2ban}
+  tags: fail2ban
+  when: provision_corpusops_services_firewall_fail2ban
+- include_role: {name: corpusops.roles/localsettings_apparmor}
+  tags: apparmor
+  when: provision_corpusops_localsettings_apparmor
+- include_role: {name: corpusops.roles/localsettings_vim}
+  tags: vim
+  when: provision_corpusops_localsettings_vim
+- include_role: {name: corpusops.roles/localsettings_editor}
+  tags: editor
+  when: provision_corpusops_localsettings_editor
+- include_role: {name: corpusops.roles/localsettings_etckeeper}
+  tags: etckeeper
+  when: provision_corpusops_localsettings_etckeeper
+- include_role: {name: corpusops.roles/localsettings_git}
+  tags: git
+  when: provision_corpusops_localsettings_git
+- include_role: {name: corpusops.roles/localsettings_docker}
+  tags: dockerclient
+  when: provision_corpusops_localsettings_docker
+- include_role: {name: corpusops.roles/localsettings_dockercompose}
+  tags: dockercompose
+  when: provision_corpusops_localsettings_dockercompose
+- include_role: {name: corpusops.roles/localsettings_kubectl}
+  tags: kubectl
+  when: provision_corpusops_localsettings_kubectl
+- include_role: {name: corpusops.roles/localsettings_minikube}
+  tags: minikube
+  when: provision_corpusops_localsettings_minikube
+- include_role: {name: corpusops.roles/localsettings_packer}
+  tags: packer
+  when: provision_corpusops_localsettings_packer
+- include_role: {name: corpusops.roles/localsettings_phantoms}
+  tags: phantomjs
+  when: provision_corpusops_localsettings_phantoms
+- include_role: {name: corpusops.roles/localsettings_nodejs}
+  tags: nodejs
+  when: provision_corpusops_localsettings_nodejs
+- include_role: {name: corpusops.roles/localsettings_golang}
+  tags: golang
+  when: provision_corpusops_localsettings_golang
+- include_role: {name: corpusops.roles/localsettings_python_sni}
+  tags: python
+  when: provision_localsettings_python_sni
+- include_role: {name: corpusops.roles/localsettings_php}
+  tags: php
+  when: provision_corpusops_localsettings_php
+- include_role: {name: corpusops.roles/localsettings_supervisor}
+  tags: supervisor
+  when: provision_corpusops_localsettings_supervisor
+- include_role: {name: corpusops.roles/localsettings_jdk}
+  tags: jdk
+  when: provision_corpusops_localsettings_jdk
+- include_role: {name: corpusops.roles/localsettings_nscd}
+  tags: nscd
+  when: provision_corpusops_localsettings_nscd
+- include_role: {name: corpusops.roles/localsettings_screen}
+  tags: screen
+  when: provision_corpusops_localsettings_screen
+- include_role: {name: corpusops.roles/localsettings_ssh}
+  tags: ssh
+  when: provision_corpusops_localsettings_ssh
+- include_role: {name: corpusops.roles/localsettings_sudo}
+  tags: sudo
+  when: provision_corpusops_localsettings_sudo
+- include_role: {name: corpusops.roles/services_base_ntp}
+  tags: ntp
+  when: provision_corpusops_services_base_ntp
+- include_role: {name: corpusops.roles/services_base_sshd}
+  tags: sshd
+  when: provision_corpusops_services_base_sshd
+- include_role: {name: corpusops.roles/services_base_cron}
+  tags: cron
+  when: provision_corpusops_services_base_cron
+- include_role: {name: corpusops.roles/services_magicbridge}
+  tags: magicbridge
+  when: provision_corpusops_services_magicbridge
+- include_role: {name: corpusops.roles/services_virt_lxc}
+  tags: lxc
+  when: provision_corpusops_services_virt_lxc
+- include_role: {name: corpusops.roles/services_virt_docker}
+  tags: docker
+  when: provision_corpusops_services_virt_docker
+- include_role: {name: corpusops.roles/services_misc_xvfb}
+  tags: xvfb
+  when: provision_corpusops_services_misc_xvfb
+- include_role: {name: corpusops.roles/services_misc_robotframework}
+  tags: robotframework
+  when: provision_corpusops_services_misc_robotframework
+- include_role: {name: corpusops.roles/services_http_nginx}
+  tags: nginx
+  when: provision_corpusops_services_http_nginx
+- include_role: {name: corpusops.roles/services_db_mysql_pkgmgr}
+  tags: mysql_pkgmgr
+  when: provision_corpusops_services_db_mysql_pkgmgr
+- include_role: {name: corpusops.roles/services_db_mysql_client}
+  tags: mysql_client
+  when: provision_corpusops_services_db_mysql_client
+- include_role: {name: corpusops.roles/services_db_mysql}
+  tags: mysql
+  when: provision_corpusops_services_db_mysql
+- include_role: {name: corpusops.roles/services_db_postgresql_pkgmgr}
+  tags: postgresql_pkgmgr
+  when: provision_corpusops_services_db_postgresql_pkgmgr
+- include_role: {name: corpusops.roles/services_db_postgresql_client}
+  tags: postgresql_client
+  when: provision_corpusops_services_db_postgresql_client
+- include_role: {name: corpusops.roles/services_db_postgresql}
+  tags: postgresql
+  when: provision_corpusops_services_db_postgresql
+- include_role: {name: corpusops.roles/services_db_postgis}
+  tags: postgis
+  when: provision_corpusops_services_db_postgis
+- include_role: {name: corpusops.roles/services_backup_dbsmartbackup}
+  tags: dbsmartbackup
+  when: provision_corpusops_services_backup_dbsmartbackup
+- include_role: {name: corpusops.roles/services_php_fpm}
+  tags: php
+  when: provision_corpusops_services_php_fpm
+- include_role: {name: corpusops.roles/services_ftp_pureftpd}
+  tags: pureftpd
+  when: provision_corpusops_services_ftp_pureftpd
+- include_role: {name: corpusops.roles/services_proxy_haproxy}
+  tags: haproxy
+  when: provision_corpusops_services_proxy_haproxy
