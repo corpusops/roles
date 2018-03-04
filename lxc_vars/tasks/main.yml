@@ -1,15 +1,61 @@
 ---
 - include_jinja_vars:
-    name: "{{role_name.replace('corpusops.roles/', 'corpusops_')}}"
-  tags: [corpusops_vars, corpusops_lxc_vars]
+    content: |-
+      ---
+      {% set prefix = 'corpusops_lxc_' %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix, pdb=true) %}
+      {{ snamespaced|to_json}}
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_lxc_' %}
+      {% set namespaced = vars[prefix+'vars'] %}
+      {% if namespaced['container_name'] %}
+      {%  set _ = namespaced['containers'].setdefault(namespaced['container_name'], {}) %}
+      {% endif %}
+      {% for lxc in namespaced['containers'] %}
+      {%  set lxcdata = namespaced['containers'][lxc] %}
+      {%  for k in [
+            'remove_password',
+            'included_config',
+            'ssh_keys_paths', 'ssh_keys',
+            'auto_start', 'container_name', 'path',
+            'backing_store', 'clone_snapshot',
+            'from_container',
+            'template', 'template_options',
+            'ubuntu_release', 'ubuntu_mirror',
+            'pip', 'clone_snapshot'] %}
+      {%    if k == 'clone_snapshot' %}
+      {%      set bs = namespaced['backing_store'] %}
+      {%      set bss = namespaced['clone_snapshot'] %}
+      {%      if bss in [None, 'None', 'none', 'null', ''] and bs not in ['dir', 'lvm']%}
+      {%        set bss = True %}
+      {%      endif%}
+      {%      set _ = lxcdata.setdefault(k, bss) %}
+      {%    endif %}
+      {%    set  _ = lxcdata.setdefault(k, namespaced.get(k, None)) %}
+      {%  endfor %}
+      {%  for k in corpusops_lxc_cops_computed_defaults %}
+      {%    if k in lxcdata %}
+      {%      set _ = lxcdata.update({k: lxcdata[k].format(**vars)}) %}
+      {%    endif %}
+      {%  endfor %}
+      {%  for ifc in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] %}
+      {%    for k in ['mac', 'bridge', 'gateway', 'ip'] %}
+      {%      set ifcknob = 'eth{0}_{1}'.format(ifc, k) %}
+      {%      set  _ = lxcdata.setdefault(ifcknob, namespaced[ifcknob]) %}
+      {%    endfor %}
+      {%  endfor %}
+      {% endfor %}
+      {% set snamespaced2, vars = namespaced
+         |copsf_registry_to_vars(vars, prefix, global_scope=True) %}
+      {{ snamespaced2 | to_json}}
+  tags: [corpusops_vars, corpusops_lxc_sshauth_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- name: lxc - container_var
-  tags: [corpusops_vars, corpusops_lxc_vars]
+- debug: {msg: "{{
+    corpusops_lxc_vars.containers.get(
+      corpusops_lxc_vars.container_name, {})}}"}
   register: corpusops_lxc_container_vars
-  debug:
-    msg: "{{corpusops_lxc_vars.containers.get(
-      corpusops_lxc_vars['container_name']|default(False), {})}}"
-  no_log: "{{not (cops_vars_debug|default(false))}}"
 - name: get back some computed values to vars
   include_jinja_vars:
     content: |
