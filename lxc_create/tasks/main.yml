@@ -14,6 +14,7 @@
     lxc_ubuntu_mirror: "{{corpusops_lxc_container_vars.msg['ubuntu_mirror']}}"
     lxc_ubuntu_release: "{{corpusops_lxc_container_vars.msg['ubuntu_release']}}"
     lxc_auto_start: "{{corpusops_lxc_container_vars.msg['auto_start']}}"
+    lxc_netplan: "{{corpusops_lxc_container_vars.msg['netplan']}}"
     lxc_eth0_mac: "{{corpusops_lxc_container_vars.msg['eth0_mac']}}"
     lxc_eth0_bridge: "{{corpusops_lxc_container_vars.msg['eth0_bridge']}}"
     lxc_eth0_ip: "{{corpusops_lxc_container_vars.msg['eth0_ip']}}"

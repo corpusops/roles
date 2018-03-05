@@ -17,7 +17,7 @@
       {%  set lxcdata = namespaced['containers'][lxc] %}
       {%  for k in [
             'remove_password',
-            'included_config',
+            'included_config', 'nameservers', 'ns_search',
             'ssh_keys_paths', 'ssh_keys',
             'auto_start', 'container_name', 'path',
             'backing_store', 'clone_snapshot',
@@ -40,12 +40,49 @@
       {%      set _ = lxcdata.update({k: lxcdata[k].format(**vars)}) %}
       {%    endif %}
       {%  endfor %}
+      {%  set netplan = lxcdata.setdefault('netplan', {}) %}
+      {%  set netplannet   = netplan.setdefault('network', {}) %}
+      {%  set _            = netplannet.setdefault('version', 2) %}
+      {%  set netplanether = netplannet.setdefault('ethernets', {}) %}
+      {%  set netconfigured = [] %}
       {%  for ifc in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] %}
       {%    for k in ['mac', 'bridge', 'gateway', 'ip'] %}
       {%      set ifcknob = 'eth{0}_{1}'.format(ifc, k) %}
       {%      set  _ = lxcdata.setdefault(ifcknob, namespaced[ifcknob]) %}
       {%    endfor %}
+      {%    set hasnetconf = (
+              lxcdata['eth{0}_mac'.format(ifc)] or
+              lxcdata['eth{0}_ip'.format(ifc)] or
+              lxcdata['eth{0}_bridge'.format(ifc)]) %}
+      {%    if hasnetconf %}
+      {%      set ethernet = netplanether.setdefault("eth{0}".format(ifc), {}) %}
+      {%      set _ = netconfigured.append("eth{0}".format(ifc)) %}
+      {%      for conf, knob in {
+                'mac': 'macaddress',
+                'gateway': 'gateway4',
+                'ip': 'addresses'}.items() %}
+      {%        set confval = lxcdata['eth{0}_{1}'.format(ifc, conf)] %}
+      {%        if confval%}
+      {%          if knob in ['addresses'] %}
+      {%            if '/' not in confval %}
+      {%              set confval = "{0}/24".format(confval) %}
+      {%            endif %}
+      {%            set confval = [confval] %}
+      {%          endif %}
+      {%          set _ = ethernet.update({knob: confval}) %}
+      {%        endif %}
+      {%      endfor %}
+      {%      if not ethernet.get('addresses', []) %}
+      {%         set _ = ethernet.setdefault('dhcp4', true) %}
+      {%      endif %}
+      {%    endif %}
       {%  endfor %}
+      {%  if netconfigured %}
+      {%    set netplanns = netplanether[netconfigured[0]].setdefault(
+                                 'nameservers', {}) %}
+      {%    set _  = netplanns.setdefault('search',    lxcdata.ns_search) %}
+      {%    set _  = netplanns.setdefault('addresses', lxcdata.nameservers) %}
+      {%  endif %}
       {% endfor %}
       {% set snamespaced2, vars = namespaced
          |copsf_registry_to_vars(vars, prefix, global_scope=True) %}

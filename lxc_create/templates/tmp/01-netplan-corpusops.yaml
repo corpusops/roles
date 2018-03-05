@@ -1,0 +1,2 @@
+---
+{{ corpusops_lxc_container_vars.msg.netplan|to_yaml }}
