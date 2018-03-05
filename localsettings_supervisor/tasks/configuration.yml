@@ -1,5 +1,4 @@
 ---
-- debug: {msg: "{{corpusops_localsettings_supervisor_vars.configs}}"}
 - include_role: {name: corpusops.roles/configs, private: true}
   vars:
     cops_configs_files: "{{corpusops_localsettings_supervisor_vars.files}}"
