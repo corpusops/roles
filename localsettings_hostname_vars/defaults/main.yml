@@ -1,0 +1,30 @@
+---
+corpusops_localsettings_hostname_cops_do_format_resolve: true
+corpusops_localsettings_hostname_cops_computed_defaults: []
+corpusops_localsettings_hostname_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_hostname_cops_sub_os_append: {}
+corpusops_localsettings_hostname_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo', ]
+corpusops_localsettings_hostname_cops_lowered: ['repo']
+corpusops_localsettings_hostname_cops_sub_namespaces: {}
+corpusops_localsettings_hostname_activated: True
+corpusops_localsettings_hostname_repo_keys_url: null
+corpusops_localsettings_hostname_repo_keys: null
+corpusops_localsettings_hostname_repo_keys_default: []
+corpusops_localsettings_hostname_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_localsettings_hostname_repo: null
+corpusops_localsettings_hostname_packages: null
+corpusops_localsettings_hostname_packages_default: []
+corpusops_localsettings_hostname_services: null
+corpusops_localsettings_hostname_group: hostname
+corpusops_localsettings_hostname_user: root
+corpusops_localsettings_hostname_files: null
+corpusops_localsettings_hostname_files_default: []
+corpusops_localsettings_hostname_filescopy: null
+corpusops_localsettings_hostname_filescopy_default: []
+corpusops_localsettings_hostname_files_apt: []
+corpusops_localsettings_hostname_configs: null
+corpusops_localsettings_hostname_configs_default: []
+corpusops_localsettings_hostname_hostname: "{{ansible_host.split('.')[0]}}"
+corpusops_localsettings_hostname_fqdn: "{{ansible_fqdn}}"

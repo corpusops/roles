@@ -1,0 +1,50 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{corpusops_localsettings_hostname_vars.files}}"
+    cops_configs_copys: "{{corpusops_localsettings_hostname_vars.filescopy}}"
+    cops_configs_templates: "{{corpusops_localsettings_hostname_vars.configs}}"
+  tags: [hostname_configs]
+- set_fact:
+    cacheable: false
+    corpusops_localsettings_hostname_filest: "{{cops_configs_files_results}}"
+    corpusops_localsettings_hostname_filesct: "{{cops_configs_copys_results}}"
+    corpusops_localsettings_hostname_configst: "{{cops_configs_templates_results}}"
+  tags: [hostname_configs]
+- copy:
+    unsafe_writes: true
+    content: "{{corpusops_localsettings_hostname_vars.hostname}}"
+    dest: "/etc/hostname"
+    mode: 0644
+    owner: root
+    group: root
+  register: corpusops_localsettings_hostname_files_h1
+- blockinfile:
+    unsafe_writes: true
+    dest: /etc/hosts
+    marker: "# {mark} corpusops hostname - end"
+    insertafter: EOF
+    block: |
+      127.0.0.1 {{corpusops_localsettings_hostname_vars.hostname}} {{corpusops_localsettings_hostname_vars.fqdn}}
+  register: corpusops_localsettings_hostname_files_f1
+- blockinfile:
+    unsafe_writes: true
+    dest: /etc/hosts
+    marker: "# {mark} corpusops hostname - start"
+    insertbefore: BOF
+    block: >
+      127.0.0.1
+      {{corpusops_localsettings_hostname_vars.fqdn}}
+      {{corpusops_localsettings_hostname_vars.hostname}}
+  register: corpusops_localsettings_hostname_files_f2
+- set_fact:
+    cacheable: false
+    corpusops_localsettings_hostname_configs_changed: "{{(
+      corpusops_localsettings_hostname_files_h1|changed or
+      corpusops_localsettings_hostname_files_f1|changed or
+      corpusops_localsettings_hostname_files_f2|changed or
+      corpusops_localsettings_hostname_filest|changed or
+      corpusops_localsettings_hostname_filesct|changed or
+      corpusops_localsettings_hostname_configst|changed)}}"
+- shell: hostname $(cat /etc/hostname)
+  when: corpusops_localsettings_hostname_configs_changed
