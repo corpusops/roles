@@ -1,0 +1,11 @@
+---
+- name: "corpusops_localsettings_hostname preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_hostname | default(True) }}"
+  register: corpusops_localsettings_hostname_can_run
+  tags: [corpusops_localsettings_hostname]
+- include_tasks: configuration.yml
+  when: 'corpusops_localsettings_hostname_can_run.msg == True'
+  tags: [corpusops_localsettings_hostname,
+         hostname_configuration,
+         corpusops_localsettings_hostname_configuration]

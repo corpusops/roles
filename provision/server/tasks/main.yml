@@ -9,6 +9,7 @@
       {% set is_container = corpusops_vars.is_container %}
       {% set corpusops_localsettings_autoupgrades    = corpusops_localsettings_autoupgrades     | default(corpusops_vars.security) %}
       {% set corpusops_localsettings_basepkgs        = corpusops_localsettings_basepkgs         | default(True) %}
+      {% set corpusops_localsettings_hostname        = corpusops_localsettings_hostname         | default(False) %}
       {% set corpusops_localsettings_dockercompose   = corpusops_localsettings_dockercompose    | default(False) %}
       {% set corpusops_localsettings_docker          = corpusops_localsettings_docker           | default(False) %}
       {% set corpusops_localsettings_editor          = corpusops_localsettings_editor           | default(not is_docker) %}
@@ -71,6 +72,7 @@
             corpusops_localsettings_dns_search) | length > 0 %}
       provision_corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
       provision_corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
+      provision_corpusops_localsettings_hostname: {{ corpusops_localsettings_hostname }}
       provision_corpusops_localsettings_basepkgs: {{ corpusops_localsettings_basepkgs }}
       provision_corpusops_localsettings_dns: {{ corpusops_localsettings_dns }}
       provision_corpusops_localsettings_dockercompose: {{ corpusops_localsettings_dockercompose }}
@@ -146,6 +148,9 @@
 - include_role: {name: corpusops.roles/localsettings_autoupgrades}
   tags: autoupgrades
   when: provision_corpusops_localsettings_autoupgrades
+- include_role: {name: corpusops.roles/localsettings_hostname}
+  tags: hostname
+  when: provision_corpusops_localsettings_hostname
 - include_role: {name: corpusops.roles/localsettings_basepkgs}
   tags: basepkgs
   when: provision_corpusops_localsettings_basepkgs
