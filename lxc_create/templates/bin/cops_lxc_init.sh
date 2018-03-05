@@ -37,30 +37,30 @@ interfaces="
 auto lo
 iface lo inet loopback
 source-directory /etc/network/interfaces.d"
-if [ -e /etc/netplan ] && ( which netplan >/dev/null 2>&1 );then
-    if [ -e /tmp/01-netplan-corpusops.yaml ];then
-        echo "netplan reconfiguration" >&2
-        if [ -e /etc/netplan/10-lxc.yaml ];then
-            rm -f /etc/netplan/10-lxc.yaml
-        fi \
-        && cp -f /tmp/01-netplan-corpusops.yaml /etc/netplan \
-        && netplan generate \
-        && netplan apply
-        if [ "x${?}" != "x0" ];then
-            echo "netplan reconfiguration error" >&2
-            exit 1
-        fi
+if [ -e /etc/netplan ] && ( which netplan >/dev/null 2>&1 ) && \
+  [ -e /tmp/01-netplan-corpusops.yaml ];then
+    echo "netplan reconfiguration" >&2
+    if [ -e /etc/netplan/10-lxc.yaml ] && \
+        ( grep -q eth0 /tmp/01-netplan-corpusops.yaml );then
+        rm -f /etc/netplan/10-lxc.yaml
+    fi \
+    && cp -f /tmp/01-netplan-corpusops.yaml /etc/netplan \
+    && netplan generate \
+    && netplan apply
+    if [ "x${?}" != "x0" ];then
+        echo "netplan reconfiguration error" >&2
+        exit 1
     fi
-elif [ -e /etc/network/interfaces ];then
-    if [ -e /tmp/interfaces ];then
-        echo "network/interfaces reconfiguration" >&2 \
-        && cp -f /tmp/interfaces /etc/network/interfaces.d/lxc \
-        && echo "$interfaces" >/etc/network/interfaces \
-        && /etc/init.d/networking restart
-        if [ "x${?}" != "x0" ];then
-            echo "network/interfaces reconfiguration error" >&2
-            exit 1
-        fi
+elif [ -e /etc/network/interfaces ] && [ -e /tmp/interfaces ];then
+    echo "network/interfaces reconfiguration" >&2
+    if ( grep -q eth0 /tmp/interfaces );then
+        echo "$interfaces" >/etc/network/interfaces
+    fi \
+    && cp -f /tmp/interfaces /etc/network/interfaces.d/lxc \
+    && /etc/init.d/networking restart
+    if [ "x${?}" != "x0" ];then
+        echo "network/interfaces reconfiguration error" >&2
+        exit 1
     fi
 fi
 

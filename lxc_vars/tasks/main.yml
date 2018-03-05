@@ -69,8 +69,8 @@
       {%        if confval%}
       {%          if knob in ['addresses'] %}
       {%            if '/' not in confval %}
-      {%              set pref = confval.startswith('10') and '16' or '24' %}
-      {%              set confval = "{0}/{1}".format(confval, pref) %}
+      {%              set confval = "{0}/{1}".format(
+                         confval, confval|copsf_lxc_subnet ) %}
       {%            endif %}
       {%            set confval = [confval] %}
       {%          endif %}
