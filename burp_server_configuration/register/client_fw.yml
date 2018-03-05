@@ -1,0 +1,20 @@
+---
+- debug: msg={{item}}
+- include_jinja_vars:
+    content:
+      _cops_burpfw: |-
+        {% set cdata = hostvars.get(item, {}) %}
+        {% set res = {
+          'name': 'corpusops_'+item,
+          'ms_iptables_state': cdata.get(
+            'burp_ms_iptables_state', None),
+          'restrict_ips': cdata.get('burp_restrict_ips', [])} %}
+        {% set ip = (cdata.get('burp_client_ip', '') or
+              cdata.get('corpusops_network_live_vars', {}).get(
+                  'ext_ip', None)) %}
+        {% if ip and (ip not in res.restrict_ips) %}
+        {%  set _ = res.restrict_ips.append(ip) %}
+        {% endif %}
+        {{ res | to_json }}
+- include_role: {name: corpusops.roles/burp_fw}
+  when: "_cops_burpfw.restrict_ips|copsf_bool"

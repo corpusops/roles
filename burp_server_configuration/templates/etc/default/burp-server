@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+# Defaults for burp initscript
+# sourced by /etc/init.d/burp-server
+# installed at /etc/default/burp by the maintainer scripts
+# {% set settings = cops_burp_vars %}
+# This is a POSIX shell fragment
+RUN=yes
+# Additional options that are passed to the Daemon.
+CONFIG={{settings.configfile_server}}
+DAEMON_ARGS="-c {{settings.configfile_server}}"

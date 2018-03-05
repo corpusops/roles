@@ -1,0 +1,22 @@
+---
+- tags: [cops_burpclient_vars]
+  block:
+  - include_jinja_vars:
+      content: |-
+        ---
+        {% set prefix = 'cops_burpclient_' %}
+        {% set snamespaced, vars = vars|copsf_registry(prefix) %}
+        {% set data = snamespaced[prefix+'vars'] %}
+        {%- if data.use_common_lines %}
+        {%-   set _ = data.custom_lines.append(data.common_lines) %}
+        {%- endif %}
+        {{ (snamespaced[prefix+'vars']
+            |copsf_format_resolve(additional_namespaces=[vars])
+            |copsf_registry_to_vars(vars, prefix, global_scope=True)
+           )[0]
+           | to_json}}
+    no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_tasks: run.yml
+  tags: [cops_burpclient_server]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+

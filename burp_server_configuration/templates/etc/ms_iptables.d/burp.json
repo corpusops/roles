@@ -1,0 +1,23 @@
+{%- set data = {'rules': []} %}
+{% set s = cops_burp_vars %}
+{%- for i in s.restrict_ips %}
+{%- for p in [
+    s.port, s.status_port,
+    s.client_port, s.client_status_port,
+    s.restore_port, s.restore_status_port,
+] %}
+{%- set _ = data.rules.append([
+  'iptables -w -t filter -A INPUT -s {1} -p tcp -m tcp --dport {0} -j ACCEPT'.format(p, i),
+]) %}
+{%- endfor %}
+{%- endfor %}
+{%- for p in [
+    s.port, s.status_port,
+    s.client_port, s.client_status_port,
+    s.restore_port, s.restore_status_port,
+] %}
+{%- set _ = data.rules.append([
+  'iptables -w -t filter -A INPUT -p tcp -m tcp --dport {0} -j ACCEPT'.format(p),
+]) %}
+{%- endfor %}
+{{- data|to_nice_json }}

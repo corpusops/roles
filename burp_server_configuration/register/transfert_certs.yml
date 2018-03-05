@@ -1,0 +1,33 @@
+---
+- shell: "cat {{hostvars.localhost.aburp_ca_path}}/{{burp_cname}}.crt"
+  register: burp_cert_cert
+  delegate_to: "{{hostvars.localhost.aburp_server}}"
+  changed_when: false
+  no_log: "{{not hostvars.localhost.aburp_debug}}"
+- shell: "cat {{hostvars.localhost.aburp_ca_path}}/{{burp_cname}}.key"
+  register: burp_cert_key
+  delegate_to: "{{hostvars.localhost.aburp_server}}"
+  changed_when: false
+  no_log: "{{not hostvars.localhost.aburp_debug}}"
+- shell: "cat {{hostvars.localhost.aburp_ca_path}}/CA_{{hostvars.localhost.burp_ca_name}}.crt"
+  register: burp_cert_ca_cert
+  delegate_to: "{{hostvars.localhost.aburp_server}}"
+  no_log: "{{not hostvars.localhost.aburp_debug}}"
+  changed_when: false
+- file:
+    state: directory
+    path: "{{hostvars.localhost.aburp_certs_dest}}"
+  no_log: "{{not hostvars.localhost.aburp_debug}}"
+- loop_control:
+    label: "{{item.key}}"
+  copy:
+    content: "{{item.value}}"
+    dest: "{{item.key}}"
+    mode: "0600"
+  with_dict: |-
+        {{{
+          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert-client.pem"   ): burp_cert_cert.stdout+'\n',
+          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert-client.key"   ): burp_cert_key.stdout+'\n',
+          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert_ca-client.pem"): burp_cert_ca_cert.stdout+'\n'
+          }|to_json}}
+  no_log: "{{not hostvars.localhost.aburp_debug}}"

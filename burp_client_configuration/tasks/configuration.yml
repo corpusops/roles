@@ -1,0 +1,21 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{cops_burpclient_vars.files}}"
+    cops_configs_copys: "{{cops_burpclient_vars.filescopy}}"
+    cops_configs_templates: "{{cops_burpclient_vars.configs}}"
+  register: burpclient_configst1
+  tags: [burp_configs]
+- set_fact:
+    cacheable: false
+    burpclient_filest: "{{cops_configs_files_results}}"
+    burpclient_filesct: "{{cops_configs_copys_results}}"
+    burpclient_configst: "{{cops_configs_templates_results}}"
+  register: burpclient_configst2
+  tags: [burp_configs]
+- set_fact:
+    cacheable: false
+    burpclient_configs_changed: "{{(
+      burpclient_filest|changed or
+      burpclient_filesct|changed or
+      burpclient_configst|changed)}}"

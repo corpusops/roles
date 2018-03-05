@@ -1,0 +1,23 @@
+---
+- set_fact:
+    cacheable: false
+    burpclient_service_state: >-
+      {% if (
+        burpclient_configs_changed|default(False)
+      )%}reloaded{%else%}started{%endif%}
+- set_fact:
+    cacheable: false
+    burpclient_service_state: "{{burpclient_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{cops_burpclient_vars.activated
+     | ternary(burpclient_service_state,
+               'stopped')}}"
+    enabled: "{{cops_burpclient_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+    daemon_reload: true
+  with_items: "{{cops_burpclient_vars.services}}"
+  tags: burpclient
+  when: "corpusops_vars.has_services_manager"
+- meta: flush_handlers

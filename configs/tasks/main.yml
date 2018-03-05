@@ -1,5 +1,15 @@
 ---
 # install custom config files
+# vars[bar] is the uninterpreted value
+- assert:
+    that: "{{cops_configs_files|copsf_islist}}"
+    msg: "{{cops_configs_files}} is not a list"
+- assert:
+    that: "{{cops_configs_copys|copsf_islist}}"
+    msg: "{{cops_configs_copys}} is not a list"
+- assert:
+    that: "{{cops_configs_templates|copsf_islist}}"
+    msg: "{{cops_configs_templates}} is not a list"
 - when: ["cops_configs_is_async_files"]
   name: async files
   file:

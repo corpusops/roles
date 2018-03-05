@@ -1,0 +1,21 @@
+---
+cops_burpfw_cops_do_format_resolve: true
+cops_burpfw_cops_computed_defaults: []
+cops_burpfw_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+cops_burpfw_cops_sub_os_append: {}
+cops_burpfw_cops_knobs: ['files', 'filescopy', 'configs']
+cops_burpfw_cops_lowered: []
+cops_burpfw_cops_sub_namespaces: {conf: {}}
+cops_burpfw_activated: True
+cops_burpfw_services: ["burp-server-{name}", "burp-restore-{name}"]
+cops_burpfw_files: null
+cops_burpfw_name: "corpusops"
+cops_burpfw_ms_iptables_priority: "98"
+cops_burpfw_restrict_via_msiptables: true
+cops_burpfw_restrict_ips: ["127.0.0.1"]
+cops_burpfw_ms_iptables_state: reloaded
+cops_burpfw_port: 4971
+cops_burpfw_final_block: false
+cops_burpfw_status_port: "{{cops_burpfw_port|int+1}}"
+cops_burpfw_restore_port: "{{cops_burpfw_port|int+2}}"
+cops_burpfw_restore_status_port: "{{cops_burpfw_restore_port|int+1}}"

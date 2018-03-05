@@ -1,20 +1,24 @@
 ---
-# not defined for them to be redefined in callers
-#
-# cops_configs_files
-# cops_configs_templates
-# cops_configs_copys
-#
-# cops_configs_notify
-# cops_configs_templates_notify
-# cops_configs_copys_notify
-#
-cops_configs_async: "{{10**5}}"
-cops_configs_poll: "{{0}}"
+# those have to be redefined in callers
+cops_configs_files: []
+#- {path: "foo",  owner: root, group: root, state: directory, mode: "0755"}
+cops_configs_templates: []
+#- {name: 'foo/bar', mode: "0755", template: "../templates/bar"}
+cops_configs_copys: []
+#- {dest: 'foo/bar', mode: "0755", src: "../templates/bar"}
+cops_configs_notify: []
+cops_configs_templates_notify: "{{cops_configs_notify}}"
+cops_configs_copys_notify: "{{cops_configs_templates_notify}}"
+# cops_configs_notify: [myrestarthandler]
+# cops_configs_templates_notify: [myrestarthandler]
+# cops_configs_copys_notify: [myrestarthandler]
+
 
 # for now template does not support async
 # https://github.com/ansible/ansible/issues/32265
 cops_configs_is_async: False
+cops_configs_async: "{{10**5}}"
+cops_configs_poll: "{{0}}"
 cops_configs_is_async_files: "{{cops_configs_is_async}}"
 cops_configs_is_async_templates: "{{cops_configs_is_async}}"
 cops_configs_is_async_copys: "{{cops_configs_is_async}}"

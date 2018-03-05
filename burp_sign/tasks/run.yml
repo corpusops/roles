@@ -1,0 +1,10 @@
+- name: "cops_burpsign preflight check - SKIPTEST"
+  debug:
+    msg: "{{cops_burpsign | default(True) }}"
+  register: cops_burpsign_can_run
+  tags: [cops_burpsign]
+- include_tasks: configuration.yml
+  when: 'cops_burpsign_can_run.msg == True'
+  tags: [cops_burpsign,
+         burp_configuration,
+         cops_burpsign_configuration]

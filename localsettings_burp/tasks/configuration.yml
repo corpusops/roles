@@ -1,0 +1,20 @@
+---
+- tags: [burp_configs]
+  block:
+  - set_fact:
+      cacheable: false
+      cops_configs_files: "{{corpusops_localsettings_burp_vars.files}}"
+      cops_configs_copys: "{{corpusops_localsettings_burp_vars.filescopy}}"
+      cops_configs_templates: "{{corpusops_localsettings_burp_vars.configs}}"
+  - include_role: {name: corpusops.roles/configs, private: true}
+  - set_fact:
+      cacheable: false
+      corpusops_localsettings_burp_filest: "{{cops_configs_files_results}}"
+      corpusops_localsettings_burp_filesct: "{{cops_configs_copys_results}}"
+      corpusops_localsettings_burp_configst: "{{cops_configs_templates_results}}"
+- set_fact:
+    cacheable: false
+    corpusops_localsettings_burp_configs_changed: "{{(
+      corpusops_localsettings_burp_filest|changed or
+      corpusops_localsettings_burp_filesct|changed or
+      corpusops_localsettings_burp_configst|changed)}}"

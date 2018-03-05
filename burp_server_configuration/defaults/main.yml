@@ -1,0 +1,127 @@
+---
+cops_burp_cops_do_format_resolve: true
+cops_burp_cops_computed_defaults: []
+cops_burp_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+cops_burp_cops_sub_os_append: {}
+cops_burp_cops_knobs: ['files', 'filescopy', 'configs']
+cops_burp_cops_lowered: []
+cops_burp_cops_sub_namespaces: {conf: {}}
+cops_burp_activated: True
+cops_burp_services: ["burp-server-{name}", "burp-restore-{name}"]
+cops_burp_files: null
+cops_burp_name: "corpusops"
+cops_burp_files_default:
+- {path: "{directory}",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{prefix}",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{prefix}/clientconfdir",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{{corpusops_vars.config_dir}}/systemd/system",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{{corpusops_vars.config_dir}}/default",
+   owner: root, group: root, state: directory, mode: "0755"}
+cops_burp_filescopy: null
+cops_burp_filescopy_default: []
+cops_burp_key: "{{corpusops_vars.config_dir}}/ssl/private/burp.pem"
+cops_burp_prefix: "{{corpusops_vars.config_dir}}/burp-{name}"
+cops_burp_ca_conf: "{prefix}/CA.cnf"
+cops_burp_ca_server_name: "{cname}"
+cops_burp_ca_burp_ca: /usr/sbin/burp_ca
+cops_burp_ca_name: "{name}"
+cops_burp_ca_dir: "{prefix}/CA"
+cops_burp_initd_server:  "{{corpusops_vars.config_dir}}/init.d/burp-server-{name}"
+cops_burp_initd_restore: "{{corpusops_vars.config_dir}}/init.d/burp-restore-{name}"
+cops_burp_configfile_server:  "{prefix}/burp-server.conf"
+cops_burp_configfile_restore: "{prefix}/burp-restore.conf"
+cops_burp_unit_server:  "{{corpusops_vars.config_dir}}/systemd/system/burp-server-{name}.service"
+cops_burp_unit_restore: "{{corpusops_vars.config_dir}}/systemd/system/burp-restore-{name}.service"
+cops_burp_configs: null
+cops_burp_configs_default:
+- {name: '{{corpusops_vars.config_dir}}/logrotate.d/burp-{name}'  , mode: "0640", template: "../templates/etc/logrotate.d/burp"}
+- {name: '{{corpusops_vars.config_dir}}/default/burp-restore-{name}', mode: "0640", template: "../templates/etc/default/burp-restore"}
+- {name: '{{corpusops_vars.config_dir}}/default/burp-server-{name}' , mode: "0640", template: "../templates/etc/default/burp-server"}
+- {name: '{configfile_restore}'            , mode: "0640", template: "../templates/etc/burp/burp-restore.conf"}
+- {name: '{configfile_server}'             , mode: "0640", template: "../templates/etc/burp/burp-server.conf"}
+- {name: '{initd_server}'                  , mode: "0755", template: "../templates/etc/init.d/burp-server"}
+- {name: '{initd_restore}'                 , mode: "0755", template: "../templates/etc/init.d/burp-restore"}
+- {name: '{unit_server}'                   , mode: "0640", template: "../templates/etc/systemd/system/burp-server.service"}
+- {name: '{unit_restore}'                  , mode: "0640", template: "../templates/etc/systemd/system/burp-restore.service"}
+- {name: '{timer_script}'                  , mode: "0755", template: "../templates/etc/burp/timer_script"}
+- {name: '{notify_script}'                 , mode: "0755", template: "../templates/etc/burp/notify_script"}
+cops_burp_cname: "{{ansible_fqdn}}"
+cops_burp_port: '4971'
+cops_burp_client_port: '{{cops_burp_port}}'
+cops_burp_status_address: '127.0.0.1'
+cops_burp_status_port: '{{cops_burp_port|int+1}}'
+cops_burp_client_status_port: '{{cops_burp_status_port}}'
+cops_burp_restore_port: '{{cops_burp_port|int+2}}'
+cops_burp_restore_client_port: '{{cops_burp_restore_port|int}}'
+cops_burp_restore_status_port: '{{cops_burp_restore_port|int+1}}'
+cops_burp_directory: '/data/burp2'
+cops_burp_clientconfdir: '{prefix}/clientconfdir'
+cops_burp_hardlinked_archive: '1'
+cops_burp_working_dir_recovery_method: 'delete'
+cops_burp_max_children: '5'
+cops_burp_max_status_children: '5'
+cops_burp_umask: '0022'
+cops_burp_syslog: '1'
+cops_burp_stdout: '0'
+cops_burp_dedup_group: 'gobal'
+cops_burp_client_can_delete: '0'
+cops_burp_client_can_force_backup: '0'
+cops_burp_client_can_list: '1'
+cops_burp_client_can_restore: '1'
+cops_burp_client_can_verify: '1'
+cops_burp_version_warn: '1'
+cops_burp_keep: [7, 4, 6]
+cops_burp_librsync: "1"
+cops_burp_compression: zlib5
+cops_burp_custom_lines: []
+cops_burp_restore_custom_lines: "{{vars['cops_burp_custom_lines']}}"
+# s (sec), m (min), h (hours), d (day), w (week), n (month)
+# Allow backups to start in the evenings and nights
+# during weekdays
+# Allow more hours at the weekend.
+cops_burp_timer_script: '{prefix}/timer_script'
+cops_burp_protocol: "2"
+cops_burp_timer_arg:
+  - '28h'
+  - "{{('Mon,Tue,Wed,Thu,Fri,'
+       '00,01,02,03,04,05,06,07,08,09,10,11,12,'
+       '13,14,15,16,17,18,19,20,21,22,23')}}"
+  - "{{('Sat,Sun,'
+        '00,01,02,03,04,05,06,07,08,09,10,11,12,'
+        '13,14,15,16,17,18,19,20,21,22,23')}}"
+cops_burp_restrict_via_msiptables: true
+cops_burp_restrict_ips: ["127.0.0.1"]
+cops_burp_ssl_cert_ca: '{prefix}/ssl_ca-cert-server.pem'
+cops_burp_ssl_cert: '{prefix}/ssl_cert-server.pem'
+cops_burp_ssl_key:  '{prefix}/ssl_cert-server.key'
+cops_burp_ssl_key_password: null
+cops_burp_ssl_dhfile: '{prefix}/dhfile.pem'
+cops_burp_notify_script: '{prefix}/notify_script'
+cops_burp_notify_success_script: "{notify_script}"
+cops_burp_notify_failure_script: "{notify_script}"
+cops_burp_notify_failure_arg:
+- 'sendmail -t'
+- 'To: root'
+- 'From: "burp {adminmail}'
+- 'Subject: %b failed: %c %w'
+cops_burp_adminmail: "Root <root@{{ansible_fqdn}}>"
+cops_burp_server_script_pre: null
+cops_burp_server_script_pre_arg: null
+cops_burp_server_script_pre_notify: '0'
+cops_burp_server_script_post: null
+cops_burp_server_script_post_arg: null
+cops_burp_server_script_post_run_on_fail: '0'
+cops_burp_server_script_post_notify: '0'
+cops_burp_restore_client: null
+cops_burp_restore_client_status_port: '7974'
+cops_burp_lockfile: "{{corpusops_vars.run_dir}}/burp.server-{name}.pid"
+cops_burp_restore_lockFile: "{{corpusops_vars.run_dir}}/burp.restore-{name}.pid"
+# synonim of lockfile
+cops_burp_pidfile: "{{corpusops_vars.run_dir}}/burp.server-{name}.pid"
+cops_burp_restore_pidfile: "{{corpusops_vars.run_dir}}/burp.restore-{name}.pid"
+cops_burp_cname_lowercase:  '1'
+cops_burp_cname_fqdn:  '1'

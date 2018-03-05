@@ -1,0 +1,38 @@
+- name: "cops_burpfw preflight check - SKIPTEST"
+  debug: {msg: "{{cops_burpfw | default(True) }}"}
+  register: cops_burpfw_can_run
+- when: 'cops_burpfw_can_run.msg == True'
+  tags: [cops_burpfw, burp_ms_iptables, cops_burpfw_ms_iptables]
+  block:
+  - include_role: {name: corpusops.roles/ms_iptables_registrations}
+    vars:
+      _corpusops_ms_iptables_registrations:
+        priority: "{{cops_burpfw_vars.ms_iptables_priority}}"
+        service_state: "{{cops_burpfw_vars.ms_iptables_state}}"
+        name: "burp_{{cops_burpfw_vars.name}}"
+        enable: "{{cops_burpfw_vars.restrict_via_msiptables}}"
+        rules: "{{_burp_fw_rules}}"
+      _burp_fw_rules: |-
+          {%- set data = {'rules': []} %}
+          {%- set s = cops_burpfw_vars %}
+          {%- for i in s.restrict_ips %}
+          {%- for p in [
+              s.port, s.status_port,
+              s.restore_port, s.restore_status_port,
+          ] %}
+          {%- set _ = data.rules.append(
+            'iptables -w -t filter -A INPUT -s {1} -p tcp -m tcp --dport {0} -j ACCEPT'.format(p, i),
+          ) %}
+          {%- endfor %}
+          {%- endfor %}
+          {%- if s.final_block %}
+          {%- for p in [
+              s.port, s.status_port,
+              s.restore_port, s.restore_status_port,
+          ] %}
+          {%- set _ = data.rules.append(
+            'iptables -w -t filter -A INPUT -p tcp -m tcp --dport {0} -j DROP'.format(p),
+          ) %}
+          {%- endfor %}
+          {%- endif %}
+          {{- data.rules|to_json}}

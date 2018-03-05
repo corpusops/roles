@@ -1,0 +1,8 @@
+{% set data=cops_burpclient_vars %}
+/var/log/burp-client-{{data.name}} {
+        daily
+        missingok
+        rotate 7
+        compress
+        notifempty
+}
