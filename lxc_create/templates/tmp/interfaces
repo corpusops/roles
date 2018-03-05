@@ -1,0 +1,17 @@
+{% set data = corpusops_lxc_container_vars.msg %}
+{% for ifc, idata in data.netplan.network.ethernets.items() %}
+auto {{ifc}}
+{% if idata.get('dhcp4', False) %}
+iface {{ifc}} inet dhcp
+{% else %}
+iface {{ifc}} inet static
+  address {{idata.addresses[0].split('/')[0]}}
+  gateway {{idata.gateway4}}
+  {% if data.get('ns_search', [])
+  %}dns-search {{data.ns_search|join(' ')}}
+  {% endif%}
+  {% if data.get('nameservers', [])
+  %}dns-nameservers {{data.nameservers|join(' ')}}
+  {% endif%}
+{% endif %}
+{% endfor %}

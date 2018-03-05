@@ -16,15 +16,18 @@
       {% for lxc in namespaced['containers'] %}
       {%  set lxcdata = namespaced['containers'][lxc] %}
       {%  for k in [
+            'ubuntu_release', 'ubuntu_mirror',
             'remove_password',
-            'included_config', 'nameservers', 'ns_search',
+            'included_config',
+            'nameservers', 'ns_search',
             'ssh_keys_paths', 'ssh_keys',
             'auto_start', 'container_name', 'path',
             'backing_store', 'clone_snapshot',
             'from_container',
-            'template', 'template_options',
-            'ubuntu_release', 'ubuntu_mirror',
-            'pip', 'clone_snapshot'] %}
+            'pip', 'clone_snapshot',
+            'template',
+            'template_options',
+            ] %}
       {%    if k == 'clone_snapshot' %}
       {%      set bs = namespaced['backing_store'] %}
       {%      set bss = namespaced['clone_snapshot'] %}
@@ -35,9 +38,10 @@
       {%    endif %}
       {%    set  _ = lxcdata.setdefault(k, namespaced.get(k, None)) %}
       {%  endfor %}
-      {%  for k in corpusops_lxc_cops_computed_defaults %}
+      {%  for k in ['template_options'] + corpusops_lxc_cops_computed_defaults %}
       {%    if k in lxcdata %}
-      {%      set _ = lxcdata.update({k: lxcdata[k].format(**vars)}) %}
+      {%      set _ = lxcdata.update({k: lxcdata[k]
+              |copsf_format_resolve(lxcdata, additional_namespaces=[vars])}) %}
       {%    endif %}
       {%  endfor %}
       {%  set netplan = lxcdata.setdefault('netplan', {}) %}
@@ -65,7 +69,8 @@
       {%        if confval%}
       {%          if knob in ['addresses'] %}
       {%            if '/' not in confval %}
-      {%              set confval = "{0}/24".format(confval) %}
+      {%              set pref = confval.startswith('10') and '16' or '24' %}
+      {%              set confval = "{0}/{1}".format(confval, pref) %}
       {%            endif %}
       {%            set confval = [confval] %}
       {%          endif %}

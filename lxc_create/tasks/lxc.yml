@@ -48,9 +48,11 @@
                'tmp/01-netplan-corpusops.yml': '0644'
              }.get(item, '0755')}}"
     force: true
+    trim_blocks: false
   tags: corpusops_lxc_create,corpusops_lxc_create_scripts
   with_items:
     - tmp/01-netplan-corpusops.yaml
+    - tmp/interfaces
 - name: lxc mgmt scripts
   copy:
     src: '../templates/{{item}}'

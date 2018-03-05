@@ -31,8 +31,12 @@ if ! which python >/dev/null 2>/dev/null;then
   fi
 fi
 rh="/bin/cops_reset-host.py"
-marker=/etc/lxc_reset_done
 
+marker=/etc/lxc_reset_done
+interfaces="
+auto lo
+iface lo inet loopback
+source-directory /etc/network/interfaces.d"
 if [ -e /etc/netplan ] && ( which netplan >/dev/null 2>&1 );then
     if [ -e /tmp/01-netplan-corpusops.yaml ];then
         echo "netplan reconfiguration" >&2
@@ -44,6 +48,17 @@ if [ -e /etc/netplan ] && ( which netplan >/dev/null 2>&1 );then
         && netplan apply
         if [ "x${?}" != "x0" ];then
             echo "netplan reconfiguration error" >&2
+            exit 1
+        fi
+    fi
+elif [ -e /etc/network/interfaces ];then
+    if [ -e /tmp/interfaces ];then
+        echo "network/interfaces reconfiguration" >&2 \
+        && cp -f /tmp/interfaces /etc/network/interfaces.d/lxc \
+        && echo "$interfaces" >/etc/network/interfaces \
+        && /etc/init.d/networking restart
+        if [ "x${?}" != "x0" ];then
+            echo "network/interfaces reconfiguration error" >&2
             exit 1
         fi
     fi

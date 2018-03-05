@@ -1,2 +1,0 @@
----
-{% lxc_vars.netplan|to_yaml %}
