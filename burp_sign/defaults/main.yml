@@ -1,0 +1,26 @@
+---
+cops_burpsign_cops_do_format_resolve: true
+cops_burpsign_cops_computed_defaults: []
+cops_burpsign_cops_flavors: ["ubuntu", 'debian', 'centos', 'redhat', 'default']
+cops_burpsign_cops_sub_os_append: {}
+cops_burpsign_cops_knobs: ["files", 'filescopy', 'configs']
+cops_burpsign_cops_lowered: []
+cops_burpsign_cops_sub_namespaces: {conf: {}}
+cops_burpsign_name: "corpusops"
+cops_burpsign_files: null
+cops_burpsign_files_default:
+  - {path: "{ca}",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{prefix}",
+     owner: root, group: root, state: directory, mode: "0755"}
+cops_burpsign_filescopy: null
+cops_burpsign_filescopy_default: []
+cops_burpsign_prefix: "{{corpusops_vars.config_dir}}/burp-{name}"
+cops_burpsign_configs: null
+cops_burpsign_configs_default:
+- {name: '{prefix}/casign.sh', mode: "0755", template: "../templates/etc/burp/casign.sh"}
+- {name: '{ca_conf}'         , mode: "0644", template: "../templates/etc/burp/CA.cnf"}
+cops_burpsign_cnames: []
+cops_burpsign_ca: '{prefix}/CA'
+cops_burpsign_ca_conf: '{prefix}/CA.cnf'
+cops_burpsign_ca_name: 'burpCA'

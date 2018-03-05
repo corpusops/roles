@@ -1,0 +1,18 @@
+{% set settings = cops_burp_vars %}
+/var/log/burp {
+        daily
+        missingok
+        rotate 7
+        postrotate
+          invoke-rc.d burp-server-{{settings.name}} reload >/dev/null
+        endscript
+        compress
+        notifempty
+}
+/var/log/burp-bedup {
+        daily
+        missingok
+        rotate 7
+        compress
+        notifempty
+} 

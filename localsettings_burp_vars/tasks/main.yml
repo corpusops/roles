@@ -1,0 +1,14 @@
+---
+- include_role: {name: corpusops.roles/get_secret_variable}
+  vars:
+    _cops_get_secret_variable:
+      name: corpusops_localsettings_burp_password
+      path: /etc/secrets
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_localsettings_burp_' %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {{ snamespaced | to_json}}
+  tags: [corpusops_vars, corpusops_localsettings_burp_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"

@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+[Unit]
+Documentation=man:systemd-sysv-generator(8)
+SourcePath={{cops_burp_vars.initd_restore}}
+Description=LSB: backup and restore program {{cops_burp_vars.name}}
+After=network-online.target
+After=local-fs.target
+After=remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+Restart=no
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+ExecStart={{cops_burp_vars.initd_restore}} start
+ExecStop={{cops_burp_vars.initd_restore}} stop
+ExecReload={{cops_burp_vars.initd_restore}} reload

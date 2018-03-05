@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+{% set cdata = cops_burpclient_vars %}
+MAILTO="{{cdata.mailto}}"
+{{cdata.crons}}

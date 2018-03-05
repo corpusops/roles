@@ -1,0 +1,183 @@
+---
+cops_burpclientserver_cops_do_format_resolve: true
+cops_burpclientserver_cops_computed_defaults: []
+cops_burpclientserver_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+cops_burpclientserver_cops_sub_os_append: {}
+cops_burpclientserver_cops_knobs: ['files', 'filescopy', 'configs']
+cops_burpclientserver_cops_lowered: []
+cops_burpclientserver_cops_sub_namespaces: {conf: {}}
+cops_burpclientserver_activated: True
+cops_burpclientserver_services: ["burp-server-{name}", "burp-restore-{name}"]
+cops_burpclientserver_name: "corpusops"
+cops_burpclientserver_files_default:
+- {path: "{backup_directory}",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{prefix}/clientconfdir",
+   owner: root, group: root, state: directory, mode: "0755"}
+cops_burpclientserver_filescopy: null
+cops_burpclientserver_filescopy_default: []
+cops_burpclientserver_prefix: "{{corpusops_vars.config_dir}}/burp-{name}"
+cops_burpclientserver_configfile_server_client: "{prefix}/clientconfdir/{cname}"
+cops_burpclientserver_configs: null
+cops_burpclientserver_configs_default:
+- {name: '{configfile_server_client}' , mode: "0640", template: "../templates/etc/burp/clientconfdir/client.conf"}
+cops_burpclientserver_cname: "{{ansible_fqdn}}"
+cops_burpclientserver_umask: '0022'
+cops_burpclientserver_protocol: "1"
+cops_burpclientserver_directory: '/data/burp2/{cname}'
+cops_burpclientserver_clientconfdir: '{prefix}/clientconfdir'
+cops_burpclientserver_restore_clients: ["{cname}", "{{ansible_fqdn}}"]
+# computed for a part in main.yml
+cops_burpclientserver_custom_lines: []
+cops_burpclientserver_use_profile: true
+cops_burpclientserver_profile: null
+# cops_burpclientserver_password_{cname}: null  # MUST BE SET !
+cops_burpclientserver_common_lines: |
+  nobackup = .nobackup
+  directory = {{vars['cops_burpclientserver_directory']|copsf_dirname}}
+  read_all_fifos = 0
+  read_all_blockdevs = 0
+  working_dir_recovery_method = delete
+  client_can_delete = 0
+  client_can_force_backup = 0
+  client_can_list = 1
+  client_can_restore = 1
+  client_can_verify = 1
+  cross_all_filesystems = 0
+  hardlinked_archive = 1
+  dedup_group = linux
+  exclude_comp = bz2
+  exclude_comp = gz
+  exclude_comp = gzip
+  exclude_comp = xz
+  exclude_comp = lzma
+  exclude_comp = zip
+  exclude_comp = 7z
+  exclude_comp = rar
+  exclude_fs = sysfs
+  exclude_fs = tmpfs
+  exclude = /dev
+  exclude = /proc
+  exclude = /sys
+  exclude = /tmp/
+cops_burpclientserver_profiles_baremetal: |
+  # baremetal
+  {{vars['cops_burpclientserver_common_lines']}}
+  include = /
+  include = /boot
+  include = /backup
+  include = /data
+  include = /etc
+  include = /home
+  include = /lib
+  include = /lib64
+  include = /lib32
+  include = /root
+  include = /srv
+  include = /opt
+  include = /srv/backups
+  include = /static
+  include = /var/
+  include = /var/lib/lxc
+  include = /var/www
+  include = /var/makina
+  include = /vmlinuz
+  include = /initrd.img
+  cross_filesystem = /boot
+  cross_filesystem = /backup
+  cross_filesystem = /data
+  cross_filesystem = /etc
+  cross_filesystem = /opt
+  cross_filesystem = /home
+  cross_filesystem = /lib
+  cross_filesystem = /lib64
+  cross_filesystem = /lib32
+  cross_filesystem = /root
+  cross_filesystem = /srv
+  cross_filesystem = /srv/backups
+  cross_filesystem = /static
+  cross_filesystem = /var
+  cross_filesystem = /var/lib/lxc
+  cross_filesystem = /var/www
+  cross_filesystem = /var/makina
+  exclude_regex = .*usr.*src.*linux-headers.*
+  exclude_regex = .*var.*lib.*libvirt.*images.*
+  exclude_regex = .*data.*burp.*
+  exclude_regex = .*nobackup.*
+  exclude_regex = .*lost.found.*
+  exclude_regex = .*makina-states.*-lxc.*.tar.*xz.*
+  exclude_regex = .*/mountpoints/.*
+  exclude_regex = .*/remounts/.*
+  exclude_regex = .*srv.*projects.*archives.*
+  exclude_regex = .*srv.*salt.*makina-states.*
+  exclude_regex = .*var.*cache.*apt.*
+  exclude_regex = .*var.*cache.*salt.*master.*
+  exclude_regex = .*var.*cache.*salt.*minion.*
+  exclude_regex = .*var.*lib.*apt.*lists.*
+  exclude_regex = .*var.*lib.*lxc.*del.*
+  exclude_regex = .*var.*lib.*lxc.*makina-states.*/tmp/.*
+  exclude_regex = .*spool.*cyrus.*backup_log.*
+  exclude_regex = .*var.*lib.*lxc.*rootfs.*
+  exclude_regex = .*var.*lib.*lxc.*delta.*
+  exclude_regex = .*var.*lib.*lxc.*tgz
+  exclude_regex = .*var.*lib.*lxc.*tar.gz
+  exclude_regex = .*var.*lib.*lxc.*tgz
+  exclude_regex = .*var.*lib.*lxc.*tar.bz2
+  exclude_regex = .*var.*lib.*lxc.*tbz2
+  exclude_regex = .*var.*lib.*lxc.*tar.xz
+  exclude_regex = .*var.*lock.*
+  exclude_regex = .*var.*log.*atop.*
+  exclude_regex = .*var.*run.*
+  exclude_regex = .*var.*/tmp/.*
+cops_burpclientserver_profiles_vm: |
+  # vm
+  {{vars['cops_burpclientserver_common_lines']}}
+  cross_filesystem  = /boot
+  cross_filesystem  = /backup
+  cross_filesystem  = /data
+  cross_filesystem  = /etc
+  cross_filesystem  = /opt
+  cross_filesystem  = /home
+  cross_filesystem  = /root
+  cross_filesystem  = /srv
+  cross_filesystem  = /srv/backup
+  cross_filesystem  = /static
+  cross_filesystem  = /var
+  cross_filesystem  = /var/www
+  cross_filesystem  = /var/makina
+  cross_filesystem  = /vmlinuz
+  cross_filesystem  = /initrd.img
+  include = /boot
+  include = /backup
+  include = /data
+  include = /etc
+  include = /opt
+  include = /home
+  include = /root
+  include = /srv
+  include = /srv/backup
+  include = /static
+  include = /var
+  include = /var/www
+  include = /var/makina
+  exclude_regex = .*usr.*src.*linux-headers.*
+  exclude_regex = .*data.*burp.*
+  exclude_regex = .*nobackup.*
+  exclude_regex = .*lost.found.*
+  exclude_regex = .*makina-states.*-lxc.*.tar.*xz
+  exclude_regex = .*/mountpoints/.*
+  exclude_regex = .*/remounts/.*
+  exclude_regex = .*srv.*projects.*archives.*
+  exclude_regex = .*srv.*salt.*makina-states.*
+  exclude_regex = .*var.*cache.*apt.*
+  exclude_regex = .*var.*cache.*salt.*master.*
+  exclude_regex = .*var.*cache.*salt.*minion.*
+  exclude_regex = .*var.*lib.*apt.*lists.*
+  exclude_regex = .*var.*lib.*lxc.*del.*
+  exclude_regex = .*var.*lib.*lxc.*makina-states.*/tmp/.*
+  exclude_regex = .*var.*lib.*lxc.*rootfs.*
+  exclude_regex = .*var.*lock.*
+  exclude_regex = .*var.*log.*atop.*
+  exclude_regex = .*var.*run.*
+  exclude_regex = .*spool.*cyrus.*backup_log.*
+  exclude_regex = .*var.*/tmp/.*

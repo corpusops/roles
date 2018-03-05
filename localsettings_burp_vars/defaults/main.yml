@@ -1,0 +1,42 @@
+---
+corpusops_localsettings_burp_cops_do_format_resolve: true
+corpusops_localsettings_burp_cops_computed_defaults: []
+corpusops_localsettings_burp_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_burp_cops_sub_os_append: {}
+corpusops_localsettings_burp_cops_lowered: ['repo']
+corpusops_localsettings_burp_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo']
+corpusops_localsettings_burp_cops_sub_namespaces:
+  settings: {}
+#
+corpusops_localsettings_burp_name: burp
+corpusops_localsettings_burp_activated: True
+corpusops_localsettings_burp_disabled: "{{not corpusops_localsettings_burp_activated}}"
+corpusops_localsettings_burp_repo_keys_url: null
+corpusops_localsettings_burp_repo_keys: null
+corpusops_localsettings_burp_repo_keys_default: []
+corpusops_localsettings_burp_keyserver: "{{corpusops_vars.hkp_keyserver}}"
+corpusops_localsettings_burp_repo: null
+corpusops_localsettings_burp_repo_debian: "ppa:vshn/backup"
+corpusops_localsettings_burp_packages: null
+corpusops_localsettings_burp_packages_default: ["{name}"]
+corpusops_localsettings_burp_services: null
+corpusops_localsettings_burp_group: '{user}'
+corpusops_localsettings_burp_user: '{name}'
+corpusops_localsettings_burp_services_default: ["{name}"]
+corpusops_localsettings_burp_files: null
+corpusops_localsettings_burp_filescopy: null
+corpusops_localsettings_burp_filescopy_default: []
+corpusops_localsettings_burp_files_apt: []
+corpusops_localsettings_burp_files_default: []
+#  - {path: "{{corpusops_vars.confdefault_dir}}",
+#     owner: root, group: root, state: directory, mode: "0755"}
+#  - {path: "{{corpusops_vars.config_dir}}/systemd/system",
+#     owner: root, group: root, state: directory, mode: "0755"}
+#  - {path: "{{corpusops_vars.config_dir}}/logrotate.d",
+corpusops_localsettings_burp_configs: null
+corpusops_localsettings_burp_configs_default: []
+#  - {name: "{config_file}",
+#     template: "../templates/etc/{name}/{name}.cfg",
+#     owner: "{user}", group: root, mode: "0640"}

@@ -1,0 +1,58 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - set_fact:
+        cacheable: false
+        burp_name: "corpusops"
+        burp_ca_name: "burpCA"
+    - set_fact:
+        cacheable: false
+        aburp_clients: "{{groups[burp_clients|default('burp_clients')]}}"
+        aburp_server: "{{burp_server|default('burp_server')}}"
+        aburp_ca_path: "{{burp_ca_path|default('/etc/burp-{0}/CA'.format(burp_name))}}"
+        aburp_certs_dest: "{{burp_ca_path|default('/etc/burp-'+burp_name)}}"
+        aburp_debug: "{{burp_debug|default(True)}}"
+- hosts: "{{['localhost', hostvars.localhost.aburp_server]+hostvars.localhost.aburp_clients}}"
+  gather_facts: true
+  roles: [corpusops.roles/vars]
+- hosts: "{{hostvars.localhost.aburp_server}}"
+  gather_facts: false
+  tasks:
+  - block:
+    - include_role: {name: corpusops.roles/burp_server_configuration}
+    tags: [burp_server, configure_server, burp_configure_server]
+  - block:
+    - include_tasks: client_fw.yml
+      with_items: "{{hostvars.localhost.aburp_clients}}"
+    - cops_service: {state: reloaded, service: ms_iptables}
+    tags: [burp_server, fw, burp_fw]
+  - block:
+    - include_jinja_vars:
+        content:
+          _cops_burpsign: |-
+            {% set res = {'cnames': []} %}
+            {% for c in hostvars.localhost.aburp_clients %}
+            {% set cdata = hostvars[c] %}
+            {% set cname = cdata.get('burp_cname', '') or cdata['inventory_hostname'] %}
+            {% if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
+            {% endfor %}
+            {{ res | to_json }}
+      when: hostvars.localhost.aburp_debug
+    - include_role: {name: corpusops.roles/burp_sign}
+    tags: [burp_server, sign, burp_sign]
+  - tags: [burp_server, register_to_server, burp_register_to_server]
+    block:
+    - include_tasks: password.yml
+    - include_tasks: backup_to_server.yml
+      with_items: "{{hostvars.localhost.aburp_clients}}"
+- hosts: "{{hostvars.localhost.aburp_clients}}"
+  gather_facts: false
+  tasks:
+  - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]
+    block:
+    - include_tasks: transfert_certs.yml
+  - tags: [burp_clients, configure_clients, burp_configure_clients]
+    block:
+    - include_tasks: configure_client.yml

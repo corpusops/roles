@@ -1,0 +1,20 @@
+- name: "cops_burp preflight check - SKIPTEST"
+  debug:
+    msg: "{{cops_burp | default(True) }}"
+  register: cops_burp_can_run
+  tags: [cops_burp]
+- include_tasks: configuration.yml
+  when: 'cops_burp_can_run.msg == True'
+  tags: [cops_burp,
+         burp_configuration,
+         cops_burp_configuration]
+- include_tasks: services.yml
+  when: 'cops_burp_can_run.msg == True'
+  tags: [cops_burp,
+         burp_services,
+         cops_burp_services]
+- include_tasks: ms_iptables.yml
+  when: 'cops_burp_can_run.msg == True'
+  tags: [cops_burp,
+         burp_ms_iptables,
+         cops_burp_ms_iptables]

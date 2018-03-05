@@ -1,0 +1,26 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{cops_burpsign_vars.files}}"
+    cops_configs_copys: "{{cops_burpsign_vars.filescopy}}"
+    cops_configs_templates: "{{cops_burpsign_vars.configs}}"
+  register: burp_sign_configst1
+  tags: [burp_configs]
+- set_fact:
+    cacheable: false
+    burp_sign_filest: "{{cops_configs_files_results}}"
+    burp_sign_filesct: "{{cops_configs_copys_results}}"
+    burp_sign_configst: "{{cops_configs_templates_results}}"
+  register: burp_sign_configst2
+  tags: [burp_configs]
+- shell: "{{cops_burpsign_vars.prefix}}/casign.sh {{cops_burpsign_vars.cnames|join(' ')}}"
+  tags: [burp_cagen]
+  changed_when: "'CHANGED' in burp_sign_configst3.stderr"
+  register: burp_sign_configst3
+- set_fact:
+    cacheable: false
+    burp_sign_configs_changed: "{{(
+      burp_sign_configst3|changed or
+      burp_sign_filest|changed or
+      burp_sign_filesct|changed or
+      burp_sign_configst|changed)}}"

@@ -1,0 +1,13 @@
+---
+- include_role: {name: corpusops.roles/burp_fw}
+  vars:
+    _cops_burpfw:
+      ms_iptables_priority: "99"
+      name: "{{cops_burp_vars.name}}"
+      restrict_via_msiptables: "{{cops_burp_vars.restrict_via_msiptables}}"
+      restrict_ips: "{{cops_burp_vars.restrict_ips}}"
+      port: "{{cops_burp_vars.port}}"
+      status_port: "{{cops_burp_vars.status_port}}"
+      restore_port: "{{cops_burp_vars.restore_port}}"
+      restore_status_port: "{{cops_burp_vars.restore_status_port}}"
+      final_block: true

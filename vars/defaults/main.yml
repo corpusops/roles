@@ -132,4 +132,4 @@ corpusops_network_settings_interfaces: {}
 corpusops_network_settings_ointerfaces: []
 # - {br0: {gateway: 192.168.1.1}}
 # Does the network base config file have to be managed via that
-corpusops_network_settings_managed: false
+ucorpusops_network_settings_managed: false

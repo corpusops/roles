@@ -1,0 +1,48 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{cops_burp_vars.files}}"
+    cops_configs_copys: "{{cops_burp_vars.filescopy}}"
+    cops_configs_templates: "{{cops_burp_vars.configs}}"
+  register: burp_server_configuration_configst1
+  tags: [burp_configs]
+- set_fact:
+    cacheable: false
+    burp_server_configuration_filest: "{{cops_configs_files_results}}"
+    burp_server_configuration_filesct: "{{cops_configs_copys_results}}"
+    burp_server_configuration_configst: "{{cops_configs_templates_results}}"
+  register: burp_server_configuration_configst2
+  tags: [burp_configs]
+- include_role: {name: corpusops.roles/burp_sign}
+  vars:
+    cops_burpsign_cnames: ["{{cops_burp_vars.cname}}"]
+    cops_burpsign_name: "{{cops_burp_vars.name}}"
+- shell: |-
+    d="{{cops_burp_vars.ssl_dhfile}}"
+    if [ ! -e "$d" ];then
+      burp_ca --config "{{cops_burpsign_vars.ca_conf}}" --dhfile "$d" &&\
+        echo 'CHANGED' >&2
+    fi
+  changed_when: "'CHANGED' in burp_server_configuration_configst3.stderr"
+  register: burp_server_configuration_configst3
+- copy:
+    dest: "{{item[1]}}"
+    src: "{{item[0]}}"
+    remote_src: true
+    force: true
+  with_items:
+  - [["{{cops_burpsign_vars.ca}}/CA_{{cops_burpsign_vars.ca_name}}.crt",
+      "{{cops_burp_vars.ssl_cert_ca}}"]]
+  - [["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt",
+      "{{cops_burp_vars.ssl_cert}}"]]
+  - [["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.key",
+      "{{cops_burp_vars.ssl_key}}"]]
+  register: burp_server_configuration_configst4
+- set_fact:
+    cacheable: false
+    burp_server_configuration_configs_changed: "{{(
+      burp_server_configuration_configst4|changed or
+      burp_server_configuration_configst3|changed or
+      burp_server_configuration_filest|changed or
+      burp_server_configuration_filesct|changed or
+      burp_server_configuration_configst|changed)}}"
