@@ -32,6 +32,23 @@ if ! which python >/dev/null 2>/dev/null;then
 fi
 rh="/bin/cops_reset-host.py"
 marker=/etc/lxc_reset_done
+
+if [ -e /etc/netplan ] && ( which netplan >/dev/null 2>&1 );then
+    if [ -e /tmp/01-netplan-corpusops.yaml ];then
+        echo "netplan reconfiguration" >&2
+        if [ -e /etc/netplan/10-lxc.yaml ];then
+            rm -f /etc/netplan/10-lxc.yaml
+        fi \
+        && cp -f /tmp/01-netplan-corpusops.yaml /etc/netplan \
+        && netplan generate \
+        && netplan apply
+        if [ "x${?}" != "x0" ];then
+            echo "netplan reconfiguration error" >&2
+            exit 1
+        fi
+    fi
+fi
+
 if [ -e "$rh" ] && [ ! -e $marker ];then
     chmod +x "$rh" && \
         "$rh" \
