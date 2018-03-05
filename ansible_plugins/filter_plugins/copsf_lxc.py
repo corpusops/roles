@@ -15,7 +15,7 @@ __pmod = os.path.dirname(__mod)
 log = logging.getLogger(__n)
 __metaclass__ = type
 with open(os.path.join(__mod, '../api/cops_load.python')) as fic:
-    exec(fic.read(), globals(), locals()) 
+    exec(fic.read(), globals(), locals())
 
 
 def ssh_connection_proxy(_, inventory_hostname, hostvars, *args, **kwargs):
@@ -49,6 +49,15 @@ def nulval(val):
     return val
 
 
+def copsf_lxc_subnet(ip, cidr=True):
+    res = '24'
+    if ip.startswith('10.'):
+        res = '16'
+    if not cidr:
+        res = {'24': '255.255.255.0'}.get(res, '255.255.0.0')
+    return res
+
+
 def lxcls_mangle(val, restrict_to=None, *args, **kwargs):
     if isinstance(restrict_to, six.string_types):
         restrict_to = restrict_to.split(',')
@@ -76,6 +85,7 @@ __funcs__ = {
     'lxc_ssh_connection_proxy': ssh_connection_proxy,
     'copsf_lxc_lxcls_mangle': lxcls_mangle,
     'copsf_lxc_ssh_connection_proxy': ssh_connection_proxy,
+    'copsf_lxc_subnet': copsf_lxc_subnet,
 }
 
 
