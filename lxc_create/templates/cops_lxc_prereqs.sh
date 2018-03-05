@@ -6,6 +6,7 @@ lxcap=$(echo $(dirname $(readlink -f $0)))
 lxcp=$(echo $(dirname $(dirname $(readlink -f $0))))
 for i in \
     tmp/01-netplan-corpusops.yaml \
+    tmp/interfaces \
     bin/cops_shell_common \
     bin/cops_pkgmgr_install.sh \
     bin/cops_reset-host.py \

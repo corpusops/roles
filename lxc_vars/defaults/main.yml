@@ -1,7 +1,7 @@
 ---
 lxc_control_host: localhost
 corpusops_lxc_cops_do_format_resolve: true
-corpusops_lxc_cops_computed_defaults: ['template_options', 'included_config']
+corpusops_lxc_cops_computed_defaults: ['included_config']
 corpusops_lxc_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
 corpusops_lxc_cops_sub_os_append: {}
 corpusops_lxc_cops_knobs: []
@@ -26,7 +26,7 @@ corpusops_lxc_clone_snapshot: null
 corpusops_lxc_template: ubuntu
 corpusops_lxc_ubuntu_release: xenial
 corpusops_lxc_ubuntu_mirror: "http://archive.ubuntu.com/ubuntu/"
-corpusops_lxc_template_options: '-r {corpusops_lxc_ubuntu_release} --mirror "{corpusops_lxc_ubuntu_mirror}"'
+corpusops_lxc_template_options: '-r {ubuntu_release} --mirror "{ubuntu_mirror}"'
 
 corpusops_lxc_auto_start: '1'
 
