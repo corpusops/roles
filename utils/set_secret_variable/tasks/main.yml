@@ -1,8 +1,10 @@
 ---
 # need those vars:
-# cops_get_secret_variable_name: "cops_foo_bar"
-# cops_get_secret_variable_path: "/etc/cops_foo_bar"
-# cops_get_secret_variable_registry_prefix: cops_foo_
+#   secret_variable
+#     name: "cops_foo_bar"
+#     path: "/etc/secrets"
+#     registry_prefix: cops_foo_
+#
 - debug: {msg: "{{secretvariable|default(none)}}"}
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - set_fact:
@@ -10,17 +12,15 @@
     cops_get_secret_variable_registry_prefix: "{{
       secretvariable.registry_prefix
       | default(cops_get_secret_variable_registry_prefix
-        | default(cops_secret_variable_registry_prefix
-          | default('')))}}"
+      | default(cops_secret_variable_registry_prefix
+      | default('')))}}"
 - set_fact:
     cacheable: false
-    cops_get_secret_variable_name: "{{(
-        cops_get_secret_variable_registry_prefix
-      )}}{{secretvariable.name|default(cops_get_secret_variable_name)}}"
-- set_fact:
-    cacheable: false
-    cops_get_secret_variable_path: "{{secretvariable.path
-      | default(corpusops_vars.secrets_dir)}}"
+    _cops_get_secret_variable:
+      registry_prefix: "{{cops_get_secret_variable_registry_prefix}}"
+      name: "{{cops_get_secret_variable_registry_prefix
+             }}{{secretvariable.name}}"
+      path: "{{secretvariable.path|default(corpusops_vars.secrets_dir)}}"
 - block:
   - name: "{{cops_get_secret_variable_registry_prefix[:-1]
            }} Secret generation: {{cops_get_secret_variable_name}}"
@@ -44,4 +44,4 @@
         {% endfor %}
         {% set _ = ret.update({cops_get_secret_variable_name: v}) %}
         {{ ret | to_json }}
-    no_log: "{{not (cops_vars_debug|default(false))}}"
+    no_log: "{{not (cops_secret_vars_debug|default(false))}}"

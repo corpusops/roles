@@ -1,3 +1,4 @@
+---
 - become: "{{cops_get_secret_variable_become}}"
   become_user: "{{cops_get_secret_variable_become_user}}"
   block:
@@ -14,21 +15,22 @@
     register: cops_get_secret_variable_variable_cmd
     changed_when: false
     no_log: "{{not (cops_secret_variable_debug|default(false))}}"
-  - set_fact:
-      cacheable: false
-      cops_get_secret_variable_value: "{{cops_get_secret_variable_variable_cmd.stdout.strip() or (cops_get_secret_variable_vars.length|copsf_secure_password)}}"
+  - include_jinja_vars:
+      content: |-
+        ---
+        {{{cops_get_secret_variable_name: (
+             cops_get_secret_variable_variable_cmd.stdout.strip() or
+             (cops_get_secret_variable_vars.length|copsf_secure_password))}|to_json}}
     no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+  - debug: {var: "{{cops_get_secret_variable_name}}"}
+    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+    when: "(cops_secret_variable_debug|default(false))"
   - copy:
       mode: "0600"
-      content: "{{cops_get_secret_variable_value}}"
+      content: "{{vars[cops_get_secret_variable_name]}}"
       dest: "{{cops_get_secret_variable_vars.path}}/{{cops_get_secret_variable_vars.name}}"
-  - include_jinja_vars:
-      content: |
-        {{{
-          cops_get_secret_variable_vars.name: cops_get_secret_variable_value} | to_json }}
-    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
   - set_fact:
       cacheable: false
       get_secret_variable_container: ""
       cops_get_secret_variable_variable_cmd: ""
-    no_log: True
+      no_log: True

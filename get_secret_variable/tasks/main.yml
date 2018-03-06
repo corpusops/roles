@@ -5,16 +5,32 @@
   register: corpusops_get_secret_variable_can_run
   tags: get_secret_variable
 - include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: cops_get_secret_variable
+  vars: {cops_vars_registry_target: cops_get_secret_variable}
   tags: [get_secret_variable, vars]
   when: "corpusops_get_secret_variable_can_run.msg == True"
+  when:  get_secret_variable_value is None
 - assert:
     that:
-      - cops_get_secret_variable_vars.path is not none
-      - cops_get_secret_variable_vars.name is not none
-      - cops_get_secret_variable_vars.length is not none
+    - cops_get_secret_variable_vars.path is not none
+    - cops_get_secret_variable_vars.name is not none
+    - cops_get_secret_variable_vars.length is not none
     msg: invalid parameters
-- include_tasks: run.yml
-  tags: [get_secret_variable, get_secret_variable_run]
-  when: "corpusops_get_secret_variable_can_run.msg == True"
+  tags: get_secret_variable
+- when: ["corpusops_get_secret_variable_can_run.msg == True"]
+  tags: get_secret_variable
+  block:
+  - name: "first export secret value for: {{cops_get_secret_variable_vars.name}}"
+    include_tasks: _export.yml
+  - debug: {var: "{{cops_get_secret_variable_name}}"}
+    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+    when: "(cops_secret_variable_debug|default(false))"
+  - when: ["vars[cops_get_secret_variable_name] is none"]
+    include_tasks: run.yml
+    tags: [get_secret_variable, get_secret_variable_run]
+  - set_fact:
+      cacheable: false
+      cops_get_secret_variable_name: null
+      _cops_get_secret_variable: {}
+      cops_get_secret_variable_vars: {}
+      no_log: True
+
