@@ -1,4 +1,6 @@
 ---
+- shell: /bin/false
+  when: '"harden" in cops_get_secret_variable_name'
 - {shell: 'id -u', register: cops_c_whoami, changed_when: false}
 - set_fact:
     cacheable: false
@@ -31,6 +33,8 @@
   - set_fact:
      cacheable: false
      cops_c_secvarfailed: false
-- debug:
-    msg: ok
-  failed_when: cops_c_secvarfailed
+- assert:
+    that: not cops_c_secvarfailed
+    msg: "{{cops_get_secret_variable_vars.name}} gen failed"
+- name: "final export secret value for: {{cops_get_secret_variable_vars.name}}"
+  include_tasks: _export.yml

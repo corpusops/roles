@@ -5,13 +5,16 @@
 #     path: filesystem container directory for secrets
 #     registry_prefix: (opt) registry prefix
 # see also ./set_secret_variable.yml
-- debug:
+- debug: {msg: "{{secretvariables}}"}
+  register: secretvariablesldata
+- name: compute secret variables infos
+  debug:
     msg:
       name: "{{item}}"
-      path: "{{secretvariables.path|default(corpusops_vars.secrets_dir)}}"
-      registry_prefix: "{{secretvariables.registry_prefix|default(none)}}"
+      path: "{{secretvariablesldata.msg.path|default(corpusops_vars.secrets_dir)}}"
+      registry_prefix: "{{secretvariablesldata.msg.registry_prefix|default(none)}}"
   register: secretvariablesdata
-  with_items: "{{secretvariables.variables}}"
+  with_items: "{{secretvariablesldata.msg.variables}}"
 - include_role: {name: corpusops.roles/utils/set_secret_variable}
   loop_control: {loop_var: secretvariable}
   with_items: |-
