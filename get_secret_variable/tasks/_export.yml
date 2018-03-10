@@ -1,20 +1,15 @@
 ---
-- when: "vars.get(cops_get_secret_variable_name, 'variable is not defined: ') != 'variable is not defined: '"
-  block:
-  - debug: {var: "{{cops_get_secret_variable_name}}"}
-    register: _c_cops_get_secret_variable_value
-    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
-  - name: "export secret value to {{cops_get_secret_variable_vars.name}}"
-    include_jinja_vars:
-      content: |
-        {{-{cops_get_secret_variable_vars.name:
-            _c_cops_get_secret_variable_value.get(
-              cops_get_secret_variable_name
-           )} | to_json }}
-    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
-- when: "vars.get(cops_get_secret_variable_name, 'variable is not defined: ') == 'variable is not defined: '"
-  block:
-  - name: "export secret value to {{cops_get_secret_variable_vars.name}}"
-    include_jinja_vars:
-      content: "{{-{cops_get_secret_variable_vars.name: None}| to_json }}"
-    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+# 2 round resolving to be sure
+- name: "Resolve secret value to {{cops_get_secret_variable_vars.name}}"
+  include_jinja_vars:
+    content: |
+      {{-{cops_get_secret_variable_vars.name:
+            vars.get(cops_get_secret_variable_name, None)} | to_json }}
+  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+- name: "Export secret value to {{cops_get_secret_variable_vars.name}}"
+  include_jinja_vars:
+    content: |
+      {{-{cops_get_secret_variable_vars.name:
+            vars.get(cops_get_secret_variable_name, None)} | to_json }}
+  when: "vars[cops_get_secret_variable_vars.name] is not none"
+  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
