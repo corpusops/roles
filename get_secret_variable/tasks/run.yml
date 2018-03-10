@@ -1,6 +1,4 @@
 ---
-- shell: /bin/false
-  when: '"harden" in cops_get_secret_variable_name'
 - {shell: 'id -u', register: cops_c_whoami, changed_when: false}
 - set_fact:
     cacheable: false
