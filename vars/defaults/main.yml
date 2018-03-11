@@ -1,5 +1,6 @@
 ---
 # registry compute settings
+corpusops_core_facts_path: "/etc/copsfacts"
 corpusops_core_cops_do_format_resolve: true
 corpusops_core_cops_computed_defaults: []
 corpusops_core_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
@@ -84,7 +85,7 @@ corpusops_network_live_mainip: "{{vars|copsnetf_mainip}}"
 corpusops_network_live_hostname: "{{vars|copsnetf_hostname}}"
 corpusops_network_live_domain: "{{vars|copsnetf_domain}}"
 corpusops_network_live_fqdn: "{{vars|copsnetf_hostname(full=True)}}"
-corpusops_network_live_ext_ip: "{{vars|copsnetf_ext_ip}}"
+corpusops_network_live_ext_ip: "{{corpusops_facts_ext_ip|default(none)}}"
 corpusops_network_live_net: "{{vars|copsnetf_default_net}}"
 corpusops_network_live_ip: "{{vars|copsnetf_mainip}}"
 corpusops_network_live_ip6: "{{vars|copsnetf_mainip6}}"
