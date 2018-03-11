@@ -1,6 +1,10 @@
 ---
 - cops_lsb_release: {}
   tags: [corpusops_vars, corpusops_vars_release]
+- name: setup cops facts
+  corpusops_facts:
+    ext_ip: "{{corpusops_network_get_ext_ip}}"
+    ext_ip_value: "{{corpusops_network_live_ext_ip_value}}"
 - name: test service manager
   shell: |
     has_command() {

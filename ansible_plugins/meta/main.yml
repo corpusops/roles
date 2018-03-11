@@ -18,4 +18,4 @@ dependencies:
 - role: corpusops.roles/include_jinja_vars
 - role: corpusops.roles/service
 - role: corpusops.roles/saltcall
-
+- role: corpusops.roles/facts
