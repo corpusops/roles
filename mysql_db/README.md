@@ -1,7 +1,7 @@
 # corpusops.roles/services_db_mysql_db ansible role
 ## Documentation
 
-- Create a postgres database
+- Create a mysql database
 - Wrapper around [postgres_db ansible module](http://docs.ansible.com/ansible/latest/mysql_db_module.html)
 - see [./test.yml](./test.yml)
 - see [./defaults/main.yml](./defaults/main.yml)
