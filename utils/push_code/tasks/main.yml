@@ -24,6 +24,7 @@
     ___FORCE_COPS_PROVISION_PUSH_CODE: "{{FORCE_COPS_PROVISION_PUSH_CODE|default(false)}}"
 - block:
     - tempfile: {}
+      changed_when: false
       register: __cops_provision_push_code_askpass
     - include_tasks: setup_askpass.yml
       when: "ansible_become_pass|default(false)"
