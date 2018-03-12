@@ -1,37 +1,27 @@
 ---
 - name: test-change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-socket
   shell: >-
-    echo "select 'connected'"|mysql -u {{cops_mysql_harden_user_vars.user}}
+    echo "select 'connected'"
+    | mysql -u {{cops_mysql_harden_user_vars.user}}
+            --host={{cops_mysql_harden_user_vars.control_host}}
   register: cops_c_mysql_c_socket
   changed_when: false
   failed_when: false
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - name: change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-socket
   shell: |
     mysql -u {{cops_mysql_harden_user_vars.user}} -e \
-    "ALTER USER '{{cops_mysql_harden_user_vars.user}}'@'localhost' \
+    "ALTER USER '{{cops_mysql_harden_user_vars.user}}'@'{{cops_mysql_harden_user_vars.control_host}}' \
       IDENTIFIED WITH mysql_native_password \
       BY '{{ cops_mysql_harden_user_vars.password }}'; \
       FLUSH PRIVILEGES;"
   when: [cops_c_mysql_c_socket.rc==0]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 
-- name: test-change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp-via-create
-  shell: |-
-    echo "select 'connected'"\
-      | mysql -u {{cops_mysql_harden_user_vars.user}} \
-      --host={{cops_mysql_harden_user_vars.host}}
-    if [ "x${?}" = "x0" ];then exit 0;fi
-    echo "select 'connected'"\
-      | mysql -u {{cops_mysql_harden_user_vars.control_user}} \
-      --host={{cops_mysql_harden_user_vars.host}} \
-      --password='{{ cops_mysql_harden_user_vars.control_password }}'
-    if [ "x${?}" = "x1" ];then exit 0;fi
-    exit 1
-  register: cops_c_mysql_c_tcp
-  changed_when: false
-  failed_when: false
-- name: change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp-via-create
+- name: "Create TCP priv for mysql user: {{cops_mysql_harden_user_vars.user}}"
   shell: |-
     mysql -u {{cops_mysql_harden_user_vars.control_user}} \
+      --host='{{cops_mysql_harden_user_vars.control_host}}' \
       --password='{{cops_mysql_harden_user_vars.control_password}}' \
       -e "CREATE USER IF NOT EXISTS \
       '{{cops_mysql_harden_user_vars.user}}'@'{{cops_mysql_harden_user_vars.host}}' \
@@ -39,27 +29,29 @@
       BY '{{cops_mysql_harden_user_vars.password}}';\
       FLUSH PRIVILEGES;"
   changed_when: false
-  when: [cops_c_mysql_c_tcp.rc==0]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 
-- name: test-change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp
+- name: "test-change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp"
   shell: |
     echo "select 'connected'" \
       | mysql -u {{cops_mysql_harden_user_vars.user}} \
-        --host={{cops_mysql_harden_user_vars.host}}
-    if [ "x${?}" = "x0" ];then exit 0;fi
+              --host={{cops_mysql_harden_user_vars.host}}
+    if [ "x${?}" = "x0" ];then exit 1;fi
     echo "select 'connected'" \
       | mysql -u {{cops_mysql_harden_user_vars.user}} \
-        --host={{cops_mysql_harden_user_vars.host}} \
-        --password='{{cops_mysql_harden_user_vars.password}}'
-    if [ "x${?}" = "x1" ];then exit 0;fi
+              --password='{{cops_mysql_harden_user_vars.password}}' \
+              --host={{cops_mysql_harden_user_vars.host}}
+    if [ "x${?}" != "x0" ];then exit 0;fi
     exit 1
   register: cops_c_mysql_c_etcp
   failed_when: false
   changed_when: false
-- name: change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- name: "change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp"
   shell: |-
      mysql -u {{cops_mysql_harden_user_vars.control_user}} \
      --password='{{cops_mysql_harden_user_vars.control_password}}' \
+     --host={{cops_mysql_harden_user_vars.control_host}} \
      -e "ALTER USER \
       '{{cops_mysql_harden_user_vars.user}}'@'{{cops_mysql_harden_user_vars.host}}' \
       IDENTIFIED WITH mysql_native_password \
@@ -67,14 +59,18 @@
       FLUSH PRIVILEGES;"
   when: [cops_c_mysql_c_etcp.rc==0]
   changed_when: false
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 
-- name: grant-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp
+- name: "grant-mysql-{{cops_mysql_harden_user_vars.user}}-access-tcp"
   shell: |-
     mysql \
       -u {{cops_mysql_harden_user_vars.control_user}} \
       --password='{{cops_mysql_harden_user_vars.control_password}}' \
+      --host={{cops_mysql_harden_user_vars.control_host}} \
       -e "GRANT ALL PRIVILEGES ON *.* \
        TO '{{cops_mysql_harden_user_vars.user}}'@'{{cops_mysql_harden_user_vars.host}}' \
        WITH GRANT OPTION; \
        FLUSH PRIVILEGES;"
   changed_when: false
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+  when: "cops_mysql_harden_user_vars.grant_all"

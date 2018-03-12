@@ -1,8 +1,10 @@
 ---
 cops_mysql_harden_user_user: "{{corpusops_services_db_mysql_vars.root_user}}"
 cops_mysql_harden_user_password: "{{corpusops_services_db_mysql_vars.root_password}}"
+cops_mysql_harden_user_control_host: "localhost"
 cops_mysql_harden_user_host: "127.0.0.1"
 cops_mysql_harden_user_port: "3306"
 cops_mysql_harden_user_socket: "{{corpusops_services_db_mysql_vars.sockdir}}/mysql.sock"
 cops_mysql_harden_user_control_user: "{{cops_mysql_harden_user_user}}"
 cops_mysql_harden_user_control_password: "{{cops_mysql_harden_user_password}}"
+cops_mysql_harden_user_grant_all: true
