@@ -1,12 +1,11 @@
 ---
 # Generate passwords on remote box if not found in registry
-- name: "Setup secrets"
-  include_tasks: "../../playbooks/utils/set_secret_variables.yml"
-  loop_control: {loop_var: secretvariables}
-  with_items:
-    - variables: "{{corpusops_services_db_mysql_secret_variables}}"
-      registry_prefix: corpusops_services_db_mysql_
-  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_role: {name: corpusops.roles/get_secret_variable}
+  vars:
+    _cops_get_secret_variable:
+      name: "corpusops_services_db_mysql_{{item}}"
+      path: /etc/secrets
+  with_items: "{{corpusops_services_db_mysql_secret_variables}}"
 - include_jinja_vars:
     content: |-
       ---

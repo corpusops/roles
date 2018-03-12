@@ -1,0 +1,21 @@
+---
+cops_mysql_db_login_unix_socket: "{{corpusops_services_db_mysql_vars.client_socket}}"
+cops_mysql_db_login_host: "{{corpusops_services_db_mysql_vars.client_host}}"
+cops_mysql_db_login_port: "{{corpusops_services_db_mysql_vars.client_port}}"
+cops_mysql_db_login_user: "{{corpusops_services_db_mysql_vars.root_user}}"
+cops_mysql_db_login_password: "{{corpusops_services_db_mysql_vars.root_password}}"
+cops_mysql_db_db: null
+cops_mysql_db_state: present
+cops_mysql_db_become: false
+cops_mysql_db_become_user: root
+cops_mysql_db_collation: "{{corpusops_services_db_mysql_vars.collate}}"
+cops_mysql_db_encoding: "{{corpusops_services_db_mysql_vars.character_set}}"
+cops_mysql_db_config_file: null
+cops_mysql_db_connect_timeout: null
+cops_mysql_db_login_unix_socket: null
+cops_mysql_db_quick: null
+cops_mysql_db_single_transaction: null
+cops_mysql_db_ssl_ca: null
+cops_mysql_db_ssl_cert: null
+cops_mysql_db_ssl_key: null
+cops_mysql_db_target: null

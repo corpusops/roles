@@ -11,5 +11,7 @@ galaxy_info:
   - name: Debian
     versions:
     - all
+allow_duplicates: yes
 dependencies:
 - role: corpusops.roles/services_db_mysql_vars
+  tags: [mysql_role_role]
