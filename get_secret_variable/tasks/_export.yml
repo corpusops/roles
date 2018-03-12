@@ -5,11 +5,11 @@
     content: |
       {{-{cops_get_secret_variable_vars.name:
             vars.get(cops_get_secret_variable_name, None)} | to_json }}
-  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - name: "Export secret value to {{cops_get_secret_variable_vars.name}}"
   include_jinja_vars:
     content: |
       {{-{cops_get_secret_variable_vars.name:
             vars.get(cops_get_secret_variable_name, None)} | to_json }}
   when: "vars[cops_get_secret_variable_vars.name] is not none"
-  no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

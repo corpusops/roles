@@ -5,6 +5,7 @@
   register: corpusops_get_secret_variable_can_run
   tags: get_secret_variable
 - include_role: {name: corpusops.roles/vars_registry}
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
   vars: {cops_vars_registry_target: cops_get_secret_variable}
   tags: [get_secret_variable, vars]
   when: ["corpusops_get_secret_variable_can_run.msg == True",

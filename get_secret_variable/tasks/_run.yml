@@ -14,14 +14,14 @@
     failed_when: false
     register: cops_get_secret_variable_variable_cmd
     changed_when: false
-    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+    no_log: "{{not (cops_secret_vars_debug|default(false))}}"
   - include_jinja_vars:
       content: |-
         ---
         {{{cops_get_secret_variable_name: (
              cops_get_secret_variable_variable_cmd.stdout.strip() or
              (cops_get_secret_variable_vars.length|copsf_secure_password))}|to_json}}
-    no_log: "{{not (cops_secret_variable_debug|default(false))}}"
+    no_log: "{{not (cops_secret_vars_debug|default(false))}}"
   - copy:
       mode: "0600"
       content: "{{vars[cops_get_secret_variable_name]}}"
