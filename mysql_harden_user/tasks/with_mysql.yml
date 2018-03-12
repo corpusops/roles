@@ -1,8 +1,8 @@
 ---
 - name: test-change-empty-mysql-{{cops_mysql_harden_user_vars.user}}-access-socket
-  shell: >-
-    echo "select 'connected'"
-    | mysql -u {{cops_mysql_harden_user_vars.user}}
+  shell: |-
+    echo "select 'connected'" \
+    | mysql -u {{cops_mysql_harden_user_vars.control_user}} \
             --host={{cops_mysql_harden_user_vars.control_host}}
   register: cops_c_mysql_c_socket
   changed_when: false
