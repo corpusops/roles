@@ -2,7 +2,7 @@
 ## Documentation
 
 - Create/modify users in mysql server
-- Wrapper around [postgres_user ansible module](http://docs.ansible.com/ansible/latest/mysql_user_module.html)
+- Wrapper around [mysql_user ansible module](http://docs.ansible.com/ansible/latest/mysql_user_module.html)
 - see [./test.yml](./test.yml)
 - see [./defaults/main.yml](./defaults/main.yml)
 
