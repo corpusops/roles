@@ -13,7 +13,7 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
 
 
 conf_prefix = 'corpusops_ms_iptables_registrations_'
-registration_prefix = 'corpusops_ms_iptables_registrations_'
+registration_prefix = 'corpusops_ms_iptables_registrations_registrations_'
 
 
 def make_registrations(data, ansible_vars=None):
@@ -30,7 +30,8 @@ def make_registrations(data, ansible_vars=None):
         key=natural_sort_key)
     knobs = data['knobs']
     for v in candidates:
-        if v == registration_prefix:
+        if v in [registration_prefix,
+                 registration_prefix+'vars']:
             continue
         val = ansible_vars[v]
         # simplified form can be a list of rules -- only
