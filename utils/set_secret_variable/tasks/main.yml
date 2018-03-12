@@ -18,9 +18,11 @@
     cacheable: false
     _cops_get_secret_variable:
       registry_prefix: "{{cops_get_secret_variable_registry_prefix}}"
+      # cops_get_secret_variable_name: retrocompat
       name: "{{cops_get_secret_variable_registry_prefix
-             }}{{secretvariable.name}}"
-      path: "{{secretvariable.path|default(corpusops_vars.secrets_dir)}}"
+             }}{{secretvariable.name|default(cops_get_secret_variable_name)}}"
+      # cops_get_secret_variable_path: retrocompat
+      path: "{{secretvariable.path|default(cops_get_secret_variable_path|default(corpusops_vars.secrets_dir))}}"
 - block:
   - name: "{{cops_get_secret_variable_registry_prefix[:-1]
            }} Secret generation: {{cops_get_secret_variable_name}}"
