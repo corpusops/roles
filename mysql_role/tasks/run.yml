@@ -21,7 +21,6 @@
     ssl_ca:               "{% if cops_mysql_role_vars.ssl_ca               is none%}{{omit}}{%else%}{{cops_mysql_role_vars.ssl_ca              }}{%endif%}"
     ssl_cert:             "{% if cops_mysql_role_vars.ssl_cert             is none%}{{omit}}{%else%}{{cops_mysql_role_vars.ssl_cert            }}{%endif%}"
     ssl_key:              "{% if cops_mysql_role_vars.ssl_key              is none%}{{omit}}{%else%}{{cops_mysql_role_vars.ssl_key             }}{%endif%}"
-    state:                "{% if cops_mysql_role_vars.state                is none%}{{omit}}{%else%}{{cops_mysql_role_vars.state               }}{%endif%}"
     state: "{{cops_mysql_role_vars.state}}"
   become: "{{cops_mysql_role_vars.become}}"
   become_user: "{{cops_mysql_role_vars.become_user}}"
