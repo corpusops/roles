@@ -1,15 +1,18 @@
 ---
 # load default variables, first pass, load not resolved values
-- name: "Setup secrets"
-  include_tasks: "../../playbooks/utils/set_secret_variables.yml"
-  loop_control: {loop_var: secretvariables}
-  with_items:
-    - variables: "{{ssl_ca_signed_cert_secrets}}"
-      registry_prefix: ssl_ca_signed_cert_
-  no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_role: {name: corpusops.roles/vars_registry}
   vars: {cops_vars_registry_target: ssl_ca_signed_cert}
   tags: [corpusops_ssl_ca_signed_cert, corpusops_ssl_ca_signed_cert_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+
+- name: "Setup secrets"
+  include_role: {name: corpusops.roles/utils/set_secret_variables}
+  loop_control: {loop_var: secretvariables}
+  with_items:
+  - variables:
+    - "ca_password_{{ssl_ca_signed_cert_vars.ca_name}}"
+    - "ica_password_{{ssl_ca_signed_cert_vars.ca_name}}"
+    registry_prefix: "ssl_ca_signed_cert_"
   no_log: "{{not (cops_vars_debug|default(false))}}"
 
 # do the real stuff
