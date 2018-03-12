@@ -5,22 +5,26 @@
   register: corpusops_services_db_mysql_can_run
   tags: [corpusops_services_db_mysql]
 - include_tasks: prerequisites.yml
-  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  when: ['corpusops_services_db_mysql_can_run.msg == True',
+         "mysql_prerequisites|default(true)"]
   tags: [corpusops_services_db_mysql,
          mysql_prerequisites,
          corpusops_services_db_mysql_prerequisites]
 - include_tasks: configuration.yml
-  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  when: ['corpusops_services_db_mysql_can_run.msg == True',
+         "mysql_configuration|default(true)"]
   tags: [corpusops_services_db_mysql,
          mysql_configuration,
          corpusops_services_db_mysql_configuration]
 - include_tasks: services.yml
-  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  when: ['corpusops_services_db_mysql_can_run.msg == True',
+         "mysql_services|default(true)"]
   tags: [corpusops_services_db_mysql,
          mysql_services,
          corpusops_services_db_mysql_services]
 - include_tasks: checkroot.yml
-  when: 'corpusops_services_db_mysql_can_run.msg == True'
+  when: ['corpusops_services_db_mysql_can_run.msg == True',
+         "mysql_checkroot|default(true)"]
   tags: [corpusops_services_db_mysql,
          mysql_checkroot,
          corpusops_services_db_mysql_checkroot]

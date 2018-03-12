@@ -1,6 +1,6 @@
 ---
-- include_role: {name: corpusops.roles/mysql_harden_user}
-  with_items: 
-    - user: "{{corpusops_services_db_mysql_vars.root_user}}"
-      password: "{{corpusops_services_db_mysql_vars.root_password}}"
-  loop_control: {loop_var: _cops_mysql_harden_user}
+- block:
+  - include_role: {name: corpusops.roles/mysql_harden_user}
+  vars:
+    cops_mysql_harden_user_user: "{{corpusops_services_db_mysql_vars.root_user}}"
+    cops_mysql_harden_user_password: "{{corpusops_services_db_mysql_vars.root_password}}"

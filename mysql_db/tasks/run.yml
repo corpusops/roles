@@ -1,0 +1,24 @@
+---
+- mysql_db:
+    name: "{{cops_mysql_db_vars.db}}"
+    state: "{{cops_mysql_db_vars.state}}"
+    login_host: "{{cops_mysql_db_vars.login_host}}"
+    login_user: "{{cops_mysql_db_vars.login_user}}"
+    login_password: "{{cops_mysql_db_vars.login_password}}"
+    login_port: "{% if cops_mysql_db_vars.login_port is none %}{{omit}}{%else%}{{ cops_mysql_db_vars.login_port }}{%endif%}"
+    login_unix_socket: "{%
+      if cops_mysql_db_vars.login_unix_socket is none %}{{omit}}{%
+      else %}{{ cops_mysql_db_vars.login_unix_socket }}{%endif%}"
+    encoding:  "{{cops_mysql_db_vars.encoding}}"
+    collation: "{{cops_mysql_db_vars.collation}}"
+    config_file:        "{% if cops_mysql_db_vars.config_file        is none %}{{omit}}{%else%}{{cops_mysql_db_vars.config_file       }}{%endif%}"
+    connect_timeout:    "{% if cops_mysql_db_vars.connect_timeout    is none %}{{omit}}{%else%}{{cops_mysql_db_vars.connect_timeout   }}{%endif%}"
+    quick:              "{% if cops_mysql_db_vars.quick              is none %}{{omit}}{%else%}{{cops_mysql_db_vars.quick             }}{%endif%}"
+    single_transaction: "{% if cops_mysql_db_vars.single_transaction is none %}{{omit}}{%else%}{{cops_mysql_db_vars.single_transaction}}{%endif%}"
+    ssl_ca:             "{% if cops_mysql_db_vars.ssl_ca             is none %}{{omit}}{%else%}{{cops_mysql_db_vars.ssl_ca            }}{%endif%}"
+    ssl_cert:           "{% if cops_mysql_db_vars.ssl_cert           is none %}{{omit}}{%else%}{{cops_mysql_db_vars.ssl_cert          }}{%endif%}"
+    ssl_key:            "{% if cops_mysql_db_vars.ssl_key            is none %}{{omit}}{%else%}{{cops_mysql_db_vars.ssl_key           }}{%endif%}"
+    target:             "{% if cops_mysql_db_vars.target             is none %}{{omit}}{%else%}{{cops_mysql_db_vars.target            }}{%endif%}"
+  become: "{{cops_mysql_db_vars.become}}"
+  become_user: "{{cops_mysql_db_vars.become_user}}"
+  register:  cops_mysql_db_ret

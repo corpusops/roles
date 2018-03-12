@@ -135,4 +135,6 @@ corpusops_services_db_mysql_table_definition_cache: null
 corpusops_services_db_mysql_table_open_cache: null
 corpusops_services_db_mysql_open_file_limit: null
 corpusops_services_db_mysql_tmp_table_size_M: null
-corpusops_services_db_mysql_number_of_table_indicator: null
+corpusops_services_db_mysql_client_host: 127.0.0.1
+corpusops_services_db_mysql_client_port: 3306
+corpusops_services_db_mysql_client_socket: null

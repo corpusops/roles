@@ -1,10 +1,11 @@
 ---
 - name: "Setup secrets"
-  include_tasks: "../../playbooks/utils/set_secret_variables.yml"
-  loop_control: {loop_var: secretvariables}
-  with_items:
-    - variables: [password]
-      registry_prefix: cops_mysql_harden_user_
+  include_role: {name: corpusops.roles/get_secret_variable}
+  vars:
+    _cops_get_secret_variable:
+      name: "cops_mysql_harden_user_{{item}}"
+      path: /etc/secrets
+  with_items: [password]
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_role: {name: corpusops.roles/vars_registry}
   vars: {cops_vars_registry_target: cops_mysql_harden_user}
@@ -14,7 +15,7 @@
   assert:
     that:
       - "cops_mysql_harden_user_vars.password|copsf_asbool"
-    msg: "nok"
+    msg: "password is empty for {{cops_mysql_harden_user_vars.user}}"
   register: mysql_harden_user_can_run
   failed_when: false
   tags: [mysql_harden_user]

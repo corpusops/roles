@@ -1,0 +1,10 @@
+---
+- include_role: {name: corpusops.roles/vars_registry}
+  vars:
+    cops_vars_registry_target: cops_mysql_db
+  tags: [mysql_db]
+- debug: "msg={{cops_mysql_db_vars}}"
+  failed_when: "not cops_mysql_db_vars.name"
+  tags: [mysql_db]
+- include_tasks: run.yml
+  tags: [mysql_db]

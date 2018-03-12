@@ -1,0 +1,28 @@
+---
+- mysql_user:
+    name: "{{ cops_mysql_role_vars.name}}"
+    login_host: "{{cops_mysql_role_vars.login_host}}"
+    login_user: "{{cops_mysql_role_vars.login_user}}"
+    login_password: "{{cops_mysql_role_vars.login_password}}"
+    login_port: "{% if cops_mysql_role_vars.login_port is none %}{{omit}}{%else%}{{ cops_mysql_role_vars.login_port }}{%endif%}"
+    login_unix_socket: "{%
+      if cops_mysql_role_vars.login_unix_socket is none %}{{omit}}{%
+      else %}{{ cops_mysql_role_vars.login_unix_socket }}{%endif%}"
+    encrypted:         "{% if cops_mysql_role_vars.encrypted         is none%}{{omit}}{%else%}{{cops_mysql_role_vars.encrypted        }}{%endif%}"
+    append_privs:         "{% if cops_mysql_role_vars.append_privs         is none%}{{omit}}{%else%}{{cops_mysql_role_vars.append_privs        }}{%endif%}"
+    check_implicit_admin: "{% if cops_mysql_role_vars.check_implicit_admin is none%}{{omit}}{%else%}{{cops_mysql_role_vars.check_implicit_admin}}{%endif%}"
+    config_file:          "{% if cops_mysql_role_vars.config_file          is none%}{{omit}}{%else%}{{cops_mysql_role_vars.config_file         }}{%endif%}"
+    connect_timeout:      "{% if cops_mysql_role_vars.connect_timeout      is none%}{{omit}}{%else%}{{cops_mysql_role_vars.connect_timeout     }}{%endif%}"
+    host:                 "{% if cops_mysql_role_vars.host                 is none%}{{omit}}{%else%}{{cops_mysql_role_vars.host                }}{%endif%}"
+    host_all:             "{% if cops_mysql_role_vars.host_all             is none%}{{omit}}{%else%}{{cops_mysql_role_vars.host_all            }}{%endif%}"
+    password:             "{% if cops_mysql_role_vars.password             is none%}{{omit}}{%else%}{{cops_mysql_role_vars.password            }}{%endif%}"
+    priv:                 "{% if cops_mysql_role_vars.priv                 is none%}{{omit}}{%else%}{{cops_mysql_role_vars.priv                }}{%endif%}"
+    sql_log_bin:          "{% if cops_mysql_role_vars.sql_log_bin          is none%}{{omit}}{%else%}{{cops_mysql_role_vars.sql_log_bin         }}{%endif%}"
+    ssl_ca:               "{% if cops_mysql_role_vars.ssl_ca               is none%}{{omit}}{%else%}{{cops_mysql_role_vars.ssl_ca              }}{%endif%}"
+    ssl_cert:             "{% if cops_mysql_role_vars.ssl_cert             is none%}{{omit}}{%else%}{{cops_mysql_role_vars.ssl_cert            }}{%endif%}"
+    ssl_key:              "{% if cops_mysql_role_vars.ssl_key              is none%}{{omit}}{%else%}{{cops_mysql_role_vars.ssl_key             }}{%endif%}"
+    state:                "{% if cops_mysql_role_vars.state                is none%}{{omit}}{%else%}{{cops_mysql_role_vars.state               }}{%endif%}"
+    state: "{{cops_mysql_role_vars.state}}"
+  become: "{{cops_mysql_role_vars.become}}"
+  become_user: "{{cops_mysql_role_vars.become_user}}"
+  register: cops_mysql_role_ret

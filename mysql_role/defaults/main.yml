@@ -1,0 +1,24 @@
+---
+cops_mysql_role_login_unix_socket: "{{corpusops_services_db_mysql_vars.client_socket}}"
+cops_mysql_role_login_host: "{{corpusops_services_db_mysql_vars.client_host}}"
+cops_mysql_role_login_port: "{{corpusops_services_db_mysql_vars.client_port}}"
+cops_mysql_role_login_user: "{{corpusops_services_db_mysql_vars.root_user}}"
+cops_mysql_role_login_password: "{{corpusops_services_db_mysql_vars.root_password}}"
+cops_mysql_role_name: null
+cops_mysql_role_state: present
+cops_mysql_role_append_privs: true
+cops_mysql_role_encrypted: null
+cops_mysql_role_check_implicit_admin: null
+cops_mysql_role_config_file: null
+cops_mysql_role_connect_timeout: null
+cops_mysql_role_host: null
+cops_mysql_role_host_all: null
+cops_mysql_role_password: null
+cops_mysql_role_priv: null
+cops_mysql_role_sql_log_bin: null
+cops_mysql_role_ssl_ca: null
+cops_mysql_role_ssl_cert: null
+cops_mysql_role_ssl_key: null
+cops_mysql_role_update_password: null
+cops_mysql_role_become: false
+cops_mysql_role_become_user: root
