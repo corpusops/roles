@@ -26,9 +26,7 @@
   include_jinja_vars:
     content: |-
       ---
-      {{{
-          'corpusops_ms_iptables_registrations_registrations': {},
-          'corpusops_ms_iptables_registrations_vars': {},
-      }|to_json}}
+      {{{'corpusops_ms_iptables_registrations_registrations': {},
+         'corpusops_ms_iptables_registrations_vars': {}}|to_json}}
   no_log: "{{not (cops_vars_debug|default(false))}}"
   tags: [corpusops_vars, corpusops_ms_iptables_registrations, corpusops_ms_iptables_registrations_vars]

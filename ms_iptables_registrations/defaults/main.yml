@@ -1,5 +1,4 @@
 ---
-# Allow to specify defaults in a prefix way and in a inline, flattened way
 corpusops_ms_iptables_registrations_cops_do_format_resolve: true
 corpusops_ms_iptables_registrations_cops_computed_defaults: []
 corpusops_ms_iptables_registrations_cops_flavors: []
@@ -8,27 +7,31 @@ corpusops_ms_iptables_registrations_cops_lowered: []
 corpusops_ms_iptables_registrations_cops_knobs: []
 corpusops_ms_iptables_registrations_cops_sub_namespaces:
   settings: {}
+corpusops_ms_iptables_registrations_name: registrations
 corpusops_ms_iptables_registrations_user: root
 corpusops_ms_iptables_registrations_group: root
-corpusops_ms_iptables_registrations_file: "{{corpusops_services_firewall_ms_iptables_vars.conf_prefix}}/z_99_registrations.json"
+corpusops_ms_iptables_registrations_prefix: "{{corpusops_services_firewall_ms_iptables_vars.conf_prefix}}"
+corpusops_ms_iptables_registrations_priority: "99"
+corpusops_ms_iptables_registrations_file: "z_{priority}_{name}.json"
 corpusops_ms_iptables_registrations_filescopy: []
-corpusops_ms_iptables_registrations_files: []
+corpusops_ms_iptables_registrations_files:
+- {path: "{prefix}", state: directory, mode: "0755"}
 corpusops_ms_iptables_registrations_configs:
-  - {name: "{file}",
-     template: "../templates/cfg.json",
-     owner: "{user}", group: "{group}", mode: "0640"}
+- {name: "{prefix}/{file}", template: "../templates/cfg.json", owner: "{user}", group: "{group}", mode: "0640"}
+corpusops_ms_iptables_registrations_enable: true
+corpusops_ms_iptables_registrations_service_state: "{{corpusops_vars.has_services_manager and 'reloaded' or none}}"
+corpusops_ms_iptables_registrations_ipv6: null
+corpusops_ms_iptables_registrations_policy: null
 corpusops_ms_iptables_registrations_load_default_rules: null
 corpusops_ms_iptables_registrations_load_default_flush_rules: null
 corpusops_ms_iptables_registrations_load_default_hard_policies: null
-corpusops_ms_iptables_registrations_ipv6: null
 corpusops_ms_iptables_registrations_load_default_open_policies: null
-corpusops_ms_iptables_registrations_policy: null
 corpusops_ms_iptables_registrations_rules: null
 corpusops_ms_iptables_registrations_hard_policies: null
 corpusops_ms_iptables_registrations_open_policies: null
 corpusops_ms_iptables_registrations_flush_rules: null
 corpusops_ms_iptables_registrations_check_config: true
-corpusops_ms_iptables_registrations_knobs: 
+corpusops_ms_iptables_registrations_knobs:
 - load_default_rules
 - load_default_flush_rules
 - load_default_hard_policies
