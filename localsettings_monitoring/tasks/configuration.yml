@@ -1,0 +1,51 @@
+---
+- when: "corpusops_localsettings_monitoring_vars.has_sysstat"
+  tags: [monitoring_configs_systat]
+  block:
+  - set_fact:
+      cacheable: false
+      cops_configs_files: "{{corpusops_localsettings_monitoring_vars.sysstat_files}}"
+      cops_configs_copys: []
+      cops_configs_templates: "{{corpusops_localsettings_monitoring_vars.sysstat_configs}}"
+  - include_role: {name: corpusops.roles/configs, private: true}
+  - set_fact:
+      cacheable: false
+      corpusops_localsettings_monitoring_sysstat_filest: "{{cops_configs_files_results}}"
+      corpusops_localsettings_monitoring_sysstat_filesct: "{{cops_configs_copys_results}}"
+      corpusops_localsettings_monitoring_sysstat_configst: "{{cops_configs_templates_results}}"
+  - cops_service:
+      state: started
+      name: "{{item}}"
+    with_items: "{{vars['corpusops_localsettings_monitoring_sysstat_services']}}"
+- tags: [monitoring_configs]
+  block:
+  - set_fact:
+      cacheable: false
+      cops_configs_files: "{{corpusops_localsettings_monitoring_vars.files}}"
+      cops_configs_copys: "{{corpusops_localsettings_monitoring_vars.filescopy}}"
+      cops_configs_templates: "{{corpusops_localsettings_monitoring_vars.configs}}"
+  - include_role: {name: corpusops.roles/configs, private: true}
+  - set_fact:
+      cacheable: false
+      corpusops_localsettings_monitoring_filest: "{{cops_configs_files_results}}"
+      corpusops_localsettings_monitoring_filesct: "{{cops_configs_copys_results}}"
+      corpusops_localsettings_monitoring_configst: "{{cops_configs_templates_results}}"
+- synchronize:
+    src: ../files/
+    dest: "{{corpusops_localsettings_monitoring_vars.scripts_dir}}/"
+    compress: false
+    rsync_opts: [-a, -z, -v, --delete]
+    ssh_args: "{{corpusops_vars.ssh_args}}"
+  delegate_to: "{{corpusops_localsettings_monitoring_vars.origin}}"
+  register: corpusops_localsettings_monitoring_synct
+- set_fact:
+    cacheable: false
+    corpusops_localsettings_monitoring_configs_changed: "{{(
+      (corpusops_localsettings_monitoring_synct           |default({}))|changed or
+      (corpusops_localsettings_monitoring_sysstat_filest  |default({}))|changed or
+      (corpusops_localsettings_monitoring_sysstat_filesct |default({}))|changed or
+      (corpusops_localsettings_monitoring_sysstat_configst|default({}))|changed or
+      (corpusops_localsettings_monitoring_filest          |default({}))|changed or
+      (corpusops_localsettings_monitoring_filesct         |default({}))|changed or
+      (corpusops_localsettings_monitoring_configst        |default({}))|changed
+      )}}"

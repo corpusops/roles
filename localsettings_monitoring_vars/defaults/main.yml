@@ -1,0 +1,89 @@
+---
+corpusops_localsettings_monitoring_cops_do_format_resolve: true
+corpusops_localsettings_monitoring_cops_computed_defaults: []
+corpusops_localsettings_monitoring_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_monitoring_cops_sub_os_append: {}
+corpusops_localsettings_monitoring_cops_lowered: ['repo']
+corpusops_localsettings_monitoring_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo']
+corpusops_localsettings_monitoring_cops_sub_namespaces:
+  settings: {}
+#
+corpusops_localsettings_monitoring_name: monitoring
+corpusops_localsettings_monitoring_activated: True
+corpusops_localsettings_monitoring_disabled: "{{not corpusops_localsettings_monitoring_activated}}"
+corpusops_localsettings_monitoring_repo_keys_url: null
+corpusops_localsettings_monitoring_repo_keys: null
+corpusops_localsettings_monitoring_repo_keys_default: []
+corpusops_localsettings_monitoring_keyserver: "{{corpusops_vars.hkp_keyserver}}"
+corpusops_localsettings_monitoring_repo: null
+corpusops_localsettings_monitoring_packages: null
+corpusops_localsettings_monitoring_packages_default: |-
+  {%- set pkgs = ['nagios-plugins',
+                  'nagios-plugins-contrib',
+                  'libwww-perl',
+                  'libsnmp-base',
+                  'libsnmp-perl',
+                  'nagios-plugins-basic',
+                  'libsnmp-dev',
+                  'libsensors4',
+                  'libcrypt-des-perl',
+                  'libxml-xpath-perl',
+                  'libsys-statistics-linux-perl',] %}
+  {%- if not (ansible_distribution.lower() in ['ubuntu', 'mint'] and
+          ansible_distribution_version|copsf_looseversion >=
+              '17.10'|copsf_looseversion) %}
+  {%-  set _ = pkgs.append('sysstat') %}
+  {%- endif %}
+  {%- if vars['corpusops_localsettings_monitoring_has_sysstat'] %}
+  {%-  set _ = pkgs.append('sysstat') %}
+  {%- endif %}
+  {%- if ansible_distribution.lower() in ['ubuntu', 'mint'] %}
+  {%-  if ansible_distribution_version|copsf_looseversion < '16.04'|copsf_looseversion %}
+  {%-   set _ = pkgs.append('nagios-plugins-openstack') %}
+  {%-  endif %}
+  {%- endif %}
+  {{ pkgs|to_json }}
+corpusops_localsettings_monitoring_origin: localhost
+corpusops_localsettings_monitoring_services: null
+corpusops_localsettings_monitoring_scripts_dir: "{{corpusops_vars.usr_dir}}/local/admin_scripts/nagios"
+corpusops_localsettings_monitoring_group: 'root'
+corpusops_localsettings_monitoring_user: 'root'
+corpusops_localsettings_monitoring_services_default: ["{name}"]
+corpusops_localsettings_monitoring_files: null
+corpusops_localsettings_monitoring_filescopy: null
+corpusops_localsettings_monitoring_filescopy_default: []
+corpusops_localsettings_monitoring_files_apt: []
+corpusops_localsettings_monitoring_has_sysstat: "{% if ansible_virtualization_type in ['docker', 'lxc']%}False{%else%}True{%endif%}"
+corpusops_localsettings_monitoring_files_default:
+  - {path: "{scripts_dir}",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_localsettings_monitoring_sysstat_files:
+  - {path: "{{corpusops_vars.config_dir}}/sysstat",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_localsettings_monitoring_sysstat_configs:
+  - {name: "{{corpusops_vars.config_dir}}/default/sysstat",
+     template: "../templates/etc/default/sysstat",
+     owner: "{user}", group: root, mode: "0640"}
+  - {name: "{{corpusops_vars.config_dir}}/cron.d/sysstat",
+     template: "../templates/etc/cron.d/sysstat",
+     owner: "{user}", group: root, mode: "0640"}
+  - {name: "{{corpusops_vars.config_dir}}/sysstat/sysstat",
+     template: "../templates/etc/sysstat/sysstat",
+     owner: "{user}", group: root, mode: "0640"}
+  - {name: "{{corpusops_vars.config_dir}}/sysstat/sysstat.ioconf",
+     template: "../templates/etc/sysstat/sysstat.ioconf",
+     owner: "{user}", group: root, mode: "0640"}
+corpusops_localsettings_monitoring_sysstat_services: ['sysstat']
+corpusops_localsettings_monitoring_sysstat_rotate_periodicity: '59 23 * * *'
+corpusops_localsettings_monitoring_sysstat_periodicity: '*/3 * * * *'
+corpusops_localsettings_monitoring_sysstat_rotate_count: '60 2'
+corpusops_localsettings_monitoring_sysstat_count: '20 3'
+corpusops_localsettings_monitoring_sysstat_history: "{{3*31}}"
+corpusops_localsettings_monitoring_sysstat_compress: "{{2*31}}"
+corpusops_localsettings_monitoring_sysstat_sadc_opts: "-S XDISK"
+corpusops_localsettings_monitoring_configs_default: []
+#  - {name: "{config_file}",
+#     template: "../templates/etc/{name}/{name}.cfg",
+#     owner: "{user}", group: root, mode: "0640"}

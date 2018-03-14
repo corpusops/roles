@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# wrapper to be sure to exec in C locale
+export PATH="/usr/lib/nagios/plugins:${PATH}"
+export LANG=C LC_ALL=C
+cd $(dirname $0)
+bin=./check_ntp_time.bin
+for i in /usr/lib/nagios/plugins;do
+    if [ -e "${i}/check_ntp_time" ];then
+        bin="${i}/check_ntp_time"
+        break
+    fi
+done
+exec "${bin}" "${@}"
+exit ${?}
