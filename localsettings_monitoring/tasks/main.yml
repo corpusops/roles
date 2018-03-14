@@ -1,0 +1,16 @@
+---
+- name: "corpusops_localsettings_monitoring preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_monitoring | default(True) }}"
+  register: corpusops_localsettings_monitoring_can_run
+  tags: [corpusops_localsettings_monitoring]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_localsettings_monitoring_can_run.msg == True'
+  tags: [corpusops_localsettings_monitoring,
+         monitoring_prerequisites,
+         corpusops_localsettings_monitoring_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_localsettings_monitoring_can_run.msg == True'
+  tags: [corpusops_localsettings_monitoring,
+         monitoring_configuration,
+         corpusops_localsettings_monitoring_configuration]

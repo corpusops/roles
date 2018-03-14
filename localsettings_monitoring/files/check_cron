@@ -1,0 +1,34 @@
+#!/bin/bash
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_DEPENDENT=4
+
+filter_host_pids() {
+    if [ "x$(is_lxc)" != "x0" ];then
+        echo "${@}"
+    else
+        for pid in ${@};do
+            if [ "x$(grep -q lxc /proc/${pid}/cgroup 2>/dev/null;echo "${?}")" != "x0" ];then
+                echo ${pid}
+            fi
+        done
+    fi
+}
+
+# Note that this will only work for root user
+is_lxc() {
+    echo "$(cat -e /proc/1/environ 2>&1|grep container=lxc|wc -l|sed -e "s/ //g")"
+}
+
+LIST=`ps auxf | grep cron| grep Ss|grep -v check_cron|grep -v grep | awk '{print $2}'`
+CRONPROC=`filter_host_pids $LIST | wc -l`
+case "${CRONPROC}" in
+        0)  echo "CRON CRITICAL - Cron process is not running"; exit ${STATE_CRITICAL}
+        ;;
+        1)  echo "CRON OK - Cron process is running"; exit ${STATE_OK}
+        ;;
+        *)  echo "CRON CRITICAL - Cron process is running more than once (${CRONPROC})"; exit ${STATE_WARNING}
+        ;;
+esac
