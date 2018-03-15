@@ -30,6 +30,7 @@ corpusops_services_ftp_pureftpd_packages_default: |
 corpusops_services_ftp_pureftpd_services: ['pure-ftpd']
 corpusops_services_ftp_pureftpd_group: pureftpd
 corpusops_services_ftp_pureftpd_user: root
+corpusops_services_ftp_pureftpd_dhparam: "{{corpusops_vars.config_dir}}/ssl/private/pure-ftpd-dhparams.pem"
 corpusops_services_ftp_pureftpd_files: null
 corpusops_services_ftp_pureftpd_files_default:
   - {path: "{prefix}",
@@ -46,10 +47,11 @@ corpusops_services_ftp_pureftpd_files_apt: []
 corpusops_services_ftp_pureftpd_configs: null
 corpusops_services_ftp_pureftpd_key: "{{corpusops_vars.config_dir}}/ssl/private/pure-ftpd.pem"
 corpusops_services_ftp_pureftpd_prefix: "{{corpusops_vars.config_dir}}/pure-ftpd"
-
+corpusops_services_ftp_pureftpd_initd: "{{corpusops_vars.config_dir}}/init.d/pure-ftpd"
 corpusops_services_ftp_pureftpd_configs_default:
-  - {name: "/etc/init.d/pure-ftpd",         mode: "0755"}
-  - {name: "/etc/default/pure-ftpd-common", mode: "0644"}
+  - {name: "{initd}",         mode: "0755"}
+  - {name: "{{corpusops_vars.config_dir}}/default/pure-ftpd-common", mode: "0644"}
+  - {name: "{{corpusops_vars.config_dir}}/systemd/system/pure-ftpd.service", mode: "0644"}
 corpusops_services_ftp_pureftpd_Virtualchroot: 'false'
 corpusops_services_ftp_pureftpd_InetdMode: 'standalone'
 corpusops_services_ftp_pureftpd_UploadUid: ''
