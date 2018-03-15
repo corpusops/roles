@@ -33,13 +33,13 @@
     with_dict: |
       {%- set res = {} %}
       {%- set data = corpusops_services_ftp_pureftpd_vars %}
-      {%- set passive = data.conf['PassiveIP'] or data.conf['PassivePortRange']%}
+      {%- set passive = data.conf['ForcePassiveIP'] or data.conf['PassivePortRange']%}
       {%- for setting, value in data.conf.items() %}
       {%- if (
           value.strip()
           and (
-            not setting.startswith('Passive')
-            or (setting.startswith('Passive') and passive)
+            'Passive' not in setting
+            or ('Passive' in setting and passive)
           )
          ) %}
       {%- set _ = res.update({setting: value}) %}
@@ -57,13 +57,13 @@
     with_dict: |-
       {%- set res = {} %}
       {%- set data = corpusops_services_ftp_pureftpd_vars %}
-      {%- set passive = data.conf['PassiveIP'] or data.conf['PassivePortRange']%}
+      {%- set passive = data.conf['ForcePassiveIP'] or data.conf['PassivePortRange']%}
       {%- for setting, value in data.conf.items() %}
       {%- if not(
           value.strip()
           and (
-            not setting.startswith('Passive')
-            or (setting.startswith('Passive') and passive)
+            'Passive' not in setting
+            or ('Passive' in setting and passive)
           )
          ) %}
       {%- set _ = res.update({setting: value}) %}

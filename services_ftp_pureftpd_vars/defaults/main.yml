@@ -98,7 +98,7 @@ corpusops_services_ftp_pureftpd_conf_Umask: "133 022"
 corpusops_services_ftp_pureftpd_conf_UserBandwidth: ""
 corpusops_services_ftp_pureftpd_conf_UserRatio: ""
 corpusops_services_ftp_pureftpd_conf_VerboseLog: "yes"
-corpusops_services_ftp_pureftpd_conf_PassiveIP: ""
+corpusops_services_ftp_pureftpd_conf_ForcePassiveIP: ""
 corpusops_services_ftp_pureftpd_conf_PassivePortRange: ""
 corpusops_services_ftp_pureftpd_conf_PAMAuthentication: 'yes'
 corpusops_services_ftp_pureftpd_conf_UnixAuthentication: 'no'
