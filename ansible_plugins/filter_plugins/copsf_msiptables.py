@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import re
+import copy
 
 
 def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
@@ -13,7 +14,7 @@ def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
 
 
 conf_prefix = 'corpusops_ms_iptables_registrations_'
-registration_prefix = 'corpusops_ms_iptables_registrations_registrations_'
+registration_prefix = 'registrations_'
 
 
 def make_registrations(data, ansible_vars=None):
@@ -25,7 +26,7 @@ def make_registrations(data, ansible_vars=None):
       ms_iptables configuration knob
     '''
     candidates = sorted(
-        [v for v in ansible_vars if (
+        [v for v in data if (
             v.startswith(registration_prefix))],
         key=natural_sort_key)
     knobs = data['knobs']
@@ -33,7 +34,7 @@ def make_registrations(data, ansible_vars=None):
         if v in [registration_prefix,
                  registration_prefix+'vars']:
             continue
-        val = ansible_vars[v]
+        val = data[v]
         # simplified form can be a list of rules -- only
         if isinstance(val, list):
             val = {'rules': val}
@@ -42,6 +43,7 @@ def make_registrations(data, ansible_vars=None):
         for i, sval in val.items():
             if i not in knobs:
                 continue
+            sval = copy.deepcopy(sval)
             try:
                 oval = data[i]
                 if isinstance(oval, list) and isinstance(sval, list):
