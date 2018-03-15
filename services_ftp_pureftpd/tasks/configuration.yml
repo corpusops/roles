@@ -1,5 +1,13 @@
 ---
-- debug: {msg: "{{corpusops_services_ftp_pureftpd_vars.configs}}"}
+- name: gen diffie-h file
+  shell: |
+    f="{{corpusops_services_ftp_pureftpd_vars.dhparam}}";d="$(dirname $f)";
+    if test ! -e "$d";then mkdir -p "$d";fi;
+    if test ! -e "$f";then
+      openssl dhparam -out "$f" 2048;chmod 644 "$f";echo "ansibledhgen" >&2 ;
+    fi
+  register: corpusops_services_ftp_pureftpd_dh
+  changed_when: "'ansibledhgen' in corpusops_services_ftp_pureftpd_dh.stderr"
 - include_role: {name: corpusops.roles/configs, private: true}
   vars:
     cops_configs_files: "{{corpusops_services_ftp_pureftpd_vars.files}}"

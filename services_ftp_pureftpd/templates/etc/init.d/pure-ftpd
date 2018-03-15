@@ -59,10 +59,8 @@ fi
 test -x $DAEMON || exit 0
 test -x $WRAPPER || exit 0
 
-set -e
-
 if [ ! -e `dirname $PIDFILE` ];then
-       mkdir `dirname $PIDFILE`
+    mkdir -p `dirname $PIDFILE`
 fi
 
 
@@ -121,7 +119,7 @@ test_daemon() {
 }
 
 do_start() {
-     test "$STANDALONE_OR_INETD" = standalone || exit 0
+    test "$STANDALONE_OR_INETD" = standalone || exit 0
     echo "Starting $DESC: "
     start-stop-daemon --start $SSDAEMONLOGOPTS  \
         --exec ${WRAPPER}1 -- "$SUFFIX"
@@ -162,35 +160,40 @@ do_stop() {
     return $ret
 }
 
+do_status() {
+    ret=0
+    do_config
+    status_of_proc -p ${PIDFILE} $DAEMON $NAME && noop=0 || ret=$?
+    if [ "x${TWO_DAEMONS}" != "x" ];then
+        status_of_proc -p ${PIDFILE2} $DAEMON $NAME && noop=0 || ret=$?
+    fi
+    return $ret
+}
+
 case "$1" in
     start)
-        do_config
-        do_start
+        do_config && do_start
         exit $?
         ;;
     stop)
-        do_config
-        do_stop
+        do_config && do_stop
         exit $?
         ;;
-    restart|force-reload)
+    restart|force-reload|reload)
         test "$STANDALONE_OR_INETD" = standalone || exit 0
         do_config
-        do_stop && sleep 1 && do_start
+        if ( do_status; );then
+            do_stop && sleep 1
+        fi && do_start
         exit $?
         ;;
     status)
-        ret=0
-        do_config
-        status_of_proc -p ${PIDFILE} $DAEMON $NAME && noop=0 || ret=$?
-        if [ "x${TWO_DAEMONS}" != "x" ];then
-            status_of_proc -p ${PIDFILE2} $DAEMON $NAME && noop=0 || ret=$?
-        fi
-        exit ${ret}
+        do_status
+        exit $?
         ;;
     *)
         N=/etc/init.d/$NAME
-        echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+        echo "Usage: $N {start|stop|restart|force-reload|reload|status}" >&2
         exit 1
         ;;
 esac

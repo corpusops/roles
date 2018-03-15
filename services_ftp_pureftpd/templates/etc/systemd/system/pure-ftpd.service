@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+# {% set data = corpusops_services_ftp_pureftpd_vars %}
+
+[Unit]
+Documentation=man:systemd-sysv-generator(8)
+SourcePath={{data.initd}}
+Description=LSB: pureftpd
+After=network-online.target
+After=local-fs.target
+After=remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+Restart=no
+TimeoutSec=5min
+IgnoreSIGPIPE=no
+KillMode=process
+GuessMainPID=no
+RemainAfterExit=yes
+ExecStart={{data.initd}} start
+ExecStop={{data.initd}} stop
+ExecReload={{data.initd}} reload
