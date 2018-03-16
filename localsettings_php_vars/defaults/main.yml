@@ -90,6 +90,7 @@ corpusops_localsettings_php_packages: |-
   {% endif %}
   {% if corpusops_localsettings_php_xdebug_install %}
   {% set _  = v.ret.append(corpusops_localsettings_php_spackages_xdebug) %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_fpm) %}
   {% endif %}
   {{ v.ret | to_json }}
 corpusops_localsettings_php_services: null
