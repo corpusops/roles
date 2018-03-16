@@ -6,19 +6,19 @@
   tags: [corpusops_services_ftp_pureftpd]
 - include_tasks: prerequisites.yml
   when: ['corpusops_services_ftp_pureftpd_can_run.msg == True',
-         "corpusops_services_ftp_pureftpd_prerequisites|default(true)"]
+         "corpusops_services_ftp_pureftpd_do_prerequisites|default(true)"]
   tags: [corpusops_services_ftp_pureftpd,
          pureftpd_prerequisites,
          corpusops_services_ftp_pureftpd_prerequisites]
 - include_tasks: configuration.yml
   when: ['corpusops_services_ftp_pureftpd_can_run.msg == True',
-         "corpusops_services_ftp_pureftpd_configuration|default(true)"]
+         "corpusops_services_ftp_pureftpd_do_configuration|default(true)"]
   tags: [corpusops_services_ftp_pureftpd,
          pureftpd_configuration,
          corpusops_services_ftp_pureftpd_configuration]
 - include_tasks: services.yml
   when: ['corpusops_services_ftp_pureftpd_can_run.msg == True',
-         "corpusops_services_ftp_pureftpd_services|default(true)"]
+         "corpusops_services_ftp_pureftpd_do_services|default(true)"]
   tags: [corpusops_services_ftp_pureftpd,
          pureftpd_services,
          corpusops_services_ftp_pureftpd_services]
