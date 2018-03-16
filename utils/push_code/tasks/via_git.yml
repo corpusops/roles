@@ -1,7 +1,9 @@
 ---
 - block:
-  - name: "git repo: deploy code container inside the target environment"
+  - name: "git repo: test origin git repo exists: {{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}"
+    
     delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+    become: "{{__cops_provision_push_code_vars.origin_become}}"
     stat:
       path: "{{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}"
     register: cops_sync_code_push_code_git_head
@@ -17,6 +19,7 @@
         cd  "{{__cops_provision_push_code_vars.src}}"
         git log -1 --format="%H"
     delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+    become: "{{__cops_provision_push_code_vars.origin_become}}"
     register: cops_sync_code_push_code_git_commitc
     when: cops_sync_code_push_code_git_head.stat.exists
     changed_when: false
@@ -68,6 +71,7 @@
       with_items: ["{{__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder}}"]
     - name: "git file sync: synchronise files inside the environment (deleguation)"
       delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+      become: "{{__cops_provision_push_code_vars.origin_become}}"
       synchronize:
         compress: false
         ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"

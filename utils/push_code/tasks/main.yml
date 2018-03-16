@@ -3,6 +3,7 @@
 #  FORCE_COPS_PROVISION_PUSH_CODE: true/false
 #  _cops_provision_push_code:
 #   path: destination path
+#   origin_become: use root on local (default to current user)
 #   owner: default: root
 #   group: default: root
 #   origin_path: origin path

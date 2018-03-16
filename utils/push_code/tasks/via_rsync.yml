@@ -11,6 +11,7 @@
   when: __cops_provision_push_code_vars.force_sync
 - name: synchronise files inside the environment (deleguation)
   delegate_to: "{{__cops_provision_push_code_vars.origin}}"
+  become: "{{__cops_provision_push_code_vars.origin_become}}"
   synchronize:
     compress: false
     ssh_args: "{{__cops_provision_push_code_vars.ssh_args}}"

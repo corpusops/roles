@@ -17,6 +17,7 @@
       askpass: "{{__cops_provision_push_code_askpass.path}}"
       parent_dest: "{{_cops_provision_push_code.parent_dest|default(none)}}"
       parent_path: "{{_cops_provision_push_code.parent_path|default(none)}}"
+      origin_become: "{{_cops_provision_push_code.origin_become|default(False)}}"
       trailing_slash: "{% if _cops_provision_push_code.get('is_directory', True) %}/{%endif%}"
       sync_mode: "{{_cops_provision_push_code.get(
                             'sync_mode', 'rsync').replace('/', '') }}"
