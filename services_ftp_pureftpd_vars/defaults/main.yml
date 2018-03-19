@@ -1,7 +1,7 @@
 ---
 corpusops_services_ftp_pureftpd_cops_do_format_resolve: true
 corpusops_services_ftp_pureftpd_cops_computed_defaults: []
-corpusops_services_ftp_pureftpd_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_services_ftp_pureftpd_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_services_ftp_pureftpd_cops_sub_os_append: {}
 corpusops_services_ftp_pureftpd_cops_knobs: [
   'files', 'filescopy', 'configs', 'packages', 'services_ftp',
