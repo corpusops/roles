@@ -55,7 +55,8 @@
 - user:
     name: "{{corpusops_localsettings_supervisor_vars.user}}"
     system: yes
-    group: "{{corpusops_localsettings_supervisor_vars.group}}"
+    groups: "{{corpusops_localsettings_supervisor_vars.group}}"
+    append: true
   when: "corpusops_localsettings_supervisor_vars.user|default(none)"
 - tags: [corpusops_localsettings_supervisor_venv]
   block:

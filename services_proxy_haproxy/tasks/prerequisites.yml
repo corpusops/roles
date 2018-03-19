@@ -55,7 +55,8 @@
 - user:
     name: "{{corpusops_services_proxy_haproxy_vars.user}}"
     system: yes
-    group: "{{corpusops_services_proxy_haproxy_vars.group}}"
+    groups: "{{corpusops_services_proxy_haproxy_vars.group}}"
+    append: true
   when: "corpusops_services_proxy_haproxy_vars.user"
 - set_fact:
     cacheable: false
