@@ -4,6 +4,21 @@
     msg: "{{corpusops_services_base_sshd | default(True) }}"
   register: corpusops_services_base_sshd_can_run
   tags: corpusops_services_base_sshd
-- include_tasks: run.yml
-  when: 'corpusops_services_base_sshd_can_run.msg == True'
-  tags: corpusops_services_base_sshd
+- include_tasks: prerequisites.yml
+  when: ['corpusops_services_base_sshd_can_run.msg == True',
+         "corpusops_services_base_sshd_do_prerequisites|default(true)"]
+  tags: [corpusops_services_base_sshd,
+         sshd_prerequisites,
+         corpusops_services_base_sshd_prerequisites]
+- include_tasks: configuration.yml
+  when: ['corpusops_services_base_sshd_can_run.msg == True',
+         "corpusops_services_base_sshd_do_configuration|default(true)"]
+  tags: [corpusops_services_base_sshd,
+         sshd_configuration,
+         corpusops_services_base_sshd_configuration]
+- include_tasks: services.yml
+  when: ['corpusops_services_base_sshd_can_run.msg == True',
+         "corpusops_services_base_sshd_do_services|default(true)"]
+  tags: [corpusops_services_base_sshd,
+         sshd_services,
+         corpusops_services_base_sshd_services]

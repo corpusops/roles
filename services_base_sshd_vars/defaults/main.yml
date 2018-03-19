@@ -1,4 +1,12 @@
 ---
+corpusops_services_base_sshd_cops_do_format_resolve: true
+corpusops_services_base_sshd_cops_computed_defaults: []
+corpusops_services_base_sshd_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_base_sshd_cops_sub_os_append: {}
+corpusops_services_base_sshd_cops_knobs: ['files', 'filescopy', 'packages', 'services', 'activated',
+                      'settings_AllowGroups']
+corpusops_services_base_sshd_cops_lowered: ['repo']
+corpusops_services_base_sshd_cops_sub_namespaces: {settings: {}}
 corpusops_services_base_sshd_packages: null
 corpusops_services_base_sshd_packages_default: [openssh-server]
 corpusops_services_base_sshd_services: null
