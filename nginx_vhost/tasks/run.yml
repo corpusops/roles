@@ -5,7 +5,7 @@
     state: present
 - user:
     name: "{{corpusops_nginx_vhost_vars.user}}"
-    group: "{{corpusops_nginx_vhost_vars.group}}"
+    groups: "{{corpusops_nginx_vhost_vars.group}}"
     append: true
     system: true
     state: present

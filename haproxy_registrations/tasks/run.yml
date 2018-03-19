@@ -5,7 +5,7 @@
     state: present
 - user:
     name: "{{corpusops_haproxy_registrations_vars.user}}"
-    group: "{{corpusops_haproxy_registrations_vars.group}}"
+    groups: "{{corpusops_haproxy_registrations_vars.group}}"
     append: true
     system: true
     state: present

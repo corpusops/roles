@@ -55,7 +55,8 @@
 - user:
     name: "{{corpusops_services_db_postgresql_vars.user}}"
     system: yes
-    group: "{{corpusops_services_db_postgresql_vars.group}}"
+    groups: "{{corpusops_services_db_postgresql_vars.group}}"
+    append: true
   when: "corpusops_services_db_postgresql_vars.user"
 - set_fact:
     cacheable: false

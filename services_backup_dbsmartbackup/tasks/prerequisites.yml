@@ -45,7 +45,8 @@
 - user:
     name: "{{corpusops_services_backup_dbsmartbackup_vars.user}}"
     system: yes
-    group: "{{corpusops_services_backup_dbsmartbackup_vars.group}}"
+    groups: "{{corpusops_services_backup_dbsmartbackup_vars.group}}"
+    append: true
   when: "corpusops_services_backup_dbsmartbackup_vars.user"
 - set_fact:
     cacheable: false
