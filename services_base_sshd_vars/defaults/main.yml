@@ -22,6 +22,7 @@ corpusops_services_base_sshd_configs:
   - {name: '/usr/bin/sshd_wrapper.sh', 'mode': '755'}
 corpusops_services_base_sshd_activated: True
 corpusops_services_base_sshd_group: sshusers
+corpusops_services_base_sshd_user: root
 corpusops_services_base_sshd_settings_AuthorizedKeysFile: >-
   .ssh/authorized_keys .ssh/authorized_keys2
 corpusops_services_base_sshd_settings_AllowUsers: []

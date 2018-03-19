@@ -1,11 +1,23 @@
 ---
+- set_fact:
+    cacheable: false
+    corpusops_services_base_sshd_service_state: >-
+      {% if (
+        corpusops_services_base_sshd_configs_changed     |default(False) or
+        corpusops_services_base_sshd_prequisites_changed |default(False)
+      )%}re{%endif%}started
+- set_fact:
+    cacheable: false
+    corpusops_services_base_sshd_service_state: "{{corpusops_services_base_sshd_service_state.strip()}}"
 - name: service
   cops_service:
     state: "{{corpusops_services_base_sshd_vars.activated
-              | ternary('started', 'stopped')}}"
+     | ternary(corpusops_services_base_sshd_service_state,
+               'stopped')}}"
     enabled: "{{corpusops_services_base_sshd_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
+    daemon_reload: true
   with_items: "{{corpusops_services_base_sshd_vars.services}}"
   tags: corpusops_services_base_sshd
   when: "corpusops_vars.has_services_manager"
