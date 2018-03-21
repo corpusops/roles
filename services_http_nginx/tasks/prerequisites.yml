@@ -8,7 +8,7 @@
     groups: "{{corpusops_services_http_nginx_vars.group}}"
     append: true
     system: true
-    state: present 
+    state: present
 - file:
     path: /etc/apt/sources.list.d/services_http_nginx.list.list
     state: absent
