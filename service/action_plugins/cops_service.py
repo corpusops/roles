@@ -71,8 +71,11 @@ class ActionModule(ActionBase):
                 del new_module_args['use']
 
             # for backwards compatibility
-            if 'state' in new_module_args and new_module_args['state'] == 'running':
-                new_module_args['state'] = 'started'
+            if 'state' in new_module_args:
+                if new_module_args['state'] == 'loaded':
+                    new_module_args['state'] = 'reloaded'
+                if new_module_args['state'] == 'running':
+                    new_module_args['state'] = 'started'
 
             if module in self.UNUSED_PARAMS:
                 for unused in self.UNUSED_PARAMS[module]:
