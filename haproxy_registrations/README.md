@@ -52,7 +52,6 @@ corpusops_haproxy_registrations_registrations_<arbitrar id>:
 Notes:
 
 -   The `ip` is the local ip of the minion to proxy requests to
--   see localsettings_certbot for letsencrypt stuff
 -   Frontends is a dictionnary of **ports / metadata** describing how
     to configure haproxy to proxy to the minion:
 
@@ -71,14 +70,7 @@ Notes:
             hosts
             :   list to strings which insensitive match exactly
                 the header `HOST`
-			letsencrypt
-			:   bool, activate letsencrypt wellknown wrapper
-			letsencrypt_host
-			:   host for letsencrypt backend
-            letsencrypt_http_port
-			:   port for letsencrypt backend (54080)
-            letsencrypt_tls_port
-			:   TLS port for letsencrypt backend (54443)
+
         tcp/tcps
         :   configure a tcp based proxy, here
             **regexes/wildcards/hosts** is useless. Be warn,

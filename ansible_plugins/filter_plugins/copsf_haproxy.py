@@ -144,11 +144,6 @@ def ordered_frontend_opts(opts=None):
             pref += 50
             if 'wildcard' in opt:
                 pref += 1
-        if 'letsencrypt' in opt and (
-            'acl ' in opt or
-            'use_backend ' in opt
-        ):
-            pref = 90
         return '{0:04d}_{1}'.format(pref, opt)
 
     opts.sort(key=sort)
@@ -162,8 +157,7 @@ def register_frontend(data,
                       mode=None,
                       hosts=None,
                       wildcards=None,
-                      regexes=None,
-                      letsencrypt=None):
+                      regexes=None):
     sbind = '*:{0}'.format(port)
     if not data['no_ipv6']:
         sbind = '{0},ipv6@:{1}'.format(sbind, port)
@@ -244,16 +238,6 @@ def register_frontend(data,
                             bck_name=bck_name)
                         if cfgentry not in opts:
                             opts.append(cfgentry)
-    if letsencrypt and not frontend.get('letsencrypt_activated'):
-        opts.append('acl letsencrypt'
-                    ' path_beg /.well-known/acme-challenge/')
-        if has['ssl']:
-            letsb = 'bck_letsencrypts'
-        else:
-            letsb = 'bck_letsencrypt'
-        opts.append(
-            'use_backend {0} if letsencrypt'.format(letsb))
-        frontend['letsencrypt_activated'] = True
     if has['ssl'] and not has['maincert_path'] or not has['backend']:
         frontends.pop(fr, None)
     return frontends
@@ -276,21 +260,11 @@ def register_servers_to_backends(data,
                                  raw_srv=None,
                                  ssl_terminated=None,
                                  http_fallback_port=None,
-                                 http_fallback=None,
-                                 letsencrypt=None,
-                                 letsencrypt_host=None,
-                                 letsencrypt_http_port=None,
-                                 letsencrypt_tls_port=None):
+                                 http_fallback=None):
     '''
     Register a specific minion as a backend server
     where haproxy will forward requests to
     '''
-    if letsencrypt_host is None:
-        letsencrypt_host = '127.0.0.1'
-    if letsencrypt_http_port is None:
-        letsencrypt_http_port = 54080
-    if letsencrypt_tls_port is None:
-        letsencrypt_tls_port = 54443
     # if we proxy some https? traffic, we rely on host to choose a backend
     # and in other cases, we assume to proxy to a TCPs? backend
     if ssl_terminated is None:
@@ -324,15 +298,15 @@ def register_servers_to_backends(data,
             if not ssl_terminated:
                 servers.append(
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
-                     'bind': '{0}:{1}'.format(ip, to_port),
-                     'opts': 'check weight 100 {0} {1} {2}'.format(
-                         inter_check, ssl_check, raw_srv)})
+                        'bind': '{0}:{1}'.format(ip, to_port),
+                        'opts': 'check weight 100 {0} {1} {2}'.format(
+                            inter_check, ssl_check, raw_srv)})
             else:
                 servers.append(
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
-                     'bind': '{0}:{1}'.format(ip, to_port),
-                     'opts': 'check weight 100 {0} {2}'.format(
-                         inter_check, ssl_check, raw_srv)})
+                        'bind': '{0}:{1}'.format(ip, to_port),
+                        'opts': 'check weight 100 {0} {2}'.format(
+                            inter_check, ssl_check, raw_srv)})
             if http_fallback:
                 servers.insert(0, {'name': 'srv_{0}_clear'.format(sane_ip),
                                    'bind': '{0}:{1}'.format(
@@ -360,21 +334,6 @@ def register_servers_to_backends(data,
         aclmodes = (('host', hosts),
                     ('regex', regexes),
                     ('wildcard', wildcards))
-    if hmode.startswith('http') and letsencrypt:
-        backends.update({
-            'bck_letsencrypt': {
-                'servers': [{
-                    'bind': '{0}:{1}'.format(
-                        letsencrypt_host, letsencrypt_http_port),
-                }]
-            },
-            'bck_letsencrypts': {
-                'servers': [{
-                    'bind': '{0}:{1}'.format(
-                        letsencrypt_host, letsencrypt_tls_port),
-                }]
-            }
-        })
     for aclmode, hosts in aclmodes:
         if hosts:
             for match in hosts:
@@ -423,13 +382,6 @@ def make_registrations(data, ansible_vars=None):
                 to_port = int(fdata.get('to_port', port))
                 user = fdata.get('user', None)
                 password = fdata.get('password', None)
-                letsencrypt = fdata.get('letsencrypt', None)
-                letsencrypt_host = fdata.get(
-                    'letsencrypt_host', None)
-                letsencrypt_http_port = fdata.get(
-                    'letsencrypt_http_port', None)
-                letsencrypt_tls_port = fdata.get(
-                    'letsencrypt_tls_port', None)
                 ssl_terminated = fdata.get('ssl_terminated', None)
                 inter_check = fdata.get('inter_check', None)
                 raw_srv = fdata.get('raw_srv', None)
@@ -442,8 +394,7 @@ def make_registrations(data, ansible_vars=None):
                     frontends=frontends,
                     backends=backends,
                     wildcards=wildcards,
-                    regexes=regexes,
-                    letsencrypt=letsencrypt)
+                    regexes=regexes)
                 if not isinstance(payload['ip'], list):
                     payload['ip'] = payload['ip']
                 for ip in payload['ip']:
@@ -461,11 +412,7 @@ def make_registrations(data, ansible_vars=None):
                         http_fallback_port=http_fallback_port,
                         http_fallback=http_fallback,
                         frontends=frontends,
-                        backends=backends,
-                        letsencrypt=letsencrypt,
-                        letsencrypt_host=letsencrypt_host,
-                        letsencrypt_http_port=letsencrypt_http_port,
-                        letsencrypt_tls_port=letsencrypt_tls_port)
+                        backends=backends)
     return data
 
 
