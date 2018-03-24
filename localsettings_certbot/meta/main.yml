@@ -1,2 +1,0 @@
-dependencies:
-- role: corpusops.roles/localsettings_certbot_vars
