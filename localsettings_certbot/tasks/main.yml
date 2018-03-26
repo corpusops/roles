@@ -1,0 +1,19 @@
+---
+- name: "corpusops_localsettings_certbot preflight check - SKIPTEST"
+  debug: {msg: "{{corpusops_localsettings_certbot | default(True) }}"}
+  register: corpusops_localsettings_certbot_can_run
+  tags: [corpusops_localsettings_certbot]
+- include_tasks: prerequisites.yml
+  when:
+  - 'corpusops_localsettings_certbot_prerequisites|default(True)'
+  - 'corpusops_localsettings_certbot_can_run.msg == True'
+  tags: [corpusops_localsettings_certbot,
+         certbot_prerequisites,
+         corpusops_localsettings_certbot_prerequisites]
+- include_tasks: configuration.yml
+  when:
+  - 'corpusops_localsettings_certbot_configuration|default(True)'
+  - 'corpusops_localsettings_certbot_can_run.msg == True'
+  tags: [corpusops_localsettings_certbot,
+         certbot_configuration,
+         corpusops_localsettings_certbot_configuration]
