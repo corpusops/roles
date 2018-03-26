@@ -12,12 +12,8 @@ Wants=network-online.target
 
 [Service]
 Type=forking
-Restart=no
-TimeoutSec=5min
-IgnoreSIGPIPE=no
-KillMode=process
-GuessMainPID=no
-RemainAfterExit=yes
+KillMode=control-group
+Restart=always
 ExecStart={{data.initd}} start
 ExecStop={{data.initd}} stop
 ExecReload={{data.initd}} reload
