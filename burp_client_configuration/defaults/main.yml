@@ -10,8 +10,6 @@ cops_burpclient_activated: True
 cops_burpclient_services: []
 cops_burpclient_name: "corpusops"
 cops_burpclient_files_default:
-- {path: "{directory}",
-   owner: root, group: root, state: directory, mode: "0755"}
 - {path: "{prefix}",
    owner: root, group: root, state: directory, mode: "0755"}
 - {path: "{prefix}/csrs",
