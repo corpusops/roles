@@ -21,13 +21,15 @@
 - loop_control:
     label: "{{item.key}}"
   copy:
-    content: "{{item.value}}"
+    content: |
+      {{item.value}}
+      #
     dest: "{{item.key}}"
     mode: "0600"
   with_dict: |-
         {{{
-          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert-client.pem"   ): burp_cert_cert.stdout+'\n',
-          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert-client.key"   ): burp_cert_key.stdout+'\n',
-          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert_ca-client.pem"): burp_cert_ca_cert.stdout+'\n'
+          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert-client.pem"   ): burp_cert_cert.stdout,
+          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert-client.key"   ): burp_cert_key.stdout,
+          '{0}/{1}'.format(hostvars.localhost.aburp_certs_dest,"/ssl_cert_ca-client.pem"): burp_cert_ca_cert.stdout,
           }|to_json}}
   no_log: "{{not hostvars.localhost.aburp_debug}}"
