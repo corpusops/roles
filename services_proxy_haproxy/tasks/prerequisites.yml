@@ -1,10 +1,44 @@
 ---
+- name: install services_proxy_haproxy repokey
+  apt_key:
+    id: '{{item}}'
+    keyserver: "{{corpusops_services_proxy_haproxy_vars.keyserver}}"
+    state: present
+  with_items: '{{corpusops_services_proxy_haproxy_vars.repo_keys}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_proxy_haproxy_vars.repo_keys is not none and
+          corpusops_services_proxy_haproxy_vars.repo_keys|length > 0)"
+  register: corpusops_services_proxy_haproxy_key
+- name: install services_proxy_haproxy repo
+  apt_repository:
+    repo: '{{corpusops_services_proxy_haproxy_vars.repo}}'
+    filename: services_proxy_haproxy
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+           corpusops_services_proxy_haproxy_vars.use_ppa and
+           corpusops_services_proxy_haproxy_vars.repo is not none)"
+  register: corpusops_services_proxy_haproxy_repoa
+- name: deinstall services_proxy_haproxy repo
+  file:
+    state: absent
+    path: '/etc/apt/sources.list.d/services_proxy_haproxy.list'
+  when: "not corpusops_services_proxy_haproxy_vars.use_ppa"
+  register: corpusops_services_proxy_haproxy_repoda
+- name: verify installed php packages when backward from ppa
+  package:
+    cache_valid_time: '1'
+    update_cache: yes
+    name: "{{item}}"
+    state: latest
+  with_items: '{{corpusops_services_proxy_haproxy_vars.packages}}'
+  register: corpusops_services_proxy_haproxy_pkgstd
+  when: corpusops_services_proxy_haproxy_repoda.changed
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: present
+    state: latest
   with_items: '{{corpusops_services_proxy_haproxy_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_proxy_haproxy_vars.packages is not none and
@@ -61,5 +95,6 @@
 - set_fact:
     cacheable: false
     corpusops_services_proxy_haproxy_prequisites_changed: "{{(
+         corpusops_services_proxy_haproxy_pkgstd.changed or
          corpusops_services_proxy_haproxy_pkgst.changed
        )}}"
