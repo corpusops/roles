@@ -13,7 +13,7 @@ if [[ -n $CHECK_MODE ]];then
 elif [ "x${1}" = "xstart" ];then
     WS=""
     # support for old and new wrapper
-    if ( $HAPROXYB --help |grep -q -- "-Ws" );then
+    if ( $HAPROXYB --help 2>&1 |grep -q -- "-Ws" );then
         WS="-Ws"
     fi
     exec "$HAPROXYB" $WS -f "${CONFIG}" ${EXTRAOPTS} ${PID_ARGS}
