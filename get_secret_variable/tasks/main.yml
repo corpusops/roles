@@ -8,13 +8,12 @@
   no_log: "{{not (cops_secret_vars_debug|default(false))}}"
   vars: {cops_vars_registry_target: cops_get_secret_variable}
   tags: [get_secret_variable, vars]
-  when: ["corpusops_get_secret_variable_can_run.msg == True",
-         "get_secret_variable_value is None"]
+  when: ["corpusops_get_secret_variable_can_run.msg == True"]
 - assert:
     that:
-    - cops_get_secret_variable_vars.path is not none
-    - cops_get_secret_variable_vars.name is not none
-    - cops_get_secret_variable_vars.length is not none
+    - "vars['cops_get_secret_variable_vars.path'] is not none"
+    - "vars['cops_get_secret_variable_vars.name'] is not none"
+    - "vars['cops_get_secret_variable_vars.length'] is not none"
     msg: invalid parameters
   tags: get_secret_variable
 - when: ["corpusops_get_secret_variable_can_run.msg == True"]
