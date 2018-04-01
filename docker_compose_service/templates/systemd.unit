@@ -8,7 +8,7 @@ After=network.service docker.service
 Requires=docker.service
 [Service]
 {% if v.restart %}
-Restart=v.restart
+Restart={{v.restart}}
 {% endif %}
 {% if v.restart_sec %}
 RestartSec={{v.restart_sec}}
@@ -19,7 +19,7 @@ TimeoutSec={{v.timeout_sec}}
 WorkingDirectory={{w}}
 ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
 ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" pull
-ExecStart=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
+ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
 ExecStart=/usr/bin/env    docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" up
 ExecStop=/usr/bin/env     docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
 ExecStop=/usr/bin/env     docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" stop
