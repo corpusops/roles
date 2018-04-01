@@ -54,36 +54,50 @@ corpusops_services_proxy_haproxy_files_default:
   - {path: "{prefix}/cfg.d",
      owner: root, group: root, state: directory, mode: "0755"}
   - {path: "{prefix}/errors",
-     owner: root, group: root, state: directory, mode: "0755"}
+     owner: root, group: root, state: directory, mode: "0755"} 
   - {path: "{selfsignedcert_dir}",
+     owner: root, group: root, state: directory, mode: "0755"} 
+  - {path: "{{corpusops_vars.usr_dir}}/bin",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {path: "{{corpusops_vars.config_dir}}/init.d",
      owner: root, group: root, state: directory, mode: "0755"}
 corpusops_services_proxy_haproxy_configs: null
 corpusops_services_proxy_haproxy_configs_default:
   - {name: "{config_file}",
-     template: "../templates/etc/{name}/{name}.cfg",
+     template: "../templates/etc/haproxy/haproxy.cfg",
      owner: "{user}", group: root, mode: "0640"}
   - {name: "{prefix}/errors/403.http",
+     template: "../templates/etc/haproxy/errors/403.http",
      owner: root, group: root, mode: "0644"}
   - {name: "{prefix}/errors/408.http",
+     template: "../templates/etc/haproxy/errors/408.http",
      owner: root, group: root, mode: "0644"}
   - {name: "{prefix}/errors/500.http",
+     template: "../templates/etc/haproxy/errors/500.http",
      owner: root, group: root, mode: "0644"}
   - {name: "{prefix}/errors/502.http",
+     template: "../templates/etc/haproxy/errors/502.http",
      owner: root, group: root, mode: "0644"}
   - {name: "{prefix}/errors/503.http",
+     template: "../templates/etc/haproxy/errors/503.http",
      owner: root, group: root, mode: "0644"}
   - {name: "{prefix}/errors/504.http",
+     template: "../templates/etc/haproxy/errors/504.http",
      owner: root, group: root, mode: "0644"}
-  - {name: "/usr/bin/cops_haproxy_wrapper.sh",
+  - {name: "{{corpusops_vars.usr_dir}}/bin/cops_haproxy_wrapper.sh",
+     template: "../templates/usr/bin/cops_haproxy_wrapper.sh",
      owner: root, group: root, mode: "0755"}
   - {name: "{{corpusops_vars.config_dir}}/logrotate.d/{name}",
+     template: "../templates/etc/logrotate.d/haproxy",
      owner: root, group: root, mode: "0755"}
   - {name: "{{corpusops_vars.config_dir}}/init.d/{name}",
+     template: "../templates/etc/init.d/haproxy",
      owner: root, group: root, mode: "0755"}
   - {name: "{{corpusops_vars.config_dir}}/systemd/system/{name}.service",
+     template: "../templates/etc/systemd/system/haproxy.service",
      owner: root, group: root, mode: "0755"}
   - {name: "{{corpusops_vars.confdefault_dir}}/{name}",
-     template: "../templates/etc/default/{name}",
+     template: "../templates/etc/default/haproxy",
      owner: root, group: root, mode: "0755"}
 corpusops_services_proxy_haproxy_stats_user: "admin"
 corpusops_services_proxy_haproxy_prefix: "{{corpusops_vars.config_dir}}/{name}"

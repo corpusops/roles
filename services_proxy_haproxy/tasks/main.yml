@@ -5,17 +5,23 @@
   register: corpusops_services_proxy_haproxy_can_run
   tags: [corpusops_services_proxy_haproxy]
 - include_tasks: prerequisites.yml
-  when: 'corpusops_services_proxy_haproxy_can_run.msg == True'
+  when: 
+  - 'corpusops_services_proxy_haproxy_can_run.msg == True'
+  - "corpusops_services_proxy_haproxy_do_prerequisites|default(true)"
   tags: [corpusops_services_proxy_haproxy,
          haproxy_prerequisites,
          corpusops_services_proxy_haproxy_prerequisites]
 - include_tasks: configuration.yml
-  when: 'corpusops_services_proxy_haproxy_can_run.msg == True'
+  when:
+  - 'corpusops_services_proxy_haproxy_can_run.msg == True'
+  - "corpusops_services_proxy_haproxy_do_configuration|default(true)"
   tags: [corpusops_services_proxy_haproxy,
          haproxy_configuration,
          corpusops_services_proxy_haproxy_configuration]
 - include_tasks: services.yml
-  when: 'corpusops_services_proxy_haproxy_can_run.msg == True'
+  when:
+  - 'corpusops_services_proxy_haproxy_can_run.msg == True'
+  - "corpusops_services_proxy_haproxy_do_services|default(true)"
   tags: [corpusops_services_proxy_haproxy,
          haproxy_services,
          corpusops_services_proxy_haproxy_services]
