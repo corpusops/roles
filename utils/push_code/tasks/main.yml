@@ -6,6 +6,7 @@
 #   origin_become: use root on local (default to current user)
 #   owner: default: root
 #   group: default: root
+#   force_sync: true/false
 #   origin_path: origin path
 #   origin: origin inventory name (default localhost)
 #   rsync_opts: rsync knobs
