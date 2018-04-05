@@ -1,4 +1,14 @@
 ---
+corpusops_localsettings_editor_cops_do_format_resolve: false
+corpusops_localsettings_editor_cops_computed_defaults: []
+corpusops_localsettings_editor_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_editor_cops_sub_os_append: {}
+corpusops_localsettings_editor_cops_lowered: []
+corpusops_localsettings_editor_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages',
+                      'alternatives',
+                     ]
+corpusops_localsettings_editor_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_editor_packages: null
 corpusops_localsettings_editor_packages_debian: []
 corpusops_localsettings_editor_packages_ubuntu: []

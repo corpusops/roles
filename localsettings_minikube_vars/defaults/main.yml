@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_minikube_cops_do_format_resolve: false
+corpusops_localsettings_minikube_cops_computed_defaults: []
+corpusops_localsettings_minikube_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_minikube_cops_sub_os_append: {}
+corpusops_localsettings_minikube_cops_lowered: []
+corpusops_localsettings_minikube_cops_knobs: ['mirror', 'repo', 'version',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_minikube_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_minikube_version: latest
 corpusops_localsettings_minikube_sha: true
 corpusops_localsettings_minikube_platform: "linux"
@@ -20,7 +29,7 @@ _corpusops_localsettings_minikube_alternatives:
     bins:
       - manualminikube:
           target: "{{corpusops_core_apps_path}}/minikube-{{version}}/minikube"
-corpusops_localsettings_minikube_version_getter: "https://api.github.com/repos/kubernetes/minikube/releases/{version}"
+corpusops_localsettings_minikube_version_getter: "https://api.github.com/repos/kubernetes/minikube/releases/{{vars['corpusops_localsettings_minikube_version']}}"
 _corpusops_localsettings_minikube_app_path: "{{corpusops_core_apps_path}}/minikube-{{version}}"
 _corpusops_localsettings_minikube_archive: "https://storage.googleapis.com/minikube/releases/v0.22.2/minikube-{{platform}}-{{arch}}"
 

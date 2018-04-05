@@ -1,5 +1,5 @@
 ---
-cops_lxc_sshauth_cops_do_format_resolve: true
+cops_lxc_sshauth_cops_do_format_resolve: false
 cops_lxc_sshauth_cops_computed_defaults: []
 cops_lxc_sshauth_cops_flavors: []
 cops_lxc_sshauth_cops_sub_os_append: {}

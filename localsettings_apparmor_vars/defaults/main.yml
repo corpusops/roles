@@ -1,2 +1,11 @@
 ---
 corpusops_localsettings_apparmor_customvar: false
+corpusops_localsettings_apparmor_cops_do_format_resolve: false
+corpusops_localsettings_apparmor_cops_computed_defaults: []
+corpusops_localsettings_apparmor_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_apparmor_cops_sub_os_append: {}
+corpusops_localsettings_apparmor_cops_lowered: []
+corpusops_localsettings_apparmor_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages',
+                      ]
+corpusops_localsettings_apparmor_cops_sub_namespaces:
+  settings: {}

@@ -1,6 +1,6 @@
 ---
 # Allow to specify defaults in a prefix way and in a inline, flattened way
-corpusops_haproxy_registrations_cops_do_format_resolve: true
+corpusops_haproxy_registrations_cops_do_format_resolve: false
 corpusops_haproxy_registrations_cops_computed_defaults: []
 corpusops_haproxy_registrations_cops_flavors: []
 corpusops_haproxy_registrations_cops_sub_os_append: {}
@@ -29,9 +29,9 @@ corpusops_haproxy_registrations_file: "{{corpusops_services_proxy_haproxy_vars.p
 corpusops_haproxy_registrations_filescopy: []
 corpusops_haproxy_registrations_files: []
 corpusops_haproxy_registrations_configs:
-  - {name: "{file}",
+  - {name: "{{vars['corpusops_haproxy_registrations_file']}}",
      template: "../templates/cfg.cfg",
-     owner: "{user}", group: root, mode: "0640"}
+     owner: "{{vars['corpusops_haproxy_registrations_user']}}", group: root, mode: "0640"}
 corpusops_haproxy_registrations_check_config: true
 corpusops_haproxy_registrations_backend_opts_http_strict:
 - 'balance roundrobin'
@@ -81,7 +81,7 @@ corpusops_haproxy_registrations_backend_opts_redis:
 corpusops_haproxy_registrations_backend_opts_redis_auth:
 - 'option tcp-check'
 - 'tcp-check connect'
-- 'tcp-check send auth\ {password}\r\n'
+- "tcp-check send auth\ {{vars['corpusops_haproxy_registrations_redis_password']}}\r\n"
 - 'tcp-check send PING\r\n'
 - 'tcp-check expect string +PONG'
 - 'tcp-check send info\ replication\r\n'
@@ -96,3 +96,4 @@ corpusops_haproxy_registrations_proxy_modes_443: 'https'
 corpusops_haproxy_registrations_proxy_modes_5672: 'rabbitmq'
 corpusops_haproxy_registrations_proxy_modes_6379: 'redis'
 corpusops_haproxy_registrations_proxy_modes_6378: 'redis'
+corpusops_haproxy_registrations_redis_password: secret

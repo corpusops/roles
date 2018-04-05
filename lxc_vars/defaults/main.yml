@@ -1,7 +1,7 @@
 ---
 lxc_control_host: localhost
-corpusops_lxc_cops_do_format_resolve: true
-corpusops_lxc_cops_computed_defaults: ['included_config']
+corpusops_lxc_cops_do_format_resolve: false
+corpusops_lxc_cops_computed_defaults: []
 corpusops_lxc_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
 corpusops_lxc_cops_sub_os_append: {}
 corpusops_lxc_cops_knobs: []
@@ -14,8 +14,7 @@ corpusops_lxc_cops_sub_sub_namespaces:
 # ssh keys allowed to connect as root inside the container
 corpusops_lxc_ssh_keys_paths: ["~/.ssh/id_rsa.pub"]
 corpusops_lxc_ssh_keys: []
-corpusops_lxc_included_config: "/usr/share/lxc/config/{corpusops_lxc_template}.common.conf"
-
+corpusops_lxc_included_config: "/usr/share/lxc/config/{{vars['corpusops_lxc_template']}}.common.conf"
 corpusops_lxc_path: /var/lib/lxc
 corpusops_lxc_container_name: "{{lxc_container_name|default(container_name)|default(None)}}"
 corpusops_lxc_from_container: "{{lxc_from_container|default(from_container)|default(None)}}"
@@ -26,7 +25,7 @@ corpusops_lxc_clone_snapshot: null
 corpusops_lxc_template: ubuntu
 corpusops_lxc_ubuntu_release: xenial
 corpusops_lxc_ubuntu_mirror: "http://archive.ubuntu.com/ubuntu/"
-corpusops_lxc_template_options: '-r {ubuntu_release} --mirror "{ubuntu_mirror}"'
+corpusops_lxc_template_options: "-r {{vars['corpusops_lxc_ubuntu_release']}} --mirror \"{{vars['corpusops_lxc_ubuntu_mirror']}}\""
 
 corpusops_lxc_auto_start: '1'
 

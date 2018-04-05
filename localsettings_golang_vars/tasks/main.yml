@@ -3,25 +3,7 @@
     content: |-
       ---
       {% set prefix = 'corpusops_localsettings_golang_' %}
-      {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
-      {% set knobs = ['mirror', 'comps', 'repo',
-                      'version', 'versions',
-                      'configs', 'sources_lists', 'packages'] %}
-      {% set knobs = ['mirror', 'comps', 'repo',
-      							  'version', 'versions',
-      								'configs', 'sources_lists', 'packages'] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'settings': {}} %}
-      {% set namespaced = {} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
 
       {% set packages = [] %}
@@ -42,16 +24,16 @@
 
       {% set flavors = [] %}
       {% if packages %}
-      {% 	set flavor = 'system' %}
+      {%  set flavor = 'system' %}
       {% else %}
-      {% 	set flavor = namespaced['flavor'] %}
-      {% 	for v in namespaced['flavors'] %}
-      {% 		set _ = flavors.append(v.format(arch=arch))%}
+      {%  set flavor = namespaced['flavor'] %}
+      {%  for v in namespaced['flavors'] %}
+      {%   set _ = flavors.append(v.format(arch=arch))%}
       {%  endfor %}
       {% endif %}
       {% set flavor = flavor.format(arch=arch) %}
       {% if flavor not in flavors %}
-      {% 	set _ = flavors.append(flavor) %}
+      {%  set _ = flavors.append(flavor) %}
       {% endif%}
       {% if flavors and not flavor %}{% set flavor = flavors[0]%}{%endif%}
       {% set _ = namespaced.update({'flavors': flavors}) %}
@@ -65,8 +47,8 @@
       {%   set sname = sval.name.format(arch=arch) %}
       {%   set _ = slaves.update({s: {'name': sname}})%}
       {%  endfor %}
-      {% 	set _ = val.update({'slaves': slaves, 'name': name}) %}
-      {% 	set _ = bins.update({v: val})%}
+      {%  set _ = val.update({'slaves': slaves, 'name': name}) %}
+      {%  set _ = bins.update({v: val})%}
       {% endfor %}
       {% set _ = namespaced.update({'bins': bins}) %}
 
@@ -76,12 +58,12 @@
       {% for version in namespaced['versions'] %}
       {%  for flavor in flavors %}
       {%    set selector = '{0}-{1}'.format(version, flavor) %}
-      {%	  if flavor == 'system' %}
-      {% 			set surl = none%}
+      {%   if flavor == 'system' %}
+      {%    set surl = none%}
       {%      set bn = none %}
       {%      set p = namespaced['system_prefix'] %}
-      {%		else %}
-      {%    	set surl = urlmap.get(version, urlmap.get('default')).format(
+      {%  else %}
+      {%     set surl = urlmap.get(version, urlmap.get('default')).format(
                           v=version, f=flavor, arch=arch) %}
       {%      set bn =  surl.split('/')[-1] %}
       {%      set p = namespaced['local_prefix'] %}
@@ -102,7 +84,7 @@
       {% set urls = namespaced['urls'] %}
       {% set installs = namespaced.get('installs', {}) %}
       {% for i, itm in installs.items() %}
-      {% 	if itm.get('url', None)%}{% set _ = urls.update({i: itm})%}{%endif%}
+      {%  if itm.get('url', None)%}{% set _ = urls.update({i: itm})%}{%endif%}
       {% endfor%}
 
       {{ (snamespaced[prefix+'vars']

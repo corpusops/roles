@@ -1,5 +1,5 @@
 ---
-ssl_ca_signed_cert_cops_do_format_resolve: true
+ssl_ca_signed_cert_cops_do_format_resolve: false
 ssl_ca_signed_cert_cops_computed_defaults: []
 ssl_ca_signed_cert_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
 ssl_ca_signed_cert_cops_sub_os_append: {}
@@ -15,16 +15,16 @@ ssl_ca_signed_cert_O: IT
 ssl_ca_signed_cert_OU: SYS
 ssl_ca_signed_cert_signm: aes256
 ssl_ca_signed_cert_email: "sysadmin@{{ansible_fqdn}}"
-ssl_ca_signed_cert_subject: "/C={C}/ST={ST}/L={L}/O={O}/"
+ssl_ca_signed_cert_subject: "/C={{vars['ssl_ca_signed_cert_C']}}/ST={{vars['ssl_ca_signed_cert_ST']}}/L={{vars['ssl_ca_signed_cert_L']}}/O={{vars['ssl_ca_signed_cert_O']}}/"
 ssl_ca_signed_cert_directory: "{{corpusops_vars.ssl_dir}}/{ca_name}"
-ssl_ca_signed_cert_idirectory: "{directory}/intermediate"
-ssl_ca_signed_cert_gen_csr_path: "{idirectory}/csr/{cn}.csr.pem"
-ssl_ca_signed_cert_gen_cert_path: "{idirectory}/certs/{cn}.cert.pem"
-ssl_ca_signed_cert_gen_key_path: "{idirectory}/private/{cn}.key.pem"
-ssl_ca_signed_cert_gen_cacert_path: "{idirectory}/certs/ca-chain.cert.pem"
-ssl_ca_signed_cert_dest_cert_full_path: "{{corpusops_vars.ssl_dir}}/{cn}.full.crt"
-ssl_ca_signed_cert_dest_cert_path: "{{corpusops_vars.ssl_dir}}/certs/{cn}.crt"
-ssl_ca_signed_cert_dest_key_path: "{{corpusops_vars.ssl_dir}}/private/{cn}.key"
+ssl_ca_signed_cert_idirectory: "{{vars['ssl_ca_signed_cert_directory']}}/intermediate"
+ssl_ca_signed_cert_gen_csr_path: "{{vars['ssl_ca_signed_cert_idirectory']}}/csr/{{vars['ssl_ca_signed_cert_cn']}}.csr.pem"
+ssl_ca_signed_cert_gen_cert_path: "{{vars['ssl_ca_signed_cert_idirectory']}}/certs/{{vars['ssl_ca_signed_cert_cn']}}.cert.pem"
+ssl_ca_signed_cert_gen_key_path: "{{vars['ssl_ca_signed_cert_idirectory']}}/private/{{vars['ssl_ca_signed_cert_cn']}}.key.pem"
+ssl_ca_signed_cert_gen_cacert_path: "{{vars['ssl_ca_signed_cert_idirectory']}}/certs/ca-chain.cert.pem"
+ssl_ca_signed_cert_dest_cert_full_path: "{{corpusops_vars.ssl_dir}}/{{vars['ssl_ca_signed_cert_cn']}}.full.crt"
+ssl_ca_signed_cert_dest_cert_path: "{{corpusops_vars.ssl_dir}}/certs/{{vars['ssl_ca_signed_cert_cn']}}.crt"
+ssl_ca_signed_cert_dest_key_path: "{{corpusops_vars.ssl_dir}}/private/{{vars['ssl_ca_signed_cert_cn']}}.key"
 ssl_ca_signed_cert_days: 365000
 ssl_ca_signed_cert_ca_days: 365000
 ssl_ca_signed_cert_owner: ""

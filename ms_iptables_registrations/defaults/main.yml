@@ -1,5 +1,5 @@
 ---
-corpusops_ms_iptables_registrations_cops_do_format_resolve: true
+corpusops_ms_iptables_registrations_cops_do_format_resolve: false
 corpusops_ms_iptables_registrations_cops_computed_defaults: []
 corpusops_ms_iptables_registrations_cops_flavors: []
 corpusops_ms_iptables_registrations_cops_sub_os_append: {}
@@ -12,12 +12,12 @@ corpusops_ms_iptables_registrations_user: root
 corpusops_ms_iptables_registrations_group: root
 corpusops_ms_iptables_registrations_prefix: "{{corpusops_services_firewall_ms_iptables_vars.conf_prefix}}"
 corpusops_ms_iptables_registrations_priority: "99"
-corpusops_ms_iptables_registrations_file: "z_{priority}_{name}.json"
+corpusops_ms_iptables_registrations_file: "z_{{vars['corpusops_ms_iptables_registrations_priority']}}_{{vars['corpusops_ms_iptables_registrations_name']}}.json"
 corpusops_ms_iptables_registrations_filescopy: []
 corpusops_ms_iptables_registrations_files:
-- {path: "{prefix}", state: directory, mode: "0755"}
+- {path: "{{vars['corpusops_ms_iptables_registrations_prefix']}}", state: directory, mode: "0755"}
 corpusops_ms_iptables_registrations_configs:
-- {name: "{prefix}/{file}", template: "../templates/cfg.json", owner: "{user}", group: "{group}", mode: "0640"}
+- {name: "{{vars['corpusops_ms_iptables_registrations_prefix']}}/{{vars['corpusops_ms_iptables_registrations_file']}}", template: "../templates/cfg.json", owner: "{{vars['corpusops_ms_iptables_registrations_user']}}", group: "{{vars['corpusops_ms_iptables_registrations_group']}}", mode: "0640"}
 corpusops_ms_iptables_registrations_enable: true
 corpusops_ms_iptables_registrations_service_state: "{{corpusops_vars.has_services_manager and 'reloaded' or none}}"
 corpusops_ms_iptables_registrations_ipv6: null

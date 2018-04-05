@@ -40,8 +40,7 @@
       {%  endfor %}
       {%  for k in ['template_options'] + corpusops_lxc_cops_computed_defaults %}
       {%    if k in lxcdata %}
-      {%      set _ = lxcdata.update({k: lxcdata[k]
-              |copsf_format_resolve(lxcdata, additional_namespaces=[vars])}) %}
+      {%      set _ = lxcdata.update({k: lxcdata[k]}) %}
       {%    endif %}
       {%  endfor %}
       {%  set netplan = lxcdata.setdefault('netplan', {}) %}

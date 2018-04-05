@@ -3,21 +3,7 @@
     content: |-
       ---
       {% set prefix = 'corpusops_localsettings_sudo_' %}
-      {% set flavors = ['ubuntu', 'debian', 'centos', 'redhat', 'default'] %}
-      {% set knobs = ['mirror', 'comps', 'repo', 'settings_AllowGroups',
-      								'configs', 'sources_lists', 'packages'] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'settings': {}} %}
-      {% set namespaced = {} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
       {% set old_sudo = False %}
       {% if ansible_lsb.id.lower() == 'debian' and ansible_lsb.major_release < '5' %}

@@ -23,8 +23,8 @@ corpusops_fpm_pool_pool_root: "/var/www"
 corpusops_fpm_pool_doc_root: "{pool_root}/public"
 corpusops_fpm_pool_private_dir: "{pool_root}/private"
 corpusops_fpm_pool_log_dir: "{pool_root}/log"
-corpusops_fpm_pool_slow_log_file: "{log_dir}/phpfpm_{name}.slow.log"
-corpusops_fpm_pool_log_file: "{log_dir}/phpfpm_{name}.log"
+corpusops_fpm_pool_slow_log_file: "{log_dir}/phpfpm_{{vars['corpusops_fpm_pool_name']}}.slow.log"
+corpusops_fpm_pool_log_file: "{log_dir}/phpfpm_{{vars['corpusops_fpm_pool_name']}}.log"
 corpusops_fpm_pool_tmp_dir: "{pool_root}/tmp"
 corpusops_fpm_pool_sessions_dir: "{tmp_dir}/sessions"
 #  - xdebug.default_enable: "true"
@@ -72,29 +72,29 @@ corpusops_fpm_pool_poold: "{{corpusops_services_php_fpm_vars.poold}}"
 corpusops_fpm_pool_logrotate_template: "../templates/logrotate.conf"
 corpusops_fpm_pool_template: "../templates/pool.conf"
 #
-corpusops_fpm_pool_file: "{poold}/{name}.conf"
-corpusops_fpm_pool_logrotate_file: "/etc/logrotate.d/fpm_{name}.conf"
+corpusops_fpm_pool_file: "{poold}/{{vars['corpusops_fpm_pool_name']}}.conf"
+corpusops_fpm_pool_logrotate_file: "/etc/logrotate.d/fpm_{{vars['corpusops_fpm_pool_name']}}.conf"
 #
 corpusops_fpm_pool_files:
-  - {path: "{sessions_dir}", owner: "{user}", group: "{group}",
+  - {path: "{sessions_dir}", owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}",
      state: directory, mode: "755"}
-  - {path: "{pool_root}", owner: "{user}", group: "{group}",
+  - {path: "{pool_root}", owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}",
      state: directory, mode: "755"}
-  - {path: "{private_dir}", owner: "{user}", group: "{group}",
+  - {path: "{private_dir}", owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}",
      state: directory, mode: "755"}
-  - {path: "{log_dir}", owner: "{user}", group: "{group}",
+  - {path: "{log_dir}", owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}",
      state: directory, mode: "755"}
-  - {path: "{tmp_dir}", owner: "{user}", group: "{group}",
+  - {path: "{tmp_dir}", owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}",
      state: directory, mode: "755"}
 corpusops_fpm_pool_logs:
   - {name: "{slow_log_file}", force: false, content: "",
-     owner: "{user}", group: "{group}", mode: "0640"}
+     owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}", mode: "0640"}
   - {name: "{log_file}", force: false, content: "",
-     owner: "{user}", group: "{group}", mode: "0640"}
+     owner: "{{vars['corpusops_fpm_pool_user']}}", group: "{{vars['corpusops_fpm_pool_group']}}", mode: "0640"}
 corpusops_fpm_pool_configs:
-  - {name: "{file}",
+  - {name: "{{vars['corpusops_fpm_pool_file']}}",
      owner: "root", group: "root", mode: "0644",
-     template: "{template}"}
+     template: "{{vars['corpusops_fpm_pool_template']}}"}
   - {name: "{logrotate_file}",
      owner: "root", group: "root", mode: "0644",
      template: "{logrotate_template}"}
@@ -154,7 +154,7 @@ corpusops_fpm_pool_xdebug_remote_host: "localhost"
 corpusops_fpm_pool_domain: null
 # computed values
 corpusops_fpm_pool_session_cookie_domain: null
-corpusops_fpm_pool_socket_name: "{name}-fpm.sock"
+corpusops_fpm_pool_socket_name: "{{vars['corpusops_fpm_pool_name']}}-fpm.sock"
 corpusops_fpm_pool_socket_directory: /var/spool/www
 corpusops_fpm_pool_opcache_install: "{{corpusops_localsettings_php_vars.opcache_install}}"
 corpusops_fpm_pool_apc_install: "{{corpusops_localsettings_php_vars.apc_install}}"

@@ -1,4 +1,14 @@
 ---
+corpusops_services_backup_dbsmartbackup_cops_do_format_resolve: false
+corpusops_services_backup_dbsmartbackup_cops_computed_defaults: []
+corpusops_services_backup_dbsmartbackup_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_backup_dbsmartbackup_cops_sub_os_append: {}
+corpusops_services_backup_dbsmartbackup_cops_lowered: []
+corpusops_services_backup_dbsmartbackup_cops_knobs: ['files', 'filescopy', 'configs', 'packages', 'services',
+                      'repo_keys', 'repo_keys_url', 'repo',
+                      ]
+corpusops_services_backup_dbsmartbackup_cops_sub_namespaces:
+  settings: {}
 corpusops_services_backup_dbsmartbackup_activated: False
 corpusops_services_backup_dbsmartbackup_disabled: "{{not corpusops_services_backup_dbsmartbackup_activated}}"
 corpusops_services_backup_dbsmartbackup_packages: [jq]
@@ -12,7 +22,7 @@ corpusops_services_backup_dbsmartbackup_filescopy_default: []
 corpusops_services_backup_dbsmartbackup_files_apt: []
 corpusops_services_backup_dbsmartbackup_files_default:
   - {path: "/usr/bin/db_smart_backup.sh",
-     src: "{dir}/db_smart_backup.sh",
+     src: "{{vars['corpusops_services_backup_dbsmartbackup_dir']}}/db_smart_backup.sh",
      owner: root, group: root, state: link}
 corpusops_services_backup_dbsmartbackup_configs: null
 corpusops_services_backup_dbsmartbackup_configs_default: []

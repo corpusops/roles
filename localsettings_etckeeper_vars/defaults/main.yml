@@ -1,11 +1,22 @@
 ---
+corpusops_localsettings_etckeeper_cops_do_format_resolve: false
+corpusops_localsettings_etckeeper_cops_computed_defaults: []
+corpusops_localsettings_etckeeper_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_etckeeper_cops_sub_os_append: {}
+corpusops_localsettings_etckeeper_cops_lowered: []
+corpusops_localsettings_etckeeper_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages',
+                      'pm', 'vcs', 'installer',
+                      ]
+corpusops_localsettings_etckeeper_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_etckeeper_packages: null
 corpusops_localsettings_etckeeper_packages_default: [git, etckeeper]
+corpusops_localsettings_etckeeper_prefix: "{{corpusops_vars.config_dir}}/etckeeper"
 corpusops_localsettings_etckeeper_files:
-  - { path: /etc/etckeeper, state: directory, user: root, group: root, mode: 755 }
+  - {path: "{{vars['corpusops_localsettings_etckeeper_prefix']}}", state: directory, user: root, group: root, mode: 755 }
 corpusops_localsettings_etckeeper_configs:
-  - {'name': '/etc/cron.daily/etckeeper', 'mode': '750'}
-  - {'name': '/etc/etckeeper/etckeeper.conf', 'mode': '644'}
+  - {'name': "{{corpusops_vars.config_dir}}/cron.daily/etckeeper", 'mode': '750'}
+  - {'name': "{{vars['corpusops_localsettings_etckeeper_prefix']}}/etckeeper.conf", 'mode': '644'}
 corpusops_localsettings_etckeeper_installer: null
 corpusops_localsettings_etckeeper_installer_default: 'dpkg'
 corpusops_localsettings_etckeeper_pm: null

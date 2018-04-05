@@ -9,7 +9,6 @@
         {% set snamespaced, vars = vars|copsf_registry(prefix) %}
         {% set data = snamespaced[prefix+'vars'] %}
         {{ (snamespaced[prefix+'vars']
-            |copsf_format_resolve(additional_namespaces=[vars])
             |copsf_registry_to_vars(vars, prefix, global_scope=True)
            )[0]
            | to_json}}

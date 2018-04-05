@@ -11,7 +11,6 @@
         {%-   set _ = data.custom_lines.append(data.common_lines) %}
         {%- endif %}
         {{ (snamespaced[prefix+'vars']
-            |copsf_format_resolve(additional_namespaces=[vars])
             |copsf_registry_to_vars(vars, prefix, global_scope=True)
            )[0]
            | to_json}}

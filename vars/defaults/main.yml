@@ -1,7 +1,7 @@
 ---
 # registry compute settings
 corpusops_core_facts_path: "/etc/copsfacts"
-corpusops_core_cops_do_format_resolve: true
+corpusops_core_cops_do_format_resolve: false
 corpusops_core_cops_computed_defaults: []
 corpusops_core_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
 corpusops_core_cops_sub_os_append: {}
@@ -54,25 +54,25 @@ corpusops_core_hkp_keyserver: "hkp://{{corpusops_core_keyserver}}:80"
 
 # path locations
 corpusops_core_var_dir: /var
-corpusops_core_share_dir: "{usr_dir}/share"
-corpusops_core_var_run_dir: "{run_dir}"
-corpusops_core_var_lib_dir: "{var_dir}/lib"
-corpusops_core_lib_dir: "{usr_dir}/lib"
-corpusops_core_unit_dir: "{config_dir}/systemd/system"
-corpusops_core_log_dir: "{var_dir}/log"
+corpusops_core_share_dir: "{{vars['corpusops_core_usr_dir']}}/share"
+corpusops_core_var_run_dir: "{{vars['corpusops_core_run_dir']}}"
+corpusops_core_var_lib_dir: "{{vars['corpusops_core_var_dir']}}/lib"
+corpusops_core_lib_dir: "{{vars['corpusops_core_usr_dir']}}/lib"
+corpusops_core_unit_dir: "{{vars['corpusops_core_config_dir']}}/systemd/system"
+corpusops_core_log_dir: "{{vars['corpusops_core_var_dir']}}/log"
 corpusops_core_tmp_dir: "/tmp"
 corpusops_core_usr_dir: "/usr"
 corpusops_core_confdefault_dir: null
-corpusops_core_confdefault_dir_debian: '{config_dir}/default'
-corpusops_core_confdefault_dir_redhat: '{config_dir}/sysconfig'
+corpusops_core_confdefault_dir_debian: "{{vars['corpusops_core_config_dir']}}/default"
+corpusops_core_confdefault_dir_redhat: "{{vars['corpusops_core_config_dir']}}/sysconfig"
 corpusops_core_run_dir: /run
 corpusops_core_srv_path: /srv
-corpusops_core_apps_path: "{srv_path}/apps"
-corpusops_core_projects_path: "{srv_path}/projects"
+corpusops_core_apps_path: "{{vars['corpusops_core_srv_path']}}/apps"
+corpusops_core_projects_path: "{{vars['corpusops_core_srv_path']}}/projects"
 corpusops_core_config_dir: /etc
-corpusops_core_secrets_dir: "{config_dir}/secrets"
-corpusops_core_ssl_config_dir: "{config_dir}/ssl"
-corpusops_core_ssl_dir: "{ssl_config_dir}"
+corpusops_core_secrets_dir: "{{vars['corpusops_core_config_dir']}}/secrets"
+corpusops_core_ssl_config_dir: "{{vars['corpusops_core_config_dir']}}/ssl"
+corpusops_core_ssl_dir: "{{vars['corpusops_core_ssl_config_dir']}}"
 
 # log rotation opts
 corpusops_core_rotate_days: 365
@@ -81,7 +81,7 @@ corpusops_core_rotate_days: 365
 # get external ip
 corpusops_network_get_ext_ip: true
 # registry compute settings: corpuops_network_live_vars
-corpusops_network_live_cops_do_format_resolve: true
+corpusops_network_live_cops_do_format_resolve: false
 corpusops_network_live_cops_computed_defaults: []
 corpusops_network_live_cops_flavors: []
 corpusops_network_live_cops_sub_os_append: {}
@@ -108,7 +108,7 @@ corpusops_network_live_have_ifs:
   lxc: "{{vars|copsnetf_have_lxc_if}}"
   vpn: "{{vars|copsnetf_have_vpn_if}}"
 #
-corpusops_network_settings_cops_do_format_resolve: true
+corpusops_network_settings_cops_do_format_resolve: false
 corpusops_network_settings_cops_computed_defaults: []
 corpusops_network_settings_cops_flavors: []
 corpusops_network_settings_cops_sub_os_append: {}

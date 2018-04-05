@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_kubectl_cops_do_format_resolve: false
+corpusops_localsettings_kubectl_cops_computed_defaults: []
+corpusops_localsettings_kubectl_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_kubectl_cops_sub_os_append: {}
+corpusops_localsettings_kubectl_cops_lowered: []
+corpusops_localsettings_kubectl_cops_knobs: ['mirror', 'repo', 'version',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_kubectl_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_kubectl_version: stable
 corpusops_localsettings_kubectl_platform: "linux"
 corpusops_localsettings_kubectl_arch: 'amd64'
@@ -19,7 +28,7 @@ _corpusops_localsettings_kubectl_alternatives:
     bins:
       - manualkubectl:
           target: "{{corpusops_core_apps_path}}/kubectl-{{version}}/kubectl"
-corpusops_localsettings_kubectl_version_getter: "https://storage.googleapis.com/kubernetes-release/release/{version}.txt"
+corpusops_localsettings_kubectl_version_getter: "https://storage.googleapis.com/kubernetes-release/release/{{vars['corpusops_localsettings_kubectl_version']}}.txt"
 
 _corpusops_localsettings_kubectl_app_path: "{{corpusops_core_apps_path}}/kubectl-{{version}}"
 _corpusops_localsettings_kubectl_archive: "https://storage.googleapis.com/kubernetes-release/release/{{version}}/bin/{{platform}}/{{arch}}/kubectl"

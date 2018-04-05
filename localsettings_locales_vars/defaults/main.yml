@@ -1,4 +1,12 @@
 ---
+corpusops_localsettings_locales_cops_do_format_resolve: false
+corpusops_localsettings_locales_cops_computed_defaults: []
+corpusops_localsettings_locales_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_locales_cops_sub_os_append: {}
+corpusops_localsettings_locales_cops_lowered: []
+corpusops_localsettings_locales_cops_knobs: ['locale', 'locales', 'configs', 'packages']
+corpusops_localsettings_locales_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_locales_packages: null
 corpusops_localsettings_locales_packages_debian: [
   'locales']

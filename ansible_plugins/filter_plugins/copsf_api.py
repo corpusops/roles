@@ -618,7 +618,9 @@ def copsf_reset_vars_from_registry(ansible_vars,
                                    name_prefix,
                                    registryvars_suffix=REGISTRYVARS_SUFFIX,
                                    registry_suffix=REGISTRY_DEFAULT_SUFFIX):  #noqa
-    dsvars = ansible_vars.setdefault('__'+prefix+registry_suffix, {})
+    _dsvars = inject_default_registry(ansible_vars, prefix,
+                                      registry_suffix=registry_suffix)
+    dsvars = _dsvars['define']
     name_prefix = get_name_prefix(name_prefix,
                                   prefix,
                                   registryvars_suffix)
@@ -651,18 +653,32 @@ def copsf_reset_vars_from_registry(ansible_vars,
 def register_default_val(ansible_vars, variable, prefix,
                          registry_suffix, sub_registries_key,
                          method='setdefault'):
-    sdvars = '__'+prefix+registry_suffix
-    default_vars = ansible_vars.setdefault(sdvars, {})
+    _default_vars = inject_default_registry(ansible_vars, prefix,
+                                            registry_suffix=registry_suffix)
+    redefine_vars = _default_vars['define']
+    undefine_vars = _default_vars['undefine']
     svar = prefix + variable
     value = ansible_vars.get(svar, REGISTRY_DEFAULT_VALUE)
-    if (
-        value != REGISTRY_DEFAULT_VALUE and
-        variable not in [
-            sub_registries_key
-        ]
-    ):
-        getattr(default_vars, method)(variable, value)
+    if variable not in [sub_registries_key]:
+        if value != REGISTRY_DEFAULT_VALUE:
+            _d = redefine_vars
+        else:
+            _d = undefine_vars
+        getattr(_d, method)(variable, value)
     return ansible_vars
+
+
+def inject_default_registry(ansible_vars,
+                            prefix,
+                            registry_suffix=REGISTRY_DEFAULT_SUFFIX):
+    sdvars = '__'+prefix+registry_suffix
+    default_vars = ansible_vars.setdefault(sdvars, {})
+    default_vars.setdefault('define', {})
+    default_vars.setdefault('undefine', {})
+    # as it is use heavily in union with include_jinja_vars
+    # make a bridge not to resolve registry defaults
+    default_vars['_include_jinja_vars_skip'] = True
+    return default_vars
 
 
 def copsf_registry_to_vars(namespaced,
@@ -672,6 +688,7 @@ def copsf_registry_to_vars(namespaced,
                            name_prefix=None,
                            do_format_resolve=False,
                            additional_namespaces=None,
+                           no_defaults=False,
                            registryvars_suffix=REGISTRYVARS_SUFFIX,
                            sub_registries_key=SUBREGISTRIES_KEYS,
                            registry_suffix=REGISTRY_DEFAULT_SUFFIX):
@@ -685,9 +702,11 @@ def copsf_registry_to_vars(namespaced,
     ]:
         svar = prefix + k
         scope[svar] = namespaced[k]
-    sdvars = '__'+prefix+registry_suffix
-    default_vars = ansible_vars.setdefault(sdvars, {})
-    scope[sdvars] = default_vars
+    if not no_defaults:
+        sdvars = '__'+prefix+registry_suffix
+        default_vars = inject_default_registry(ansible_vars, prefix,
+                                               registry_suffix=registry_suffix)
+        scope[sdvars] = default_vars
     ansible_vars.update(scope)
     if not global_scope:
         scope = namespaced
@@ -1117,6 +1136,9 @@ def uniquify(seq):
 
 
 def registry_and_defaults(registry, prefix, ansible_vars, format_resolve=True):
+    '''
+    Format resolve except saved default registries
+    '''
     registry_defaults = {}
     for a in [b for b in registry]:
         if a.endswith('__REGISTRY_DEFAULT'):

@@ -4,22 +4,7 @@
       ---
       {% set prefix = 'corpusops_services_db_postgis_' %}
       {% set pgprefix = 'corpusops_services_db_postgresql_' %}
-      {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
-      {% set knobs = ['files', 'filescopy', 'configs', 'packages', 'services',
-                      ] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'pg_conf': {}, 'settings': {}} %}
-      {% set namespaced = {'pg_conf': {}, 'settings': {}} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix, do_format_resolve=False,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
       {% if vars['ansible_distribution'] in ['Ubuntu'] and  (vars['ansible_distribution_version'] | copsf_looseversion >= '16.04') %}
       {% set _ = namespaced['packages'].append('liblwgeom-dev') %}
@@ -39,7 +24,6 @@
       {{ (snamespaced[prefix+'vars']
            | copsf_registry_to_vars(
                vars, prefix,
-               do_format_resolve=True,
                global_scope=True)
              )[0] | to_json}}
   tags: [corpusops_vars, corpusops_services_db_postgis_vars]

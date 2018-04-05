@@ -3,21 +3,7 @@
     content: |-
       ---
       {% set prefix = 'corpusops_services_misc_xvfb_' %}
-      {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
-      {% set knobs = ['files', 'filescopy',
-                      'services', 'configs', 'packages'] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'settings': {}} %}
-      {% set namespaced = {'settings': {}} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
       {% if ((ansible_lsb.id.lower() in ['ubuntu']) and
              (ansible_lsb.release < '15.04')) %}
@@ -33,6 +19,5 @@
            | copsf_registry_to_vars(
                vars, prefix, global_scope=True)
              )[0] | to_json}}     
-
   tags: [corpusops_vars, corpusops_services_misc_xvfb_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
