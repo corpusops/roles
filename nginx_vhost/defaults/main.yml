@@ -44,31 +44,31 @@ corpusops_nginx_vhost_use_real_ip: "{{corpusops_services_http_nginx_vars.use_rea
 corpusops_nginx_vhost_v6: "{{corpusops_services_http_nginx_vars.v6}}"
 corpusops_nginx_vhost_ssl_cacert_first: "{{corpusops_services_http_nginx_vars.ssl_cacert_first}}"
 corpusops_nginx_vhost_ssl_ciphers: "{{corpusops_services_http_nginx_vars.ssl_ciphers}}"
-corpusops_nginx_vhost_small_name: "{basename}"
-corpusops_nginx_vhost_ssl_domain: "{domain}"
-corpusops_nginx_vhost_basename: "{domain}"
-corpusops_nginx_vhost_site_link: "{{corpusops_services_http_nginx_vars.basedir}}/conf.d/{basename}.conf"
-corpusops_nginx_vhost_site_file: "{{corpusops_services_http_nginx_vars.basedir}}/sites-available/{basename}.conf"
-corpusops_nginx_vhost_content_file: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{basename}.content.conf"
-corpusops_nginx_vhost_top_file: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{basename}.top.conf"
-corpusops_nginx_vhost_server_name: "{domain}"
-corpusops_nginx_vhost_ssl_cert_path: "/etc/ssl/nginx/{ssl_domain}.cert"
-corpusops_nginx_vhost_ssl_key_path: "/etc/ssl/nginx/{ssl_domain}.key"
+corpusops_nginx_vhost_small_name: "{{corpusops_nginx_vhost_basename}}"
+corpusops_nginx_vhost_ssl_domain: "{{corpusops_nginx_vhost_domain}}"
+corpusops_nginx_vhost_basename: "{{corpusops_nginx_vhost_domain}}"
+corpusops_nginx_vhost_site_link: "{{corpusops_services_http_nginx_vars.basedir}}/conf.d/{{vars['corpusops_nginx_vhost_basename']}}.conf"
+corpusops_nginx_vhost_site_file: "{{corpusops_services_http_nginx_vars.basedir}}/sites-available/{{vars['corpusops_nginx_vhost_basename']}}.conf"
+corpusops_nginx_vhost_content_file: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{{vars['corpusops_nginx_vhost_basename']}}.content.conf"
+corpusops_nginx_vhost_top_file: "{{corpusops_services_http_nginx_vars.basedir}}/includes/{{vars['corpusops_nginx_vhost_basename']}}.top.conf"
+corpusops_nginx_vhost_server_name: "{{vars['corpusops_nginx_vhost_domain']}}"
+corpusops_nginx_vhost_ssl_cert_path: "/etc/ssl/nginx/{{corpusops_nginx_vhost_ssl_domain}}.cert"
+corpusops_nginx_vhost_ssl_key_path: "/etc/ssl/nginx/{{corpusops_nginx_vhost_ssl_domain}}.key"
 #
 corpusops_nginx_vhost_files: []
 corpusops_nginx_vhost_configs:
-  - {name: "{top_file}",
-    owner: "{user}",
-    group: "{group}",
-    template: "{top_template}",
+  - {name: "{{vars['corpusops_nginx_vhost_top_file']}}",
+    owner: "{{vars['corpusops_nginx_vhost_user']}}",
+    group: "{{vars['corpusops_nginx_vhost_group']}}",
+    template: "{{vars['corpusops_nginx_vhost_top_template']}}",
     mode: "0644"}
-  - {name: "{content_file}",
-    owner: "{user}",
-    group: "{group}",
-    template: "{content_template}",
+  - {name:    "{{vars['corpusops_nginx_vhost_content_file']}}",
+    owner:    "{{vars['corpusops_nginx_vhost_user']}}",
+    group:    "{{vars['corpusops_nginx_vhost_group']}}",
+    template: "{{vars['corpusops_nginx_vhost_content_template']}}",
     mode: "0644"}
-  - {name: "{site_file}",
-    owner: "{user}",
-    group: "{group}",
-    template: "{site_template}",
+  - {name:    "{{vars['corpusops_nginx_vhost_site_file']}}",
+    owner:    "{{vars['corpusops_nginx_vhost_user']}}",
+    group:    "{{vars['corpusops_nginx_vhost_group']}}",
+    template: "{{vars['corpusops_nginx_vhost_site_template']}}",
     mode: "0644"}

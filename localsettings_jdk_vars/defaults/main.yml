@@ -1,9 +1,19 @@
 ---
+corpusops_localsettings_jdk_cops_do_format_resolve: false
+corpusops_localsettings_jdk_cops_computed_defaults: []
+corpusops_localsettings_jdk_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_jdk_cops_sub_os_append: {}
+corpusops_localsettings_jdk_cops_lowered: []
+corpusops_localsettings_jdk_cops_knobs: ['mirror', 'comps', 'repo',
+                      'version', 'versions',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_jdk_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_jdk_headers:
   default: >-
     Cookie:oraclelicense=accept-securebackup-cookie
-corpusops_localsettings_jdk_system_prefix: '/usr/lib/jvm/java-{version}-oracle'
-corpusops_localsettings_jdk_local_prefix: '/opt/jdk-{version}-{flavor}'
+corpusops_localsettings_jdk_system_prefix: "/usr/lib/jvm/java-{{vars['corpusops_localsettings_jdk_version']}}-oracle"
+corpusops_localsettings_jdk_local_prefix: "/opt/jdk-{{vars['corpusops_localsettings_jdk_version']}}-{flavor}"
 corpusops_localsettings_jdk_repo: null
 corpusops_localsettings_jdk_repo_ubuntu: 'ppa:webupd8team/java'
 corpusops_localsettings_jdk_packages_default: []

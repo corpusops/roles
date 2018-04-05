@@ -1,5 +1,5 @@
 ---
-corpusops_localsettings_certbot_cops_do_format_resolve: true
+corpusops_localsettings_certbot_cops_do_format_resolve: false
 corpusops_localsettings_certbot_cops_computed_defaults: []
 corpusops_localsettings_certbot_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_localsettings_certbot_cops_sub_os_append: {}
@@ -25,39 +25,39 @@ corpusops_localsettings_certbot_services: null
 corpusops_localsettings_certbot_group: 'certbot'
 corpusops_localsettings_certbot_user: 'certbot'
 corpusops_localsettings_certbot_files: null
+corpusops_localsettings_certbot_webroot: "{{vars['corpusops_localsettings_certbot_home']}}/www"
+corpusops_localsettings_certbot_configdir: "{{vars['corpusops_localsettings_certbot_home']}}/letsencrypt"
 corpusops_localsettings_certbot_filescopy: null
 corpusops_localsettings_certbot_filescopy_default: []
 corpusops_localsettings_certbot_files_apt: []
 corpusops_localsettings_certbot_logsdir: "{{corpusops_vars.log_dir}}/letsencrypt"
-corpusops_localsettings_certbot_workdir: "{home}/letsencrypt"
+corpusops_localsettings_certbot_workdir: "{{vars['corpusops_localsettings_certbot_home']}}/letsencrypt"
 corpusops_localsettings_certbot_home: /home/certbot
-corpusops_localsettings_certbot_configdir: "{home}/letsencrypt"
-corpusops_localsettings_certbot_config: "{configdir}/cli.ini"
+corpusops_localsettings_certbot_config: "{{vars['corpusops_localsettings_certbot_configdir']}}/cli.ini"
 corpusops_localsettings_certbot_files_default:
-- {path: "{webroot}",
-   owner: "{user}", group: "{group}", state: directory, mode: "0750"}
-- {name: "{workdir}",
-   owner: "{user}", group: "{group}", state: directory, mode: "0750"}
-- {name: "{logsdir}",
-   owner: "{user}", group: "{group}", state: directory, mode: "0750"}
-- {name: "{configdir}",
-   owner: "{user}", group: "{group}", state: directory, mode: "0750"}
+- {path: "{{vars['corpusops_localsettings_certbot_webroot']}}",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_workdir']}}",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_logsdir']}}",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_configdir']}}",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
 corpusops_localsettings_certbot_configs_default:
-- {name: "{config}",
+- {name: "{{vars['corpusops_localsettings_certbot_config']}}",
    template: "../templates/cli.ini",
-   owner: "{user}", group: "{group}", mode: "0640"}
-- {name: "{home}/le_renew.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0640"}
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_renew.sh",
    template: "../templates/le_renew.sh",
-   owner: "{user}", group: "{group}", mode: "0750"}
-- {name: "{home}/le_haproxy.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_haproxy.sh",
    template: "../templates/le_haproxy.sh",
-   owner: "{user}", group: "{group}", mode: "0750"}
-- {name: "{home}/http_challenge.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/http_challenge.sh",
    template: "../templates/http_challenge.sh",
-   owner: "{user}", group: "{group}", mode: "0750"}
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
 corpusops_localsettings_certbot_domains: ["{{ansible_fqdn}}"]
 corpusops_localsettings_certbot_authenticator: standalone
-corpusops_localsettings_certbot_webroot: "{home}/www"
 corpusops_localsettings_certbot_email: foo@example.com
 corpusops_localsettings_certbot_keysize: 4096
 corpusops_localsettings_certbot_preferred_challenges: [tls-sni-01, http-01]
@@ -71,8 +71,8 @@ corpusops_localsettings_certbot_http: false
 corpusops_localsettings_certbot_mailto: ""
 corpusops_localsettings_certbot_has_cron: |
 corpusops_localsettings_certbot_cron: |
-  MAILTO="{mailto}"
-  {periodicity} root {home}/le_renew.sh
+  MAILTO="{{vars['corpusops_localsettings_certbot_mailto']}}"
+  {{vars['corpusops_localsettings_certbot_periodicity']}} root {{vars['corpusops_localsettings_certbot_home']}}/le_renew.sh
 corpusops_localsettings_certbot_periodicity: "24 3 * * *"
 corpusops_localsettings_certbot_haproxy: false
 corpusops_localsettings_certbot_haproxy_certs_dir: "/etc/ssl/haproxy/certs"
@@ -85,5 +85,5 @@ corpusops_localsettings_certbot_certonly_args: >
   -n
   --agree-tos
   --config=$CONFIG
-  --http-01-port {port}
-  --tls-sni-01-port {sport}
+  --http-01-port {{vars['corpusops_localsettings_certbot_port']}}
+  --tls-sni-01-port {{vars['corpusops_localsettings_certbot_sport']}}

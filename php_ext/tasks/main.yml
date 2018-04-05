@@ -10,7 +10,6 @@
       {% set data = vars[prefix+'vars'] %}
       {% set _ = data.exts.append(data.ext) %}
       {{ (data
-         | copsf_format_resolve(additional_namespaces=[vars])
          | copsf_registry_to_vars(
              vars, prefix, global_scope=True)
          )[0]

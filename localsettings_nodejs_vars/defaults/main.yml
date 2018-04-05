@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_nodejs_cops_do_format_resolve: false
+corpusops_localsettings_nodejs_cops_computed_defaults: []
+corpusops_localsettings_nodejs_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_nodejs_cops_sub_os_append: {}
+corpusops_localsettings_nodejs_cops_lowered: []
+corpusops_localsettings_nodejs_cops_knobs: ['mirror', 'repo', 'version',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_nodejs_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_nodejs_version: '7.10.0'
 corpusops_localsettings_nodejs_yarn_version: '0.24.6'
 corpusops_localsettings_nodejs_filetest: [bin/node, bin/npm]

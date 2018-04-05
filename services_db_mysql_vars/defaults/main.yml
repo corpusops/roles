@@ -1,7 +1,7 @@
 ---
 corpusops_services_db_mysql_cops_do_format_resolve: false
 corpusops_services_db_mysql_cops_computed_defaults: []
-corpusops_services_db_mysql_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_services_db_mysql_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_services_db_mysql_cops_sub_os_append: {}
 corpusops_services_db_mysql_cops_knobs: [
   'py_packages',
@@ -26,7 +26,7 @@ corpusops_services_db_mysql_repo_redhat: null
 corpusops_services_db_mysql_repo_fedora: null
 corpusops_services_db_mysql_client_packages: null
 corpusops_services_db_mysql_client_packages_default:
-- "mysql-client-{version}"
+- "mysql-client-{{vars['corpusops_services_db_mysql_version']}}"
 - "libmysqlclient-dev"
 corpusops_services_db_mysql_py_packages: null
 corpusops_services_db_mysql_py_packages_default:
@@ -35,7 +35,7 @@ corpusops_services_db_mysql_py_packages_default:
 corpusops_services_db_mysql_packages: null
 corpusops_services_db_mysql_packages_default:
 - "libmysqlclient-dev"
-- 'mysql-server-{version}'
+- "mysql-server-{{vars['corpusops_services_db_mysql_version']}}"
 corpusops_services_db_mysql_selfsignedcert_dir: "/etc/mysql/ssl"
 corpusops_services_db_mysql_services: null
 corpusops_services_db_mysql_group: mysql
@@ -45,26 +45,26 @@ corpusops_services_db_mysql_filescopy: null
 corpusops_services_db_mysql_filescopy_default: []
 corpusops_services_db_mysql_files_apt: []
 corpusops_services_db_mysql_prefix: "{{corpusops_vars.config_dir}}/mysql"
-corpusops_services_db_mysql_vprefix: "{prefix}/{version}"
+corpusops_services_db_mysql_vprefix: "{{vars['corpusops_services_db_mysql_prefix']}}/{{vars['corpusops_services_db_mysql_version']}}"
 corpusops_services_db_mysql_sharedir: "{{corpusops_vars.share_dir}}/mysql"
 corpusops_services_db_mysql_datadir: "{{corpusops_vars.var_lib_dir}}/mysql"
 corpusops_services_db_mysql_tmpdir: "{{corpusops_vars.tmp_dir}}"
 corpusops_services_db_mysql_logdir: "{{corpusops_vars.log_dir}}/mysql"
-corpusops_services_db_mysql_var_log: "{logdir}"
+corpusops_services_db_mysql_var_log: "{{vars['corpusops_services_db_mysql_logdir']}}"
 corpusops_services_db_mysql_basedir: "{{corpusops_vars.usr_dir}}"
 corpusops_services_db_mysql_sockdir: "{{corpusops_vars.run_dir}}/mysqld"
 corpusops_services_db_mysql_files_default:
   - {path: "{{corpusops_vars.unit_dir}}/mysql.service.d",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{prefix}/conf.d",
+  - {path: "{{vars['corpusops_services_db_mysql_prefix']}}/conf.d",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{prefix}/mysql.conf.d/mysqld_safe_syslog.cnf",
+  - {path: "{{vars['corpusops_services_db_mysql_prefix']}}/mysql.conf.d/mysqld_safe_syslog.cnf",
      owner: root, group: root, state: absent}
-  - {path: "{prefix}/mysql.conf.d/mysqld.cnf",
+  - {path: "{{vars['corpusops_services_db_mysql_prefix']}}/mysql.conf.d/mysqld.cnf",
      owner: root, group: root, state: absent}
 corpusops_services_db_mysql_configs: null
 corpusops_services_db_mysql_configs_default:
-  - {name: "{prefix}/conf.d/local.cnf",
+  - {name: "{{vars['corpusops_services_db_mysql_prefix']}}/conf.d/local.cnf",
     template: "../templates/etc/mysql/conf.d/local.cnf",
     mode: "0644"}
   - {name: "{{corpusops_vars.unit_dir}}/mysql.service.d/mysql.conf",
@@ -95,9 +95,9 @@ corpusops_services_db_mysql_port: '3306'
 corpusops_services_db_mysql_cert_domain: mysql
 corpusops_services_db_mysql_cert: null
 corpusops_services_db_mysql_cert_key: null
-corpusops_services_db_mysql_cert_path: "{prefix}/ssl/mysql.crt"
-corpusops_services_db_mysql_cert_full_path: "{prefix}/ssl/mysql.full.crt"
-corpusops_services_db_mysql_cert_key_path: "{prefix}/ssl/mysql.key"
+corpusops_services_db_mysql_cert_path: "{{vars['corpusops_services_db_mysql_prefix']}}/ssl/mysql.crt"
+corpusops_services_db_mysql_cert_full_path: "{{vars['corpusops_services_db_mysql_prefix']}}/ssl/mysql.full.crt"
+corpusops_services_db_mysql_cert_key_path: "{{vars['corpusops_services_db_mysql_prefix']}}/ssl/mysql.key"
 corpusops_services_db_mysql_cert_subject: "/C=US/ST=Oregon/L=Portland/O=IT/"
 corpusops_services_db_mysql_cert_days: "365000"
 corpusops_services_db_mysql_nb_connections: null

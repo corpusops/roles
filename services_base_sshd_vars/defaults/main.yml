@@ -1,5 +1,5 @@
 ---
-corpusops_services_base_sshd_cops_do_format_resolve: true
+corpusops_services_base_sshd_cops_do_format_resolve: false
 corpusops_services_base_sshd_cops_computed_defaults: []
 corpusops_services_base_sshd_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_services_base_sshd_cops_sub_os_append: {}
@@ -28,9 +28,9 @@ corpusops_services_base_sshd_settings_AuthorizedKeysFile: >-
 corpusops_services_base_sshd_settings_AllowUsers: []
 corpusops_services_base_sshd_settings_AllowGroups: null
 corpusops_services_base_sshd_settings_AllowGroups_default: [
- 'sftponly', 'root', 'sudo', 'wheel', 'admin', '{group}']
+ 'sftponly', 'root', 'sudo', 'wheel', 'admin', "{{vars['corpusops_services_base_sshd_group']}}"]
 corpusops_services_base_sshd_settings_AllowGroups_ubuntu: [
- 'sftponly', 'root', 'sudo', 'wheel', 'admin', 'ubuntu', '{group}']
+ 'sftponly', 'root', 'sudo', 'wheel', 'admin', 'ubuntu', "{{vars['corpusops_services_base_sshd_group']}}"]
 corpusops_services_base_sshd_settings_ChallengeResponseAuthentication: 'no'
 corpusops_services_base_sshd_settings_X11Forwarding: 'yes'
 corpusops_services_base_sshd_settings_PrintMotd: 'no'

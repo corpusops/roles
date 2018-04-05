@@ -15,7 +15,6 @@
       {% set data, vars = snamespaced[prefix+'vars']
           | copsf_mysql(vars, prefix)%}
       {{ (data
-         | copsf_format_resolve(additional_namespaces=[vars])
          | copsf_registry_to_vars(
              vars, prefix, global_scope=True)
          )[0]

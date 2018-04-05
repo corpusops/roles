@@ -1,4 +1,16 @@
 ---
+corpusops_localsettings_dockercompose_cops_do_format_resolve: false
+corpusops_localsettings_dockercompose_cops_computed_defaults: []
+corpusops_localsettings_dockercompose_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_dockercompose_cops_sub_os_append: {}
+corpusops_localsettings_dockercompose_cops_lowered: []
+corpusops_localsettings_dockercompose_cops_knobs: ['mirror', 'repo', 'version',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_dockercompose_cops_sub_namespaces:
+  settings: {}
+
+
+
 # corpusops_localsettings_dockercompose_version: '1.16.1'
 # corpusops_localsettings_dockercompose_crc: '1804b0ce6596efe707b9cab05d74b161833ed503f0535a937dd5d17bea8fc50a'
 corpusops_localsettings_dockercompose_version: '1.20.1'

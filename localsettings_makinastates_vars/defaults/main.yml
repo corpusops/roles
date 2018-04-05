@@ -1,4 +1,12 @@
 ---
+corpusops_localsettings_makinastates_cops_do_format_resolve: false
+corpusops_localsettings_makinastates_cops_computed_defaults: []
+corpusops_localsettings_makinastates_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_makinastates_cops_sub_os_append: {}
+corpusops_localsettings_makinastates_cops_lowered: []
+corpusops_localsettings_makinastates_cops_knobs: ['packages']
+corpusops_localsettings_makinastates_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_makinastates_branch: 'v2'
 corpusops_localsettings_makinastates_url: "https://github.com/makinacorpus/makina-states.git"
 corpusops_localsettings_makinastates_path: "/srv/makina-states"

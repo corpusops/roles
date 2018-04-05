@@ -1,5 +1,5 @@
 ---
-corpusops_localsettings_sysctls_cops_do_format_resolve: true
+corpusops_localsettings_sysctls_cops_do_format_resolve: false
 corpusops_localsettings_sysctls_cops_computed_defaults: []
 corpusops_localsettings_sysctls_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_localsettings_sysctls_cops_sub_os_append: {}

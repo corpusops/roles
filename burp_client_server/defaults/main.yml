@@ -1,5 +1,5 @@
 ---
-cops_burpclientserver_cops_do_format_resolve: true
+cops_burpclientserver_cops_do_format_resolve: false
 cops_burpclientserver_cops_computed_defaults: []
 cops_burpclientserver_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 cops_burpclientserver_cops_sub_os_append: {}
@@ -7,31 +7,31 @@ cops_burpclientserver_cops_knobs: ['files', 'filescopy', 'configs']
 cops_burpclientserver_cops_lowered: []
 cops_burpclientserver_cops_sub_namespaces: {conf: {}}
 cops_burpclientserver_activated: True
-cops_burpclientserver_services: ["burp-server-{name}", "burp-restore-{name}"]
+cops_burpclientserver_services: ["burp-server-{{vars['cops_burpclientserver_name']}}", "burp-restore-{{vars['cops_burpclientserver_name']}}"]
 cops_burpclientserver_name: "corpusops"
 cops_burpclientserver_files_default:
 - {path: "{backup_directory}",
    owner: root, group: root, state: directory, mode: "0755"}
-- {path: "{prefix}/clientconfdir",
+- {path: "{{vars['cops_burpclientserver_prefix']}}/clientconfdir",
    owner: root, group: root, state: directory, mode: "0755"}
 cops_burpclientserver_filescopy: null
 cops_burpclientserver_filescopy_default: []
-cops_burpclientserver_prefix: "{{corpusops_vars.config_dir}}/burp-{name}"
-cops_burpclientserver_configfile_server_client: "{prefix}/clientconfdir/{cname}"
+cops_burpclientserver_prefix: "{{corpusops_vars.config_dir}}/burp-{{vars['cops_burpclientserver_name']}}"
+cops_burpclientserver_configfile_server_client: "{{vars['cops_burpclientserver_prefix']}}/clientconfdir/{{vars['cops_burpclientserver_cname']}}"
 cops_burpclientserver_configs: null
 cops_burpclientserver_configs_default:
-- {name: '{configfile_server_client}' , mode: "0640", template: "../templates/etc/burp/clientconfdir/client.conf"}
+- {name: "{{vars['cops_burpclientserver_configfile_server_client']}}" , mode: "0640", template: "../templates/etc/burp/clientconfdir/client.conf"}
 cops_burpclientserver_cname: "{{ansible_fqdn}}"
 cops_burpclientserver_umask: '0022'
 cops_burpclientserver_protocol: "1"
-cops_burpclientserver_directory: '/data/burp2/{cname}'
-cops_burpclientserver_clientconfdir: '{prefix}/clientconfdir'
-cops_burpclientserver_restore_clients: ["{cname}", "{{ansible_fqdn}}"]
+cops_burpclientserver_directory: "/data/burp2/{{vars['cops_burpclientserver_cname']}}"
+cops_burpclientserver_clientconfdir: "{{vars['cops_burpclientserver_prefix']}}/clientconfdir"
+cops_burpclientserver_restore_clients: ["{{vars['cops_burpclientserver_cname']}}", "{{ansible_fqdn}}"]
 # computed for a part in main.yml
 cops_burpclientserver_custom_lines: []
 cops_burpclientserver_use_profile: true
 cops_burpclientserver_profile: null
-# cops_burpclientserver_password_{cname}: null  # MUST BE SET !
+# cops_burpclientserver_password_{{vars['cops_burpclientserver_cname']}}: null  # MUST BE SET !
 cops_burpclientserver_common_lines: |
   nobackup = .nobackup
   directory = {{vars['cops_burpclientserver_directory']|copsf_dirname}}

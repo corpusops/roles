@@ -1,6 +1,6 @@
 ---
 
-corpusops_services_virt_docker_cops_do_format_resolve: true
+corpusops_services_virt_docker_cops_do_format_resolve: false
 corpusops_services_virt_docker_cops_computed_defaults: []
 corpusops_services_virt_docker_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_services_virt_docker_cops_sub_os_append: {}
@@ -18,7 +18,7 @@ corpusops_services_virt_docker_files: null
 corpusops_services_virt_docker_filescopy: null
 corpusops_services_virt_docker_filescopy_default:
   - {template: "{{cops_root}}/bin/cops_docker_cleanup.sh",
-     dest: "{{corpusops_services_virt_docker_cleanup_script}}",
+     dest: "{{vars['corpusops_services_virt_docker_cleanup_script']}}",
      mode: "755"}
 corpusops_services_virt_docker_files_default:
   - {path: "/etc/cron.d",
@@ -45,8 +45,8 @@ corpusops_services_virt_docker_storage_driver: overlay2
 corpusops_services_virt_docker_settings_DOCKERD: "/usr/bin/dockerd"
 corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
 corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: "--log-opt max-file=10 --log-opt max-size=10m --experimental"
-corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: "--storage-driver={storage_driver}"
-corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: "--userland-proxy={userland_proxy}"
+corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: "--storage-driver={{vars['corpusops_services_virt_docker_storage_driver']}}"
+corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: "--userland-proxy={{vars['corpusops_services_virt_docker_userland_proxy']}}"
 corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
 corpusops_services_virt_docker_settings_INSECURE_REGISTRY: ""
 corpusops_services_virt_docker_settings_http_proxy: ""
@@ -54,4 +54,4 @@ corpusops_services_virt_docker_settings_TMPDIR: ""
 corpusops_services_virt_docker_cleanup_script: /usr/local/bin/cops_docker_cleanup.sh
 # set periodicity to null to deactivate
 corpusops_services_virt_docker_cleanup_cron: |
-  0 3 * * * root sh -c 'if [ -f {{corpusops_services_virt_docker_cleanup_script}} ] && [ ! -e /etc/docker_no_cleanup ];then {{corpusops_services_virt_docker_cleanup_script}} >/dev/null 2>&1;fi'"
+  0 3 * * * root sh -c 'if [ -f {{vars['corpusops_services_virt_docker_cleanup_script']}} ] && [ ! -e /etc/docker_no_cleanup ];then {{vars['corpusops_services_virt_docker_cleanup_script']}} >/dev/null 2>&1;fi'"

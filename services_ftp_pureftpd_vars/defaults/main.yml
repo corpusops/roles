@@ -1,5 +1,5 @@
 ---
-corpusops_services_ftp_pureftpd_cops_do_format_resolve: true
+corpusops_services_ftp_pureftpd_cops_do_format_resolve: false
 corpusops_services_ftp_pureftpd_cops_computed_defaults: []
 corpusops_services_ftp_pureftpd_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_services_ftp_pureftpd_cops_sub_os_append: {}
@@ -33,13 +33,13 @@ corpusops_services_ftp_pureftpd_user: root
 corpusops_services_ftp_pureftpd_dhparam: "{{corpusops_vars.config_dir}}/ssl/private/pure-ftpd-dhparams.pem"
 corpusops_services_ftp_pureftpd_files: null
 corpusops_services_ftp_pureftpd_files_default:
-  - {path: "{prefix}",
+  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{prefix}/conf",
+  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/conf",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{prefix}/auth",
+  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/auth",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{prefix}/pureftpd.passwd",
+  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/pureftpd.passwd",
      owner: "root", group: "root", state: touch, mode: "0644"}
 corpusops_services_ftp_pureftpd_filescopy: null
 corpusops_services_ftp_pureftpd_filescopy_default: []

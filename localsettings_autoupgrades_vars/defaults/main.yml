@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_autoupgrades_cops_do_format_resolve: false
+corpusops_localsettings_autoupgrades_cops_computed_defaults: []
+corpusops_localsettings_autoupgrades_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_autoupgrades_cops_sub_os_append: {}
+corpusops_localsettings_autoupgrades_cops_lowered: []
+corpusops_localsettings_autoupgrades_cops_knobs: ['origins', 'configs', 'packages',
+                      'services']
+corpusops_localsettings_autoupgrades_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_autoupgrades_packages: null
 corpusops_localsettings_autoupgrades_configs: null
 corpusops_localsettings_autoupgrades_packages_default: []
@@ -9,10 +18,10 @@ corpusops_localsettings_autoupgrades_services_default: []
 corpusops_localsettings_autoupgrades_services_redhat: ['yum-cron']
 corpusops_localsettings_autoupgrades_services_activated: true
 corpusops_localsettings_autoupgrades_configs_redhat:
-  - name: '/etc/yum/yum-cron.conf'
+  - name: "{{corpusops_vars.config_dir}}/yum/yum-cron.conf"
 corpusops_localsettings_autoupgrades_configs_debian:
-  - name: '/etc/apt/apt.conf.d/50unattended-upgrades'
-  - name: '/etc/apt/apt.conf.d/10periodic'
+  - name: "{{corpusops_vars.config_dir}}/apt/apt.conf.d/50unattended-upgrades"
+  - name: "{{corpusops_vars.config_dir}}/apt/apt.conf.d/10periodic"
 corpusops_localsettings_autoupgrades_activated: "1"
 corpusops_localsettings_autoupgrades_autoclean: "7"
 corpusops_localsettings_autoupgrades_DownloadUpgradeablePackages: "1"

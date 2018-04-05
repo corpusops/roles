@@ -35,7 +35,7 @@
          set -ex
          cd {{ssl_ca_signed_cert_vars.idirectory}}
          openssl genrsa \
-          -passout "pass:{{ssl_ca_signed_cert_vars.['ica_password'+ssl_ca_signed_cert_vars.ca_name]}}" \
+          -passout "pass:{{ssl_ca_signed_cert_vars['ica_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
           -{{ssl_ca_signed_cert_vars.signm}} -out private/intermediate.pkey.pem \
            {{ssl_ca_signed_cert_vars.ica_klen}}
          chmod 400 private/intermediate.pkey.pem
@@ -46,7 +46,7 @@
   shell: |
          set -ex
          cd {{ssl_ca_signed_cert_vars.idirectory}}
-         openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ica_password'+ssl_ca_signed_cert_vars.ca_name]}}" \
+         openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ica_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
          -in private/intermediate.pkey.pem -out private/intermediate.key.pem
          chmod 400 private/intermediate.key.pem
 # root ca key
@@ -58,7 +58,7 @@
          set -ex
          cd {{ssl_ca_signed_cert_vars.directory}}
          openssl genrsa \
-          -passout "pass:{{ssl_ca_signed_cert_vars['ca_password'+ssl_ca_signed_cert_vars.ca_name]}}" \
+          -passout "pass:{{ssl_ca_signed_cert_vars['ca_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
           -{{ssl_ca_signed_cert_vars.signm}} -out private/ca.pkey.pem \
            {{ssl_ca_signed_cert_vars.ca_klen}}
          chmod 400 private/ca.pkey.pem
@@ -69,7 +69,7 @@
   shell: |
          set -ex
          cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ca_password'+ssl_ca_signed_cert_vars.ca_name]}}" \
+         openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ca_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
          -in private/ca.pkey.pem -out private/ca.key.pem
          chmod 400 private/ca.key.pem
 # root ca

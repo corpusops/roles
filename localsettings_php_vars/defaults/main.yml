@@ -1,4 +1,15 @@
 ---
+corpusops_localsettings_php_cops_do_format_resolve: false
+corpusops_localsettings_php_cops_computed_defaults: []
+corpusops_localsettings_php_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_php_cops_sub_os_append: {}
+corpusops_localsettings_php_cops_lowered: ['repo']
+corpusops_localsettings_php_cops_knobs:  ['files', 'filescopy', 'configs', 'packages', 'services',
+                      'repo_keys', 'repo_keys_url', 'repo',
+                      ]
+corpusops_localsettings_php_cops_sub_namespaces:
+  settings: {}
+  spackages: {}
 corpusops_localsettings_php_executable: "/usr/bin/php{{corpusops_localsettings_php_version}}"
 corpusops_localsettings_php_composer: /usr/local/bin/composer
 corpusops_localsettings_php_composer_keep_updated: true
@@ -80,7 +91,7 @@ corpusops_localsettings_php_repo_keys_default: []
 corpusops_localsettings_php_repo_keys_ubuntu: [E5267A6C]
 corpusops_localsettings_php_keyserver: "hkp://keyserver.ubuntu.com:80"
 corpusops_localsettings_php_repo: null
-corpusops_localsettings_php_repo_ubuntu: "deb http://ppa.launchpad.net/ondrej/php/ubuntu {ansible_distribution_release} main"
+corpusops_localsettings_php_repo_ubuntu: "deb http://ppa.launchpad.net/ondrej/php/ubuntu {{ansible_distribution_release.lower()}} main"
 corpusops_localsettings_php_packages: |-
   {% set v = {'ret': []} %}
   {% set _  = v.ret.append(corpusops_localsettings_php_spackages_main) %}

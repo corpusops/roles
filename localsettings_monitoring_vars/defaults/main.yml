@@ -1,5 +1,5 @@
 ---
-corpusops_localsettings_monitoring_cops_do_format_resolve: true
+corpusops_localsettings_monitoring_cops_do_format_resolve: false
 corpusops_localsettings_monitoring_cops_computed_defaults: []
 corpusops_localsettings_monitoring_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_localsettings_monitoring_cops_sub_os_append: {}
@@ -50,7 +50,7 @@ corpusops_localsettings_monitoring_services: null
 corpusops_localsettings_monitoring_scripts_dir: "{{corpusops_vars.usr_dir}}/local/admin_scripts/nagios"
 corpusops_localsettings_monitoring_group: 'root'
 corpusops_localsettings_monitoring_user: 'root'
-corpusops_localsettings_monitoring_services_default: ["{name}"]
+corpusops_localsettings_monitoring_services_default: ["{{vars['corpusops_localsettings_monitoring_name']}}"]
 corpusops_localsettings_monitoring_files: null
 corpusops_localsettings_monitoring_filescopy: null
 corpusops_localsettings_monitoring_filescopy_default: []
@@ -65,16 +65,16 @@ corpusops_localsettings_monitoring_sysstat_files:
 corpusops_localsettings_monitoring_sysstat_configs:
   - {name: "{{corpusops_vars.config_dir}}/default/sysstat",
      template: "../templates/etc/default/sysstat",
-     owner: "{user}", group: root, mode: "0640"}
+     owner: "{{vars['corpusops_localsettings_monitoring_user']}}", group: root, mode: "0640"}
   - {name: "{{corpusops_vars.config_dir}}/cron.d/sysstat",
      template: "../templates/etc/cron.d/sysstat",
-     owner: "{user}", group: root, mode: "0640"}
+     owner: "{{vars['corpusops_localsettings_monitoring_user']}}", group: root, mode: "0640"}
   - {name: "{{corpusops_vars.config_dir}}/sysstat/sysstat",
      template: "../templates/etc/sysstat/sysstat",
-     owner: "{user}", group: root, mode: "0640"}
+     owner: "{{vars['corpusops_localsettings_monitoring_user']}}", group: root, mode: "0640"}
   - {name: "{{corpusops_vars.config_dir}}/sysstat/sysstat.ioconf",
      template: "../templates/etc/sysstat/sysstat.ioconf",
-     owner: "{user}", group: root, mode: "0640"}
+     owner: "{{vars['corpusops_localsettings_monitoring_user']}}", group: root, mode: "0640"}
 corpusops_localsettings_monitoring_sysstat_services: ['sysstat']
 corpusops_localsettings_monitoring_sysstat_rotate_periodicity: '59 23 * * *'
 corpusops_localsettings_monitoring_sysstat_periodicity: '*/3 * * * *'
@@ -85,5 +85,5 @@ corpusops_localsettings_monitoring_sysstat_compress: "{{2*31}}"
 corpusops_localsettings_monitoring_sysstat_sadc_opts: "-S XDISK"
 corpusops_localsettings_monitoring_configs_default: []
 #  - {name: "{config_file}",
-#     template: "../templates/etc/{name}/{name}.cfg",
-#     owner: "{user}", group: root, mode: "0640"}
+#     template: "../templates/etc/{{vars['corpusops_localsettings_monitoring_name']}}/{{vars['corpusops_localsettings_monitoring_name']}}.cfg",
+#     owner: "{{vars['corpusops_localsettings_monitoring_user']}}", group: root, mode: "0640"}

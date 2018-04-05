@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_phantoms_cops_do_format_resolve: false
+corpusops_localsettings_phantoms_cops_computed_defaults: []
+corpusops_localsettings_phantoms_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_phantoms_cops_sub_os_append: {}
+corpusops_localsettings_phantoms_cops_lowered: []
+corpusops_localsettings_phantoms_cops_knobs: ['mirror', 'repo', 'version',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_phantoms_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_phantoms_phantomjs_version: '2.1.1'
 corpusops_localsettings_phantoms_phantomjs_sha: '86dd9a4bf4aee45f1a84c9f61cf1947c1d6dce9b9e8d2a907105da7852460d2f'
 corpusops_localsettings_phantoms_casperjs_version: '1.1.3'

@@ -1,4 +1,14 @@
 ---
+corpusops_localsettings_golang_cops_do_format_resolve: false
+corpusops_localsettings_golang_cops_computed_defaults: []
+corpusops_localsettings_golang_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
+corpusops_localsettings_golang_cops_sub_os_append: {}
+corpusops_localsettings_golang_cops_lowered: []
+corpusops_localsettings_golang_cops_knobs: ['mirror', 'comps', 'repo',
+                      'version', 'versions',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_golang_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_golang_headers: {}
 corpusops_localsettings_golang_packages: null
 corpusops_localsettings_golang_system_prefix: '/usr/lib/go-{version}'

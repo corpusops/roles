@@ -1,5 +1,5 @@
 ---
-corpusops_services_http_nginx_cops_do_format_resolve: true
+corpusops_services_http_nginx_cops_do_format_resolve: false
 corpusops_services_http_nginx_cops_computed_defaults: []
 corpusops_services_http_nginx_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_services_http_nginx_cops_sub_os_append: {}
@@ -14,7 +14,7 @@ corpusops_services_http_nginx_repo_keys: null
 corpusops_services_http_nginx_repo_keys_default: [4420973F]
 corpusops_services_http_nginx_keyserver: "hkp://keyserver.ubuntu.com:80"
 corpusops_services_http_nginx_repo: null
-corpusops_services_http_nginx_repo_debian: "deb http://ppa.launchpad.net/corpusops/nginx/ubuntu {ansible_distribution_release} main"
+corpusops_services_http_nginx_repo_debian: "deb http://ppa.launchpad.net/corpusops/nginx/ubuntu {{ansible_distribution_release.lower()}} main"
 corpusops_services_http_nginx_repo_redhat: "https://download.nginx.com/linux/centos/nginx-ce.repo"
 corpusops_services_http_nginx_repo_fedora: "https://download.nginx.com/linux/fedora/nginx-ce.repo"
 corpusops_services_http_nginx_packages: null
@@ -28,23 +28,23 @@ corpusops_services_http_nginx_filescopy_default: []
 corpusops_services_http_nginx_files_apt:
   - {name: /etc/apt/preferences.d/99_nginx.pref, mode: "0644"}
 corpusops_services_http_nginx_files_default:
-  - {path: "{{corpusops_services_http_nginx_proxy_temp_path}}",
-    owner: "{{corpusops_services_http_nginx_user}}",
-    group: "{{corpusops_services_http_nginx_group}}",
+  - {path: "{{vars['corpusops_services_http_nginx_proxy_temp_path']}}",
+    owner: "{{vars['corpusops_services_http_nginx_user']}}",
+    group: "{{vars['corpusops_services_http_nginx_group']}}",
     state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_cache_folder}}",
-    owner: "{{corpusops_services_http_nginx_user}}",
-    group: "{{corpusops_services_http_nginx_group}}",
+  - {path: "{{vars['corpusops_services_http_nginx_cache_folder']}}",
+    owner: "{{vars['corpusops_services_http_nginx_user']}}",
+    group: "{{vars['corpusops_services_http_nginx_group']}}",
     state: directory, mode: "755"}
   - {path: "/etc/systemd/system/nginx.service.d", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_basedir}}", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_confdir}}", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_basedir}}/includes", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_basedir}}/sites-available", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_basedir}}/modules-available", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_basedir}}/modules-enabled", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_logdir}}", state: directory, mode: "755"}
-  - {path: "{{corpusops_services_http_nginx_doc_root}}", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_basedir']}}", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_confdir']}}", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_basedir']}}/includes", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_basedir']}}/sites-available", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_basedir']}}/modules-available", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_basedir']}}/modules-enabled", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_logdir']}}", state: directory, mode: "755"}
+  - {path: "{{vars['corpusops_services_http_nginx_doc_root']}}", state: directory, mode: "755"}
 corpusops_services_http_nginx_configs: null
 corpusops_services_http_nginx_configs_default:
   - {name: /etc/nginx/fastcgi_fpm_symfony.conf, mode: "0644"}
@@ -102,8 +102,8 @@ corpusops_services_http_nginx_server_names_hash_max_size: '1024'
 corpusops_services_http_nginx_loglevel: "crit"
 corpusops_services_http_nginx_ldap_cache: True
 corpusops_services_http_nginx_logdir: "/var/log/nginx"
-corpusops_services_http_nginx_access_log: "{{corpusops_services_http_nginx_logdir}}/access.log"
-corpusops_services_http_nginx_error_log: "{{corpusops_services_http_nginx_logdir}}/error.log"
+corpusops_services_http_nginx_access_log: "{{vars['corpusops_services_http_nginx_logdir']}}/access.log"
+corpusops_services_http_nginx_error_log: "{{vars['corpusops_services_http_nginx_logdir']}}/error.log"
 corpusops_services_http_nginx_tcp_nodelay: True
 corpusops_services_http_nginx_tcp_nopush: True
 corpusops_services_http_nginx_reset_timedout_connection: "on"
@@ -135,7 +135,7 @@ corpusops_services_http_nginx_status_allowed_ip: ["127.0.0.1", "192.168.0.0/16",
 corpusops_services_http_nginx_basedir: "/etc/nginx"
 corpusops_services_http_nginx_proxy_temp_path: "/var/lib/nginx/proxy"
 corpusops_services_http_nginx_cache_folder: "/var/lib/nginx/cache"
-corpusops_services_http_nginx_confdir: "{{corpusops_services_http_nginx_basedir}}/conf.d"
+corpusops_services_http_nginx_confdir: "{{vars['corpusops_services_http_nginx_basedir']}}/conf.d"
 corpusops_services_http_nginx_wwwdir: "/srv/www"
 corpusops_services_http_nginx_epoll: false
 corpusops_services_http_nginx_is_reverse_proxied: false

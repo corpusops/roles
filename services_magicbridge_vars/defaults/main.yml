@@ -1,4 +1,12 @@
 ---
+corpusops_services_magicbridge_cops_do_format_resolve: false
+corpusops_services_magicbridge_cops_computed_defaults: []
+corpusops_services_magicbridge_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_magicbridge_cops_sub_os_append: {}
+corpusops_services_magicbridge_cops_lowered: []
+corpusops_services_magicbridge_cops_knobs: ['files', 'services', 'filescopy', 'configs', 'packages']
+corpusops_services_magicbridge_cops_sub_namespaces:
+  settings: {}
 corpusops_services_magicbridge_activated: True
 corpusops_services_magicbridge_packages: null
 corpusops_services_magicbridge_packages_default: []

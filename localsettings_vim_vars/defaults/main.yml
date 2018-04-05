@@ -1,4 +1,13 @@
 ---
+corpusops_localsettings_vim_cops_do_format_resolve: false
+corpusops_localsettings_vim_cops_computed_defaults: []
+corpusops_localsettings_vim_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_vim_cops_sub_os_append: {}
+corpusops_localsettings_vim_cops_lowered: []
+corpusops_localsettings_vim_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages',
+                      'vims']
+corpusops_localsettings_vim_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_vim_packages: null
 corpusops_localsettings_vim_packages_default: [vim]
 corpusops_localsettings_vim_packages_debian: [vim-nox]

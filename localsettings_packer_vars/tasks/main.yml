@@ -3,21 +3,7 @@
     content: |-
       ---
       {% set prefix = 'corpusops_localsettings_packer_' %}
-      {% set flavors = ['ubuntu', 'debian', 'redhat', 'default'] %}
-      {% set knobs = ['mirror', 'repo', 'version',
-                      'configs', 'sources_lists', 'packages'] %}
-      {% set computed_defaults = [] %}
-      {% set lowered = [] %}
-      {% set sub_namespaced = {'settings': {}} %}
-      {% set namespaced = {} %}
-      {% set subos_append = {} %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(
-              prefix,
-              knobs=knobs, subos_append=subos_append,
-              lowered=lowered, computed_defaults=computed_defaults,
-              flavors=flavors, namespaced=namespaced, sub_namespaced=sub_namespaced)
-      %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
       {% set v = 'version' %}
       {% if namespaced[v] and (namespaced[v] not in namespaced[v+'s']) %}

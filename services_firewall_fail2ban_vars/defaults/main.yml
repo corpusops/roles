@@ -1,4 +1,20 @@
 ---
+corpusops_services_firewall_fail2ban_cops_do_format_resolve: false
+corpusops_services_firewall_fail2ban_cops_computed_defaults: []
+corpusops_services_firewall_fail2ban_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_firewall_fail2ban_cops_sub_os_append: {}
+corpusops_services_firewall_fail2ban_cops_lowered: []
+corpusops_services_firewall_fail2ban_cops_knobs: ['files', 'filescopy', 'configs', 'packages', 'services',
+                'repo_keys', 'repo_keys_url', 'repo',]
+corpusops_services_firewall_fail2ban_cops_sub_namespaces:
+  jails: {}
+  filters: {}
+  settings: {}
+  mail: {}
+  actions: {}
+  default_jails_opts: {}
+  default_filters_opts: {}
+  default_actions_opts: {}
 corpusops_services_firewall_fail2ban_activated: True
 corpusops_services_firewall_fail2ban_disabled: "{{not corpusops_services_firewall_fail2ban_activated}}"
 corpusops_services_firewall_fail2ban_repo_keys_url: null
@@ -50,15 +66,6 @@ corpusops_services_firewall_fail2ban_configs_redhat:
      owner: root, group: root, state: directory, mode: "0644"}
   - {name: "/etc/systemd/system/fail2ban.service",
      owner: root, group: root, state: directory, mode: "0644"}
-corpusops_services_firewall_fail2ban_cops_sub_namespaces:
-  jails: {}
-  filters: {}
-  settings: {}
-  mail: {}
-  actions: {}
-  default_jails_opts: {}
-  default_filters_opts: {}
-  default_actions_opts: {}
 corpusops_services_firewall_fail2ban_filters:
   wordpress:
     failregex: '^%(__prefix_line)sWordpress authentication failure for .* from <HOST>$'
@@ -74,7 +81,7 @@ corpusops_services_firewall_fail2ban_jails:
 corpusops_services_firewall_fail2ban_default_jail_opts:
   port: 'ssh'
   logpath: '/var/log/syslog'
-  banaction: "{banaction}"
+  banaction: "{{vars['corpusops_services_firewall_fail2ban_banaction']}}"
   maxretry: 5
   findtime: 600
   bantime: 600

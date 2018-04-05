@@ -1,4 +1,12 @@
 ---
+corpusops_localsettings_timezone_cops_do_format_resolve: false
+corpusops_localsettings_timezone_cops_computed_defaults: []
+corpusops_localsettings_timezone_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_timezone_cops_sub_os_append: {}
+corpusops_localsettings_timezone_cops_lowered: []
+corpusops_localsettings_timezone_cops_knobs:  ['timezone', 'configs', 'packages']
+corpusops_localsettings_timezone_cops_sub_namespaces:
+  settings: {}
 corpusops_localsettings_timezone_packages: null
 corpusops_localsettings_timezone_packages_default: [tzdata]
 corpusops_localsettings_timezone_configs: null
