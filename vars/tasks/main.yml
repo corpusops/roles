@@ -6,49 +6,19 @@
     ext_ip: "{{corpusops_network_get_ext_ip}}"
     ext_ip_value: "{{corpusops_network_live_ext_ip_value}}"
 - name: test service manager
+  environment:
+    PAGER: ""
+    LANG: C
+    LC_ALL: C
   shell: |
-    has_command() {
-        ret=1
-        if which which >/dev/null 2>/dev/null;then
-          if which "${@}" >/dev/null 2>/dev/null;then
-            ret=0
-          fi
-        else
-          if command -v "${@}" >/dev/null 2>/dev/null;then
-            ret=0
-          else
-            if hash -r "${@}" >/dev/null 2>/dev/null;then
-                ret=0
-            fi
-          fi
-        fi
-        return ${ret}
-    }
     cret=3
     if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc| /sbin\/init$";then
-     cret=0
+      exit 0
     fi
-    echo CRET1: $cret
-    if [ "x${cret}" != "x0" ];then
-      if has_command systemctl;then
-        if ! ( export LANG=C && ( \
-             systemctl status 2>&1 \
-             | egrep -q -i "Failed to connect to bus"; ); );then
-          echo NOSYSTEMDRUNNING
-          cret=1
-        else
-          echo SYSTEMDRUNNING
-          systemctl status >/dev/null 2>&1
-          sret=$?
-          if [ "x${sret}" = "x0" ];then
-           cret=0
-          fi
-        fi
-      else
-       cret=4
-      fi
+    if ( systemctl status {{corpusops_core_systemd_check_target}} 2>&1; );then
+      exit 0
     fi
-    exit ${cret}
+    exit 1
   failed_when: False
   changed_when: False
   register: cops_test_services_mgr

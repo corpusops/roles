@@ -50,8 +50,10 @@ def ext_ip():
     '''
     if os.environ.get('CORPUSOPS_SKIP_EXTIP', None):
         return None
-    check_ips = ('http://ipecho.net/plain',
-                 'http://v4.ident.me')
+    check_ips = (
+        'http://v4.ident.me',
+        'http://ipecho.net/plain',
+    )
     for url in check_ips:
         try:
             with contextlib.closing(urllib2.urlopen(url, timeout=3)) as req:

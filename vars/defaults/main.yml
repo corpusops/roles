@@ -46,6 +46,7 @@ corpusops_core_is_docker: null
 corpusops_core_is_container: null
 # has a service manager (sysv; docker, upstart) running
 corpusops_core_has_services_manager: null
+corpusops_core_systemd_check_target: basic.target
 
 # GPG servers
 corpusops_core_keyserver: keyserver.ubuntu.com
