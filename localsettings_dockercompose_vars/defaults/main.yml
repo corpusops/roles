@@ -1,6 +1,8 @@
 ---
-corpusops_localsettings_dockercompose_version: '1.16.1'
-corpusops_localsettings_dockercompose_crc: '1804b0ce6596efe707b9cab05d74b161833ed503f0535a937dd5d17bea8fc50a'
+# corpusops_localsettings_dockercompose_version: '1.16.1'
+# corpusops_localsettings_dockercompose_crc: '1804b0ce6596efe707b9cab05d74b161833ed503f0535a937dd5d17bea8fc50a'
+corpusops_localsettings_dockercompose_version: '1.20.1'
+corpusops_localsettings_dockercompose_crc: '11a6923c2a589b946598fe205c8f645e57f3f4ee153d3b7315b7e1993c1b2ad1.'
 corpusops_localsettings_dockercompose_verify_sha256: true
 corpusops_localsettings_dockercompose_bin: "docker-compose-{{corpusops_localsettings_dockercompose_platform}}-{{corpusops_localsettings_dockercompose_arch}}"
 corpusops_localsettings_dockercompose_filetest: ["{{corpusops_localsettings_dockercompose_bin}}"]
