@@ -1,14 +1,16 @@
 ---
-# then merge overrides and setup the registry and flatenned values
+# then merge overrides
 - name: "resolve overrides -part1- for {{cops_vars_registry_target}}"
   debug:
     var: "{{ cops_vars_registry_overrides }}"
   when: vars[cops_vars_registry_overrides] is defined
   register: cops_reg_overrides1
-  no_log: "{{not (cops_vars_debug|default(false))}}"
+  no_log: "{{not (cops_vars_registry_debug|default(false))}}"
+
+# setup the registry and set all flatenned values
 - name: "construct registry {{cops_vars_registry_target}}"
-  debug:
-    msg: |-
+  include_jinja_vars:
+    content: |-
       {% set target = cops_vars_registry_target %}
       {% set defaults = cops_vars_registry_defaults %}
       {% set knobs = cops_vars_registry_knobs %}
@@ -36,41 +38,8 @@
           flavors=flavors,
           subos_append=sos,
           overrides_prefix=o,
+          update=False,
           name_prefix=n) %}
-      {% set _ = res.update({
-          'cops_registry_2formatresolve': res.get(prefix+'cops_do_format_resolve')}) %}
       {{ res | to_json }}
   register: cops_registry_done
-  no_log: "{{not (cops_vars_debug|default(false))}}"
-
-- name: 2ndpass overrides resolve
-  include_jinja_vars:
-    name: cops_registry_done
-    content: "{{{'msg': cops_registry_done.msg}|to_json }}"
-
-- name: "Second pass after ansible rendering"
-  include_jinja_vars:
-    content: |
-      ---
-      {% set res = {} %}
-      {% set n = cops_vars_registry_name %}
-      {% set prefix = cops_vars_registry_prefix %}
-      {% set gs = cops_vars_registry_global_scope %}
-      {% if not gs %}
-      {%  set _ = res.update({n: cops_registry_done.msg}) %}
-      {% else %}
-      {%  set _ = res.update(cops_registry_done.msg) %}
-      {% endif %}
-      {% if cops_registry_done.msg.pop('cops_registry_2formatresolve', False) %}
-      {%  if not gs %}
-      {%   set _ = res[n].update(res[n]
-                                 | copsf_format_resolve(
-                                     res[n],
-                                     additional_namespaces=[vars])) %}
-      {%  else %}
-      {%   set _ = res|copsf_registry_and_defaults(n, vars) %}
-      {%   set _ = vars.update(res) %}
-      {%  endif %}
-      {% endif %}
-      {{ res | to_json }}
   no_log: "{{not (cops_vars_debug|default(false))}}"
