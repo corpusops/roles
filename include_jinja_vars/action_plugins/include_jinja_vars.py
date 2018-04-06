@@ -8,6 +8,8 @@ import re
 import datetime
 import chardet
 
+from ansible.utils.unsafe_proxy import AnsibleUnsafeText
+from ansible.parsing.yaml.objects import AnsibleUnicode
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.module_utils._text import to_native
 from ansible.plugins.action import ActionBase
@@ -87,6 +89,9 @@ class ActionModule(ActionBase):
     TRANSFERS_FILES = False
 
     def resolve(self, data, level=0):
+
+        resolved = True
+        changed = False
         if self.profile and not level:
             self.pr.enable()
         if self.debug_stack:
@@ -95,20 +100,34 @@ class ActionModule(ActionBase):
             not data or not isinstance(
                 data, (list, set, tuple, dict) + six.string_types)
         ):
-            return data
+            return data, resolved, changed
         if isinstance(data, (list, set, tuple)):
             items = []
             for i in data:
-                items.append(self.resolve(i, level+1))
+                val = self.resolve(i, level+1)
+                if resolved and not val[1]:
+                    resolved = False
+                items.append(val[0])
+                if val[2]:
+                    changed = True
             data = type(data)(items)
-        elif isinstance(data, dict):
+        elif isinstance(data, dict) and not data.get(
+            '_include_jinja_vars_skip', False
+        ):
             for item in [a for a in data]:
                 val = self.resolve(data.pop(item, None), level+1)
                 key = self.resolve(item, level+1)
-                data[key] = val
+                if resolved and not (key[1] and val[1]):
+                    resolved = False
+                if key[2] or val[2]:
+                    changed = True
+                data[key[0]] = val[0]
         elif isinstance(data, six.string_types):
             old_data = None
-            while is_jinja(data) and old_data != data:
+            data_is_jinja = is_jinja(data)
+            init = True
+            while data_is_jinja and (init or changed):
+                init = False
                 old_data = data
                 try:
                     data = self.cache[old_data]
@@ -116,10 +135,42 @@ class ActionModule(ActionBase):
                     data = self._templar.template(old_data)
                 if self.debug_stack:
                     self.stack.append(old_data)
-                self.cache[old_data] = data
+                changed = old_data != data
+                data_is_jinja = is_jinja(data)
+                if data_is_jinja:
+                    # if value is marked as AnsibleUnsafeText,
+                    # try to cast(resolve) it
+                    if self.unsafe_resolve and isinstance(
+                        data, AnsibleUnsafeText
+                    ):
+                        try:
+                            data, dr, changed = self.resolve(
+                                AnsibleUnicode(data))
+                            data_is_jinja = is_jinja(data)
+                        except Exception:
+                            pass
+                if changed and isinstance(
+                    data, (list, set, tuple, dict)
+                ):
+                    data, dr, _ = self.resolve(data, level=level+1)
+                    data_is_jinja = False
+                    if not dr:
+                        resolved = False
+                # remove any cached result from cache when unresolved
+                if data_is_jinja:
+                    for i in [a for a in self._templar._cached_result]:
+                        if (
+                            self._templar._cached_result[i] == data or
+                            self._templar._cached_result[i] == old_data
+                        ):
+                            self._templar._cached_result.pop(i, None)
+                else:
+                    self.cache[old_data] = data
+            if resolved and data_is_jinja:
+                resolved = False
         if self.profile and not level:
             self.pr.disable()
-        return data
+        return data, resolved, changed
 
     def _mutually_exclusive(self):
         dir_arguments = [
@@ -168,7 +219,7 @@ class ActionModule(ActionBase):
         """
         self.stack = []
         self.VALID_OPTIONS_ARGUMENTS = [
-            'cacheable', 'profile', 'debug_stack',
+            'cacheable', 'profile', 'debug_stack', 'unsafe_resolve',
         ]
         self.VALID_DIR_ARGUMENTS = [
             'dir', 'depth', 'files_matching', 'ignore_files'
@@ -219,6 +270,7 @@ class ActionModule(ActionBase):
 
         self.depth = self._task.args.get('depth', None)
         self.files_matching = self._task.args.get('files_matching', None)
+        self.unsafe_resolve = self._task.args.get('unsafe_resolve', True)
         self.ignore_files = self._task.args.get('ignore_files', None)
 
         self._mutually_exclusive()
@@ -461,7 +513,14 @@ class ActionModule(ActionBase):
         else:
             results.update(fdata)
             if results:
-                results = self.resolve(results)
+                resolved,  changed = False, True
+                while changed and not resolved:
+                    results, resolved, changed = self.resolve(results)
+                    self._templar._available_variables.update(results)
+                    if 'vars' in self._templar._available_variables:
+                        self._templar._available_variables['vars'].update(
+                            results)
+                    # print('\n\n C:{0} R:{1}\n\n'.format(changed, resolved))
         return failed, err_msg, results
 
     def _load_files_in_dir(self, root_dir, var_files):
