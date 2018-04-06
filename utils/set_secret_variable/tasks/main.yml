@@ -16,34 +16,34 @@
       | default('')))}}"
 - set_fact:
     cacheable: false
+    __cops_get_secret_variable_registry_prefix: "{{cops_get_secret_variable_registry_prefix}}"
+    __cops_get_secret_variable_name: "{{cops_get_secret_variable_registry_prefix
+             }}{{secretvariable.name|default(cops_get_secret_variable_name)}}"
+    __cops_get_secret_variable_sname: "{{secretvariable.name|default(cops_get_secret_variable_name)}}"
+- set_fact:
+    cacheable: false
     _cops_get_secret_variable:
       registry_prefix: "{{cops_get_secret_variable_registry_prefix}}"
       # cops_get_secret_variable_name: retrocompat
-      name: "{{cops_get_secret_variable_registry_prefix
-             }}{{secretvariable.name|default(cops_get_secret_variable_name)}}"
+      name: "{{__cops_get_secret_variable_name}}"
       # cops_get_secret_variable_path: retrocompat
       path: "{{secretvariable.path|default(cops_get_secret_variable_path|default(corpusops_vars.secrets_dir))}}"
+  register: lcops_get_secret_variable
 - block:
-  - name: "{{cops_get_secret_variable_registry_prefix[:-1]
-           }} Secret generation: {{cops_get_secret_variable_name}}"
+  - name: "{{__cops_get_secret_variable_registry_prefix[:-1]
+           }} Secret generation: {{__cops_get_secret_variable_name}}"
     include_role: {name: corpusops.roles/get_secret_variable}
     no_log: "not (cops_vars_debug|default(false))}}"
-    when: vars.get(cops_get_secret_variable_name, none) is none
-  - name: "{{cops_get_secret_variable_registry_prefix[:-1]
-           }} Update  with {{cops_get_secret_variable_name}}"
-    when: vars.get(cops_get_secret_variable_name, none) is not none
+    when: "vars.get(__cops_get_secret_variable_name, none) is none"
+  - name: "{{__cops_get_secret_variable_registry_prefix[:-1]
+           }} Update  with {{__cops_get_secret_variable_name}}"
+    when: "vars.get(__cops_get_secret_variable_name, none) is not none"
     include_jinja_vars:
       content: |
         ---
-        {% set p = cops_get_secret_variable_registry_prefix %}
-        {% set rp = '_{0}'.format(p[:-1]) %}
-        {% set ret = {rp: vars.get(rp, {}),
-                      p+'vars': vars.get(p+'vars', {})} %}
-        {% set v = vars.get(cops_get_secret_variable_name, none) %}
-
-        {% for i in ret %}
-        {% set _ = ret[i].update({cops_get_secret_variable_name: v}) %}
-        {% endfor %}
-        {% set _ = ret.update({cops_get_secret_variable_name: v}) %}
-        {{ ret | to_json }}
+        {% set p = __cops_get_secret_variable_registry_prefix %}
+        {% set ret = vars.get(p+'vars', {}) %}
+        {% set v = vars.get(__cops_get_secret_variable_name, none) %}
+        {% set _ = ret.update({__cops_get_secret_variable_sname: v}) %}
+        {{ (ret|copsf_update_registry(vars, p))[0] | to_json }}
     no_log: "{{not (cops_secret_vars_debug|default(false))}}"
