@@ -1131,12 +1131,20 @@ def registry_and_defaults(registry, prefix, ansible_vars, format_resolve=True):
     return registry, registry_defaults
 
 
+def update_registry(registry, ansible_vars, prefix, *a, **kw):
+    kw.setdefault('global_scope', True)
+    kw.setdefault('no_defaults', True)
+    return copsf_registry_to_vars(
+        registry, ansible_vars, prefix, *a, **kw)
+
+
 __funcs__ = {
     'copsf_registry_and_defaults': registry_and_defaults,
     'copsf_uniquify': uniquify,
     'copsf_cwd': copsf_cwd,
     'copsf_to_lower': copsf_to_lower,
     'copsf_format_val': copsf_format_val,
+    'copsf_update_registry': update_registry,
     'copsf_registry_to_vars': copsf_registry_to_vars,
     'copsf_registry': copsf_registry,
     'copsf_scoped_registry': copsf_scoped_registry,
