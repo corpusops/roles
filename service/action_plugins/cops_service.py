@@ -61,10 +61,15 @@ class ActionModule(ActionBase):
                          self._shared_loader_obj)
                 self._ah = self._shared_loader_obj.action_loader.get(
                     'cops_actionhelper', *margs)
-                ret = self._ah.exec_command(
-                    'systemctl --no-pager is-system-running')
                 # if connection to dbus is possible, systemd is running somehow
-                if DBUS_RE.search(ret['stderr']):
+                ret1 = self._ah.exec_command(
+                    'systemctl --no-pager is-system-running')
+                # test also if systemctl has been diverted
+                ret2 = self._ah.exec_command(
+                    'systemctl --no-pager --version 2>&1')
+                if DBUS_RE.search(ret1['stderr']) or (
+                    ret2['rc'] == 0 and 'systemd' not in ret2['stdout'].lower()
+                ):
                     module = 'cops_systemd'
             # run the 'service' module
             if 'use' in new_module_args:
