@@ -32,8 +32,8 @@ corpusops_services_db_postgresql_packages: null
 corpusops_services_db_postgresql_packages_default:
   - 'libpq-dev'
   - "postgresql-{{vars['corpusops_services_db_postgresql_version']}}"
-  - "postgresql-server-dev-{{vars['corpusops_services_db_postgresql_version']}}"
   - "postgresql-{{vars['corpusops_services_db_postgresql_version']}}-pgextwlist"
+  - "postgresql-server-dev-{{vars['corpusops_services_db_postgresql_version']}}"
   - "postgresql-contrib-{{vars['corpusops_services_db_postgresql_version']}}"
 corpusops_services_db_postgresql_services: null
 corpusops_services_db_postgresql_group: postgres
@@ -129,4 +129,4 @@ corpusops_services_db_postgresql_pg_hba:
      'user': 'all',
      'address': '0.0.0.0/0',
      'method': 'md5'}
-corpusops_services_db_postgresql_disable_cluster_creation: "{{ansible_virtualization_type in ['docker']}}"
+corpusops_services_db_postgresql_disable_cluster_creation: "{{ansible_virtualization_type.lower() in ['docker']}}"

@@ -1,4 +1,33 @@
 ---
+- name: "update & install pgsql-common (debian)"
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'])"
+  with_items: [postgresql-common]
+- name: "update & install pgsql-common (redhat)"
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'])"
+  with_items: [postgresql-common]
+- name: maybe disable cluster creation
+  shell: |
+    if [ -e /etc/postgresql-common/createcluster.conf ] && (
+       egrep -q '#?(create_main_cluster) ' \
+       /etc/postgresql-common/createcluster.conf; );then
+      sed -i -re "s/#?(create_main_cluster) .*$/\1 = false/" \
+        /etc/postgresql-common/createcluster.conf &&\
+        echo changedcreatecluster >&2
+    fi
+  when: "corpusops_services_db_postgresql_vars.disable_cluster_creation"
+  register: _corpusops_services_db_postgresql_createclus
+  changed_when: "'changedcreatecluster' in _corpusops_services_db_postgresql_createclus.stderr"
+#
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -47,6 +76,7 @@
           corpusops_services_db_postgresql_vars.packages is not none and
           corpusops_services_db_postgresql_vars.packages|length > 0)"
   with_items: "{{corpusops_services_db_postgresql_vars.packages}}"
+#
 - group:
     name: "{{corpusops_services_db_postgresql_vars.group}}"
     system: yes
@@ -61,5 +91,6 @@
 - set_fact:
     cacheable: false
     corpusops_services_db_postgresql_prequisites_changed: "{{(
-         corpusops_services_db_postgresql_pkgst
+         corpusops_services_db_postgresql_pkgst or
+         corpusops_services_db_postgresql_ppkgst
        )}}"
