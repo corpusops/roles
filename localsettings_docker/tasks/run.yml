@@ -89,6 +89,9 @@
 # (SNI madness, look at me)
 - name: install python pre - prerequisites
   shell: |
+    {% if ansible_env.get('TRAVIS', '')  %}
+    set -x
+    {% endif %}
     py="{{ansible_python.executable}}"
     pip="{{corpusops_localsettings_docker_vars.pip}}"
     $py -c 'import setuptools' || $py $pip install setuptools
