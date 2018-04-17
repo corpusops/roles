@@ -5,17 +5,23 @@
   register: corpusops_services_db_postgis_can_run
   tags: [corpusops_services_db_postgis]
 - include_tasks: prerequisites.yml
-  when: 'corpusops_services_db_postgis_can_run.msg == True'
+  when:
+  - 'corpusops_services_db_postgis_can_run.msg == True'
+  - "corpusops_services_db_postgis_do_prerequisistes|default(true)"
   tags: [corpusops_services_db_postgis,
          postgis_prerequisites,
          corpusops_services_db_postgis_prerequisites]
 - include_tasks: configuration.yml
-  when: 'corpusops_services_db_postgis_can_run.msg == True'
+  when:
+  - 'corpusops_services_db_postgis_can_run.msg == True'
+  - "corpusops_services_db_postgis_do_configuration|default(true)"
   tags: [corpusops_services_db_postgis,
          postgis_configuration,
          corpusops_services_db_postgis_configuration]
 - include_tasks: postgis.yml
-  when: 'corpusops_services_db_postgis_can_run.msg == True'
+  when:
+  - 'corpusops_services_db_postgis_can_run.msg == True'
+  - "corpusops_services_db_postgis_do_postgis|default(true)"
   tags: [corpusops_services_db_postgis,
          postgis_postgis,
          corpusops_services_db_postgis_postgis]
