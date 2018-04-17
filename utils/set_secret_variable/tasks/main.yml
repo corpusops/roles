@@ -11,13 +11,15 @@
     cacheable: false
     cops_get_secret_variable_registry_prefix: "{{
       secretvariable.registry_prefix
-      | default(cops_get_secret_variable_registry_prefix
       | default(cops_secret_variable_registry_prefix
+      | default(cops_get_secret_variable_registry_prefix
       | default('')))}}"
 - set_fact:
     cacheable: false
     __cops_get_secret_variable_registry_prefix: "{{cops_get_secret_variable_registry_prefix}}"
-    __cops_get_secret_variable_name: "{{cops_get_secret_variable_registry_prefix
+- set_fact:
+    cacheable: false
+    __cops_get_secret_variable_name: "{{__cops_get_secret_variable_registry_prefix
              }}{{secretvariable.name|default(cops_get_secret_variable_name)}}"
     __cops_get_secret_variable_sname: "{{secretvariable.name|default(cops_get_secret_variable_name)}}"
 - set_fact:
