@@ -20,7 +20,6 @@
     name: "{{item}}"
   with_items: "{{corpusops_services_db_postgresql_vars.services}}"
   tags: corpusops_services_db_postgresql
-  when: "corpusops_vars.has_services_manager"
 # with debian cluster mgmnt, verify our pg is really up
 # and die otherwise
 - shell: |
@@ -49,8 +48,7 @@
   with_items: "{{cops_pg_service}}"
   tags: corpusops_services_db_postgresql
   when: |
-    (corpusops_vars.has_services_manager and
-     cops_pg_service|copsf_asbool and
+    (cops_pg_service|copsf_asbool and
      cops_pg_service_test.rc !=0)
 # bail out if restart of specific cluster failed
 - shell: "systemctl status {{cops_pg_service}}"

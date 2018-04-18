@@ -17,4 +17,4 @@
   when: "(corpusops_services_base_cron_vars.activated and
           corpusops_vars.has_services_manager and
           (ansible_service_mgr != 'systemd'))"
-  tags: corpusops_services_base_cron 
+  tags: corpusops_services_base_cron
