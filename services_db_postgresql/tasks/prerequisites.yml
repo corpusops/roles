@@ -1,4 +1,6 @@
 ---
+- include_role: {name: corpusops.roles/services_db_postgresql_pkgmgr}
+- include_role: {name: corpusops.roles/services_db_postgresql_client}
 - name: "update & install pgsql-common (debian)"
   package:
     cache_valid_time: '{{60*60}}'

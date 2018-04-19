@@ -13,8 +13,3 @@ galaxy_info:
     - all
 dependencies:
 - role: corpusops.roles/services_db_postgresql_vars
-  tags: [corpusops_postgresql_role]
-- role: corpusops.roles/services_db_postgresql_pkgmgr
-  tags: [corpusops_postgresql_pkgmgrd_role]
-- role: corpusops.roles/services_db_postgresql_client
-  tags: [corpusops_postgresql_clientd_role]
