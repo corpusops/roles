@@ -15,7 +15,7 @@
     if ls -l /proc/1/exe | egrep -iq "upstart|system.?d|open.?rc| /sbin\/init$";then
       exit 0
     fi
-    if ( systemctl status {{corpusops_core_systemd_check_target}} 2>&1; );then
+    if ( systemctl status --no-pager {{corpusops_core_systemd_check_target}} 2>&1 | grep -iq target; );then
       exit 0
     fi
     exit 1
