@@ -91,9 +91,14 @@
   shell: |
     py="{{ansible_python.executable}}"
     pip="{{corpusops_localsettings_docker_vars.pip}}"
+    if ( $py $pip install --help 2>&1|egrep -iq -- --no-binary; );then
+      nb="--no-binary :all:"
+    else
+      nb="--no-use-wheel"
+    fi
     $py -c 'import setuptools' || $py $pip install setuptools
     $py $pip install \
-    {{corpusops_localsettings_docker_vars.pip_args}} \
+    {{corpusops_localsettings_docker_vars.pip_args}} ${nb}\
     {{corpusops_localsettings_docker_vars.py_packages
       |join(' ')}}
   changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
