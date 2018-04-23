@@ -40,6 +40,7 @@ corpusops_services_php_fpm_configs_default:
      group: 'root',
      mode: '0644'}
 corpusops_services_php_fpm_default_pool_name: www
+corpusops_services_php_fpm_default_pool_socket: "/run/php/php{{corpusops_localsettings_php_vars.version}}-fpm.sock"
 corpusops_services_php_fpm_default_pool_template: "../templates/default_pool.conf"
 corpusops_services_php_fpm_user: "{{corpusops_localsettings_php_vars.user}}"
 corpusops_services_php_fpm_config: "{{corpusops_localsettings_php_vars.etcdir}}/fpm/php-fpm.conf"
