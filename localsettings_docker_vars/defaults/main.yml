@@ -24,7 +24,7 @@ corpusops_localsettings_docker_keyserver: "hkp://p80.pool.sks-keyservers.net:80"
 corpusops_localsettings_docker_repo_debian: "{% set d = ansible_distribution_release.lower()%}{% if d in ['bionic'] %}{% set d='artful'%}{%endif%}deb [arch=amd64] https://download.docker.com/linux/{{ansible_distribution.lower()}} {{d}} stable edge"
 corpusops_localsettings_docker_repo_redhat: 'https://download.docker.com/linux/centos/docker-ce.repo'
 corpusops_localsettings_docker_repo_fedora: 'https://download.docker.com/linux/fedora/docker-ce.repo'
-corpusops_localsettings_docker_py_packages: ['docker[tls]']
+corpusops_localsettings_docker_py_packages: ["https://github.com/corpusops/docker-py/archive/ddcca89aceaaf13c4c74fe81bf9323b8018b004d.zip#egg=docker[tls]"]
 corpusops_localsettings_docker_packages: null
 corpusops_localsettings_docker_packages_default: [
   python-pip, docker-ce]
@@ -35,4 +35,4 @@ corpusops_localsettings_docker_filescopy_default: []
 corpusops_localsettings_docker_configs: null
 corpusops_localsettings_docker_configs_default: []
 corpusops_localsettings_docker_pip: "$(which pip)"
-corpusops_localsettings_docker_pip_args: "-U --ignore-installed"
+corpusops_localsettings_docker_pip_args: "-U --ignore-installed --no-binary :all:"

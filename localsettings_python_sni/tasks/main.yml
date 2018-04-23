@@ -38,8 +38,8 @@
       pip=/usr/bin/pip
       if ! ( $py -c "$imports" );then
         $py $pip install -U --force setuptools &&\
-        $py $pip install -U --no-use-wheel pip &&\
-          $py $pip install -U\
+        $py $pip install -U --no-binary :all: pip &&\
+          $py $pip install -U --no-binary :all:\
             backports.ssl_match_hostname urllib3 \
             pyopenssl ndg-httpsclient pyasn1 &&\
           echo "changed=yes" >&2
