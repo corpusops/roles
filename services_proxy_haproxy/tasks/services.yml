@@ -11,6 +11,7 @@
     corpusops_services_proxy_haproxy_service_state: "{{corpusops_services_proxy_haproxy_service_state.strip()}}"
 - shell: systemctl daemon-reload
   when: "(corpusops_services_proxy_haproxy_vars.activated and
+          corpusops_vars.has_services_manager and
           (ansible_service_mgr == 'systemd'))"
 - name: service
   cops_service:
