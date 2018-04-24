@@ -16,7 +16,7 @@
           (ansible_distribution.lower() == 'ubuntu' and
            ((ansible_distribution_major_version|copsf_looseversion)
             < ('15'|copsf_looseversion))) or
-          (ansible_distribution.lower() == 'linuxmint' and
+          (ansible_lsb and ansible_lsb.id.lower() == 'linuxmint' and
            ((ansible_distribution_major_version|copsf_looseversion)
             < ('18'|copsf_looseversion)))
          )"
@@ -60,7 +60,7 @@
          (ansible_distribution.lower() == 'ubuntu' and
           ((ansible_distribution_major_version|copsf_looseversion)
            < ('15'|copsf_looseversion))) or
-          (ansible_distribution.lower() == 'linuxmint' and
+          (ansible_lsb and ansible_lsb.id.lower() == 'linuxmint' and
            ((ansible_distribution_major_version|copsf_looseversion)
            < ('18'|copsf_looseversion)))
         )"
