@@ -60,7 +60,7 @@
          (ansible_distribution.lower() == 'ubuntu' and
           ((ansible_distribution_major_version|copsf_looseversion)
            < ('15'|copsf_looseversion))) or
-          (vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint') and
+         ((vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint') and
            ((ansible_distribution_major_version|copsf_looseversion)
            < ('18'|copsf_looseversion)))
         )"
