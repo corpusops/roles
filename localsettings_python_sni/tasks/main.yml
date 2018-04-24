@@ -15,7 +15,11 @@
 - when: "((ansible_os_family.lower() in ['redhat']) or
           (ansible_distribution.lower() == 'ubuntu' and
            ((ansible_distribution_major_version|copsf_looseversion)
-            < ('15'|copsf_looseversion))))"
+            < ('15'|copsf_looseversion))) or
+          (ansible_distribution.lower() == 'linuxmint' and
+           ((ansible_distribution_major_version|copsf_looseversion)
+            < ('18'|copsf_looseversion)))
+         )"
   block:
   - name: install pre - prerequisites
     package:
@@ -52,9 +56,14 @@
     with_items: ["{{ansible_python.executable}}"]
     register: cops_oldubuntu_backport_sni
     changed_when: '"changed=yes" in cops_oldubuntu_backport_sni.stderr'
-- when: "not (ansible_distribution.lower() == 'ubuntu' and
+- when: "not (
+         (ansible_distribution.lower() == 'ubuntu' and
           ((ansible_distribution_major_version|copsf_looseversion)
-           < ('15'|copsf_looseversion)))"
+           < ('15'|copsf_looseversion))) or
+          (ansible_distribution.lower() == 'linuxmint' and
+           ((ansible_distribution_major_version|copsf_looseversion)
+           < ('18'|copsf_looseversion)))
+        )"
   block:
   - name: install pre - prerequisites
     package:
