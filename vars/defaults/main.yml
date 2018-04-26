@@ -79,6 +79,7 @@ corpusops_core_config_dir: /etc
 corpusops_core_secrets_dir: "{{vars['corpusops_core_config_dir']}}/secrets"
 corpusops_core_ssl_config_dir: "{{vars['corpusops_core_config_dir']}}/ssl"
 corpusops_core_ssl_dir: "{{vars['corpusops_core_ssl_config_dir']}}"
+corpusops_core_ssl_update_certs: "{{vars['corpusops_core_usr_dir']}}/local/share/ca-certificates"
 
 # log rotation opts
 corpusops_core_rotate_days: 365
@@ -139,4 +140,4 @@ corpusops_network_settings_interfaces: {}
 corpusops_network_settings_ointerfaces: []
 # - {br0: {gateway: 192.168.1.1}}
 # Does the network base config file have to be managed via that
-ucorpusops_network_settings_managed: false
+corpusops_network_settings_managed: false
