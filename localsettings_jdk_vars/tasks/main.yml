@@ -1,10 +1,18 @@
 ---
 - include_jinja_vars:
+    content: |
+      ---
+      {% set prefix = 'corpusops_localsettings_jdk_' %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {{ snamespaced | to_json}}
+  tags: [corpusops_vars, corpusops_localsettings_jdk_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+# we run it twice, as second time, we use python's format
+- include_jinja_vars:
     content: |-
       ---
       {% set prefix = 'corpusops_localsettings_jdk_' %}
-      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-      {% set namespaced = snamespaced[prefix+'vars'] %}
+      {% set namespaced = vars[prefix+'vars'] %}
 
       {% set arch = namespaced['arch'] %}
       {% set aarch = arch == 'amd64' and 'x64' or arch %}
@@ -87,7 +95,7 @@
       {%   if itm.get('url', None)%}{% set _ = urls.update({i: itm})%}{%endif%}
       {% endfor%}
 
-      {{ (snamespaced[prefix+'vars']
+      {{ (namespaced
            | copsf_registry_to_vars(
                vars, prefix, global_scope=True)
              )[0] | to_json}}

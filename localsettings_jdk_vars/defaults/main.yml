@@ -13,7 +13,7 @@ corpusops_localsettings_jdk_headers:
   default: >-
     Cookie:oraclelicense=accept-securebackup-cookie
 corpusops_localsettings_jdk_system_prefix: "/usr/lib/jvm/java-{{vars['corpusops_localsettings_jdk_version']}}-oracle"
-corpusops_localsettings_jdk_local_prefix: "/opt/jdk-{{vars['corpusops_localsettings_jdk_version']}}-{flavor}"
+corpusops_localsettings_jdk_local_prefix: "/opt/jdk-{{vars['corpusops_localsettings_jdk_version']}}-{{vars['corpusops_localsettings_jdk_flavor']}}"
 corpusops_localsettings_jdk_repo: null
 corpusops_localsettings_jdk_repo_ubuntu: 'ppa:webupd8team/java'
 corpusops_localsettings_jdk_packages_default: []
@@ -186,7 +186,7 @@ corpusops_localsettings_jdk_bins:
        }}
   mozilla-javaplugin.so: {name: 'jre/lib/{arch}/libnpjp2.so'}
 corpusops_localsettings_jdk_flavors: []
-corpusops_localsettings_jdk_flavor: 'linux-{arch}'
+corpusops_localsettings_jdk_flavor: "linux-{{vars['corpusops_localsettings_jdk_arch']}}"
 corpusops_localsettings_jdk_arch: 'amd64'
 corpusops_localsettings_jdk_aarch: 'x64'
 
