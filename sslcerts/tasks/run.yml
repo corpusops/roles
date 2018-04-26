@@ -1,0 +1,33 @@
+---
+# create certs & keys containers
+- include_tasks: _dirs.yml
+  register:  cops_sslcerts_dirs
+# add configured certs
+- include_tasks: _manage.yml
+  with_dict: "{{cops_sslcerts_vars.added}}"
+  vars: {state: present}
+  loop_control: {loop_var: subitem}
+  tags: [sslcerts, sslcerts_add]
+  register:  cops_sslcerts_added_ret
+# remove configured to be deleted certs
+- include_tasks: _manage.yml
+  with_dict: "{{cops_sslcerts_vars.removed}}"
+  vars: {state: absent}
+  loop_control: {loop_var: subitem}
+  tags: [sslcerts, sslcerts_remove]
+  register:  cops_sslcerts_removed_ret
+- set_fact:
+   cacheable: false
+   cops_sslcerts_changed: "{{(cops_sslcerts_ct_configs_changed or
+                              cops_sslcerts_configs_changed or
+                              cops_sslcerts_haproxy_configs_changed)}}"
+- when: "(cops_sslcerts_do_upcerts and cops_sslcerts_changed)"
+  shell: update-ca-certificates
+- when: "(cops_sslcerts_do_haproxy and cops_sslcerts_changed)"
+  block:
+  - shell: service haproxy status
+    register: _cops_sslcert_hstatus
+    failed_when: false
+  - when: "(corpusops_vars.has_services_manager and
+            _cops_sslcert_hstatus.rc == 0)"
+    cops_service: {name: haproxy, state: reloaded}

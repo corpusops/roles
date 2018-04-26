@@ -60,6 +60,7 @@
       {% set corpusops_services_proxy_haproxy        = corpusops_services_proxy_haproxy         | default(False) %}
       {% set corpusops_services_virt_docker          = corpusops_services_virt_docker           | default(False) %}
       {% set corpusops_services_virt_lxc             = corpusops_services_virt_lxc              | default(False) %}
+      {% set corpusops_sslcerts                      = corpusops_sslcerts                        | default(True) %}
       {% set corpusops_sshkeys                       = corpusops_sshkeys                        | default(True) %}
       {% set corpusops_localsettings_dns_servers     = corpusops_localsettings_dns_servers      | default([]) %}
       {% set corpusops_localsettings_dns_search      = corpusops_localsettings_dns_search       | default([]) %}
@@ -127,6 +128,7 @@
       provision_corpusops_services_virt_docker: {{ corpusops_services_virt_docker }}
       provision_corpusops_services_virt_lxc: {{ corpusops_services_virt_lxc }}
       provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
+      provision_corpusops_sslcerts: {{ corpusops_sslcerts }}
   tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - include_role: {name: corpusops.roles/sshkeys}
   tags: sshkeys
@@ -296,3 +298,6 @@
 - include_role: {name: corpusops.roles/services_proxy_haproxy}
   tags: haproxy
   when: provision_corpusops_services_proxy_haproxy
+- include_role: {name: corpusops.roles/sslcerts}
+  tags: sslcerts
+  when: provision_corpusops_sslcerts

@@ -1,0 +1,82 @@
+---
+- register: cops_configs_templatesl
+  debug:
+    msg: |-
+      {% set res = [] %}
+      {% for i in cops_sslcerts_crts_dirs %}
+      {%  set _ = res.append({
+        'name': (i+'/'+subitem.key+'.crt').replace('*', 'star'),
+        'mode': cops_sslcerts_vars.public_fmode,
+        'owner': 'root',
+        'group': 'root',
+        'template': '../templates/cert.crt',
+         'state': state})%}
+      {% endfor %}
+      {% for i in cops_sslcerts_update_ca_certificates_dirs %}
+      {%  set _ = res.append({
+        'name': (i+'/'+subitem.key+'.crt').replace('*', 'star'),
+        'mode': cops_sslcerts_vars.public_fmode,
+        'owner': 'root',
+        'group': 'root',
+        'template': '../templates/upcert.crt',
+         'state': state})%}
+      {% endfor %}
+      {% for i in cops_sslcerts_keys_dirs %}
+      {%  set _ = res.append({
+        'name': (i+'/'+subitem.key+'.key').replace('*', 'star'),
+        'mode': cops_sslcerts_vars.private_fmode,
+        'owner': 'root',
+        'group': 'root',
+        'template': '../templates/key.crt',
+        'state': state})%}
+      {% endfor %}
+      {{ res | to_json }}
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: []
+    cops_configs_copys: []
+    cops_configs_templates: "{{cops_configs_templatesl.msg}}"
+- set_fact:
+    cacheable: false
+    cops_sslcerts_filest: "{{cops_configs_files_results}}"
+    cops_sslcerts_filesct: "{{cops_configs_copys_results}}"
+    cops_sslcerts_configst: "{{cops_configs_templates_results}}"
+- set_fact:
+    cacheable: false
+    cops_sslcerts_configs_changed: true
+  when: "(cops_sslcerts_filest  |changed or
+          cops_sslcerts_filesct |changed or
+          cops_sslcerts_configst|changed)"
+- when: "cops_sslcerts_do_haproxy"
+  block:
+  - register: cops_configs_templatesl
+    debug:
+       msg: |-
+        {% set res = [] %}
+        {% for i in cops_sslcerts_vars.haproxy_paths %}
+        {%  set _ = res.append({
+          'name': (i+'/'+subitem.key+'.crt').replace('*', 'star'),
+          'mode': cops_sslcerts_vars.private_fmode,
+          'owner': cops_sslcerts_vars.haproxy_user,
+          'group': cops_sslcerts_vars.haproxy_group,
+          'template': '../templates/haproxy.crt',
+          'state': state}) %}
+        {% endfor %}
+        {{ res | to_json }}
+    cops_configs_templates: "{{cops_configs_templatesl.msg}}"
+  - include_role: {name: corpusops.roles/configs, private: true}
+    vars:
+      cops_configs_files: []
+      cops_configs_copys: []
+      cops_configs_templates: "{{cops_configs_templatesl.msg}}"
+  - set_fact:
+      cacheable: false
+      cops_sslcerts_haproxy_filest: "{{cops_configs_files_results}}"
+      cops_sslcerts_haproxy_filesct: "{{cops_configs_copys_results}}"
+      cops_sslcerts_haproxy_configst: "{{cops_configs_templates_results}}"
+  - set_fact:
+      cacheable: false
+      cops_sslcerts_haproxy_configs_changed: "{{(
+        cops_sslcerts_haproxy_filest|changed or
+        cops_sslcerts_haproxy_filesct|changed or
+        cops_sslcerts_haproxy_configst|changed)}}"

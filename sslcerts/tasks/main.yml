@@ -1,0 +1,32 @@
+---
+- name: "corpusops_sslcerts preflight check - SKIPTEST"
+  debug: {msg: "{{corpusops_sslcerts | default(True) }}"}
+  register: corpusops_sslcerts_can_run
+  tags: sslcerts
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
+- include_role: {name: corpusops.roles/vars_registry}
+  vars: {cops_vars_registry_target: cops_sslcerts}
+  tags: [sslcerts, vars]
+  when: "corpusops_sslcerts_can_run.msg == True"
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- shell: update-ca-certificates
+  register: _cops_sslcert_hasupcerts_t
+  failed_when: false
+  changed_when: false
+  when: "corpusops_sslcerts_can_run.msg == True"
+- shell: haproxy -v
+  register: _cops_sslcert_hashaproxy_t
+  failed_when: false
+  changed_when: false
+  when: "corpusops_sslcerts_can_run.msg == True"
+- set_fact:
+    cacheable: false
+    cops_sslcerts_do_upcerts: "{{(cops_sslcerts_vars.update_ca_certificates and
+                                  (_cops_sslcert_hasupcerts_t.rc == 0))}}"
+    cops_sslcerts_do_haproxy: "{{(cops_sslcerts_vars.install_haproxy and
+                                  (_cops_sslcert_hashaproxy_t.rc == 0))}}"
+    cops_sslcerts_configs_changed: false
+  when: "corpusops_sslcerts_can_run.msg == True"
+- include_tasks: run.yml
+  tags: [sslcerts, sslcerts_run]
+  when: "corpusops_sslcerts_can_run.msg == True"

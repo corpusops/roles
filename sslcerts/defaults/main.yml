@@ -1,0 +1,21 @@
+---
+cops_sslcerts_added: {}
+cops_sslcerts_removed: {}
+cops_sslcerts_install_haproxy: true
+cops_sslcerts_update_ca_certificates: true
+cops_sslcerts_crts_dirs:
+- "{{corpusops_vars.ssl_config_dir}}/cloud/certs"
+cops_sslcerts_keys_dirs:
+- "{{corpusops_vars.ssl_config_dir}}/cloud/private"
+cops_sslcerts_update_ca_certificates_dirs:
+- "{{corpusops_vars.ssl_update_certs}}"
+cops_sslcerts_haproxy_paths:
+- "{{corpusops_services_proxy_haproxy_crt_dir}}"
+cops_sslcerts_user: root
+cops_sslcerts_group: root
+cops_sslcerts_haproxy_user: "{{corpusops_services_proxy_haproxy_vars.user}}"
+cops_sslcerts_haproxy_group: "{{corpusops_services_proxy_haproxy_vars.group}}"
+cops_sslcerts_public_fmode: "0644"
+cops_sslcerts_private_fmode: "0640"
+cops_sslcerts_public_dmode: "0755"
+cops_sslcerts_private_dmode: "0751"

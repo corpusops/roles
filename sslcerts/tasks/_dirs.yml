@@ -1,0 +1,48 @@
+---
+# create certs & keys containers
+- register: cops_configs_filesl
+  debug:
+     msg: |-
+      {% set res = [] %}
+      {% for i in (cops_sslcerts_crts_dirs +
+                   cops_sslcerts_update_ca_certificates_dirs) %}
+      {%  set _ = res.append({
+          'name': i,
+          'owner': cops_sslcerts_vars.user,
+          'group': cops_sslcerts_vars.group,
+          'state': 'directory',
+          'mode': cops_sslcerts_vars.public_dmode}) %}
+      {% endfor%}
+      {%  for i in cops_sslcerts_vars.haproxy_paths if cops_sslcerts_do_haproxy %}
+      {%  set _ = res.append({
+          'name': i,
+          'owner': cops_sslcerts_vars.haproxy_user,
+          'group': cops_sslcerts_vars.haproxy_group,
+          'state': 'directory',
+          'mode': cops_sslcerts_vars.private_dmode}) %}
+      {% endfor%}
+      {%  for i in cops_sslcerts_vars.keys_dirs %}
+      {%  set _ = res.append({
+          'name': i,
+          'owner': cops_sslcerts_vars.user,
+          'group': cops_sslcerts_vars.group,
+          'state': 'directory',
+          'mode': cops_sslcerts_vars.private_dmode}) %}
+      {% endfor%}
+      {{ res | to_json }}
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{cops_configs_filesl.msg}}"
+    cops_configs_templates: []
+    cops_configs_copys: []
+- set_fact:
+    cacheable: false
+    cops_sslcerts_ct_filest: "{{cops_configs_files_results}}"
+    cops_sslcerts_ct_filesct: "{{cops_configs_copys_results}}"
+    cops_sslcerts_ct_configst: "{{cops_configs_templates_results}}"
+- set_fact:
+    cacheable: false
+    cops_sslcerts_ct_configs_changed: "{{(
+      cops_sslcerts_ct_filest|changed or
+      cops_sslcerts_ct_filesct|changed or
+      cops_sslcerts_ct_configst|changed)}}"

@@ -1,0 +1,5 @@
+---
+allow_duplicates: yes
+dependencies:
+- corpusops.roles/vars
+- corpusops.roles/services_proxy_haproxy_vars
