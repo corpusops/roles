@@ -23,6 +23,9 @@
                     archive_vars.urls.verify_sha1|default(False)|d and crc),
                   'verify_sha256': (
                     archive_vars.urls.verify_sha256|default(False)|d and crc)} %}
+    {% if not install_one_filet.results %}
+    {%   set _ = ret.update({'done': False}) %}
+    {% endif %}
     {% for i in install_one_filet.results %}
     {%  if not i.stat.exists %}
     {%   set _ = ret.update({'done': False}) %}
