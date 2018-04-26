@@ -131,15 +131,14 @@
           not corpusops_uo_tests.msg.verify_sha1 and
           not corpusops_uo_tests.msg.verify_sha256)"
   changed_when: false
-
 - name: GPG check if any
   shell: |
     gpg_() { export LANG=C; export LC_ALL=C; gpg ${@}; };
     if ! ( gpg_ -q --batch --verify \
               "{{archive_vars.app_path}}/crcs" \
-              "{{archive_vars.app_path}}/{{archive_vars.archive}}"; );then
-      if [ -e "{{archive}}" ];then
-        echo rm -f "{{archive_vars.app_path}}/{{archive_vars.archive}}";
+              "{{archive_vars.app_path}}/{{archive_basename}}"; );then
+      if [ -e "{{archive_vars.app_path}}/{{archive_basename}}" ];then
+        echo rm -f "{{archive_vars.app_path}}/{{archive_basename}}";
       fi;
       echo "archive verification failed" >&2;
       exit 1;
