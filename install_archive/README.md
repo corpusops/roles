@@ -17,7 +17,6 @@
   vars:
     archive:
       filetest: [bin/app]
-      archive: "app-{{item}}.tgz"
       app_path: "/opt/app-{{item}}"
       urls:
         archive_crc: "https://app-{{item}}.shasums"
@@ -29,7 +28,6 @@
   vars:
     archive:
       filetest: [bin/app]
-      archive: "app-{{item}}.tgz"
       app_path: "/opt/app-{{item}}"
       urls:
         archive_crc: "XXX_SuperHash0123456789"
@@ -53,7 +51,6 @@
   vars:
     archive:
       filetest: [bin/app]
-      archive: "app-{{item}}.tgz"
       app_path: "/opt/app-{{item}}"
       urls:
         archive_crc: "https://app.asc"
