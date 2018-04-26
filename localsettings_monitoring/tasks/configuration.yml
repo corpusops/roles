@@ -30,6 +30,10 @@
       corpusops_localsettings_monitoring_filest: "{{cops_configs_files_results}}"
       corpusops_localsettings_monitoring_filesct: "{{cops_configs_copys_results}}"
       corpusops_localsettings_monitoring_configst: "{{cops_configs_templates_results}}"
+- name: monitoring script container
+  file:
+    path: "{{corpusops_localsettings_monitoring_vars.scripts_dir}}"
+    state: directory
 - synchronize:
     src: ../files/
     dest: "{{corpusops_localsettings_monitoring_vars.scripts_dir}}/"
