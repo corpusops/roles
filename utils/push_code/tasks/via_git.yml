@@ -109,6 +109,9 @@
             rsync -azv "{{cops_sync_code_push_code_git_twc}}/modules/" .git/modules/
           fi
           git reset --hard "{{cops_sync_code_push_code_git_commit}}";
+          if [ -e .gitmodules ];then
+            git submodule init
+          fi
       register: cops_sync_code_push_code_git_commit_reset
       changed_when: false
   - name: "git remote repo: Ask current commit"
