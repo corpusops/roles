@@ -4,6 +4,7 @@ from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.module_utils._text import to_native
 from ansible.plugins.action import ActionBase
 import re
+from distutils.version import LooseVersion
 
 
 DBUS_RE = re.compile('failed.*d?-?bus', re.I|re.U|re.M)
@@ -41,11 +42,44 @@ class ActionModule(ActionBase):
             except Exception:
                 pass  # could not get it from template!
 
-        if module == 'auto':
+        if module == 'auto' or module != 'systemd':
             facts = self._execute_module(module_name='setup', module_args=dict(gather_subset='!all', filter='ansible_service_mgr'), task_vars=task_vars)
             self._display.debug("Facts %s" % facts)
-            if 'ansible_facts' in facts and  'ansible_service_mgr' in facts['ansible_facts']:
+            if 'ansible_facts' in facts and 'ansible_service_mgr' in facts['ansible_facts']:
                 module = facts['ansible_facts']['ansible_service_mgr']
+            # for docker build when systemd isnt running
+            # test if sysvinit or upstart that
+            # we shouldnt use systemd at first
+            if module != 'systemd':
+                distrib = self._execute_module(
+                    module_name='setup',
+                    module_args=dict(gather_subset='!all',
+                                     filter='ansible_distribution*'),
+                    task_vars=task_vars
+                ).get('ansible_facts', {})
+                dv = distrib.get('ansible_distribution_version', '').lower()
+                ldv = LooseVersion(dv)
+                osd = distrib.get('ansible_distribution', '').lower()
+                if osd == 'ubuntu':
+                    if ldv >= LooseVersion('15.04'):
+                        module = 'systemd'
+                elif osd == 'mint':
+                    if ldv >= LooseVersion('18.00'):
+                        module = 'systemd'
+                elif osd in ['arch', 'archlinux']:
+                    module = 'systemd'
+                elif osd in ['fedora']:
+                    if ldv >= LooseVersion('20'):
+                        module = 'systemd'
+                elif osd in ['redhat', 'red-hat']:
+                    if ldv >= LooseVersion('7'):
+                        module = 'systemd'
+                elif osd == 'centos':
+                    if ldv >= LooseVersion('7'):
+                        module = 'systemd'
+                elif osd == 'debian':
+                    if ldv >= LooseVersion('8'):
+                        module = 'systemd'
 
         if not module or module == 'auto' or module not in self._shared_loader_obj.module_loader:
             module = 'service'
@@ -67,7 +101,11 @@ class ActionModule(ActionBase):
                 # test also if systemctl has been diverted
                 ret2 = self._ah.exec_command(
                     'systemctl --no-pager --version 2>&1')
-                if DBUS_RE.search(ret1['stderr']) or (
+                if (
+                    'offline' in ret1['stdout']
+                ) or (
+                    DBUS_RE.search(ret1['stderr'])
+                ) or (
                     ret2['rc'] == 0 and 'systemd' not in ret2['stdout'].lower()
                 ):
                     module = 'cops_systemd'
