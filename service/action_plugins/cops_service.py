@@ -63,7 +63,7 @@ class ActionModule(ActionBase):
                 if osd == 'ubuntu':
                     if ldv >= LooseVersion('15.04'):
                         module = 'systemd'
-                elif osd == 'mint':
+                elif osd in ['linuxmint', 'mint']:
                     if ldv >= LooseVersion('18.00'):
                         module = 'systemd'
                 elif osd in ['arch', 'archlinux']:
