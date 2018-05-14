@@ -36,4 +36,4 @@ corpusops_localsettings_docker_filescopy_default: []
 corpusops_localsettings_docker_configs: null
 corpusops_localsettings_docker_configs_default: []
 corpusops_localsettings_docker_pip: "$(which pip)"
-corpusops_localsettings_docker_pip_args: "-U --ignore-installed --no-binary :all:"
+corpusops_localsettings_docker_pip_args: "-U"

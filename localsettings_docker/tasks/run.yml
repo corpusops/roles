@@ -90,14 +90,16 @@
 - name: install python pre - prerequisites
   shell: |
     py="{{ansible_python.executable}}"
-    pip="{{corpusops_localsettings_docker_vars.pip}}"
-    if ( $py $pip install --help 2>&1|egrep -iq -- --no-binary; );then
-      nb="--no-binary :all:"
-    else
-      nb="--no-use-wheel"
-    fi
-    $py -c 'import setuptools' || $py $pip install setuptools
-    $py $pip install \
+    # retry to use wheels
+    # if ( $py -m pip install --help 2>&1|egrep -iq -- --no-binary; );then
+    #   nb="--no-binary :all:"
+    # elif ( $py -m pip install --help 2>&1|egrep -iq -- --no-use-wheel; );then
+    #   nb="--no-use-wheel"
+    # else
+    #   nb=""
+    # fi
+    $py -c 'import setuptools' || $py -m pip install setuptools
+    $py -m pip install \
     {{corpusops_localsettings_docker_vars.pip_args}} ${nb}\
     {{corpusops_localsettings_docker_vars.py_packages
       |join(' ')}}
