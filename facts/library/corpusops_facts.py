@@ -7,6 +7,7 @@ from __future__ import print_function
 import contextlib
 import socket
 import urllib2
+import traceback
 import os
 
 
@@ -79,7 +80,11 @@ def main():
     if module.params['ext_ip']:
         val = module.params['ext_ip_value']
         if not val:
-            val = ext_ip()
+            try:
+                val = ext_ip()
+            except Exception:
+                trace = traceback.format_exc()
+                facts.update({'corpusops_facts_ext_ip_error': trace})
         facts.update({'corpusops_facts_ext_ip': val})
     module.exit_json(**result)
 
