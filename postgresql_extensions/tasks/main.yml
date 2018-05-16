@@ -3,8 +3,11 @@
   vars:
     cops_vars_registry_target: cops_postgresql_extensions
   tags: [postgresql_extensions]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - debug: "msg={{cops_postgresql_extensions_vars}}"
   failed_when: "not cops_postgresql_extensions_vars.db"
   tags: [postgresql_extensions]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [postgresql_extensions]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

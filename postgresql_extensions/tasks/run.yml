@@ -12,3 +12,4 @@
   become_user: "{{cops_postgresql_extensions_vars.become_user}}"
   with_items: "{{cops_postgresql_extensions_vars.extensions}}"
   register:  cops_postgresql_extensions_ret
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

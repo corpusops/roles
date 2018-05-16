@@ -3,6 +3,7 @@
                     cops_postgresql_role_vars.encrypted
                 ) %}True{%else%}False{%endif %}"}
   register: cops_postgresql_role_enc_
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - postgresql_user:
     name: "{{ cops_postgresql_role_vars.name}}"
     db: "{% if cops_postgresql_role_vars.db is none %}{{omit}}{% else %}{{ cops_postgresql_role_vars.db }}{%endif%}"
@@ -25,3 +26,4 @@
   become: "{{cops_postgresql_role_vars.become}}"
   become_user: "{{cops_postgresql_role_vars.become_user}}"
   register: cops_postgresql_role_ret
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

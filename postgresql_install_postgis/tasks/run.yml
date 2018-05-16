@@ -11,3 +11,4 @@
       extensions: "{{cops_postgresql_install_postgis_vars.extensions}}"
       become: "{{cops_postgresql_install_postgis_vars.become}}"
       become_user: "{{cops_postgresql_install_postgis_vars.become_user}}"
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
