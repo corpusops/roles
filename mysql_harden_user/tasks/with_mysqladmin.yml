@@ -10,6 +10,7 @@
       flush-privileges
       password "{{cops_mysql_harden_user_vars.password}}"
   when: cops_c_check_mysql_ma_1.rc==0
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - name: test change-empty-mysql-root-access-tcp
   shell: >
     echo "select 'connected'"
@@ -27,3 +28,4 @@
       flush-privileges \
       password "{{ cops_mysql_harden_user_vars.password }}"
   when: cops_c_check_mysql_ma_1.rc==0
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

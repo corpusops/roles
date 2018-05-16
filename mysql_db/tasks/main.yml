@@ -3,8 +3,11 @@
   vars:
     cops_vars_registry_target: cops_mysql_db
   tags: [mysql_db]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - debug: "msg={{cops_mysql_db_vars}}"
   failed_when: "not cops_mysql_db_vars.db"
   tags: [mysql_db]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [mysql_db]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

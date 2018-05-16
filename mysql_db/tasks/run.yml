@@ -22,3 +22,4 @@
   become: "{{cops_mysql_db_vars.become}}"
   become_user: "{{cops_mysql_db_vars.become_user}}"
   register:  cops_mysql_db_ret
+  no_log: "{{not (cops_vars_debug|default(false))}}"

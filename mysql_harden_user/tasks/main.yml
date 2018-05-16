@@ -11,6 +11,7 @@
   vars: {cops_vars_registry_target: cops_mysql_harden_user}
   tags: [mysql_harden_user]
   register: mysql_harden_user_test
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 - name: "mysql_harden_user preflight check - SKIPTEST"
   assert:
     that:
@@ -19,6 +20,7 @@
   register: mysql_harden_user_can_run
   failed_when: false
   tags: [mysql_harden_user]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - include_tasks: run.yml
   when: 'mysql_harden_user_can_run.msg != "nok"'
   tags: [mysql_harden_user, mysql_harden_user_conf]

@@ -25,3 +25,4 @@
   become: "{{cops_mysql_role_vars.become}}"
   become_user: "{{cops_mysql_role_vars.become_user}}"
   register: cops_mysql_role_ret
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"

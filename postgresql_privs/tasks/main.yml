@@ -3,8 +3,11 @@
   vars:
     cops_vars_registry_target: cops_postgresql_privs
   tags: [postgresql_privs]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - debug: "msg={{cops_postgresql_privs_vars}}"
   failed_when: "not cops_postgresql_privs_vars.roles"
   tags: [postgresql_privs]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [postgresql_privs]
+  no_log: "{{not (cops_secret_vars_debug|default(false))}}"
