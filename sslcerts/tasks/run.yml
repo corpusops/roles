@@ -20,7 +20,7 @@
    cacheable: false
    cops_sslcerts_changed: "{{(cops_sslcerts_ct_configs_changed or
                               cops_sslcerts_configs_changed or
-                              cops_sslcerts_haproxy_configs_changed)}}"
+                              cops_sslcerts_haproxy_configs_changed|default(False))}}"
 - when: "(cops_sslcerts_do_upcerts and cops_sslcerts_changed)"
   shell: update-ca-certificates
 - when: "(cops_sslcerts_do_haproxy and cops_sslcerts_changed)"
