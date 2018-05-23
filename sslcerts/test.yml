@@ -13,6 +13,16 @@
             - |            
               -----BEGIN PRIVATE KEY-----
               xxx
+              -----END PRIVATE KEY-----            
+        cops_sslcerts_removed:
+          foo.bar.net:
+            - |
+              -----BEGIN CERTIFICATE-----
+              xxx
+              -----END CERTIFICATE-----
+            - |            
+              -----BEGIN PRIVATE KEY-----
+              xxx
               -----END PRIVATE KEY-----
             
           
