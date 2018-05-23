@@ -4,19 +4,15 @@
     - include_role:
         name: corpusops.roles/sslcerts
       vars:
-        cops_sslcerts_removed:
-          root:
-          ssh_keys:
-            - key: "ssh-rsa xxxx"
-            - key: "ssh-rsa xxxx"
-              comment: foobar
-              key_options: ""
         cops_sslcerts_added:
-          root:
-            ssh_keys:
-            - key: "ssh-rsa xxxx"
-            - key: "ssh-rsa xxxx"
-              path: "/foo/authorized_keys"
-              manage_dir: false
-              comment: foobar
-              key_options: ""
+          foo.bar.net:
+            - |
+              -----BEGIN CERTIFICATE-----
+              xxx
+              -----END CERTIFICATE-----
+            - |            
+              -----BEGIN PRIVATE KEY-----
+              xxx
+              -----END PRIVATE KEY-----
+            
+          
