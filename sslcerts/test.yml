@@ -1,8 +1,7 @@
 ---
 - hosts: all
   tasks:
-    - include_role:
-        name: corpusops.roles/sslcerts
+    - include_role: {name: corpusops.roles/sslcerts}
       vars:
         cops_sslcerts_added:
           foo.bar.net:
