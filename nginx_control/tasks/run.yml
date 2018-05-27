@@ -2,7 +2,7 @@
 - name: Check nginx configs
   shell: /usr/bin/ansibleNginxConfCheck.sh
   changed_when: false
-- service:
+- cops_service:
     state: started
     enabled: "{{corpusops_services_http_nginx_vars.activated
                 | ternary(True, False)}}"
@@ -11,15 +11,13 @@
   when: "(corpusops_nginx_control_vars.handle_nginx and
           (corpusops_services_http_nginx_vars.activated
            | ternary(corpusops_nginx_control_vars.state, 'stopped')
-          ) in ['started', 'reloaded'] and
-          corpusops_vars.has_services_manager)"
-- service:
+          ) in ['started', 'reloaded'])"
+- cops_service:
     state: "{{corpusops_services_http_nginx_vars.activated
               | ternary(corpusops_nginx_control_vars.state, 'stopped')}}"
     enabled: "{{corpusops_services_http_nginx_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
   with_items: "{{corpusops_services_http_nginx_vars.services}}"
-  when: "(corpusops_nginx_control_vars.handle_nginx and
-          corpusops_vars.has_services_manager)"
+  when: "corpusops_nginx_control_vars.handle_nginx"
 - meta: flush_handlers
