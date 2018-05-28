@@ -25,7 +25,7 @@
     package:
       cache_valid_time: '{{60*60}}'
       update_cache: yes
-      name: [python-pip, python-dev, libffi-dev, libssl-dev]
+      name: [python-pip, python-dev, libffi-dev, libssl-dev, python-urllib3]
       state: present
     when: "ansible_os_family.lower() in ['debian']"
   - name: install pre - prerequisites
@@ -50,7 +50,7 @@
         # fi
         nb=""
         $py -m pip install -U ${nb} \
-            backports.ssl_match_hostname urllib3 \
+            backports.ssl_match_hostname \
             pyopenssl ndg-httpsclient pyasn1 &&\
           echo "changed=yes" >&2
       fi
