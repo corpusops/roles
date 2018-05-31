@@ -54,6 +54,7 @@ spawn_controller() {
         -v "/var/lib/docker:/var/lib/docker" \
         -v "/var/run/docker:/var/run/docker" \
         -v "/var/run/docker.sock:/var/run/docker.sock" \
+        --tmpfs /run/lock --tmpfs /run \
         -v "/:/HOST_ROOTFS" \
         -v "$W:$W" \
         $( if [[ "$W" != "$CW" ]];then echo " -v ${CW}:${CW}"; fi) \
@@ -78,6 +79,7 @@ install_cached_corpusops() {
             'if [ ! -e '"$LOCAL_COPS_ROOT"' ];then mkdir -p '"$LOCAL_COPS_ROOT"';fi' &&\
         vv docker exec -ti $runner \
             rsync -a --exclude=venv/{bin,include,lib,local,man} \
+            --exclude="corpusops_use_venv" \
             $COPS_ROOT/ $LOCAL_COPS_ROOT/ &&\
         vv docker exec -ti $runner \
             chown -R $IDWHOAMI $LOCAL_COPS_ROOT && \
@@ -102,6 +104,7 @@ install_cached_corpusops() {
         log "Sync back local corpusops tree to image"
         vv docker exec -ti $runner \
             rsync -a --exclude=venv/{bin,include,lib,local,man} \
+            --exclude="*corpusops_use_venv" \
             "$LOCAL_COPS_ROOT/" "$COPS_ROOT/"
     fi
     ret=$?
