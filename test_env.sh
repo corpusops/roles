@@ -2,7 +2,10 @@
 W=$(cd $(dirname "$0") && pwd)
 CW=$(pwd)
 COPS_ROOT=/srv/corpusops/corpusops.bootstrap
-CONTROLLER_IMAGE="corpusops/ubuntu:14.04"
+CONTROLLER_IMAGE="corpusops/ubuntu:18.04"
+if [[ -n ${TRAVIS} ]];then
+    CONTROLLER_IMAGE="corpusops/ubuntu:14.04"
+fi
 docker=$(which docker)
 runner=${COPSTESTRUNNER:-copsrolestestrunner}
 DEBUG=${DEBUG-}
