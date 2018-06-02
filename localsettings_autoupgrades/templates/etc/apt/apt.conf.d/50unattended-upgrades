@@ -1,6 +1,8 @@
 // MANAGED VIA ANSIBLE DO NOT EDIT
 {% set data = corpusops_localsettings_autoupgrades_vars %}
 
+Unattended-Upgrade::DevRelease {{data.devrelease}};
+
 // Automatically upgrade packages from these (origin:archive) pairs
 Unattended-Upgrade::Allowed-Origins {
 {% for o in data.origins %}
