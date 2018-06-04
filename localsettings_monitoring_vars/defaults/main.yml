@@ -57,7 +57,7 @@ corpusops_localsettings_monitoring_filescopy_default: []
 corpusops_localsettings_monitoring_files_apt: []
 corpusops_localsettings_monitoring_has_sysstat: "{% if ansible_virtualization_type in ['docker', 'lxc']%}False{%else%}True{%endif%}"
 corpusops_localsettings_monitoring_files_default:
-  - {path: "{scripts_dir}",
+  - {path: "{{vars['corpusops_localsettings_monitoring_scripts_dir']}}",
      owner: root, group: root, state: directory, mode: "0755"}
 corpusops_localsettings_monitoring_sysstat_files:
   - {path: "{{corpusops_vars.config_dir}}/sysstat",
