@@ -6,10 +6,10 @@
       {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
       {% if ansible_lsb.id.lower() == 'ubuntu' %}
-      {%  if ansible_lsb.release | version_compare('13.10', '>' ) %}
+      {% if ansible_lsb.release is version('13.10', '>' ) %}
       {%    set _ = namespaced['packages'].append('iproute2') %}
       {%  endif %}
-      {%  if ansible_lsb.release | version_compare('15.04', '<' ) %}
+      {% if ansible_lsb.release is version('15.04', '<' ) %}
       {%    set _ = namespaced['packages'].append('ubuntu-extras-keyring') %}
       {%  endif %}
       {% endif %}

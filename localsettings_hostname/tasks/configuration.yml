@@ -40,11 +40,11 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_hostname_configs_changed: "{{(
-      corpusops_localsettings_hostname_files_h1|changed or
-      corpusops_localsettings_hostname_files_f1|changed or
-      corpusops_localsettings_hostname_files_f2|changed or
-      corpusops_localsettings_hostname_filest|changed or
-      corpusops_localsettings_hostname_filesct|changed or
-      corpusops_localsettings_hostname_configst|changed)}}"
+      corpusops_localsettings_hostname_files_h1 is changed or
+      corpusops_localsettings_hostname_files_f1 is changed or
+      corpusops_localsettings_hostname_files_f2 is changed or
+      corpusops_localsettings_hostname_filest is changed or
+      corpusops_localsettings_hostname_filesct is changed or
+      corpusops_localsettings_hostname_configst is changed)}}"
 - shell: hostname $(cat /etc/hostname)
   when: corpusops_localsettings_hostname_configs_changed

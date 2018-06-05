@@ -28,9 +28,9 @@
   - set_fact:
       cacheable: false
       corpusops_ms_iptables_registrations_reload: "{{(
-        cops_configs_copys_results|changed or
-        cops_configs_templates_results|changed or
-        cops_configs_files_results|changed
+        cops_configs_copys_results is changed or
+        cops_configs_templates_results is changed or
+        cops_configs_files_results is changed
       )}}"
 - when: "not corpusops_ms_iptables_registrations_vars.enable"
   block:
@@ -40,7 +40,7 @@
   - set_fact:
       cacheable: false
       corpusops_ms_iptables_registrations_reload: "{{(
-        _c_cops_ms_iptables_registration_check_f|changed
+        _c_cops_ms_iptables_registration_check_f is changed
       )}}"
 - when: "corpusops_ms_iptables_registrations_vars.service_state|copsf_bool"
   block:

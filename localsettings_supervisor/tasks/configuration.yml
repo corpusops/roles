@@ -14,6 +14,6 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_supervisor_configs_changed: "{{(
-      corpusops_localsettings_supervisor_filest|changed or
-      corpusops_localsettings_supervisor_filesct|changed or
-      corpusops_localsettings_supervisor_configst|changed)}}"
+      corpusops_localsettings_supervisor_filest is changed or
+      corpusops_localsettings_supervisor_filesct is changed or
+      corpusops_localsettings_supervisor_configst is changed)}}"

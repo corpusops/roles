@@ -15,6 +15,6 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_burp_configs_changed: "{{(
-      corpusops_localsettings_burp_filest|changed or
-      corpusops_localsettings_burp_filesct|changed or
-      corpusops_localsettings_burp_configst|changed)}}"
+      corpusops_localsettings_burp_filest is changed or
+      corpusops_localsettings_burp_filesct is changed or
+      corpusops_localsettings_burp_configst is changed)}}"
