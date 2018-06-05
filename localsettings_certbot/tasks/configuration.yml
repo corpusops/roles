@@ -15,9 +15,9 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_certbot_configs_changed: "{{(
-      (corpusops_localsettings_certbot_filest          |default({}))|changed or
-      (corpusops_localsettings_certbot_filesct         |default({}))|changed or
-      (corpusops_localsettings_certbot_configst        |default({}))|changed
+      (corpusops_localsettings_certbot_filest          |default({})) is changed or
+      (corpusops_localsettings_certbot_filesct         |default({})) is changed or
+      (corpusops_localsettings_certbot_configst        |default({})) is changed
       )}}"
 - file:
     state: absent

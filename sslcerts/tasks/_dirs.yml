@@ -43,6 +43,6 @@
 - set_fact:
     cacheable: false
     cops_sslcerts_ct_configs_changed: "{{(
-      cops_sslcerts_ct_filest|changed or
-      cops_sslcerts_ct_filesct|changed or
-      cops_sslcerts_ct_configst|changed)}}"
+      cops_sslcerts_ct_filest is changed or
+      cops_sslcerts_ct_filesct is changed or
+      cops_sslcerts_ct_configst is changed)}}"

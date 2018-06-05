@@ -28,4 +28,4 @@
       waiting_for: "{{cops_async_poll_results.results}}"
   register: cops_async_error
   failed_when: cops_async_poll_results.failed
-  when: cops_async_poll_results|failed
+  when: cops_async_poll_results is failed
