@@ -11,7 +11,7 @@
       register: corpusops_localsettings_python_sni_c_prepkgs
   - shell: update-ca-certificates
     changed_when: false
-    when: "corpusops_localsettings_python_sni_c_prepkgs|changed"
+    when: "corpusops_localsettings_python_sni_c_prepkgs is changed"
 - when: "((ansible_os_family.lower() in ['redhat']) or
           (ansible_distribution.lower() == 'ubuntu' and
            ((ansible_distribution_major_version|copsf_looseversion)

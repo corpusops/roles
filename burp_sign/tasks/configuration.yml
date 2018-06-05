@@ -20,7 +20,7 @@
 - set_fact:
     cacheable: false
     burp_sign_configs_changed: "{{(
-      burp_sign_configst3|changed or
-      burp_sign_filest|changed or
-      burp_sign_filesct|changed or
-      burp_sign_configst|changed)}}"
+      burp_sign_configst3 is changed or
+      burp_sign_filest is changed or
+      burp_sign_filesct is changed or
+      burp_sign_configst is changed)}}"

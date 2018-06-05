@@ -32,7 +32,7 @@
 - apt: {update_cache: yes}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_repoa.changed or
-          corpusops_localsettings_docker_key|changed)"
+          corpusops_localsettings_docker_key is changed)"
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -125,9 +125,9 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_docker_configs_changed: "{{(
-      corpusops_localsettings_docker_c_pkg_rh|changed or
-      corpusops_localsettings_docker_c_pkg_deb|changed or
-      corpusops_localsettings_docker_c_group|changed or
-      corpusops_localsettings_docker_c_files|changed or
-      corpusops_localsettings_docker_c_filesc|changed or
-      corpusops_localsettings_docker_c_configs|changed)}}"
+      corpusops_localsettings_docker_c_pkg_rh is changed or
+      corpusops_localsettings_docker_c_pkg_deb is changed or
+      corpusops_localsettings_docker_c_group is changed or
+      corpusops_localsettings_docker_c_files is changed or
+      corpusops_localsettings_docker_c_filesc is changed or
+      corpusops_localsettings_docker_c_configs is changed)}}"
