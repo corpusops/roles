@@ -38,6 +38,6 @@
 - set_fact:
     cacheable: false
     cops_supervisor_configs_changed: "{{(
-      cops_supervisor_filest is changed or
-      cops_supervisor_filesct is changed or
-      cops_supervisor_configst is changed)}}"
+      cops_supervisor_filest|changed or
+      cops_supervisor_filesct|changed or
+      cops_supervisor_configst|changed)}}"

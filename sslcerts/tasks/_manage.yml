@@ -44,9 +44,9 @@
 - set_fact:
     cacheable: false
     cops_sslcerts_configs_changed: true
-  when: "(cops_sslcerts_filest  is changed or
-          cops_sslcerts_filesct is changed or
-          cops_sslcerts_configst is changed)"
+  when: "(cops_sslcerts_filest  |changed or
+          cops_sslcerts_filesct |changed or
+          cops_sslcerts_configst|changed)"
 - when: "cops_sslcerts_do_haproxy"
   block:
   - register: cops_configs_templatesl
@@ -77,6 +77,6 @@
   - set_fact:
       cacheable: false
       cops_sslcerts_haproxy_configs_changed: "{{(
-        cops_sslcerts_haproxy_filest is changed or
-        cops_sslcerts_haproxy_filesct is changed or
-        cops_sslcerts_haproxy_configst is changed)}}"
+        cops_sslcerts_haproxy_filest|changed or
+        cops_sslcerts_haproxy_filesct|changed or
+        cops_sslcerts_haproxy_configst|changed)}}"

@@ -14,6 +14,6 @@
 - set_fact:
     cacheable: false
     corpusops_services_firewall_fail2ban_configs_changed: "{{(
-      corpusops_services_firewall_fail2ban_filest is changed or
-      corpusops_services_firewall_fail2ban_filesct is changed or
-      corpusops_services_firewall_fail2ban_configst is changed)}}"
+      corpusops_services_firewall_fail2ban_filest|changed or
+      corpusops_services_firewall_fail2ban_filesct|changed or
+      corpusops_services_firewall_fail2ban_configst|changed)}}"

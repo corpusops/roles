@@ -51,4 +51,4 @@
         unset i
       fi
   tags: corpusops_localsettings_profile
-  when: 'corpusops_localsettings_profile_hasblock is failed'
+  when: 'corpusops_localsettings_profile_hasblock|failed'

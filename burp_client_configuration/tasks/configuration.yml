@@ -16,6 +16,6 @@
 - set_fact:
     cacheable: false
     burpclient_configs_changed: "{{(
-      burpclient_filest is changed or
-      burpclient_filesct is changed or
-      burpclient_configst is changed)}}"
+      burpclient_filest|changed or
+      burpclient_filesct|changed or
+      burpclient_configst|changed)}}"
