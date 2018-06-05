@@ -41,8 +41,8 @@
 - set_fact:
     cacheable: false
     burp_server_configuration_configs_changed: "{{(
-      burp_server_configuration_configst4 is changed or
-      burp_server_configuration_configst3 is changed or
-      burp_server_configuration_filest is changed or
-      burp_server_configuration_filesct is changed or
-      burp_server_configuration_configst is changed)}}"
+      burp_server_configuration_configst4|changed or
+      burp_server_configuration_configst3|changed or
+      burp_server_configuration_filest|changed or
+      burp_server_configuration_filesct|changed or
+      burp_server_configuration_configst|changed)}}"

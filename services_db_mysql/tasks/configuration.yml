@@ -84,7 +84,7 @@
 - set_fact:
     cacheable: false
     corpusops_services_db_mysql_configs_changed: "{% set c = {'changed': False}%}{{(
-     ((corpusops_services_db_mysql_filest  |default(c)) is changed) or
-     ((corpusops_services_db_mysql_filesct |default(c)) is changed) or
-     ((corpusops_services_db_mysql_configst|default(c)) is changed))}}"
+     ((corpusops_services_db_mysql_filest  |default(c))|changed) or
+     ((corpusops_services_db_mysql_filesct |default(c))|changed) or
+     ((corpusops_services_db_mysql_configst|default(c))|changed))}}"
   tags: [corpusops_services_db_mysql_facts]

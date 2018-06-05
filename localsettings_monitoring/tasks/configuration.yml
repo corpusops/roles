@@ -45,11 +45,11 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_monitoring_configs_changed: "{{(
-      (corpusops_localsettings_monitoring_synct           |default({})) is changed or
-      (corpusops_localsettings_monitoring_sysstat_filest  |default({})) is changed or
-      (corpusops_localsettings_monitoring_sysstat_filesct |default({})) is changed or
-      (corpusops_localsettings_monitoring_sysstat_configst|default({})) is changed or
-      (corpusops_localsettings_monitoring_filest          |default({})) is changed or
-      (corpusops_localsettings_monitoring_filesct         |default({})) is changed or
-      (corpusops_localsettings_monitoring_configst        |default({})) is changed
+      (corpusops_localsettings_monitoring_synct           |default({}))|changed or
+      (corpusops_localsettings_monitoring_sysstat_filest  |default({}))|changed or
+      (corpusops_localsettings_monitoring_sysstat_filesct |default({}))|changed or
+      (corpusops_localsettings_monitoring_sysstat_configst|default({}))|changed or
+      (corpusops_localsettings_monitoring_filest          |default({}))|changed or
+      (corpusops_localsettings_monitoring_filesct         |default({}))|changed or
+      (corpusops_localsettings_monitoring_configst        |default({}))|changed
       )}}"
