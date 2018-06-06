@@ -21,7 +21,7 @@
   block:
   - name: "first export secret value for: {{cops_get_secret_variable_vars.name}}"
     include_tasks: _export.yml
-  - when: ["vars[cops_get_secret_variable_name] is none"]
+  - when: ["vars[cops_get_secret_variable_vars.name] is none"]
     include_tasks: run.yml
     tags: [get_secret_variable, get_secret_variable_run]
   - set_fact:
