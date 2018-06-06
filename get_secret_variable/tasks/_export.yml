@@ -10,6 +10,6 @@
   include_jinja_vars:
     content: |
       {{-{cops_get_secret_variable_vars.name:
-            vars.get(cops_get_secret_variable_name, None)} | to_json }}
+            vars.get(cops_get_secret_variable_vars.name, None)} | to_json }}
   when: "vars[cops_get_secret_variable_vars.name] is not none"
   no_log: "{{not (cops_secret_vars_debug|default(false))}}"
