@@ -87,6 +87,7 @@
       provision_corpusops_localsettings_jdk: {{ corpusops_localsettings_jdk }}
       provision_corpusops_localsettings_kubectl: {{ corpusops_localsettings_kubectl }}
       provision_corpusops_localsettings_locales: {{ corpusops_localsettings_locales }}
+      provision_corpusops_localsettings_timezone: {{ corpusops_localsettings_timezone }}
       provision_corpusops_localsettings_makinastates: {{ corpusops_localsettings_makinastates }}
       provision_corpusops_localsettings_minikube: {{ corpusops_localsettings_minikube }}
       provision_corpusops_localsettings_nodejs: {{ corpusops_localsettings_nodejs }}
