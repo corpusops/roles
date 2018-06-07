@@ -217,7 +217,7 @@
   when: provision_corpusops_localsettings_golang
 - include_role: {name: corpusops.roles/localsettings_python_sni}
   tags: python
-  when: provision_localsettings_python_sni
+  when: provision_corpusops_localsettings_python_sni
 - include_role: {name: corpusops.roles/localsettings_php}
   tags: php
   when: provision_corpusops_localsettings_php
