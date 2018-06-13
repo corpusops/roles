@@ -28,6 +28,10 @@ corpusops_lxc_ubuntu_mirror: "http://archive.ubuntu.com/ubuntu/"
 corpusops_lxc_template_options: "-r {{vars['corpusops_lxc_ubuntu_release']}} --mirror \"{{vars['corpusops_lxc_ubuntu_mirror']}}\""
 
 corpusops_lxc_auto_start: '1'
+# make docker works inside lxc (make it unconfined and unsecure
+# security will rely on making everything confined running inside
+# docker containers
+docker: "{{lxc_docker|default('docker' in inventory_hostname)}}"
 
 # set to null or empty list to disable
 # auto password deletion, on containers
