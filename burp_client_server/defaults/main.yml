@@ -93,6 +93,7 @@ cops_burpclientserver_profiles_baremetal: |
   exclude_regex = .*var.*lib.*docker.*overlay
   exclude_regex = .*var.*lib.*docker.*overlay2
   exclude_regex = .*var.*lib.*docker.*aufs
+  exclude_regex = ".*tmp_sync_rando.*"
   cross_filesystem = /boot
   cross_filesystem = /backup
   cross_filesystem = /data
@@ -176,6 +177,7 @@ cops_burpclientserver_profiles_vm: |
   include = /var/lib/docker/swarm
   include = /var/lib/docker/trust
   include = /var/lib/docker/volumes
+  exclude_regex = ".*tmp_sync_rando.*"
   exclude_regex = .*var.*lib.*docker.*vfs
   exclude_regex = .*var.*lib.*docker.*overlay
   exclude_regex = .*var.*lib.*docker.*overlay2
