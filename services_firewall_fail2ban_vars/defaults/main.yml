@@ -93,7 +93,7 @@ corpusops_services_firewall_fail2ban_default_filters_opts:
 corpusops_services_firewall_fail2ban_port: 'ssh'
 corpusops_services_firewall_fail2ban_loglevel: 'INFO'
 corpusops_services_firewall_fail2ban_logpath: '/var/log/syslog'
-corpusops_services_firewall_fail2ban_logtarget: '{logpath}'
+corpusops_services_firewall_fail2ban_logtarget: "{{vars['corpusops_services_firewall_fail2ban_logpath']}}"
 #corpusops_services_firewall_fail2ban_banaction: 'iptables'
 corpusops_services_firewall_fail2ban_banaction: 'iptables-multiport'
 corpusops_services_firewall_fail2ban_findtime: '600'
@@ -106,9 +106,9 @@ corpusops_services_firewall_fail2ban_pidfile: '/var/run/fail2ban/fail2ban.pid'
 corpusops_services_firewall_fail2ban_socket: '/var/run/fail2ban/fail2ban.sock'
 corpusops_services_firewall_fail2ban_backend: 'polling'
 corpusops_services_firewall_fail2ban_maxretry: '10'
-corpusops_services_firewall_fail2ban_ssh_maxretry: "{maxretry}"
+corpusops_services_firewall_fail2ban_ssh_maxretry: "{{vars['corpusops_services_firewall_fail2ban_maxretry']}}"
 corpusops_services_firewall_fail2ban_protocol: 'tcp'
-corpusops_services_firewall_fail2ban_sender:    '{destemail}'
+corpusops_services_firewall_fail2ban_sender: "{{vars['corpusops_services_firewall_fail2ban_destemail']}}"
 corpusops_services_firewall_fail2ban_destemail: 'root@localhost'
 corpusops_services_firewall_fail2ban_mta: 'sendmail'
 corpusops_services_firewall_fail2ban_ignoreip: '127.0.0.1/8'
@@ -129,9 +129,9 @@ corpusops_services_firewall_fail2ban_mail_enabled: "false"
 corpusops_services_firewall_fail2ban_mail_host: "localhost"
 corpusops_services_firewall_fail2ban_mail_port: "25"
 corpusops_services_firewall_fail2ban_mail_user: ""
-corpusops_services_firewall_fail2ban_mail_from: "{sender}"
+corpusops_services_firewall_fail2ban_mail_from: "{{vars['corpusops_services_firewall_fail2ban_sender']}}"
 corpusops_services_firewall_fail2ban_mail_localtime: "true"
-corpusops_services_firewall_fail2ban_mail_to: "{destemail}"
+corpusops_services_firewall_fail2ban_mail_to: "{{vars['corpusops_services_firewall_fail2ban_destemail']}}"
 corpusops_services_firewall_fail2ban_mail_password: ""
 corpusops_services_firewall_fail2ban_mail_subject: "[Fail2Ban {{ansible_fqdn}}] <section>: Banned <ip>"
 corpusops_services_firewall_fail2ban_mail_message: |-
