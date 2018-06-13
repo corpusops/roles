@@ -10,6 +10,7 @@
     lxc_template: "{{corpusops_lxc_container_vars.msg['template']}}"
     lxc_template_options: "{{corpusops_lxc_container_vars.msg['template_options']}}"
     lxc_from_container: "{{corpusops_lxc_container_vars.msg['from_container']}}"
+    lxc_docker: "{{corpusops_lxc_container_vars.msg['docker']}}"
     lxc_clone_snapshot: "{{corpusops_lxc_container_vars.msg['clone_snapshot']}}"
     lxc_ubuntu_mirror: "{{corpusops_lxc_container_vars.msg['ubuntu_mirror']}}"
     lxc_ubuntu_release: "{{corpusops_lxc_container_vars.msg['ubuntu_release']}}"

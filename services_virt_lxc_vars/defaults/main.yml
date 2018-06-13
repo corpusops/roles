@@ -9,6 +9,12 @@ corpusops_services_virt_lxc_cops_knobs: ['files', 'filescopy', 'services', 'conf
 corpusops_services_virt_lxc_cops_sub_namespaces:
   settings: {}
 corpusops_services_virt_lxc_activated: True
+corpusops_services_virt_lxc_docker_support: true
+corpusops_services_virt_lxc_docker_modules:
+- overlay
+- nf_nat
+- bridge
+- xt_conntrack
 corpusops_services_virt_lxc_packages: null
 corpusops_services_virt_lxc_packages_default: |
   {% set d = [
