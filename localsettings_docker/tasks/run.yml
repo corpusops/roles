@@ -105,6 +105,7 @@
       |join(' ')}}
   changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
   register: corpusops_localsettings_docker_c_pyinst
+  when: "corpusops_localsettings_docker_vars.has_docker_py"
 - group:
     name: "{{corpusops_localsettings_docker_vars.group}}"
     system: yes

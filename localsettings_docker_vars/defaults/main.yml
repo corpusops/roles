@@ -37,3 +37,4 @@ corpusops_localsettings_docker_configs: null
 corpusops_localsettings_docker_configs_default: []
 corpusops_localsettings_docker_pip: "$(which pip)"
 corpusops_localsettings_docker_pip_args: "-U"
+corpusops_localsettings_docker_has_docker_py: false
