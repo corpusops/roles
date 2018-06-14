@@ -21,6 +21,38 @@
   with_items: "{{corpusops_nginx_vhost_vars.files}}"
   when: "(corpusops_nginx_vhost_vars.files is not none and
           corpusops_nginx_vhost_vars.files|length > 0)"
+- when:
+  - corpusops_nginx_vhost_vars.ssl_cert
+  - corpusops_nginx_vhost_vars.ssl_key
+  block:
+  - file:
+      path: "{{item|copsf_dirname}}"
+      state: directory
+      mode: "750"
+      owner: "{{corpusops_nginx_vhost_vars.owner|default(omit)}}"
+      group: "{{corpusops_nginx_vhost_vars.group|default(omit)}}"
+      recurse: "{{item.recurse|default(omit)}}"
+    with_items:
+    - "{{corpusops_nginx_vhost_vars.ssl_key_path}}"
+    - "{{corpusops_nginx_vhost_vars.ssl_cert_path}}"
+  - copy:
+      dest: "{{item}}"
+      force: true
+      content: "{{corpusops_nginx_vhost_vars.ssl_cert}}"
+      mode: "750"
+      owner: "{{corpusops_nginx_vhost_vars.owner|default(omit)}}"
+      group: "{{corpusops_nginx_vhost_vars.group|default(omit)}}"
+    with_items:
+    - "{{corpusops_nginx_vhost_vars.ssl_cert_path}}"
+  - copy:
+      dest: "{{item}}"
+      force: true
+      content: "{{corpusops_nginx_vhost_vars.ssl_key}}"
+      mode: "750"
+      owner: "{{corpusops_nginx_vhost_vars.owner|default(omit)}}"
+      group: "{{corpusops_nginx_vhost_vars.group|default(omit)}}"
+    with_items:
+    - "{{corpusops_nginx_vhost_vars.ssl_key_path}}"
 - name: files containers
   file:
     path: "{{item.path}}"
