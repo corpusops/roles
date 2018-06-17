@@ -1,0 +1,5 @@
+{{- (
+  (vars['corpusops_services_mail_postfix_cert'] and vars['corpusops_services_mail_postfix_cert_key'])
+  and vars['corpusops_services_mail_postfix_cert']
+  or  vars['corpusops_services_mail_postfix_selfsigned_cert']
+).strip() }}
