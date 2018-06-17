@@ -1,0 +1,81 @@
+# {{ ansible_managed }}
+# {% set data = corpusops_services_mail_postfix_vars %}
+# Debian specific:  Specifying a file name will cause the first
+# line of that file to be used as the name.  The Debian default
+# is {{data.conf_dir}}/mailname.
+#myorigin = {{data.conf_dir}}/mailname
+myhostname = {{data.mailname }}
+myorigin = {{data.conf_dir}}/mailname
+inet_protocols = {{' '.join(data.inet_protocols)}}
+inet_interfaces = {{' '.join(data.inet_interfaces)}}
+{% for i in ['mydestination', 'relay_domains',
+             'mynetworks', 'transport_maps',
+             'local_recipient_maps'] %}
+{%- set val = data.get(i+'_param', None) %}
+{%- if val %}
+{{-i}} = {{val}}
+{%- endif %}
+{% endfor %}
+# TLS parameters
+
+smtp_use_tls={{data.use_tls}}
+smtpd_use_tls={{data.use_tls}}
+smtpd_tls_cert_file={{data.prefix}}/certificate.pub
+smtpd_tls_key_file={{data.prefix}}/certificate.key
+
+# aliases
+alias_maps     = hash:{{data.conf_dir}}/aliases
+alias_database = hash:{{data.conf_dir}}/aliases
+
+# enforce local delivery by using altered virutal domain maps
+virtual_mailbox_base = {{data.virtual_mailbox_base}}
+virtual_alias_maps = regexp:{{data.prefix}}/virtual_alias_maps,regexp:{{data.prefix}}/virtual_alias_maps.local
+virtual_alias_domains =
+
+# authentication parameters
+smtp_sasl_auth_enable = {% if data.smtp_auth %}yes{% else %}no{% endif %}
+smtpd_sasl_auth_enable = {% if data.smtpd_auth %}yes{% else %}no{% endif %}
+smtp_sasl_security_options = {{data.smtp_sasl_security_options}}
+smtp_sasl_password_maps = hash:{{data.prefix}}/sasl_passwd
+#smtp_sasl_password_maps = hash:{{data.prefix}}/sasl_passwd,hash:{{data.prefix}}/sasl_passwd.local
+
+smtpd_banner = {{data.smtpd_banner}}
+biff = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = {{data.append_dot_mydomain}}
+
+# Uncomment the next line to generate "delayed mail" warnings
+# delay_warning_time = 4h
+readme_directory = no
+
+smtp_tls_CAfile = {{data.conf_dir}}/ssl/certs/ca-certificates.crt
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+# SECURITY
+smtpd_helo_required = yes
+smtpd_sender_restrictions = {{data.smtpd_sender_restrictions}}
+smtpd_helo_restrictions = {{data.smtpd_helo_restrictions}}
+smtpd_client_restrictions = {{data.smtpd_client_restrictions}}
+smtpd_restriction_classes = smtpd_restrictive, smtpd_permissive
+smtpd_restrictive = reject_unverified_recipient, permit
+smtpd_permissive = permit
+
+smtpd_recipient_restrictions = {{data.smtpd_recipient_restrictions}}
+smtpd_relay_restrictions = {{data.smtpd_relay_restrictions}}
+mailbox_size_limit = {{data.mailbox_size_limit}}
+
+# misc
+mailbox_command = procmail -a "$EXTENSION"
+recipient_delimiter = +
+
+# tls
+# http://www.postfix.org/TLS_README.html#client_tls_may
+smtp_tls_security_level = {{data.smtp_tls_security_level}}
+
+owner_request_special = {{data.owner_request_special}}
+
+# debug_peer_list=mail.foo.com
+# debug_peer_level=3
+

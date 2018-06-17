@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+{% set data = corpusops_services_mail_postfix_vars %}
+{% for h in data['sasl_passwd'] %}
+{{h.entry}} {{h.user}}:{{h.password}}
+{% endfor %}

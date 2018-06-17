@@ -1,0 +1,26 @@
+---
+- name: check postfix conf
+  shell: "{{ corpusops_services_mail_postfix_vars.bin }} check 2>&1"
+  changed_when: false
+- set_fact:
+    cacheable: false
+    corpusops_services_mail_postfix_service_state: >-
+      {% if (
+        corpusops_services_mail_postfix_configs_changed     |default(False) or
+        corpusops_services_mail_postfix_prequisites_changed |default(False)
+      )%}restarted{% else %}reloaded{%endif%}
+- set_fact:
+    cacheable: false
+    corpusops_services_mail_postfix_service_state: "{{corpusops_services_mail_postfix_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_mail_postfix_vars.activated
+     | ternary(corpusops_services_mail_postfix_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_mail_postfix_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+    daemon_reload: true
+  with_items: "{{corpusops_services_mail_postfix_vars.services}}"
+  tags: corpusops_services_mail_postfix
+- meta: flush_handlers

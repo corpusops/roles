@@ -1,0 +1,23 @@
+---
+- hosts: all
+  roles: [corpusops.roles/services_mail_postfix_vars]
+  vars:
+    corpusops_services_mail_postfix_relay: mail.foo.com
+    corpusops_services_mail_postfix_relay_domains_extra:
+    - foo.com: OK
+    - titi.com: OK
+    - tutu.com: OK
+  tasks:
+  - assert:
+      that:
+      - corpusops_services_mail_postfix_vars.mode == 'relay'
+      - >-
+        corpusops_services_mail_postfix_vars.transport_default ==
+        [{ "nexthop": "relay:mail.foo.com", "transport": "*"}]
+      - >-
+        corpusops_services_mail_postfix_vars.virtual_alias_map ==
+        []
+      - >-
+        corpusops_services_mail_postfix_vars.inet_interfaces ==
+        ["127.0.0.1"]
+      msg: failed
