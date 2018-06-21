@@ -23,7 +23,7 @@ corpusops_services_mail_postfix_debconf:
 - {"name": "postfix", "question": "postfix/destinations",
    "vtype": "string", "value": "localhost.localdomain, localhost"}
 corpusops_services_mail_postfix_packages_default: |
-  {%- set res = ["postfix", "postfix-pcre", "procmail", "mailutils"] %}
+  {%- set res = ["postfix", "libsasl2-modules", "postfix-pcre", "procmail", "mailutils"] %}
   {{- res | to_json }}
 corpusops_services_mail_postfix_services: ["postfix"]
 corpusops_services_mail_postfix_group: postfix
