@@ -5,6 +5,7 @@
     mountpoint: /srv/mountpoints
     remounts:
     - /var/lib/lxc
+    - /var/lib/docker
     _dirs: |-
       {% set d = {} %}
       {% for i in remounts %}
