@@ -1,0 +1,76 @@
+---
+- name: configure prerequisites
+  debconf:
+    name: "{{item.name}}"
+    question: "{{item.question}}"
+    value: "{{item.value|default(omit)}}"
+    unseen: "{{item.unseen|default(omit)}}"
+    vtype: "{{item.vtype|default(omit)}}"
+  with_items: "{{corpusops_services_mail_postfix_vars.debconf}}"
+  when: "ansible_os_family.lower() in ['debian']"
+  register: corpusops_services_mail_postfix_pkgstdebconf
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{item}}"
+    state: installed
+  with_items: '{{corpusops_services_mail_postfix_vars.packages}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_mail_postfix_vars.packages is not none and
+          corpusops_services_mail_postfix_vars.packages|length > 0)"
+  register: corpusops_services_mail_postfix_pkgst
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_mail_postfix_vars.packages is not none and
+          corpusops_services_mail_postfix_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_mail_postfix_vars.packages}}"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_mail_postfix_vars.packages is not none and
+          corpusops_services_mail_postfix_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_mail_postfix_vars.packages}}"
+- name: repo
+  shell: |
+         yum-config-manager --add-repo "{{item}}"
+  with_items: ["{{corpusops_services_mail_postfix_vars.repo}}"]
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_mail_postfix_vars.packages is not none and
+          corpusops_services_mail_postfix_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: '{{item}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_mail_postfix_vars.packages is not none and
+          corpusops_services_mail_postfix_vars.packages|length > 0)"
+  with_items: "{{corpusops_services_mail_postfix_vars.packages}}"
+- group:
+    name: "{{corpusops_services_mail_postfix_vars.group}}"
+    system: yes
+    state: present
+  when: "corpusops_services_mail_postfix_vars.group|default(none)"
+- user:
+    name: "{{corpusops_services_mail_postfix_vars.user}}"
+    system: yes
+    groups: "{{corpusops_services_mail_postfix_vars.group}}"
+    append: true
+  when: "corpusops_services_mail_postfix_vars.user|default(none)"
+- set_fact:
+    cacheable: false
+    corpusops_services_mail_postfix_prequisites_changed: "{{(
+         corpusops_services_mail_postfix_pkgstdebconf.changed or
+         corpusops_services_mail_postfix_pkgst.changed
+       )}}"

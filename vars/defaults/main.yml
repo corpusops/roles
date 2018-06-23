@@ -60,6 +60,8 @@ corpusops_core_hkp_keyserver: "hkp://{{corpusops_core_keyserver}}:80"
 
 # path locations
 corpusops_core_var_dir: /var
+corpusops_core_var_spool_dir: "{{vars['corpusops_core_var_dir']}}/spool"
+corpusops_core_sbin_dir: "{{vars['corpusops_core_usr_dir']}}/sbin"
 corpusops_core_share_dir: "{{vars['corpusops_core_usr_dir']}}/share"
 corpusops_core_var_run_dir: "{{vars['corpusops_core_run_dir']}}"
 corpusops_core_var_lib_dir: "{{vars['corpusops_core_var_dir']}}/lib"

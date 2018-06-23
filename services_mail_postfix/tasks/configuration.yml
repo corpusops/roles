@@ -1,0 +1,28 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{corpusops_services_mail_postfix_vars.files}}"
+    cops_configs_copys: "{{corpusops_services_mail_postfix_vars.filescopy}}"
+    cops_configs_templates: "{{corpusops_services_mail_postfix_vars.configs}}"
+  register: corpusops_services_mail_postfix_configst1
+  tags: [postfix_configs]
+- set_fact:
+    cacheable: false
+    corpusops_services_mail_postfix_filest: "{{cops_configs_files_results}}"
+    corpusops_services_mail_postfix_filesct: "{{cops_configs_copys_results}}"
+    corpusops_services_mail_postfix_configst: "{{cops_configs_templates_results}}"
+  register: corpusops_services_mail_postfix_configst2
+  tags: [postfix_configs]
+- set_fact:
+    cacheable: false
+    corpusops_services_mail_postfix_configs_changed: "{{(
+      corpusops_services_mail_postfix_filest is changed or
+      corpusops_services_mail_postfix_filesct is changed or
+      corpusops_services_mail_postfix_configst is changed)}}"
+- set_fact:
+    cacheable: false
+    corpusops_services_mail_postfix_configs_changed: "{{
+      (corpusops_services_mail_postfix_configst4|default({})) is changed or
+      (corpusops_services_mail_postfix_configst3|default({})) is changed or
+      (corpusops_services_mail_postfix_configst2|default({})) is changed or
+      (corpusops_services_mail_postfix_configst1|default({})) is changed}}"
