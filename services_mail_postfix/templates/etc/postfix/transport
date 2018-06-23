@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+{% set items = [] %}
+{% set data = corpusops_services_mail_postfix_vars %}
+{% for i in data.transport %}
+{% if i not in items %}{% set _ = items.append(i) %}
+{{i.get('transport', '*')}} {{i.nexthop}}
+{%endif%}
+{% endfor %}
