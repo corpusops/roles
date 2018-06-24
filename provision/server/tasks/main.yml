@@ -51,7 +51,6 @@
       {% set corpusops_services_db_postgresql        = corpusops_services_db_postgresql         | default(False) %}
       {% set corpusops_services_db_postgresql_pkgmgr = corpusops_services_db_postgresql_pkgmgr  | default(False) %}
       {% set corpusops_services_firewall_ms_iptables = corpusops_services_firewall_ms_iptables  | default(False) %}
-      {% set corpusops_services_mail_postfix         = corpusops_services_mail_postfix          | default(False) %}
       {% set corpusops_services_ftp_pureftpd         = corpusops_services_ftp_pureftpd          | default(False) %}
       {% set corpusops_services_http_nginx           = corpusops_services_http_nginx            | default(False) %}
       {% set corpusops_services_magicbridge          = corpusops_services_magicbridge           | default(False) %}
@@ -120,7 +119,6 @@
       provision_corpusops_services_db_postgresql_pkgmgr: {{ corpusops_services_db_postgresql_pkgmgr }}
       provision_corpusops_services_firewall_fail2ban: {{ corpusops_services_firewall_fail2ban }}
       provision_corpusops_services_firewall_ms_iptables: {{ corpusops_services_firewall_ms_iptables }}
-      provision_corpusops_services_mail_postfix: {{ corpusops_services_mail_postfix }}
       provision_corpusops_services_ftp_pureftpd: {{ corpusops_services_ftp_pureftpd }}
       provision_corpusops_services_http_nginx: {{ corpusops_services_http_nginx }}
       provision_corpusops_services_magicbridge: {{ corpusops_services_magicbridge }}
@@ -294,10 +292,7 @@
   when: provision_corpusops_services_backup_dbsmartbackup
 - include_role: {name: corpusops.roles/services_php_fpm}
   tags: php
-  when: provision_corpusops_services_php_fpm 
-- include_role: {name: corpusops.roles/services_mail_postfix}
-  tags: pureftpd
-  when: provision_corpusops_services_mail_postfix
+  when: provision_corpusops_services_php_fpm
 - include_role: {name: corpusops.roles/services_ftp_pureftpd}
   tags: pureftpd
   when: provision_corpusops_services_ftp_pureftpd
