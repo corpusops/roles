@@ -47,6 +47,8 @@ corpusops_services_mail_postfix_filescopy_default:
    user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/relay_domains.local",
    user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+- {dest: "{{corpusops_vars.config_dir}}/mailname",
+   user: "root", group: "postfix", mode: "640", force: false, content: "{{corpusops_services_mail_postfix_mailname}}", src: "{{omit}}"}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/transport.local",
    user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/destinations.local",
