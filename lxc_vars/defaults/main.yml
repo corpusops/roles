@@ -31,7 +31,7 @@ corpusops_lxc_auto_start: '1'
 # make docker works inside lxc (make it unconfined and unsecure
 # security will rely on making everything confined running inside
 # docker containers
-docker: "{{lxc_docker|default('docker' in inventory_hostname)}}"
+corpusops_lxc_docker: "{{lxc_docker|default('docker' in inventory_hostname)}}"
 
 # set to null or empty list to disable
 # auto password deletion, on containers
