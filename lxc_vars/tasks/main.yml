@@ -17,7 +17,7 @@
       {%  set lxcdata = namespaced['containers'][lxc] %}
       {%  for k in [
             'ubuntu_release', 'ubuntu_mirror',
-            'remove_password',
+            'remove_password', 'docker',
             'included_config',
             'nameservers', 'ns_search',
             'ssh_keys_paths', 'ssh_keys',
