@@ -1,0 +1,44 @@
+---
+- hosts: "{{provision_host|default('all')}}"
+  roles: [corpusops.roles/ansible_plugins]
+  vars:
+    mountpoint: /srv/mountpoints
+    remounts:
+    - /var/lib/lxc
+    _dirs: |-
+      {% set d = {} %}
+      {% for i in remounts %}
+      {% set _ = d.update({"{0}/{1}".format(
+          mountpoint, i[1:].replace('/', '_')): i})%}
+      {% endfor %}
+      {{ d | to_json}}
+    dirs: "{{_dirs}}"
+  tasks:
+  - debug: {msg: "{{dirs}}"}
+  - file:
+      state: directory
+      path: "{{item.key}}"
+    with_dict: "{{dirs}}"
+  - file:
+      state: directory
+      path: "{{item.value}}"
+    with_dict: "{{dirs}}"
+  - name: "a"
+    shell: |-
+      set -e
+      f="{{item.key}}/.synced"
+      if [ ! -e "$f" ] && ! ( cat /proc/mounts|awk '{print $2}'|egrep -q '^{{item.value}}$' );then
+        rsync -av "{{item.value}}/" "{{item.key}}/" \
+          && touch "$f" \
+          && echo tchanged >&2
+      fi
+    with_dict: "{{dirs}}"
+    register: a
+    changed_when: "'changed' in a.stderr"
+  - mount:
+      state: mounted
+      src: "{{item.key}}"
+      path: "{{item.value}}"
+      fstype: "none"
+      opts: bind,rw
+    with_dict: "{{dirs}}"
