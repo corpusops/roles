@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  roles: [corpusops.roles/ansible_plugins]
+  tasks:
+  - environment: {DEBIAN_FRONTEND: noninteractive}
+    block:
+    - shell: |
+        {% for i in provision_host.split(',') %}
+        {% if i != 'localhost' %}
+        {% set hvars = vars['hostvars'].get(i, {}) %}
+        {% set hsshargs = hvars.get('ansible_ssh_common_args', '' ) %}
+        {% set hpass = hvars.get('ansible_become_pass', '' ) %}
+        {% set pwslug='' %}
+        {% set pwflag='' %}
+        {% if hpass %}
+        {%  set pwslug='echo "{0}" | '.format(hpass) %}
+        {%  set pwflag='-S' %}
+        {% endif %}
+        {% set dryruns = (dry_run|default(false)) and 'echo' or '' %}
+        {% if ansible_os_family.lower() in ['debian'] %}
+        {{    pwslug }}ssh {{ hsshargs }} {{i}} {{dryruns}} sudo {{pwflag}} \
+              apt install -y python
+        {% endif %}
+        {% endif %}
+        {% endfor %}
