@@ -26,5 +26,5 @@ corpusops_localsettings_hostname_filescopy_default: []
 corpusops_localsettings_hostname_files_apt: []
 corpusops_localsettings_hostname_configs: null
 corpusops_localsettings_hostname_configs_default: []
-corpusops_localsettings_hostname_hostname: "{{ansible_host.split('.')[0]}}"
+corpusops_localsettings_hostname_hostname: "{{corpusops_localsettings_hostname_fqdn.split('.')[0]}}"
 corpusops_localsettings_hostname_fqdn: "{{ansible_fqdn}}"
