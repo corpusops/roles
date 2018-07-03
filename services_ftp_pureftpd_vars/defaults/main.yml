@@ -30,6 +30,7 @@ corpusops_services_ftp_pureftpd_packages_default: |
 corpusops_services_ftp_pureftpd_services: ['pure-ftpd']
 corpusops_services_ftp_pureftpd_group: pureftpd
 corpusops_services_ftp_pureftpd_user: root
+corpusops_services_ftp_pureftpd_force_ssl_regen: false
 corpusops_services_ftp_pureftpd_dhparam: "{{corpusops_vars.config_dir}}/ssl/private/pure-ftpd-dhparams.pem"
 corpusops_services_ftp_pureftpd_files: null
 corpusops_services_ftp_pureftpd_files_default:
@@ -109,3 +110,5 @@ corpusops_services_ftp_pureftpd_conf_MySQLConfigFile: ""
 corpusops_services_ftp_pureftpd_conf_ExtAuth: ""
 corpusops_services_ftp_pureftpd_conf_LDAPConfigFile: ""
 corpusops_services_ftp_pureftpd_conf_PGSQLConfigFile: ""
+corpusops_services_ftp_pureftpd_cert_cn: "{{ansible_fqdn}}"
+corpusops_services_ftp_pureftpd_cert_subj: "/C=CC/ST=ST/L=Ll/O=OO/CN={{vars['corpusops_services_ftp_pureftpd_cert_cn']}}/"
