@@ -86,11 +86,23 @@
     block: |
            /bin/ftponly
 - shell: |
+    set -ex
     {% set key = corpusops_services_ftp_pureftpd_vars.key %}
     if [ ! -e "{{key}}" ];then
+      doi=1
+    {% if corpusops_services_ftp_pureftpd_vars.force_ssl_regen %}
+    else
+      CN=$(openssl x509 -in "{{corpusops_services_ftp_pureftpd_vars.key}}"  -noout -subject 2>&1|sed "s/.*CN\s*=\s*//g")
+      if [ "x${CN}" != "x{{corpusops_services_ftp_pureftpd_vars.cert_cn}}" ];then
+        doi=1
+      fi
+    {% endif %}
+    fi
+    if [ "x${doi}" = "x1" ];then
+      if [ -e "{{key}}" ];then rm -f "{{key}}";fi
       openssl req -batch -x509 -nodes -days 36500 -newkey rsa:2048 \
         -keyout "{{key}}" -out "{{key}}" \
-        -subj "/C=CC/ST=ST/L=Ll/O=OO/CN=CN/"
+        -subj "{{corpusops_services_ftp_pureftpd_vars.cert_subj}}"
     fi
     chmod 600 "{{key}}"
     chown root:root "{{key}}"
