@@ -47,8 +47,6 @@ corpusops_services_mail_postfix_filescopy_default:
    user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/relay_domains.local",
    user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
-- {dest: "{{corpusops_vars.config_dir}}/mailname",
-   user: "root", group: "postfix", mode: "640", force: false, content: "{{corpusops_services_mail_postfix_mailname}}", src: "{{omit}}"}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/transport.local",
    user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/destinations.local",
@@ -67,7 +65,9 @@ corpusops_services_mail_postfix_certs_configs:
    user: "root", group: "postfix", mode: "640"}
 corpusops_services_mail_postfix_configs_default:
 - {name: "{{corpusops_services_mail_postfix_prefix}}/resetperms.sh",
-   user: "root", group: "postfix", mode: "750"}
+   user: "root", group: "postfix", mode: "750"} 
+- {name: "{{corpusops_vars.config_dir}}/mailname",
+   user: "root", group: "root", mode: "644"}
 - {name: "{{corpusops_services_mail_postfix_prefix}}/virtual_alias_maps",
    user: "root", group: "postfix", mode: "640"}
 - {name: "{{corpusops_services_mail_postfix_prefix}}/networks",
