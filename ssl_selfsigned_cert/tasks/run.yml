@@ -17,14 +17,19 @@
       {% set c = ssl_selfsigned_cert_vars.gen_cert_path %}
       {% set k = ssl_selfsigned_cert_vars.gen_key_path %}
       set -eux
-      openssl req -new -nodes -x509 \
-        -subj "{{ssl_selfsigned_cert_vars.subject}}/CN={{ssl_selfsigned_cert_vars.cn}}/" \
-        -days "{{ssl_selfsigned_cert_vars.days}}" \
-        -keyout "{{k}}" -out "{{c}}"
+      if [ ! -e "{{k}}" ] || [ ! -e "{{c}}" ];then
+        openssl req -x509 \
+          -subj "{{ssl_selfsigned_cert_vars.subject}}/CN={{ssl_selfsigned_cert_vars.cn}}/" \
+          {{ssl_selfsigned_cert_vars.openssl_args}} \
+          -days "{{ssl_selfsigned_cert_vars.days}}" \
+          -keyout "{{k}}" -out "{{c}}"
+      fi
   - shell: "cat {{ssl_selfsigned_cert_vars.gen_cert_path}}"
     register: cert
+    no_log: "{{not (cops_secret_vars_debug|default(false))}}"
   - shell: "cat {{ssl_selfsigned_cert_vars.gen_key_path}}"
     register: key
+    no_log: "{{not (cops_secret_vars_debug|default(false))}}"
   - copy:
       mode: "0640"
       dest: "{{ssl_selfsigned_cert_vars.dest_cert_path}}"
@@ -32,6 +37,8 @@
       force: true
       owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
       group: "{{ssl_selfsigned_cert_vars.group or omit}}"
+    when:
+    - "vars['ssl_selfsigned_cert_gen_cert_path'] != vars['ssl_selfsigned_cert_dest_cert_path']"
   - copy:
       mode: "0640"
       dest: "{{ssl_selfsigned_cert_vars.dest_key_path}}"
@@ -39,6 +46,8 @@
       force: true
       owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
       group: "{{ssl_selfsigned_cert_vars.group or omit}}"
+    when:
+    - "vars['ssl_selfsigned_cert_gen_key_path'] != vars['ssl_selfsigned_cert_gen_key_path']"
   - copy:
       mode: "0640"
       dest: "{{ssl_selfsigned_cert_vars.dest_cert_full_path}}"
@@ -46,4 +55,3 @@
       force: true
       owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
       group: "{{ssl_selfsigned_cert_vars.group or omit}}"
-

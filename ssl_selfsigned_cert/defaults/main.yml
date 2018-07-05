@@ -7,13 +7,26 @@ ssl_selfsigned_cert_cops_knobs: []
 ssl_selfsigned_cert_cops_lowered: []
 ssl_selfsigned_cert_cops_sub_namespaces: {}
 ssl_selfsigned_cert_cn: "{{ansible_fqdn}}"
-ssl_selfsigned_cert_directory: "{{corpusops_vars.ssl_dir}}/selfsigned"
-ssl_selfsigned_cert_gen_cert_path: "{{vars['ssl_selfsigned_cert_directory']}}/{{vars['ssl_selfsigned_cert_cn']}}.crt"
-ssl_selfsigned_cert_gen_key_path: "{{vars['ssl_selfsigned_cert_directory']}}/{{vars['ssl_selfsigned_cert_cn']}}.key"
-ssl_selfsigned_cert_dest_cert_full_path: "{{corpusops_vars.ssl_dir}}/{{vars['ssl_selfsigned_cert_cn']}}.full.crt"
-ssl_selfsigned_cert_dest_cert_path: "{{corpusops_vars.ssl_dir}}/certs/{{vars['ssl_selfsigned_cert_cn']}}.crt"
-ssl_selfsigned_cert_dest_key_path: "{{corpusops_vars.ssl_dir}}/private/{{vars['ssl_selfsigned_cert_cn']}}.key"
+ssl_selfsigned_cert_directory: "{{vars['ssl_selfsigned_cert_prefix']}}/selfsigned"
+#
+ssl_selfsigned_cert_gen_cert_path: "{{vars['ssl_selfsigned_cert_dest_cert_path']}}"
+ssl_selfsigned_cert_gen_key_path: "{{vars['ssl_selfsigned_cert_dest_key_path']}}"
+# To generate cert in another place and copy in another place the cert, the full variant, and the key
+# ssl_selfsigned_cert_gen_cert_path: "{{vars['ssl_selfsigned_cert_directory']}}/{{vars['ssl_selfsigned_cert_cn']}}.crt"
+# ssl_selfsigned_cert_gen_key_path: "{{vars['ssl_selfsigned_cert_directory']}}/{{vars['ssl_selfsigned_cert_cn']}}.key"
+#
+ssl_selfsigned_cert_dest_cert_full_basename: "{{vars['ssl_selfsigned_cert_cn']}}.full.crt"
+ssl_selfsigned_cert_dest_cert_basename: "{{vars['ssl_selfsigned_cert_cn']}}.crt"
+ssl_selfsigned_cert_dest_cert_key_basename: "{{vars['ssl_selfsigned_cert_cn']}}.key"
+#
+ssl_selfsigned_cert_dest_cert_full_path: "{% if vars['ssl_selfsigned_cert_directory'] == corpusops_vars.ssl_dir %}{{  corpusops_vars.ssl_dir}}/certs{% else %}{{vars['ssl_selfsigned_cert_directory']}}{%endif %}/{{vars['ssl_selfsigned_cert_dest_cert_full_basename']}}"
+ssl_selfsigned_cert_dest_cert_path:      "{% if vars['ssl_selfsigned_cert_directory'] == corpusops_vars.ssl_dir %}{{  corpusops_vars.ssl_dir}}/certs{% else %}{{vars['ssl_selfsigned_cert_directory']}}{%endif %}/{{vars['ssl_selfsigned_cert_dest_cert_basename']}}"
+ssl_selfsigned_cert_dest_key_path:       "{% if vars['ssl_selfsigned_cert_directory'] == corpusops_vars.ssl_dir %}{{corpusops_vars.ssl_dir}}/private{% else %}{{vars['ssl_selfsigned_cert_directory']}}{%endif %}/{{vars['ssl_selfsigned_cert_dest_cert_key_basename']}}"
+#
+ssl_selfsigned_cert_prefix: "{{corpusops_vars.ssl_dir}}"
 ssl_selfsigned_cert_subject: "/C=US/ST=Oregon/L=Portland/O=IT/"
 ssl_selfsigned_cert_days: 365000
 ssl_selfsigned_cert_owner: ""
 ssl_selfsigned_cert_group: ""
+ssl_selfsigned_cert_openssl_args_default: "-new -newkey rsa:2048 -nodes"
+ssl_selfsigned_cert_openssl_args: "{{vars['ssl_selfsigned_cert_openssl_args_default']}}"
