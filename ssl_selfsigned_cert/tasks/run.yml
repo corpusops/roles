@@ -27,18 +27,19 @@
       f=$(mktemp)\
       && for i in "{{k}}" "{{c}}";do if [ -e "$i" ];then rm -fv "$i";fi;done \
       && cat "{{vars['ssl_selfsigned_openssl_config']}}">"$f"\
-      && printf "\n[SAN]\nsubjectAltName={{scns|join(',')}}">>"$f"\
+      && printf "\n[SAN]\nsubjectAltName={{scns|join(',')}}\n">>"$f"\
       && openssl req -x509 -config "$f" \
         {{ssl_selfsigned_cert_vars.openssl_args}} \
         -subj "{{ssl_selfsigned_cert_vars.subject}}" \
         -days "{{ssl_selfsigned_cert_vars.days}}" \
         -keyout "{{k}}" -out "{{c}}"  \
       && echo changed >&2
+      ret=$?
       if [ -e "$f" ];then rm -fv "$f";fi
       {% if not ssl_selfsigned_cert_vars.force %}
       fi
       {% endif %}
-      exit $?
+      exit $ret
     args: {executable: /bin/bash}
     register: _cops_ssl_g
     changed_when: "'changed' in _cops_ssl_g.stderr"
