@@ -6,7 +6,7 @@ ssl_selfsigned_cert_cops_sub_os_append: {}
 ssl_selfsigned_cert_cops_knobs: []
 ssl_selfsigned_cert_cops_lowered: []
 ssl_selfsigned_cert_cops_sub_namespaces: {}
-ssl_selfsigned_openssl_config: "/etc/ssl/openssl.cnf"
+ssl_selfsigned_openssl_config: "{{corpusops_vars.ssl_dir}}/openssl.cnf"
 ssl_selfsigned_cert_cn: "{{ansible_fqdn}}"
 ssl_selfsigned_cert_cns: ["{{vars['ssl_selfsigned_cert_cn']}}"]
 ssl_selfsigned_cert_directory: "{{vars['ssl_selfsigned_cert_prefix']}}/selfsigned"
