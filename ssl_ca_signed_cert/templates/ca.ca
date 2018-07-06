@@ -80,6 +80,7 @@ emailAddress                    = Email Address
 
 
 # Optionally, specify some defaults.
+# commonName_default              = {{d.root_ca_name}}
 countryName_default             = {{d.C}}
 stateOrProvinceName_default     = {{d.ST}}
 localityName_default            = {{d.L}}

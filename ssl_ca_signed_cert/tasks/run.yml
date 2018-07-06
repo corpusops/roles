@@ -29,99 +29,105 @@
 # intermediate key
 - stat: {path: "{{ssl_ca_signed_cert_vars.idirectory}}/private/intermediate.pkey.pem"}
   register: "corpusops_c_testsslca_ikey"
-- when: "((not corpusops_c_testsslca_ikey.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_ikey.stat.exists) or
           not (corpusops_c_testsslca_ikey.stat.get('size', 0)))"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.idirectory}}
-         openssl genrsa \
-          -passout "pass:{{ssl_ca_signed_cert_vars['ica_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
-          -{{ssl_ca_signed_cert_vars.signm}} -out private/intermediate.pkey.pem \
-           {{ssl_ca_signed_cert_vars.ica_klen}}
-         chmod 400 private/intermediate.pkey.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.idirectory}}
+    openssl genrsa \
+     -passout "pass:{{ssl_ca_signed_cert_vars['ica_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
+     -{{ssl_ca_signed_cert_vars.signm}} -out private/intermediate.pkey.pem \
+      {{ssl_ca_signed_cert_vars.ica_klen}}
+    chmod 400 private/intermediate.pkey.pem
 - stat: {path: "{{ssl_ca_signed_cert_vars.idirectory}}/private/intermediate.key.pem"}
   register: "corpusops_c_testsslca_ickey"
-- when: "((not corpusops_c_testsslca_ickey.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_ickey.stat.exists) or
           not (corpusops_c_testsslca_ickey.stat.get('size', 0)))"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.idirectory}}
-         openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ica_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
-         -in private/intermediate.pkey.pem -out private/intermediate.key.pem
-         chmod 400 private/intermediate.key.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.idirectory}}
+    openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ica_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
+    -in private/intermediate.pkey.pem -out private/intermediate.key.pem
+    chmod 400 private/intermediate.key.pem
 # root ca key
 - stat: {path: "{{ssl_ca_signed_cert_vars.directory}}/private/ca.pkey.pem"}
   register: "corpusops_c_testsslca_key"
-- when: "((not corpusops_c_testsslca_key.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_key.stat.exists) or
           not (corpusops_c_testsslca_key.stat.get('size', 0)))"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl genrsa \
-          -passout "pass:{{ssl_ca_signed_cert_vars['ca_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
-          -{{ssl_ca_signed_cert_vars.signm}} -out private/ca.pkey.pem \
-           {{ssl_ca_signed_cert_vars.ca_klen}}
-         chmod 400 private/ca.pkey.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.directory}}
+    openssl genrsa \
+     -passout "pass:{{ssl_ca_signed_cert_vars['ca_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
+     -{{ssl_ca_signed_cert_vars.signm}} -out private/ca.pkey.pem \
+      {{ssl_ca_signed_cert_vars.ca_klen}}
+    chmod 400 private/ca.pkey.pem
 - stat: {path: "{{ssl_ca_signed_cert_vars.directory}}/private/ca.key.pem"}
   register: "corpusops_c_testsslca_ckey"
-- when: "((not corpusops_c_testsslca_ckey.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_ckey.stat.exists) or
           not (corpusops_c_testsslca_ckey.stat.get('size', 0)))"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ca_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
-         -in private/ca.pkey.pem -out private/ca.key.pem
-         chmod 400 private/ca.key.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.directory}}
+    openssl rsa -passin "pass:{{ssl_ca_signed_cert_vars['ca_password_'+ssl_ca_signed_cert_vars.ca_name]}}" \
+    -in private/ca.pkey.pem -out private/ca.key.pem
+    chmod 400 private/ca.key.pem
 # root ca
 - stat: {path: "{{ssl_ca_signed_cert_vars.directory}}/certs/ca.cert.pem"}
   register: "corpusops_c_testsslca_cakey"
-- when: "not corpusops_c_testsslca_cakey.stat.exists"
+- when: "ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_cakey.stat.exists"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl req -batch -config openssl.ca.cnf \
-             -key private/ca.key.pem \
-             -days {{ssl_ca_signed_cert_vars.ca_days}} \
-             -new -x509 -sha256 -extensions v3_ca -out certs/ca.cert.pem
-         chmod 444 certs/ca.cert.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.directory}}
+    openssl req -batch -config openssl.ca.cnf \
+        -key private/ca.key.pem \
+        -days {{ssl_ca_signed_cert_vars.ca_days}} \
+        -subj "{{ssl_ca_signed_cert_vars.ca_subject}}" \
+        -new -x509 -sha256 -extensions v3_ca -out certs/ca.cert.pem
+    chmod 444 certs/ca.cert.pem
 # intermediate csr
 - stat: {path: "{{ssl_ca_signed_cert_vars.directory}}/intermediate/csr/intermediate.csr.pem"}
   register: "corpusops_c_testsslca_csr"
-- when: "not corpusops_c_testsslca_csr.stat.exists"
+- when: "ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_csr.stat.exists"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl req -config intermediate/openssl.cnf -new -sha256 \
-           -key intermediate/private/intermediate.key.pem \
-           -out intermediate/csr/intermediate.csr.pem \
-           -subj "{{ssl_ca_signed_cert_vars.subject
-                  }}CN={{ssl_ca_signed_cert_vars.ca_name}}/"
-         chmod 444 certs/ca.cert.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.directory}}
+    openssl req -config intermediate/openssl.cnf -new -sha256 \
+      -key intermediate/private/intermediate.key.pem \
+      -subj "{{ssl_ca_signed_cert_vars.intermediate_ca_subject}}" \
+      -out intermediate/csr/intermediate.csr.pem
+    chmod 444 certs/ca.cert.pem
 # intermediate cert
 - stat: {path: "{{ssl_ca_signed_cert_vars.directory}}/intermediate/certs/intermediate.cert.pem"}
   register: "corpusops_c_testsslca_icert"
-- when: "not corpusops_c_testsslca_icert.stat.exists"
+- when: "ssl_ca_signed_cert_vars.ca_force or not corpusops_c_testsslca_icert.stat.exists"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl ca -config openssl.cnf -batch \
-            -extensions v3_intermediate_ca \
-            -days {{ssl_ca_signed_cert_vars.ca_days-1}} -notext -md sha256 \
-            -in intermediate/csr/intermediate.csr.pem \
-            -out intermediate/certs/intermediate.cert.pem
-         chmod 444 intermediate/certs/intermediate.cert.pem
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.directory}}
+    openssl ca -config openssl.cnf -batch \
+       -extensions v3_intermediate_ca \
+       -days {{ssl_ca_signed_cert_vars.ca_days-1}} -notext -md sha256 \
+       -subj "{{ssl_ca_signed_cert_vars.intermediate_ca_subject}}" \
+       -in intermediate/csr/intermediate.csr.pem \
+       -out intermediate/certs/intermediate.cert.pem
+    chmod 444 intermediate/certs/intermediate.cert.pem
 - shell: |
-         cd  {{ssl_ca_signed_cert_vars.directory}}
-         cat intermediate/certs/intermediate.cert.pem certs/ca.cert.pem
-  register: cacert
+    cd  {{ssl_ca_signed_cert_vars.directory}}
+    cat certs/ca.cert.pem
+  register: caroot
+  changed_when: false
+- shell: |
+    cd  {{ssl_ca_signed_cert_vars.directory}}
+    cat intermediate/certs/intermediate.cert.pem
+  register: intermediate
   changed_when: false
 - copy:
     force: true
-    dest: "{{ssl_ca_signed_cert_vars.gen_cacert_path}}"
+    dest: "{{ssl_ca_signed_cert_vars.gen_chain_path}}"
     mode: "0444"
     owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
     group: "{{ssl_ca_signed_cert_vars.group or omit}}"
-    content: "{{cacert.stdout}}"
+    content: "{{'{0}'.format(intermediate.stdout.strip()+caroot.stdout.strip())}}"
 # Generate dest cert key
 - name: "Setup certificate passphrase"
   include_role: {name: corpusops.roles/get_secret_variable}
@@ -139,57 +145,76 @@
 - when: "((not corpusops_c_testsslca_ikey.stat.exists) or
           not (corpusops_c_testsslca_ikey.stat.get('size', 0)))"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.idirectory}}
-         openssl genrsa \
-          -passout "pass:{{ssl_kpass.msg}}" \
-          -{{ssl_ca_signed_cert_vars.signm}} \
-          -out {{ssl_ca_signed_cert_vars.gen_key_path}}p \
-           {{ssl_ca_signed_cert_vars.ica_klen}}
-         chmod 400 {{ssl_ca_signed_cert_vars.gen_key_path}}p
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.idirectory}}
+    openssl genrsa \
+     -passout "pass:{{ssl_kpass.msg}}" \
+     -{{ssl_ca_signed_cert_vars.signm}} \
+     -out {{ssl_ca_signed_cert_vars.gen_key_path}}p \
+      {{ssl_ca_signed_cert_vars.ica_klen}}
+    chmod 400 {{ssl_ca_signed_cert_vars.gen_key_path}}p
 - stat: {path: "{{ssl_ca_signed_cert_vars.gen_key_path}}"}
   register: "corpusops_c_testsslca_certkey"
-- when: "((not corpusops_c_testsslca_certkey.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.force or not corpusops_c_testsslca_certkey.stat.exists) or
           not (corpusops_c_testsslca_certkey.stat.get('size', 0)))"
   shell: |
-         set -ex
-         cd {{ssl_ca_signed_cert_vars.idirectory}}
-         openssl rsa \
-         -passin "pass:{{ssl_kpass.msg}}" \
-         -in  {{ssl_ca_signed_cert_vars.gen_key_path}}p \
-         -out {{ssl_ca_signed_cert_vars.gen_key_path}}
-         chmod 400 {{ssl_ca_signed_cert_vars.gen_key_path}}
+    set -ex
+    cd {{ssl_ca_signed_cert_vars.idirectory}}
+    openssl rsa \
+    -passin "pass:{{ssl_kpass.msg}}" \
+    -in  {{ssl_ca_signed_cert_vars.gen_key_path}}p \
+    -out {{ssl_ca_signed_cert_vars.gen_key_path}}
+    chmod 400 {{ssl_ca_signed_cert_vars.gen_key_path}}
 # generate dest certificate csr
 - stat: {path: "{{ssl_ca_signed_cert_vars.gen_csr_path}}"}
   register: "corpusops_c_testsslca_ikey"
-- when: "((not corpusops_c_testsslca_ikey.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.force or not corpusops_c_testsslca_ikey.stat.exists) or
           not (corpusops_c_testsslca_ikey.stat.get('size', 0)))"
-  shell: |
-         set -ex
-         {% set cn = ssl_ca_signed_cert_vars.cn %}
-         cd {{ssl_ca_signed_cert_vars.idirectory}}
-         openssl req -config openssl.cnf \
-            -key {{ssl_ca_signed_cert_vars.gen_key_path}} \
-            -new -sha256 \
-            -out "{{ssl_ca_signed_cert_vars.gen_csr_path}}" \
-            -subj "{{ssl_ca_signed_cert_vars.subject}}CN={{cn}}/"
-         chmod 400 "{{ssl_ca_signed_cert_vars.gen_csr_path}}"
+  shell: |-
+    set -x
+    {% set scns = [] %}
+    {% for i in ([ssl_ca_signed_cert_vars.cn] + ssl_ca_signed_cert_vars.cns)|copsf_uniquify %}
+    {%  set _ = scns.append("DNS:{0}".format(i)) %}
+    {% endfor %}
+    {% set cn = ssl_ca_signed_cert_vars.cn %}
+    cd {{ssl_ca_signed_cert_vars.idirectory}} \
+    && f=$(mktemp)\
+    && cat "openssl.cnf">"$f"\
+    && printf "\n[SAN]\nsubjectAltName={{scns|join(',')}}\n">>"$f"\
+    && openssl req \
+       {{ssl_ca_signed_cert_vars.csr_openssl_args}} \
+       -subj "{{ssl_ca_signed_cert_vars.subject}}" \
+       -key {{ssl_ca_signed_cert_vars.gen_key_path}} \
+       -out "{{ssl_ca_signed_cert_vars.gen_csr_path}}" \
+    && chmod 400 "{{ssl_ca_signed_cert_vars.gen_csr_path}}"
+    ret=$?
+    if [ -e "$f" ];then rm -fv "$f";fi
+    exit $ret
 # generate dest certificate cert
 - stat: {path: "{{ssl_ca_signed_cert_vars.gen_cert_path}}"}
   register: "corpusops_c_testsslca_idcert"
-- when: "((not corpusops_c_testsslca_idcert.stat.exists) or
+- when: "((ssl_ca_signed_cert_vars.force or not corpusops_c_testsslca_idcert.stat.exists) or
           not (corpusops_c_testsslca_idcert.stat.get('size', 0)))"
-  shell: |
-         set -ex
-         {% set cn = ssl_ca_signed_cert_vars.cn %}
-         cd {{ssl_ca_signed_cert_vars.directory}}
-         openssl ca -batch -config intermediate/openssl.cnf \
-          -extensions server_cert \
-          -days {{ssl_ca_signed_cert_vars.days}} \
-          -notext -md sha256 \
-          -in "{{ssl_ca_signed_cert_vars.gen_csr_path}}" \
-          -out "{{ssl_ca_signed_cert_vars.gen_cert_path}}"
-         chmod 444 "{{ssl_ca_signed_cert_vars.gen_cert_path}}"
+  shell: |-
+    set -x
+    {% set scns = [] %}
+    {% for i in ([ssl_ca_signed_cert_vars.cn] + ssl_ca_signed_cert_vars.cns)|copsf_uniquify %}
+    {%  set _ = scns.append("DNS:{0}".format(i)) %}
+    {% endfor %}
+    {% set cn = ssl_ca_signed_cert_vars.cn %}
+    cd {{ssl_ca_signed_cert_vars.directory}} \
+    && f=$(mktemp) \
+    && cat "intermediate/openssl.cnf">"$f"\
+    && printf "\n[SAN]\nsubjectAltName={{scns|join(',')}}\n">>"$f"\
+    && openssl ca \
+     {{ssl_ca_signed_cert_vars.sign_openssl_args}} \
+     -days {{ssl_ca_signed_cert_vars.days}} \
+     -in "{{ssl_ca_signed_cert_vars.gen_csr_path}}" \
+     -out "{{ssl_ca_signed_cert_vars.gen_cert_path}}" \
+    && chmod 444 "{{ssl_ca_signed_cert_vars.gen_cert_path}}"
+    ret=$?
+    if [ -e "$f" ];then rm -fv "$f";fi
+    exit $ret
 - shell: "cat {{ssl_ca_signed_cert_vars.gen_cert_path}}"
   register: cert
   changed_when: false
@@ -209,22 +234,71 @@
 - copy:
     mode: "0640"
     dest: "{{ssl_ca_signed_cert_vars.dest_cert_path}}"
-    content: "{{cert.stdout}}"
+    content: "{{'{0}\n'.format(cert.stdout.strip())}}"
     force: true
     owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
     group: "{{ssl_ca_signed_cert_vars.group or omit}}"
 - copy:
     mode: "0640"
     dest: "{{ssl_ca_signed_cert_vars.dest_key_path}}"
-    content: "{{key.stdout}}"
+    content: "{{'{0}\n'.format(key.stdout.strip())}}"
     force: true
     owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
     group: "{{ssl_ca_signed_cert_vars.group or omit}}"
 - copy:
     mode: "0640"
     dest: "{{ssl_ca_signed_cert_vars.dest_cert_full_path}}"
-    content: "{{cert.stdout+'\n'+cacert.stdout+'\n'+key.stdout}}"
+    content: "{{'{0}\n'.format(cert.stdout.strip()        +'\n'+
+                               intermediate.stdout.strip()+'\n'+
+                               caroot.stdout.strip()      +'\n'+
+                               key.stdout.strip())}}"
     force: true
     owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
     group: "{{ssl_ca_signed_cert_vars.group or omit}}"
-
+#
+- copy:
+    mode: "0640"
+    dest: "{{ssl_ca_signed_cert_vars.dest_cert_bundle_path}}"
+    content: "{{'{0}\n'.format(cert.stdout.strip()        +'\n'+
+                               intermediate.stdout.strip()+'\n'+
+                               caroot.stdout.strip())}}"
+    force: true
+    owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
+    group: "{{ssl_ca_signed_cert_vars.group or omit}}"
+- copy:
+    mode: "0640"
+    dest: "{{ssl_ca_signed_cert_vars.dest_cert_cachain_path}}"
+    content: "{{'{0}\n'.format(intermediate.stdout.strip()+'\n'+
+                               caroot.stdout.strip())}}"
+    force: true
+    owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
+    group: "{{ssl_ca_signed_cert_vars.group or omit}}"
+- copy:
+    mode: "0640"
+    dest: "{{ssl_ca_signed_cert_vars.dest_cert_intermediate_path}}"
+    content: "{{'{0}\n'.format(intermediate.stdout.strip())}}"
+    force: true
+    owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
+    group: "{{ssl_ca_signed_cert_vars.group or omit}}"
+- copy:
+    mode: "0640"
+    dest: "{{ssl_ca_signed_cert_vars.dest_cert_caroot_path}}"
+    content: "{{'{0}\n'.format(caroot.stdout.strip())}}"
+    force: true
+    owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
+    group: "{{ssl_ca_signed_cert_vars.group or omit}}"
+- copy:
+    remote_src: true
+    force: true
+    src: "{{certlnk}}"
+    dest: "{{(certlnk.split('.')[:-1]+[vars['ssl_ca_signed_cert_lnk_ext']])|join('.')}}"
+  loop_control: {loop_var: certlnk}
+  when: "ssl_ca_signed_cert_vars.do_links and not certlnk.endswith(vars['ssl_ca_signed_cert_lnk_ext'])"
+  with_items:
+  - "{{ssl_ca_signed_cert_vars.dest_cert_path}}"
+  - "{{ssl_ca_signed_cert_vars.dest_key_path}}"
+  - "{{ssl_ca_signed_cert_vars.dest_cert_full_path}}"
+  - "{{ssl_ca_signed_cert_vars.dest_cert_bundle_path}}"
+  - "{{ssl_ca_signed_cert_vars.dest_cert_cachain_path}}"
+  - "{{ssl_ca_signed_cert_vars.dest_cert_intermediate_path}}"
+  - "{{ssl_ca_signed_cert_vars.dest_cert_caroot_path}}"
