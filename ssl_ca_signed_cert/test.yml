@@ -1,6 +1,11 @@
 ---
 - hosts: all
   tasks:
+  - file: {state: absent, path: "{{item}}"}
+    with_items: [/tmp/catest]
+  - set_fact:
+      _ssl_ca_signed_cert:
+        prefix: /tmp/catest
+        cn: foobar
+        cns: [foobar, bar]
   - include_role: {private: true, name: corpusops.roles/ssl_ca_signed_cert}
-    with_items: [{cn: foobar}]
-    loop_control: {loop_var: _ssl_ca_signed_cert}
