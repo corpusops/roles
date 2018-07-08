@@ -1,11 +1,12 @@
 # {{ansible_managed}}
-#{% set v = docker_compose_service_vars %}
+#{% set v = vars['docker_compose_service_vars'] %}
 #{% set d = v.project %}
-#{% set w = v.working_directory %}
+#{% set w = v.path %}
 [Unit]
 Description={{d}} DockerCompose service
-After=network.service docker.service
-Requires=docker.service
+Before={{v._before}}
+After={{v._after}}
+Requires={{v._requires}}
 [Service]
 {% if v.restart %}
 Restart={{v.restart}}
@@ -17,15 +18,15 @@ RestartSec={{v.restart_sec}}
 TimeoutSec={{v.timeout_sec}}
 {% endif %}
 WorkingDirectory={{w}}
-ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
-ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" pull
-ExecStartPre=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
-ExecStart=/usr/bin/env    docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" up
-ExecStop=/usr/bin/env     docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
-ExecStop=/usr/bin/env     docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" stop
-ExecStopPost=/usr/bin/env     docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" config
-ExecStopPost=/usr/bin/env docker-compose -f "{{docker_compose_service_vars.docker_compose_file}}" -p "{{d}}" down
+ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.config_args}} -p "{{d}}" config
+ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.pull_args}}   -p "{{d}}" pull
+ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.config_args}} -p "{{d}}" config
+ExecStart=/usr/bin/env    docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.up_args}}     -p "{{d}}" up
+ExecStop=/usr/bin/env     docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.config_args}} -p "{{d}}" config
+ExecStop=/usr/bin/env     docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.stop_args}}   -p "{{d}}" stop
+ExecStopPost=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.config_args}} -p "{{d}}" config
+ExecStopPost=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} {{v.down_args}}   -p "{{d}}" down
 
 [Install]
-WantedBy=docker.service
+WantedBy={{v.wantedby}}
 # vim: set ft=systemd:
