@@ -9,7 +9,7 @@ corpusops_localsettings_nodejs_cops_knobs: ['mirror', 'repo', 'version',
 corpusops_localsettings_nodejs_cops_sub_namespaces:
   settings: {}
 corpusops_localsettings_nodejs_version: '7.10.0'
-corpusops_localsettings_nodejs_yarn_version: '0.24.6'
+corpusops_localsettings_nodejs_yarn_version: '1.7.0'
 corpusops_localsettings_nodejs_filetest: [bin/node, bin/npm]
 corpusops_localsettings_nodejs_yarn_filetest: [bin/yarn]
 corpusops_localsettings_nodejs_versions: []
@@ -61,5 +61,5 @@ corpusops_localsettings_nodejs_yarn_urls:
   archive: "https://github.com/yarnpkg/yarn/releases/download/v{{corpusops_localsettings_nodejs_yarn_version}}/{{corpusops_localsettings_nodejs_yarn_archive}}"
   archive_crc: "https://github.com/yarnpkg/yarn/releases/download/v{{corpusops_localsettings_nodejs_yarn_version}}/{{corpusops_localsettings_nodejs_yarn_archive}}.asc"
   #verify_gpg: ["https://dl.yarnpkg.com/debian/pubkey.gpg"]
-  verify_gpg: [9D41F3C3]
+  verify_gpg: [9D41F3C3, B6FF4DE3]
 
