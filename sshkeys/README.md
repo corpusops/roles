@@ -34,3 +34,48 @@
               comment: foobar
               key_options: ""
 ```
+
+Another dynamic sample
+
+```yaml
+corpusops_ssh_keys_map:
+  baruser:
+    - "ssh-rsa xx== far@user"
+  foouser:
+    - "ssh-rsa xx== foo@user"
+  foouser2:
+    - "ssh-rsa xx== foo@user2"
+corpusops_ssh_added_keys_map_: |-
+  {%- set admin_access = ["foouser"] %
+  {%- set sadmin_access = ', '.join(admin_access) %}
+  corp.foo.net: [{{sadmin_access}}]
+  corp.foo.net: [foouser, foouser2]
+corpusops_ssh_added_keys_map: "{{(corpusops_ssh_added_keys_map_
+        |from_yaml|to_json).strip()}}"
+corpusops_ssh_removed_keys_map:
+  default: []
+  other.foo.net: [baruser]
+_cops_sshkeys:
+  removed: |-
+    {% set keys = [] %}
+    {% set dkeys = {'root': {'mode': 'all', 'ssh_keys': keys}} %}
+    {% set d = corpusops_ssh_removed_keys_map.get('default', []) %}
+    {% for i in corpusops_ssh_removed_keys_map.get(ansible_host,
+        corpusops_ssh_removed_keys_map.get(inventory_hostname, d)) %}
+    {%  for j in corpusops_ssh_keys_map.get(i, []) %}
+    {%    set _ = keys.append({'key': j}) %}
+    {%  endfor %}
+    {% endfor %}
+    {{ dkeys | to_json }}
+  added: |-
+    {% set keys = [] %}
+    {% set dkeys = {'root': {'ssh_keys': keys}} %}
+    {% set d = corpusops_ssh_added_keys_map.get('default', []) %}
+    {% for i in corpusops_ssh_added_keys_map.get(ansible_host,
+          corpusops_ssh_added_keys_map.get(inventory_hostname, d)) %}
+    {%  for j in corpusops_ssh_keys_map.get(i, []) %}
+    {%    set _ = keys.append({'key': j}) %}
+    {%  endfor %}
+    {% endfor %}
+    {{ dkeys | to_json }}
+```
