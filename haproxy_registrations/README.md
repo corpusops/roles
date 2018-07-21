@@ -64,7 +64,9 @@ Notes:
             **regexes/wildcards/hosts** knob
             regexes
             :   list of regexeses to match in the form
-                \[host\_regex, PATH\_URI\_regex\]
+                \[host\_regex
+                or [\[host\_regex, PATH\_URI\_regex\] (opt)]
+                or [host: \[host\_regex (opt), path PATH\_URI\_regex\] (opt)] [AT LEAST ONE]
             wildcards
             :   list to strings which insensitive match if the
                 header `HOST` endswith

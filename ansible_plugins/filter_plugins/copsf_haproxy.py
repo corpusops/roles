@@ -211,18 +211,58 @@ def register_frontend(data,
                     aclmode == 'regex' and match == '.*'
                 ]):
                     aclmode = 'default'
+                # in regex mode
+                # if obj is string only match on host
+                # if ovh is dict
+                # try to construct a filter based on
+                #   host or url path
+                regexes = tuple()
+                if aclmode == 'regex':
+                    nmatch = {'host': None, 'path': None}
+                    if isinstance(match, six.string_types):
+                        nmatch['host'] = match
+                    elif isinstance(match, list):
+                        if len(match) > 0:
+                            nmatch['host'] = match[0]
+                        if len(match) > 1:
+                            nmatch['path'] = match[1]
+                    elif isinstance(match, dict):
+                        nmatch.update(match)
+                    match = nmatch
+                    if not (nmatch['host'] or nmatch['path']):
+                        raise ValueError(
+                            'No host or port in regex haproxy registration')
+                    if nmatch['host'] and nmatch['path']:
+                        regexes = (
+                            ['acl rgx_{sane_match}'
+                             ' hdr_reg(host) -i {match[host]}'
+                             ' url_reg -i {match[path]}',
+                             'acl rgx_{sane_match}port'
+                             ' hdr_reg(host) -i {match[host]}:{port}'
+                             ' url_reg -i {match[path]}'],
+                            ['use_backend {bck_name} if rgx_{sane_match}',
+                             'use_backend {bck_name} if rgx_{sane_match}port'])
+                    elif nmatch['host']:
+                        regexes = (
+                            ['acl rgx_{sane_match}'
+                             ' hdr_reg(host) -i {match[host]}',
+                             'acl rgx_{sane_match}port'
+                             ' hdr_reg(host) -i {match[host]}:{port}'],
+                            ['use_backend {bck_name} if rgx_{sane_match}',
+                             'use_backend {bck_name} if rgx_{sane_match}port'])
+                    elif nmatch['path']:
+                        regexes = (
+                            ['acl rgx_{sane_match}'
+                             ' url_reg -i {match[path]}',
+                             'acl rgx_{sane_match}port'],
+                            [' url_reg -i {match[path]}',
+                             'use_backend {bck_name} if rgx_{sane_match}',
+                             'use_backend {bck_name} if rgx_{sane_match}port'])
                 cfgentries = {
                     'default': (
                         [],
                         ['default_backend {bck_name}']),
-                    'regex': (
-                        ['acl rgx_{sane_match}'
-                         ' hdr_reg(host) -i {match[0]} url_reg'
-                         ' -i {match[1]}',
-                         'acl rgx_{sane_match}'
-                         ' hdr_reg(host) -i {match[0]} url_reg'
-                         ' -i {match[1]}:{port}'],
-                        ['use_backend {bck_name} if rgx_{sane_match}']),
+                    'regex': regexes,
                     'wildcard': (
                         ['acl wc_{sane_match} hdr_end(host) -i {match}',
                          'acl wc_{sane_match} hdr_end(host) -i {match}:{port}'],  #noqa
