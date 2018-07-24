@@ -43,7 +43,7 @@ cops_deploy_ssh_key_paths:
     # should be in an encypted vault
     - hosts: localhost
       # for the filter copsf_abspath to be loaded
-      roles: {name:  "corpusops.roles/ansible_plugins"}
+      roles: ["corpusops.roles/ansible_plugins"]
       tasks:
       # the variable cops_deploy_ssh_key_paths should have been set at this
       # stage in inventory or via a fact
