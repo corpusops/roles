@@ -42,5 +42,6 @@
       wantedby: systemd Unit wantedby slot
       restart: systemd Unit restart slot ("no")
       restart_sec: systemd Unit restart_sec slot ("0")
-      timeout_sec: (systemd Unit timeout_sec slot "300")
+      timeout_sec: systemd Unit timeout_sec slot ("300")
+      down_volumes: also remove named/anonymous volumes during down (https://docs.docker.com/compose/reference/down/ (false))
     ```

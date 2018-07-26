@@ -15,13 +15,14 @@ docker_compose_service_pull_args:   "{{vars['docker_compose_service_vars'].args}
 docker_compose_service_config_args: "{{vars['docker_compose_service_vars'].args}}"
 docker_compose_service_up_args:     "{{vars['docker_compose_service_vars'].args}}"
 docker_compose_service_stop_args:   "{{vars['docker_compose_service_vars'].args}}"
-docker_compose_service_down_args:   "{{vars['docker_compose_service_vars'].args}}"
+docker_compose_service_down_args:   "{{vars['docker_compose_service_vars'].args}} {% if vars['docker_compose_service_vars'].down_volumes %}-v{%endif %}"
 #
 docker_compose_service_restart: "no"
 docker_compose_service_restart_sec: "0"
 docker_compose_service_timeout_sec: "300"
 # restart_sec: "10"
 docker_compose_service_state: started
+docker_compose_service_down_volumes: false
 docker_compose_service_before: ""
 docker_compose_service_after: ""
 docker_compose_service_requires: ""
