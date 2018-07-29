@@ -63,10 +63,11 @@ Notes:
         :   Proxy HTTP(s) requests, depending on an additionnal
             **regexes/wildcards/hosts** knob
             regexes
-            :   list of regexeses to match in the form
-                \[host\_regex
-                or [\[host\_regex, PATH\_URI\_regex\] (opt)]
-                or [host: \[host\_regex (opt), path PATH\_URI\_regex\] (opt)] [AT LEAST ONE]
+            :   list of regexeses to match either in the form
+                - ``\[host\_regex``
+                - ``[\[host\_regex, PATH\_URI\_regex\] (opt)]``
+                - ``{host: \[host\_regex (opt), path PATH\_URI\_regex\] (opt)}``
+                [AT LEAST ONE of: ``host`` or ``path`` is required]
             wildcards
             :   list to strings which insensitive match if the
                 header `HOST` endswith
