@@ -62,26 +62,6 @@ Notes:
         http/https
         :   Proxy HTTP(s) requests, depending on an additionnal
             **regexes/wildcards/hosts** knob
-            regexes
-            :   list of regexeses to match either in the form
-                - ``\[host\_regex``
-                - ``[\[host\_regex, PATH\_URI\_regex\] (opt)]``
-                - ``{host: \[host\_regex (opt), path PATH\_URI\_regex\] (opt)}``
-                [AT LEAST ONE of: ``host`` or ``path`` is required]
-            wildcards
-            :   list to strings which insensitive match if the
-                header `HOST` endswith
-            hosts
-            :   list to strings which insensitive match exactly
-                the header `HOST`
-			letsencrypt
-			:   bool, activate letsencrypt wellknown wrapper
-			letsencrypt_host
-			:   host for letsencrypt backend
-            letsencrypt_http_port
-			:   port for letsencrypt backend (54080)
-            letsencrypt_tls_port
-			:   TLS port for letsencrypt backend (54443)
         tcp/tcps
         :   configure a tcp based proxy, here
             **regexes/wildcards/hosts** is useless. Be warn,
@@ -108,7 +88,30 @@ Notes:
     difficult. Prefer to use a sensible configuration for your case
     rather than complicating the ACLS generation algorythm.
 
-### proxy
+
+### http
+- HTTP proxies are the mostly used proxy
+    - regexes
+      :   list of regexeses to match either in the form
+          - ``\[host\_regex``
+          - ``[\[host\_regex, PATH\_URI\_regex\] (opt)]``
+          - ``{host: \[host\_regex (opt), path PATH\_URI\_regex\] (opt)}``
+          - [AT LEAST ONE of: ``host`` or ``path`` is required]
+    -  wildcards
+      :   list to strings which insensitive match if the
+          header `HOST` endswith
+    - hosts
+      :   list to strings which insensitive match exactly
+          the header `HOST`
+    - letsencrypt (opt)
+      :   bool, activate letsencrypt wellknown wrapper
+    - letsencrypt_host  (opt)
+      :   host for letsencrypt backend
+    - letsencrypt_http_port (opt)
+      :   port for letsencrypt backend (54080)
+    - letsencrypt_tls_port (opt)
+      :   TLS port for letsencrypt backend (54443)
+### http: host
 If we have a minion haproxy1 and want to proxy to myapp2-1 on http &
 https when a request targeting "www.super.com" arrise. all we have to do
 is to:
@@ -121,7 +124,7 @@ corpusops_haproxy_registrations_registrations_haproxy1:
     hosts: [www.super.com]
 ```
 
-### wildcard
+#### http: wildcard
 Wilcards are also supported via the wildcards key
 
 ```yaml
@@ -130,13 +133,19 @@ corpusops_haproxy_registrations_registrations_haproxy1:
     wildcards: ['*.www.super.com']
 ```
 
-### regex
+#### http: regex
 regex is also supported via the regexes key
 
 ```yaml
 corpusops_haproxy_registrations_registrations_haproxy1:
   - ip: 10.0.3.14
-    regexes: ['my.*supemyappost.com', '^/api']
+    regexes: ['my.*supemyappost.com']
+corpusops_haproxy_registrations_registrations_haproxy1:
+  - ip: 10.0.3.14
+    regexes: [['my.*supemyappost.com', '^/api']]
+corpusops_haproxy_registrations_registrations_haproxy1:
+  - ip: 10.0.3.14
+    regexes: [{host: 'my.*supemyappost.com', path: '^/api'}]
 ```
 
 if we want to proxy http to port "81" of myapp2-1 & https to 444
@@ -150,29 +159,7 @@ corpusops_haproxy_registrations_registrations_haproxy1:
       443: {to_port: 444}
 ```
 
-### redis
-We have a special redis mode to do custom health checks on a redis cluster
-
-Short form if you use the default port on both ends:
-
-```yaml
-corpusops_haproxy_registrations_registrations_haredis:
-  - ip: 10.0.3.14 # localip of myapp2-1
-    frontends:
-      6378:  {}
-```
-
-#### Long forms
-
-```yaml
-corpusops_haproxy_registrations_registrations_haredis:
-  - ip: 10.0.3.14
-    frontends:
-      66378: {to_port: 666, mode: redis}
-      6378: {mode: redis}
-```
-
-#### SSL terminator / offloader
+### SSL terminator / offloader
 ```yaml
 corpusops_haproxy_registrations_registrations_haredis:
 - hosts: ["foobar"]
@@ -203,6 +190,28 @@ corpusops_haproxy_registrations_registrations_haredis:
       to_port: "180"
       ssl_terminated: true
 
+```
+
+### redis
+We have a special redis mode to do custom health checks on a redis cluster
+
+Short form if you use the default port on both ends:
+
+```yaml
+corpusops_haproxy_registrations_registrations_haredis:
+  - ip: 10.0.3.14 # localip of myapp2-1
+    frontends:
+      6378:  {}
+```
+
+Long forms
+
+```yaml
+corpusops_haproxy_registrations_registrations_haredis:
+  - ip: 10.0.3.14
+    frontends:
+      66378: {to_port: 666, mode: redis}
+      6378: {mode: redis}
 ```
 
 #### Redis auth is supported this way
