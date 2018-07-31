@@ -111,6 +111,19 @@ Notes:
       :   port for letsencrypt backend (54080)
     - letsencrypt_tls_port (opt)
       :   TLS port for letsencrypt backend (54443)
+
+if we want to proxy http to port "81" of myapp2-1 & https to 444
+
+```yaml
+corpusops_haproxy_registrations_registrations_haproxy1:
+  - ip: 10.0.3.14
+    hosts: [www.super.com]
+    #( or regexes/wildcards)
+    frontends:
+      80:  {to_port: 81}
+      443: {to_port: 444}
+```
+
 ### http: host
 If we have a minion haproxy1 and want to proxy to myapp2-1 on http &
 https when a request targeting "www.super.com" arrise. all we have to do
@@ -146,17 +159,6 @@ corpusops_haproxy_registrations_registrations_haproxy1:
 corpusops_haproxy_registrations_registrations_haproxy1:
   - ip: 10.0.3.14
     regexes: [{host: 'my.*supemyappost.com', path: '^/api'}]
-```
-
-if we want to proxy http to port "81" of myapp2-1 & https to 444
-
-```yaml
-corpusops_haproxy_registrations_registrations_haproxy1:
-  - ip: 10.0.3.14
-    hosts: [www.super.com]
-    frontends:
-      80:  {to_port: 81}
-      443: {to_port: 444}
 ```
 
 ### SSL terminator / offloader
