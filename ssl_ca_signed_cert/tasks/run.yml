@@ -168,22 +168,34 @@
 # generate dest certificate csr
 - stat: {path: "{{ssl_ca_signed_cert_vars.gen_csr_path}}"}
   register: "corpusops_c_testsslca_ikey"
-- when: "((ssl_ca_signed_cert_vars.force or not corpusops_c_testsslca_ikey.stat.exists) or
-          not (corpusops_c_testsslca_ikey.stat.get('size', 0)))"
+- stat: {path: "{{ssl_ca_signed_cert_vars.gen_cert_path}}"}
+  register: "corpusops_c_testsslca_idcert"
+- when: "(ssl_ca_signed_cert_vars.force or
+          not corpusops_c_testsslca_idcert.stat.exists or
+          not corpusops_c_testsslca_idcert.stat.get('size', 0) or
+          not corpusops_c_testsslca_ikey.stat.exists or
+          not corpusops_c_testsslca_ikey.stat.get('size', 0))"
   shell: |-
     set -x
     {% set scns = [] %}
     {% for i in ([ssl_ca_signed_cert_vars.cn] + ssl_ca_signed_cert_vars.cns)|copsf_uniquify %}
     {%  set _ = scns.append("DNS:{0}".format(i)) %}
     {% endfor %}
-    {% set cn = ssl_ca_signed_cert_vars.cn %}
+    {% set cn = ssl_ca_signed_cert_vars.cn %}*
+    {% if '/cn=' in ssl_ca_signed_cert_vars.subject %}
+    {% set subj = ssl_ca_signed_cert_vars.subject %}
+    {% else %}
+    {% set subj = "{0}CN={1}/".format(
+        ssl_ca_signed_cert_vars.subject,
+                                ssl_ca_signed_cert_vars.cn) %}
+    {% endif %}
     cd {{ssl_ca_signed_cert_vars.idirectory}} \
     && f=$(mktemp)\
     && cat "openssl.cnf">"$f"\
     && printf "\n[SAN]\nsubjectAltName={{scns|join(',')}}\n">>"$f"\
     && openssl req \
        {{ssl_ca_signed_cert_vars.csr_openssl_args}} \
-       -subj "{{ssl_ca_signed_cert_vars.subject}}" \
+       -subj "{{subj}}" \
        -key {{ssl_ca_signed_cert_vars.gen_key_path}} \
        -out "{{ssl_ca_signed_cert_vars.gen_csr_path}}" \
     && chmod 400 "{{ssl_ca_signed_cert_vars.gen_csr_path}}"
@@ -191,10 +203,9 @@
     if [ -e "$f" ];then rm -fv "$f";fi
     exit $ret
 # generate dest certificate cert
-- stat: {path: "{{ssl_ca_signed_cert_vars.gen_cert_path}}"}
-  register: "corpusops_c_testsslca_idcert"
-- when: "((ssl_ca_signed_cert_vars.force or not corpusops_c_testsslca_idcert.stat.exists) or
-          not (corpusops_c_testsslca_idcert.stat.get('size', 0)))"
+- when: "(ssl_ca_signed_cert_vars.force or
+          not corpusops_c_testsslca_idcert.stat.exists or
+          not corpusops_c_testsslca_idcert.stat.get('size', 0))"
   shell: |-
     set -x
     {% set scns = [] %}
