@@ -17,3 +17,6 @@ Restart=always
 ExecStart={{data.initd}} start
 ExecStop={{data.initd}} stop
 ExecReload={{data.initd}} reload
+
+[Install]
+WantedBy=multi-user.target
