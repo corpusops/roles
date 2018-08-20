@@ -8,32 +8,38 @@
 - include_role: {name: corpusops.roles/configs}
   vars:
     cops_configs_files:
-      - dest: /tmp/configstests/testdir
-        state: directory
+    - dest: /tmp/configstests/testdir
+      state: directory
     cops_configs_copys:
-      - dest: /tmp/configstests/t
-      - dest: /tmp/configstests/i
-        src: templates/tmp/configstests/g
-      - dest: /tmp/configstests/test
-        content: foobar
-        # other supported params
-        # src:
-        # force:
-        # mode:
-        # owner:
-        # group:
-        # trim_blocks:
+    - dest: /tmp/configstests/t
+    - dest: /tmp/configstests/i
+      src: templates/tmp/configstests/g
+    - dest: /tmp/configstests/test
+      content: foobar
+      # other supported params
+      # src:
+      # force:
+      # mode:
+      # owner:
+      # group:
+      # dir_mode:
+      # dir_owner:
+      # dir_group:
+      # trim_blocks:
     cops_configs_templates:
-      - dest: /tmp/configstests/f
-      - dest: /tmp/configstests/h
-        template: templates/tmp/configstests/g
-        # other supported params
-        # src:
-        # force:
-        # mode:
-        # owner:
-        # group:
-        # recurse:
+    - dest: /tmp/configstests/f
+    - dest: /tmp/configstests/h
+      template: templates/tmp/configstests/g
+      # other supported params
+      # src:
+      # force:
+      # mode:
+      # owner:
+      # group:
+      # dir_mode:
+      # dir_owner:
+      # dir_group:
+      # recurse:
     # cops_configs_retry_delay: 1
     # cops_configs_retries: "{{10**5}}"
     # cops_configs_notify
