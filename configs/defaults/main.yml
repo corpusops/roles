@@ -16,6 +16,7 @@ cops_configs_copys_notify: "{{cops_configs_templates_notify}}"
 
 # for now template does not support async
 # https://github.com/ansible/ansible/issues/32265
+cops_configs_prefix: ""
 cops_configs_is_async: False
 cops_configs_async: "{{10**5}}"
 cops_configs_poll: "{{0}}"

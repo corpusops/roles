@@ -13,7 +13,6 @@ it will increase a lot performance.
 
 - See:
     - [tests1](./test_role/tasks/main.yml)
-    - [tests caller](./test.yml)
 
 - order: files, templates, filecopys
 

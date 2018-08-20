@@ -1,6 +1,15 @@
 ---
 # install custom config files
 # vars[bar] is the uninterpreted value
+- set_fact:
+    cacheable: false
+    cops_ansible_search_path: |-
+      {%- set res = [] %}
+      {%- for i in ansible_search_path %}
+      {%-  set _ = res.append('{0}/templates'.format(i)) %}
+      {%-  set _ = res.append(i) %}
+      {%- endfor %}
+      {{- res | to_json }}
 - assert:
     that: "{{cops_configs_files|copsf_islist}}"
     msg: "{{cops_configs_files}} is not a list"
@@ -11,9 +20,27 @@
     that: "{{cops_configs_templates|copsf_islist}}"
     msg: "{{cops_configs_templates}} is not a list"
 - when: ["cops_configs_is_async_files"]
+  name: async files [directory]
+  file:
+    state: directory
+    path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_fl_item.name | default(cops_aconfig_fl_item.path))
+             | copsf_dirname}}"
+    mode: "{{cops_aconfig_fl_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_fl_item.dir_owner|default(cops_aconfig_fl_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_fl_item.dir_group|default(cops_aconfig_fl_item.group|default(omit))}}"
+  async: "{{cops_configs_async}}"
+  poll: "{{cops_configs_poll}}"
+  notify: "{{cops_configs_templates_notify
+             | default((cops_configs_notify
+             | default([])))}}"
+  loop_control: {loop_var: cops_aconfig_fl_item}
+  with_list: "{{cops_configs_files|default([])}}"
+  register: cops_configs_files_dirs_results
+- when: ["cops_configs_is_async_files"]
   name: async files
   file:
-    path: "{{cops_aconfig_fl_item.name
+    path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_fl_item.name
              | default(cops_aconfig_fl_item.path)}}"
     state: "{{cops_aconfig_fl_item.state|default(omit)}}"
     src: "{{cops_aconfig_fl_item.src|default(omit)}}"
@@ -35,11 +62,28 @@
     cops_async_results: "{{cops_configs_files_results}}"
 
 - when: "not (cops_configs_is_async|default(_cops_configs_is_async))"
+  name: sync files [directory]
+  file:
+    state: directory
+    path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_fl_item.name | default(cops_aconfig_fl_item.dest
+             | default(cops_aconfig_fl_item.path)))
+             | copsf_dirname}}"
+    mode: "{{cops_aconfig_fl_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_fl_item.dir_owner|default(cops_aconfig_fl_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_fl_item.dir_group|default(cops_aconfig_fl_item.group|default(omit))}}"
+  notify: "{{cops_configs_templates_notify
+             | default((cops_configs_notify
+             | default([])))}}"
+  loop_control: {loop_var: cops_aconfig_fl_item}
+  with_list: "{{cops_configs_files|default([])}}"
+  register: cops_configs_files_dirs_results
+- when: "not (cops_configs_is_async|default(_cops_configs_is_async))"
   name: sync files
   file:
-    path: "{{cops_aconfig_fl_item.name
+    path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_fl_item.name
              | default(cops_aconfig_fl_item.dest
-                 | default(cops_aconfig_fl_item.path))}}"
+             | default(cops_aconfig_fl_item.path))}}"
     state: "{{cops_aconfig_fl_item.state|default(omit)}}"
     src: "{{cops_aconfig_fl_item.src|default(omit)}}"
     mode: "{{cops_aconfig_fl_item.mode|default(omit)}}"
@@ -55,16 +99,33 @@
 
 # install custom config templates
 - when: ["cops_configs_is_async_templates"]
+  name: async templates [directory]
+  file:
+    state: directory
+    path: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
+             | copsf_dirname}}"
+    mode: "{{cops_aconfig_cfg_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_cfg_item.dir_owner|default(cops_aconfig_cfg_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_cfg_item.dir_group|default(cops_aconfig_cfg_item.group|default(omit))}}"
+  async: "{{cops_configs_async}}"
+  poll: "{{cops_configs_poll}}"
+  notify: "{{cops_configs_templates_notify
+             | default((cops_configs_notify
+             | default([])))}}"
+  loop_control: {loop_var: cops_aconfig_cfg_item}
+  with_list: "{{cops_configs_templates|default([])}}"
+  register: cops_configs_templates_dirs_results
+  vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
+- when: ["cops_configs_is_async_templates"]
   name: async templates
   template:
-    dest: "{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
+    dest: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
     src: "{{cops_aconfig_cfg_item.src
-            | default(
-                cops_aconfig_cfg_item.template
-                | default('templates{0}'.format(
-                  cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
-                  )
-              )}}"
+            |default(cops_aconfig_cfg_item.template|default(
+             (cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
+              | copsf_append_templates_dir_to_default_abs_template_path
+            ))}}"
     force: "{{cops_aconfig_cfg_item.force|default(True)}}"
     mode: "{{cops_aconfig_cfg_item.mode|default(omit)}}"
     owner: "{{cops_aconfig_cfg_item.owner|default(omit)}}"
@@ -79,22 +140,37 @@
   loop_control: {loop_var: cops_aconfig_cfg_item}
   with_list: "{{cops_configs_templates|default([])}}"
   register: cops_configs_templates_results
+  vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
 - when: ["cops_configs_is_async_templates"]
   include_tasks: ./_wrap_include_role.yml
   vars:
     cops_async_results: "{{cops_configs_templates_results}}"
 
 - when: ["not cops_configs_is_async_templates"]
+  name: sync templates [directory]
+  file:
+    state: directory
+    path: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_cfg_item.dest
+             |default(cops_aconfig_cfg_item.name))
+             | copsf_dirname}}"
+    mode: "{{cops_aconfig_cfg_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_cfg_item.dir_owner|default(cops_aconfig_cfg_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_cfg_item.dir_group|default(cops_aconfig_cfg_item.group|default(omit))}}"
+  notify: "{{cops_configs_templates_notify|default((cops_configs_notify|default([])))}}"
+  loop_control: {loop_var: cops_aconfig_cfg_item}
+  with_list: "{{cops_configs_templates|default([])}}"
+  register: cops_configs_templates_dirs_results
+  vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
+- when: ["not cops_configs_is_async_templates"]
   name: sync templates
   template:
-    dest: "{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
+    dest: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
     src: "{{cops_aconfig_cfg_item.src
-            | default(
-                cops_aconfig_cfg_item.template
-                | default('templates{0}'.format(
-                  cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
-                  )
-              )}}"
+            |default(cops_aconfig_cfg_item.template|default(
+             (cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
+             | copsf_append_templates_dir_to_default_abs_template_path
+            ))}}"
     force: "{{cops_aconfig_cfg_item.force|default(True)}}"
     mode: "{{cops_aconfig_cfg_item.mode|default(omit)}}"
     owner: "{{cops_aconfig_cfg_item.owner|default(omit)}}"
@@ -107,11 +183,30 @@
   loop_control: {loop_var: cops_aconfig_cfg_item}
   with_list: "{{cops_configs_templates|default([])}}"
   register: cops_configs_templates_results
+  vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
 
+- when: ["cops_configs_is_async_copys"]
+  name: async file copy [directory]
+  file:
+    state: directory
+    path: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_tpl_item.dest|default(omit))
+             | copsf_dirname}}"
+    mode: "{{cops_aconfig_tpl_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_tpl_item.dir_owner|default(cops_aconfig_tpl_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_tpl_item.dir_group|default(cops_aconfig_tpl_item.group|default(omit))}}"
+  async: "{{cops_configs_async}}"
+  poll: "{{cops_configs_poll}}"
+  notify: "{{cops_configs_copys_notify
+             | default((cops_configs_notify
+             | default([])))}}"
+  loop_control: {loop_var: cops_aconfig_tpl_item}
+  with_list: "{{cops_configs_copys|default([])}}"
+  register: cops_configs_copys_dirs_results
 - when: ["cops_configs_is_async_copys"]
   name: async file copy
   copy:
-    dest: "{{cops_aconfig_tpl_item.dest|default(omit)}}"
+    dest: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_tpl_item.dest|default(omit)}}"
     src: "{{cops_aconfig_tpl_item.src
             | default(
                 cops_aconfig_tpl_item.template
@@ -140,16 +235,29 @@
 
 # Install copied files
 - when: ["not cops_configs_is_async_copys"]
+  name: sync file copy [directory]
+  file:
+    state: directory
+    path: "{{(cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_tpl_item.dest|default(omit))
+             | copsf_dirname}}"
+    mode: "{{cops_aconfig_tpl_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_tpl_item.dir_owner|default(cops_aconfig_tpl_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_tpl_item.dir_group|default(cops_aconfig_tpl_item.group|default(omit))}}"
+  notify: "{{cops_configs_copys_notify
+             | default((cops_configs_notify
+             | default([])))}}"
+  loop_control: {loop_var: cops_aconfig_tpl_item}
+  with_list: "{{cops_configs_copys|default([])}}"
+  register: cops_configs_copys_dirs_results
+- when: ["not cops_configs_is_async_copys"]
   name: sync file copy
   copy:
-    dest: "{{cops_aconfig_tpl_item.dest|default(omit)}}"
+    dest: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_tpl_item.dest|default(omit)}}"
     src: "{{(not (cops_aconfig_tpl_item.content|default(false)) and
             (cops_aconfig_tpl_item.src
             | default(
-                cops_aconfig_tpl_item.template
-                | default(
-                  'templates/'+cops_aconfig_tpl_item.dest
-                )
+                cops_aconfig_tpl_item.template | default(cops_aconfig_tpl_item.dest)
             )) or omit)}}"
     content: "{{cops_aconfig_tpl_item.content|default(omit)}}"
     force: "{{cops_aconfig_tpl_item.get('force', True)}}"
