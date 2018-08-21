@@ -1,0 +1,3 @@
+---
+dependencies:
+- role: corpusops.roles/services_firewall_antiddos_vars

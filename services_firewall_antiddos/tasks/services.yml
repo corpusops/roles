@@ -1,0 +1,23 @@
+---
+- set_fact:
+    cacheable: false
+    corpusops_antiddos_service_state: >-
+      {% if (
+        corpusops_antiddos_configs_changed     |default(False) or
+        corpusops_antiddos_prequisites_changed |default(False)
+      )%}restarted{% else %}reloaded{%endif%}
+- set_fact:
+    cacheable: false
+    corpusops_antiddos_service_state: "{{corpusops_antiddos_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_firewall_antiddos_vars.activated
+     | ternary(corpusops_antiddos_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_firewall_antiddos_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+    daemon_reload: true
+  with_items: "{{corpusops_services_firewall_antiddos_vars.services}}"
+  tags: corpusops_antiddos
+- meta: flush_handlers
