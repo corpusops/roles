@@ -1,0 +1,184 @@
+#!/usr/bin/env bash
+### BEGIN INIT INFO
+# Provides:          corpusops-antiddos
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Should-Start:
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+### END INIT INFO
+# corpusops-antiddos    starts and stops the corpusops antiddos
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+NAME=corpusops-antiddos
+DESC="antiddoos"
+ports="80 443"
+hit=30
+count=40
+IPT="iptables -w"
+IP6T="ip6tables -w"
+whitelisted=""
+whitelisted_ipv6=""
+dropped=""
+dropped_ipv6=""
+do_ipv6="y"
+do_ipv4="y"
+do_sysctls="y"
+
+# load LSB init-functions to get status_of_proc helper
+. /lib/lsb/init-functions
+for i in /etc/sysconfig/corpusops-antiddos /etc/default/corpusops-antiddos;do
+    test -r "$i" && . "$i"
+done
+if [[ -n $DEBUG ]];then set -x;fi
+
+do_sysctls() {
+    if [[ -z $do_sysctls ]];then return 0;fi
+    sysctl -w net.netfilter.nf_conntrack_max=1000000 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_established=60 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_close=10 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_close_wait=60 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_fin_wait=120 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_last_ack=30 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_max_retrans=300 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_syn_recv=60 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_syn_sent=120 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_time_wait=120 \
+        && sysctl -w net.netfilter.nf_conntrack_tcp_timeout_unacknowledged=300 \
+        && sysctl -w net.netfilter.nf_conntrack_udp_timeout=30 \
+        && sysctl -w net.netfilter.nf_conntrack_udp_timeout_stream=180 \
+        && sysctl -w net.netfilter.nf_conntrack_expect_max=1024
+    sysctlret=$?
+    # sysctl -w net.netfilter.nf_conntrack_icmpv6_timeout=30
+    echo "Start $NAME-sysctls (ret: $sysctlret)."
+    return $sysctlret
+}
+
+do_start6() {
+    if [[ -z $do_ipv6 ]];then return 0;fi
+    if ! ( $IP6T -L ANTIDDOS &>/dev/null; );then
+        $IP6T -N ANTIDDOS;
+    fi \
+        && $IP6T -F ANTIDDOS \
+        && for i in $whitelisted_ipv6;do
+            $IP6T -A ANTIDDOS -s $i -j RETURN \
+            && $IP6T -A ANTIDDOS -d $i -j RETURN;
+        done \
+        && $IP6T -A ANTIDDOS -m recent --set    --name ANTIDDOS --rsource \
+        && $IP6T -A ANTIDDOS -m recent --update --name ANTIDDOS \
+            --rsource --seconds $hit --hitcount $count \
+        && $IP6T -A ANTIDDOS -m recent --update --name ANTIDDOS \
+            --rsource --seconds $hit --hitcount $count -j DROP \
+        && for port in $ports;do
+            ( $IP6T -D INPUT -p tcp -m tcp --dport $port \
+                -m state --state NEW -j ANTIDDOS &>/dev/null || /bin/true; )\
+            && $IP6T -I INPUT -p tcp -m tcp --dport $port -m state --state NEW -j ANTIDDOS;
+        done \
+        && for i in $dropped_ipv6;do
+            ( $IP6T -w -D INPUT -s $i -j DROP &>/dev/null || /bin/true; ) \
+            && $IP6T -w -I INPUT -s $i -j DROP
+        done
+    startret6=$?
+    echo "Start6 $NAME (ret: $startret6)."
+    return $startret6
+}
+
+do_start4() {
+    if [[ -z $do_ipv4 ]];then return 0;fi
+    if ! ( $IPT -L ANTIDDOS &>/dev/null; );then
+        $IPT -N ANTIDDOS;
+    fi \
+        && $IPT -F ANTIDDOS \
+        && for i in $whitelisted;do
+            $IPT -A ANTIDDOS -s $i -j RETURN \
+            && $IPT -A ANTIDDOS -d $i -j RETURN;
+        done \
+        && $IPT -A ANTIDDOS -m recent --set    --name ANTIDDOS --rsource \
+        && $IPT -A ANTIDDOS -m recent --update --name ANTIDDOS \
+            --rsource --seconds $hit --hitcount $count \
+        && $IPT -A ANTIDDOS -m recent --update --name ANTIDDOS \
+            --rsource --seconds $hit --hitcount $count -j DROP \
+        && for port in $ports;do
+            ( $IPT -D INPUT -p tcp -m tcp --dport $port \
+                -m state --state NEW -j ANTIDDOS &>/dev/null || /bin/true; )\
+            && $IPT -I INPUT -p tcp -m tcp --dport $port -m state --state NEW -j ANTIDDOS
+        done \
+        && for i in $dropped;do
+            ( $IPT -w -D INPUT -s $i -j DROP &>/dev/null || /bin/true; )\
+            && $IPT -w -I INPUT -s $i -j DROP
+        done
+    startret4=$?
+    echo "Start4 $NAME (ret: $startret4)."
+    return $startret4
+}
+
+do_stop6() {
+    if [[ -z $do_ipv6 ]];then return 0;fi
+    for i in $dropped_ipv6;do
+        ( $IP6T -w -D INPUT -s $i -j DROP &>/dev/null || /bin/true );
+    done \
+        && for port in $ports;do
+            ( $IP6T -D INPUT -p tcp -m tcp --dport $port \
+                -m state --state NEW -j ANTIDDOS &>/dev/null || /bin/true ); \
+        done\
+        && if $IP6T -L ANTIDDOS &>/dev/null;then
+            $IP6T -F ANTIDDOS && $IP6T -X ANTIDDOS;
+        fi
+    stopret6=$?
+    echo "Stop $NAME (ret: $stopret6)."
+    return $stopret6
+}
+
+do_stop4() {
+    if [[ -z $do_ipv4 ]];then return 0;fi
+    stopret=0
+    for i in $dropped;do
+        ( $IPT -w -D INPUT -s $i -j DROP &>/dev/null|| /bin/true );
+    done \
+        && for port in $ports;do
+            ( $IPT -D INPUT -p tcp -m tcp --dport $port \
+                -m state --state NEW -j ANTIDDOS &>/dev/null|| /bin/true ); \
+        done \
+        && if $IPT -L ANTIDDOS &>/dev/null;then
+            $IPT -F ANTIDDOS && $IPT -X ANTIDDOS;
+        fi
+    stopret4=$?
+    echo "Stop $NAME (ret: $stopret4)."
+    return $stopret4
+}
+
+do_start() {
+    do_start4
+    do_start6
+    startret=$([ $startret4 = 0 ] && [ $startret6 = 0 ];echo $?)
+    echo "Start $NAME (ret: $startret)."
+    return $startret
+}
+
+do_stop() {
+    do_stop4
+    do_stop6
+    stopret=$([ $stopret4 = 0 ] && [ $stopret6 = 0 ];echo $?)
+    echo "Stop $NAME (ret: $stopret)."
+    return $stopret
+}
+
+do_status() {
+    $IPT-save && $IP6T-save
+}
+
+case "$1" in
+    sysctls|start4|stop4|start6|stop6|start|stop|status) do_$1;;
+    restart|force-reload|reload) do_stop && do_start;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|start6|stop|stop6|sysctls|restart|restart6|status}" >&2
+        exit 1
+        ;;
+esac
+ret=$?
+if [[ -n ${STATUS-} ]] && [ $ret != 0 ];then
+    do_status;
+fi
+exit $ret
+# vim:set et sts=4 ts=4 tw=0:  

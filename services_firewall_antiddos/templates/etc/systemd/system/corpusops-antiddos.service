@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+# {% set data = corpusops_services_firewall_antiddos_vars %}
+
+[Unit]
+SourcePath={{data.initd}}
+Description=LSB: antiddos
+After=network-online.target
+After=local-fs.target
+After=remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart={{data.initd}} start
+ExecStop={{data.initd}} stop
+ExecReload={{data.initd}} reload
+RemainAfterExit=true 
+
+[Install]
+WantedBy=multi-user.target

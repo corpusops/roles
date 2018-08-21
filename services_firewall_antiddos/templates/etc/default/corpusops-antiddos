@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# {% set d=corpusops_services_firewall_antiddos_vars %}
+ports="{{d.ports}}"
+hit="{{d.hit}}"
+count="{{d.count}}"
+IPT="{{d.ipt}}"
+IP6T="{{d.ip6t}}"
+whitelisted="{{d.whitelisted}}"
+whitelisted_ipv6="{{d.whitelisted_ipv6}}"
+dropped="{{d.dropped}}"
+dropped_ipv6="{{d.dropped_ipv6}}"
+do_ipv6="{{d.do_ipv6}}"
+do_ipv4="{{d.do_ipv4}}"
+do_sysctls="{{d.do_sysctls}}"

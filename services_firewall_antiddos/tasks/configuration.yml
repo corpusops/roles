@@ -1,0 +1,28 @@
+---
+- include_role: {name: corpusops.roles/configs, private: true}
+  vars:
+    cops_configs_files: "{{corpusops_services_firewall_antiddos_vars.files}}"
+    cops_configs_copys: "{{corpusops_services_firewall_antiddos_vars.filescopy}}"
+    cops_configs_templates: "{{corpusops_services_firewall_antiddos_vars.configs}}"
+  register: corpusops_antiddos_configst1
+  tags: [postfix_configs]
+- set_fact:
+    cacheable: false
+    corpusops_antiddos_filest: "{{cops_configs_files_results}}"
+    corpusops_antiddos_filesct: "{{cops_configs_copys_results}}"
+    corpusops_antiddos_configst: "{{cops_configs_templates_results}}"
+  register: corpusops_antiddos_configst2
+  tags: [postfix_configs]
+- set_fact:
+    cacheable: false
+    corpusops_antiddos_configs_changed: "{{(
+      corpusops_antiddos_filest is changed or
+      corpusops_antiddos_filesct is changed or
+      corpusops_antiddos_configst is changed)}}"
+- set_fact:
+    cacheable: false
+    corpusops_antiddos_configs_changed: "{{
+      (corpusops_antiddos_configst4|default({})) is changed or
+      (corpusops_antiddos_configst3|default({})) is changed or
+      (corpusops_antiddos_configst2|default({})) is changed or
+      (corpusops_antiddos_configst1|default({})) is changed}}"

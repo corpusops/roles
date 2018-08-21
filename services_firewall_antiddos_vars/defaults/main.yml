@@ -1,0 +1,50 @@
+---
+corpusops_services_firewall_antiddos_cops_do_format_resolve: false
+corpusops_services_firewall_antiddos_cops_computed_defaults: []
+corpusops_services_firewall_antiddos_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_firewall_antiddos_cops_sub_os_append: {}
+corpusops_services_firewall_antiddos_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages',
+  'repo_keys', 'repo_keys_url', 'repo', ]
+corpusops_services_firewall_antiddos_cops_lowered: []
+corpusops_services_firewall_antiddos_cops_sub_namespaces: {}
+corpusops_services_firewall_antiddos_activated: True
+corpusops_services_firewall_antiddos_repo_keys_url: null
+corpusops_services_firewall_antiddos_repo_keys: null
+corpusops_services_firewall_antiddos_repo_keys_default: []
+corpusops_services_firewall_antiddos_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_firewall_antiddos_repo: null
+corpusops_services_firewall_antiddos_packages: null
+corpusops_services_firewall_antiddos_packages_default: |
+  {%- set res = ["iptables"] %}
+  {{- res | to_json }}
+corpusops_services_firewall_antiddos_debconf: []
+corpusops_services_firewall_antiddos_services: ["corpusops-antiddos"]
+corpusops_services_firewall_antiddos_group: null
+corpusops_services_firewall_antiddos_user: null
+corpusops_services_firewall_antiddos_prefix: "{{corpusops_vars.config_dir}}"
+corpusops_services_firewall_antiddos_files: null
+corpusops_services_firewall_antiddos_files_default: []
+corpusops_services_firewall_antiddos_filescopy: null
+corpusops_services_firewall_antiddos_filescopy_default: []
+corpusops_services_firewall_antiddos_files_apt: []
+corpusops_services_firewall_antiddos_initd: "{{corpusops_services_firewall_antiddos_prefix}}/init.d/corpusops-antiddos"
+corpusops_services_firewall_antiddos_configs:
+- {name: "{{corpusops_services_firewall_antiddos_initd}}",
+   user: "root", group: "root", mode: "0755"}
+- {name: "{{corpusops_services_firewall_antiddos_prefix}}/default/corpusops-antiddos",
+   user: "root", group: "root", mode: "0644"}
+- {name: "{{corpusops_services_firewall_antiddos_prefix}}/systemd/system/corpusops-antiddos.service",
+   user: "root", group: "root", mode: "0644"}
+corpusops_services_firewall_antiddos_whitelisted: ""
+corpusops_services_firewall_antiddos_whitelisted_ipv6: ""
+corpusops_services_firewall_antiddos_dropped: ""
+corpusops_services_firewall_antiddos_dropped_ipv6: ""
+corpusops_services_firewall_antiddos_ports: "80 443"
+corpusops_services_firewall_antiddos_hit: "60"
+corpusops_services_firewall_antiddos_count: "180"
+corpusops_services_firewall_antiddos_ipt: "iptables"
+corpusops_services_firewall_antiddos_ip6t: "ip6tables"
+corpusops_services_firewall_antiddos_do_ipv6: "y"
+corpusops_services_firewall_antiddos_do_ipv4: "y"
+corpusops_services_firewall_antiddos_do_sysctls: "y"
