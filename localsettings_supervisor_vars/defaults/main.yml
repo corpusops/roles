@@ -17,14 +17,14 @@ corpusops_localsettings_supervisor_repo: null
 corpusops_localsettings_supervisor_packages: null
 corpusops_localsettings_supervisor_packages_default: []
 corpusops_localsettings_supervisor_services: null
-corpusops_localsettings_supervisor_requirements: ['supervisor==3.2.0']
+corpusops_localsettings_supervisor_requirements: ['supervisor==3.3.4']
 corpusops_localsettings_supervisor_group: supervisor
 corpusops_localsettings_supervisor_user: root
 corpusops_localsettings_supervisor_files: null
 corpusops_localsettings_supervisor_files_default:
   - {path: "{{vars['corpusops_localsettings_supervisor_prefix']}}",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{venv}",
+  - {path: "{{vars['corpusops_localsettings_supervisor_venv']}}",
      owner: "{{vars['corpusops_localsettings_supervisor_user']}}", group: "{{vars['corpusops_localsettings_supervisor_group']}}", state: directory, mode: "0755"}
 corpusops_localsettings_supervisor_filescopy: null
 corpusops_localsettings_supervisor_filescopy_default: []
