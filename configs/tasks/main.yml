@@ -238,7 +238,7 @@
   name: sync file copy [directory]
   file:
     state: directory
-    path: "{{(cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{(
+    path: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{(
              cops_aconfig_tpl_item.dest|default(omit))
              | copsf_dirname}}"
     mode: "{{cops_aconfig_tpl_item.dir_mode|default(omit)}}"
