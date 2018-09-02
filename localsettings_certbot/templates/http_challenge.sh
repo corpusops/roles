@@ -42,14 +42,15 @@ has_command() {
     fi
     return ${ret}
 }
-for i in dig ip;do
+CERTBOT="${CERTBOT:-$(get_command certbot)}"
+for i in dig ip bc openssl $CERTBOT;do
     if ! ( has_command $i; );then
-        echo "install $i (dnsutils or iproute2)"
+        log "Missing; $i"
+        log "Install prereqs: dnsutils or iproute2 bc openssl"
         exit 1
     fi
 done
 chrono=$(date "+%F-%T")
-CERTBOT="${CERTBOT:-$(get_command certbot)}"
 failed=""
 dnsmismatch=""
 DNS_SERVER="${DNS_SERVER:-{{d.dns_server}}}"
@@ -100,16 +101,20 @@ $ip6"
 		days_exp=$(echo \( $exp - $datenow \) / $EXPIRY |bc)
 	fi
 	if [ "x${ipfound}" = "x" ];then
-        log "DNS setup is dnsmismatch for $domain"
+        log "DNS setup mismatch for $domain"
         dnsmismatch="$dnsmismatch $domain"
 	elif [ "x${force}" = "x" ] && [ $days_exp -gt $exp_limit ] ; then
 		msg="The certificate for $domain is up to date,"
         msg="$msg no need for renewal ($days_exp days left)."
         log $msg
 	else
-		echo "Starting Let's Encrypt renewal script for $domain..."
+        echo "Starting Let's Encrypt renewal script for $domain..."
         if [ -e "$CERTBOT_CONFIGDIR/archive/${domain}" ];then
-            tar cjvf $domain-bck-${chrono}.tbz2 \
+            bck="$CERTBOT_CONFIGDIR/backups/$chrono/$domain.tbz2"
+            if [ ! -e "$(dirname "$bck")" ];then
+                mkdir -p "$(dirname "$bck")"
+            fi
+            tar cjvf "$bck" \
                 $(find "$CERTBOT_CONFIGDIR/"{live,renewal,archive}/{${domain},${domain}.conf} -maxdepth 0 -mindepth 0) &&\
             rm -rvf "$CERTBOT_CONFIGDIR/"{live,renewal,archive}/{${domain},${domain}.conf}
         fi
@@ -122,12 +127,12 @@ $ip6"
 	fi
 done <<< "$CERTBOT_DOMAINS"
 if [[ -n "$dnsmismatch" ]];then
-	log "certbot dns mismatch domains: $dnsmismatch" >&2
+	log "certbot dns mismatch domains: $dnsmismatch"
 fi
 if [[ -n "$failed" ]];then
-	log "certbot failed domains: $failed" >&2
+	log "certbot failed domains: $failed"
 fi
 if [[ -n "$updated" ]];then
-	log "certbot updated domains: $updated" >&2
+	log "certbot updated domains: $updated"
 fi
 # vim:set et sts=4 ts=4 tw=0 et:

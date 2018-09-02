@@ -63,11 +63,16 @@ corpusops_localsettings_certbot_keysize: 4096
 corpusops_localsettings_certbot_preferred_challenges: [tls-sni-01, http-01]
 corpusops_localsettings_certbot_v2_staging_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
 corpusops_localsettings_certbot_v2_server: "https://acme-v02.api.letsencrypt.org/directory"
-corpusops_localsettings_certbot_server: "{{corpusops_localsettings_certbot_v2_server}}"
+corpusops_localsettings_certbot_server: "{%
+  if vars['corpusops_localsettings_certbot_test']%}{{
+     vars['corpusops_localsettings_certbot_v2_staging_server']}}{%
+  else%}{{
+     vars['corpusops_localsettings_certbot_v2_server']}}{%endif%}"
 corpusops_localsettings_certbot_port: 54080
 corpusops_localsettings_certbot_sport: 54443
 corpusops_localsettings_certbot_expiry: 86400
 corpusops_localsettings_certbot_http: false
+corpusops_localsettings_certbot_test: true
 corpusops_localsettings_certbot_mailto: ""
 corpusops_localsettings_certbot_has_cron: |
 corpusops_localsettings_certbot_cron: |

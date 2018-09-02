@@ -20,6 +20,12 @@
       (corpusops_localsettings_certbot_configst        |default({})) is changed
       )}}"
 - file:
+    state: touch
+    dest: "{{corpusops_localsettings_certbot_vars.logsdir}}/letsencrypt.log"
+    mode: 0644
+    owner: "{{corpusops_localsettings_certbot_vars.user}}"
+    group: "{{corpusops_localsettings_certbot_vars.group}}"
+- file:
     state: absent
     path: /etc/cron.d/cops_le_renew
   when: "not corpusops_localsettings_certbot_vars.has_cron"

@@ -26,7 +26,7 @@ while read domain;do
         if [ -e "$f" ] && [ -e "$k" ];then
             cat "$f" "$k" > "$ct"
             chmod 640 "$ct"
-            chown $owner:$group "$t"
+            chown $owner:$group "$ct"
             if [ -e "$t" ] && ( diff -q "$ct" "$t"; ) ;then
                 log "lehaproxy: already installed $domain cert"
             else
