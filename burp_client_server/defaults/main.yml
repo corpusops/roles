@@ -10,7 +10,7 @@ cops_burpclientserver_activated: True
 cops_burpclientserver_services: ["burp-server-{{vars['cops_burpclientserver_name']}}", "burp-restore-{{vars['cops_burpclientserver_name']}}"]
 cops_burpclientserver_name: "corpusops"
 cops_burpclientserver_files_default:
-- {path: "{backup_directory}",
+- {path: "{{vars['cops_burpclientserver_directory']}}",
    owner: root, group: root, state: directory, mode: "0755"}
 - {path: "{{vars['cops_burpclientserver_prefix']}}/clientconfdir",
    owner: root, group: root, state: directory, mode: "0755"}
