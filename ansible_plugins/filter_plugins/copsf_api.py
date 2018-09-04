@@ -1160,7 +1160,38 @@ def update_registry(registry, ansible_vars, prefix, *a, **kw):
         registry, ansible_vars, prefix, *a, **kw)
 
 
+def copsf_refilter(items, regex, flags=None, search=True, filtermode=True):
+    flat = False
+    reflags = None
+    ret = []
+    for char in flags:
+        flag = getattr(re, char)
+        if reflags is None:
+            reflags = flag
+        else:
+            reflags |= flag
+    if not isinstance(items, list):
+        items = [items]
+        flat = True
+    searcher = re.compile(regex, flags=reflags)
+    if search:
+        method = searcher.search
+    else:
+        method = searcher.match
+    for item in items:
+        matched = method(item)
+        if matched and not filtermode:
+            ret.append(item)
+        elif not matched and filtermode:
+            ret.append(item)
+    if flat:
+        ret = ret[0]
+    return ret
+
+
+
 __funcs__ = {
+    'copsf_refilter': copsf_refilter,
     'copsf_registry_and_defaults': registry_and_defaults,
     'copsf_uniquify': uniquify,
     'copsf_cwd': copsf_cwd,
