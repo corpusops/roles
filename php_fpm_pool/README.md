@@ -31,7 +31,7 @@ Managment of nginx vhosts.
         ```yaml
         - include_role:
             name: corpusops.roles/fpm_pool
-            private: true
+            public: false
           vars:
             _corpusops_fpm_pool:
               basename: foo

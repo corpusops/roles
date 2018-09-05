@@ -8,25 +8,25 @@
       state: absent
       path: "/tmp/{{item}}"
     with_items: ["{{cn}}", "{{cn2}}"]
-  - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}
+  - include_role: {public: false, name: corpusops.roles/ssl_selfsigned_cert}
     vars:
        _ssl_selfsigned_cert:
          cn: "{{cn}}"
          directory: "/tmp/{{cn}}"
-  - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}
+  - include_role: {public: false, name: corpusops.roles/ssl_selfsigned_cert}
     vars:
        _ssl_selfsigned_cert:
          cn: "{{cn}}"
          directory: "/tmp/{{cn}}"
-  - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}
+  - include_role: {public: false, name: corpusops.roles/ssl_selfsigned_cert}
     vars:
        _ssl_selfsigned_cert:
          cn: "{{cn2}}"
          directory: "/tmp/{{cn2}}"
-  - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}
+  - include_role: {public: false, name: corpusops.roles/ssl_selfsigned_cert}
     vars:
        _ssl_selfsigned_cert:
          cn: "{{cn2}}"
          directory: "/tmp/{{cn2}}"
 # - set_fact: {cacheable: false, ssl_selfsigned_cert_cn: foomuche}
-# - include_role: {private: true, name: corpusops.roles/ssl_selfsigned_cert}
+# - include_role: {public: false, name: corpusops.roles/ssl_selfsigned_cert}

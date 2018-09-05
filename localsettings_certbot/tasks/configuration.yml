@@ -6,7 +6,7 @@
       cops_configs_files: "{{corpusops_localsettings_certbot_vars.files}}"
       cops_configs_copys: "{{corpusops_localsettings_certbot_vars.filescopy}}"
       cops_configs_templates: "{{corpusops_localsettings_certbot_vars.configs}}"
-  - include_role: {name: corpusops.roles/configs, private: true}
+  - include_role: {name: corpusops.roles/configs, public: false}
   - set_fact:
       cacheable: false
       corpusops_localsettings_certbot_filest: "{{cops_configs_files_results}}"

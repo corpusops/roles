@@ -1,5 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/configs, private: true}
+- include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{corpusops_services_firewall_antiddos_vars.files}}"
     cops_configs_copys: "{{corpusops_services_firewall_antiddos_vars.filescopy}}"

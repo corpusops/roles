@@ -20,7 +20,7 @@
         cops_configs_copys: "{{corpusops_ms_iptables_registrations_vars.filescopy}}"
         cops_configs_templates: "{{corpusops_ms_iptables_registrations_vars.configs}}"
     register: configvarfw
-  - include_role: {name: corpusops.roles/configs, private: true}
+  - include_role: {name: corpusops.roles/configs, public: false}
     vars:
       cops_configs_files: "{{configvarfw.msg.cops_configs_files}}"
       cops_configs_copys: "{{configvarfw.msg.cops_configs_copys}}"

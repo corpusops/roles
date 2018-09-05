@@ -6,7 +6,7 @@
       cops_configs_files: "{{corpusops_services_proxy_haproxy_vars.files}}"
       cops_configs_copys: "{{corpusops_services_proxy_haproxy_vars.filescopy}}"
       cops_configs_templates: "{{corpusops_services_proxy_haproxy_vars.configs}}"
-  - include_role: {name: corpusops.roles/configs, private: true}
+  - include_role: {name: corpusops.roles/configs, public: false}
   - set_fact:
       cacheable: false
       corpusops_services_proxy_haproxy_filest: "{{cops_configs_files_results}}"

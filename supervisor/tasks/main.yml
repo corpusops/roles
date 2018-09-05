@@ -23,7 +23,7 @@
          | to_json}}
   tags: [corpusops_vars, corpusops_localsettings_supervisor_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_role: {name: corpusops.roles/configs, private: true}
+- include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{cops_supervisor_vars.files}}"
     cops_configs_copys: "{{cops_supervisor_vars.filescopy}}"
