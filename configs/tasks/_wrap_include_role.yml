@@ -1,7 +1,7 @@
 ---
 # https://github.com/ansible/ansible/issues/18124
 # ...
-- include_role: {name: corpusops.roles/async_wait, private: true}
+- include_role: {name: corpusops.roles/async_wait, public: false}
   vars:
     cops_async_retry_delay: "{{cops_configs_async_retry_delay}}"
     cops_async_retries: "{{cops_configs_async_retries}}"

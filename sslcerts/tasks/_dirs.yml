@@ -30,7 +30,7 @@
           'mode': cops_sslcerts_vars.private_dmode}) %}
       {% endfor%}
       {{ res | to_json }}
-- include_role: {name: corpusops.roles/configs, private: true}
+- include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{cops_configs_filesl.msg}}"
     cops_configs_templates: []

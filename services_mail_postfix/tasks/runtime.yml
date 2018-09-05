@@ -39,7 +39,7 @@
         _c_corpusops_postfix_key.stdout.strip()
       }}"
     no_log: "{{not (cops_secret_vars_debug|default(false))}}"
-  - include_role: {name: corpusops.roles/configs, private: true}
+  - include_role: {name: corpusops.roles/configs, public: false}
     vars:
       cops_configs_templates: "{{corpusops_services_mail_postfix_vars.certs_configs}}"
 - name: postfix sync chroot

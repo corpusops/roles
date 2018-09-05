@@ -31,7 +31,7 @@ Managment of nginx vhosts.
         ```yaml
         - include_role:
             name: corpusops.roles/nginx_vhost
-            private: true
+            public: false
           vars:
             _corpusops_nginx_vhost:
               basename: foo

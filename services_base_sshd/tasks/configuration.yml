@@ -1,5 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/configs, private: true}
+- include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{corpusops_services_base_sshd_vars.files}}"
     cops_configs_copys: "{{corpusops_services_base_sshd_vars.filescopy}}"

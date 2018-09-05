@@ -21,7 +21,7 @@
       cops_configs_files: "{{corpusops_haproxy_registrations_vars.files}}"
       cops_configs_copys: "{{corpusops_haproxy_registrations_vars.filescopy}}"
       cops_configs_templates: "{{corpusops_haproxy_registrations_vars.configs}}"
-  - include_role: {name: corpusops.roles/configs, private: true}
+  - include_role: {name: corpusops.roles/configs, public: false}
 - name: Check haproxy configs
   shell: |
     c=/usr/bin/cops_haproxy_wrapper.sh;

@@ -9,7 +9,7 @@
         env:
           A: 1
           B: 2
-    - include_role: {name: corpusops.roles/supervisor, private: true}
+    - include_role: {name: corpusops.roles/supervisor, public: false}
       vars:
         _cops_supervisor:
           name: supervifoo
