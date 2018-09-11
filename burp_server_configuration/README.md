@@ -55,7 +55,7 @@
 
     ```sh
     $COPS_ROOT/bin/ansible-playbook \
-    corpusops.roles/burp_server_configuration/register/main.yml \
+    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
         -e "{burp_clients: clients_group, burp_server: server_host}" \
         [ --skip-tags burp_configure_server ]\
         [ --skip-tags burp_fw ]\
