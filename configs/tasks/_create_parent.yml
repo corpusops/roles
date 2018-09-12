@@ -1,0 +1,12 @@
+---
+# create parent dir only if not existing
+- name: "configs [directory {{subitem.path}} test if not symlink]"
+  stat: {path: "{{subitem.path}}"}
+  register: cops_configs_pdir_test
+- file:
+    state: directory
+    path: "{{subitem.path}}"
+    mode: "{{subitem.mode}}"
+    owner: "{{subitem.owner}}"
+    group: "{{subitem.group}}"
+  when: not cops_configs_pdir_test.stat.exists

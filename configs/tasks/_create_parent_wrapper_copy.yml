@@ -1,0 +1,12 @@
+---
+- when: ["not cops_configs_is_async_copys"]
+  name: create parent wrapper [copy]
+  include: _create_parent.yml
+  loop_control: {loop_var: subitem}
+  with_items:
+  - path: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{(
+              cops_aconfig_tpl_item.dest|default(omit))
+              | copsf_dirname}}"
+    mode: "{{cops_aconfig_tpl_item.dir_mode|default(omit)}}"
+    owner: "{{cops_aconfig_tpl_item.dir_owner|default(cops_aconfig_tpl_item.owner|default(omit))}}"
+    group: "{{cops_aconfig_tpl_item.dir_group|default(cops_aconfig_tpl_item.group|default(omit))}}"
