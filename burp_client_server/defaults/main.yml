@@ -117,7 +117,7 @@ cops_burpclientserver_baremetal_exclude_re: |
   exclude_regex = .*spool.*cyrus.*backup_log.*
   exclude_regex = .*srv.*projects.*archives.*
   exclude_regex = .*srv.*salt.*makina-states.*
-  exclude_regex = ".*tmp_sync_rando.*"
+  exclude_regex = .*tmp_sync_rando.*
   exclude_regex = .*usr.*src.*linux-headers.*
   exclude_regex = .*var.*cache.*apt.*
   exclude_regex = .*var.*cache.*salt.*master.*
@@ -189,7 +189,7 @@ cops_burpclientserver_vm_exclude_re: |
   exclude_regex = .*spool.*cyrus.*backup_log.*
   exclude_regex = .*srv.*projects.*archives.*
   exclude_regex = .*srv.*salt.*makina-states.*
-  exclude_regex = ".*tmp_sync_rando.*"
+  exclude_regex = .*tmp_sync_rando.*
   exclude_regex = .*usr.*src.*linux-headers.*
   exclude_regex = .*var.*cache.*apt.*
   exclude_regex = .*var.*cache.*salt.*master.*
