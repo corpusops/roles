@@ -5,5 +5,6 @@
 - include_role:
     allow_duplicates: true
     name: corpusops.roles/utils/push_code
+    public: false
   vars: {_cops_provision_push_code: "{{_cops_provision_push_code_forwarder.msg}}"}
 

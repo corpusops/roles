@@ -4,7 +4,7 @@
   - set_fact:
       cacheable: false
       corpusops_lxc_container_name: "{{container}}"
-  - include_role: {name: corpusops.roles/lxc_stop}
+  - include_role: {public: false, name: corpusops.roles/lxc_stop}
   - set_fact:
       cacheable: false
       corpusops_lxc_container_name: "{{image}}"
@@ -12,9 +12,9 @@
       cacheable: false
       corpusops_lxc_from_container: "{{container}}"
       corpusops_lxc_container_name: "{{image}}"
-  - include_role: {name: corpusops.roles/lxc_create}
+  - include_role: {public: false, name: corpusops.roles/lxc_create}
     vars: {corpusops_lxc_auto_start: "0"}
-  - include_role: {name: corpusops.roles/lxc_start}
+  - include_role: {public: false, name: corpusops.roles/lxc_start}
     vars: {corpusops_lxc_container_name: "{{image}}"}
   - block:
     - name: "Synchronise image from container"
@@ -22,7 +22,7 @@
         rsync -Aazv --delete \
           '{{corpusops_lxc_vars.path}}/{{container}}/rootfs/' \
           '{{corpusops_lxc_vars.path}}/{{image}}/rootfs/'
-    - include_role: {name: corpusops.roles/lxc_snapshot}
+    - include_role: {public: false, name: corpusops.roles/lxc_snapshot}
       vars: {corpusops_lxc_container_name: "{{image}}"}
-    - include_role: {name: corpusops.roles/lxc_stop}
+    - include_role: {public: false, name: corpusops.roles/lxc_stop}
       vars: {corpusops_lxc_container_name: "{{image}}"}

@@ -1,17 +1,17 @@
 ---
 - hosts: all
   tasks:
-    - include_role: {name: corpusops.roles/services_virt_lxc}
+    - include_role: {public: false, name: corpusops.roles/services_virt_lxc}
       tags: [lxc_setup]
-    - include_role: {name: corpusops.roles/services_proxy_haproxy}
+    - include_role: {public: false, name: corpusops.roles/services_proxy_haproxy}
       tags: [lxc_haproxy]
     - block:
-      - include_role: {name: corpusops.roles/haproxy_registrations}
+      - include_role: {public: false, name: corpusops.roles/haproxy_registrations}
       - service: {name: haproxy, state: reloaded}
       tags: [lxc_haproxy_registrations]
-    - include_role: {name: corpusops.roles/services_firewall_ms_iptables}
+    - include_role: {public: false, name: corpusops.roles/services_firewall_ms_iptables}
       tags: [lxc_firewall]
     - block:
-      - include_role: {name: corpusops.roles/ms_iptables_registrations}
+      - include_role: {public: false, name: corpusops.roles/ms_iptables_registrations}
       - service: {name: ms_iptables, state: reloaded}
       tags: [lxc_ms_iptables_registrations]
