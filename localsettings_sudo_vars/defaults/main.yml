@@ -8,8 +8,6 @@ corpusops_localsettings_sudo_cops_knobs: ['mirror', 'comps', 'repo', 'settings_A
                       'configs', 'sources_lists', 'packages']
 corpusops_localsettings_sudo_cops_sub_namespaces:
   settings: {}
-corpusops_localsettings_sudo_packages: null
-
 corpusops_localsettings_sudo_packages: [sudo]
 corpusops_localsettings_sudo_configs:
   - {'name': '/etc/sudoers', 'mode': '440'}
