@@ -132,178 +132,178 @@
       provision_corpusops_services_virt_lxc: {{ corpusops_services_virt_lxc }}
       provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
       provision_corpusops_sslcerts: {{ corpusops_sslcerts }}
-  tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
+  tags: [prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision]
 - include_role: {name: corpusops.roles/sshkeys}
-  tags: sshkeys
-  when: provision_corpusops_sshkeys
+  tags: [sshkeys]
+  when: [provision_corpusops_sshkeys]
 - include_role: {name: corpusops.roles/localsettings_dns}
-  tags: dns
-  when: provision_corpusops_localsettings_dns
+  tags: [dns]
+  when: [provision_corpusops_localsettings_dns]
 - include_role: {name: corpusops.roles/localsettings_sysctls}
-  tags: sysctls
-  when: provision_corpusops_localsettings_sysctls
+  tags: [sysctls]
+  when: [provision_corpusops_localsettings_sysctls]
 - include_role: {name: corpusops.roles/localsettings_pkgmgr}
-  tags: pkgmgr
-  when: provision_corpusops_localsettings_pkgmgr
+  tags: [pkgmgr]
+  when: [provision_corpusops_localsettings_pkgmgr]
 - include_role: {name: corpusops.roles/localsettings_locales}
-  tags: locales
-  when: provision_corpusops_localsettings_locales
+  tags: [locales]
+  when: [provision_corpusops_localsettings_locales]
 - include_role: {name: corpusops.roles/localsettings_makinastates}
-  tags: makinastates
-  when: provision_corpusops_localsettings_makinastates
+  tags: [makinastates]
+  when: [provision_corpusops_localsettings_makinastates]
 - include_role: {name: corpusops.roles/localsettings_timezone}
-  tags: timezone
-  when: provision_corpusops_localsettings_timezone
+  tags: [timezone]
+  when: [provision_corpusops_localsettings_timezone]
 - include_role: {name: corpusops.roles/localsettings_autoupgrades}
-  tags: autoupgrades
-  when: provision_corpusops_localsettings_autoupgrades
+  tags: [autoupgrades]
+  when: [provision_corpusops_localsettings_autoupgrades]
 - include_role: {name: corpusops.roles/localsettings_hostname}
-  tags: hostname
-  when: provision_corpusops_localsettings_hostname
+  tags: [hostname]
+  when: [provision_corpusops_localsettings_hostname]
 - include_role: {name: corpusops.roles/localsettings_basepkgs}
-  tags: basepkgs
-  when: provision_corpusops_localsettings_basepkgs
+  tags: [basepkgs]
+  when: [provision_corpusops_localsettings_basepkgs]
 - include_role: {name: corpusops.roles/services_firewall_ms_iptables}
-  tags: ms_iptables
-  when: provision_corpusops_services_firewall_ms_iptables
+  tags: [ms_iptables]
+  when: [provision_corpusops_services_firewall_ms_iptables]
 - include_role: {name: corpusops.roles/localsettings_profile}
-  tags: profile
-  when: provision_corpusops_localsettings_profile
+  tags: [profile]
+  when: [provision_corpusops_localsettings_profile]
 - include_role: {name: corpusops.roles/services_firewall_fail2ban}
-  tags: fail2ban
-  when: provision_corpusops_services_firewall_fail2ban
+  tags: [fail2ban]
+  when: [provision_corpusops_services_firewall_fail2ban]
 - include_role: {name: corpusops.roles/localsettings_apparmor}
-  tags: apparmor
-  when: provision_corpusops_localsettings_apparmor
+  tags: [apparmor]
+  when: [provision_corpusops_localsettings_apparmor]
 - include_role: {name: corpusops.roles/localsettings_vim}
-  tags: vim
-  when: provision_corpusops_localsettings_vim
+  tags: [vim]
+  when: [provision_corpusops_localsettings_vim]
 - include_role: {name: corpusops.roles/localsettings_burp}
-  tags: burp
-  when: provision_corpusops_localsettings_burp
+  tags: [burp]
+  when: [provision_corpusops_localsettings_burp]
 - include_role: {name: corpusops.roles/localsettings_monitoring}
-  tags: monitoring
-  when: provision_corpusops_localsettings_monitoring
+  tags: [monitoring]
+  when: [provision_corpusops_localsettings_monitoring]
 - include_role: {name: corpusops.roles/localsettings_editor}
-  tags: editor
-  when: provision_corpusops_localsettings_editor
+  tags: [editor]
+  when: [provision_corpusops_localsettings_editor]
 - include_role: {name: corpusops.roles/localsettings_etckeeper}
-  tags: etckeeper
-  when: provision_corpusops_localsettings_etckeeper
+  tags: [etckeeper]
+  when: [provision_corpusops_localsettings_etckeeper]
 - include_role: {name: corpusops.roles/localsettings_git}
-  tags: git
-  when: provision_corpusops_localsettings_git
+  tags: [git]
+  when: [provision_corpusops_localsettings_git]
 - include_role: {name: corpusops.roles/localsettings_docker}
-  tags: dockerclient
-  when: provision_corpusops_localsettings_docker
+  tags: [dockerclient]
+  when: [provision_corpusops_localsettings_docker]
 - include_role: {name: corpusops.roles/localsettings_dockercompose}
-  tags: dockercompose
-  when: provision_corpusops_localsettings_dockercompose
+  tags: [dockercompose]
+  when: [provision_corpusops_localsettings_dockercompose]
 - include_role: {name: corpusops.roles/localsettings_kubectl}
-  tags: kubectl
-  when: provision_corpusops_localsettings_kubectl
+  tags: [kubectl]
+  when: [provision_corpusops_localsettings_kubectl]
 - include_role: {name: corpusops.roles/localsettings_minikube}
-  tags: minikube
-  when: provision_corpusops_localsettings_minikube
+  tags: [minikube]
+  when: [provision_corpusops_localsettings_minikube]
 - include_role: {name: corpusops.roles/localsettings_packer}
-  tags: packer
-  when: provision_corpusops_localsettings_packer
+  tags: [packer]
+  when: [provision_corpusops_localsettings_packer]
 - include_role: {name: corpusops.roles/localsettings_phantoms}
-  tags: phantomjs
-  when: provision_corpusops_localsettings_phantoms
+  tags: [phantomjs]
+  when: [provision_corpusops_localsettings_phantoms]
 - include_role: {name: corpusops.roles/localsettings_nodejs}
-  tags: nodejs
-  when: provision_corpusops_localsettings_nodejs
+  tags: [nodejs]
+  when: [provision_corpusops_localsettings_nodejs]
 - include_role: {name: corpusops.roles/localsettings_golang}
-  tags: golang
-  when: provision_corpusops_localsettings_golang
+  tags: [golang]
+  when: [provision_corpusops_localsettings_golang]
 - include_role: {name: corpusops.roles/localsettings_python_sni}
-  tags: python
-  when: provision_corpusops_localsettings_python_sni
+  tags: [python]
+  when: [provision_corpusops_localsettings_python_sni]
 - include_role: {name: corpusops.roles/localsettings_php}
-  tags: php
-  when: provision_corpusops_localsettings_php
+  tags: [php]
+  when: [provision_corpusops_localsettings_php]
 - include_role: {name: corpusops.roles/localsettings_supervisor}
-  tags: supervisor
-  when: provision_corpusops_localsettings_supervisor
+  tags: [supervisor]
+  when: [provision_corpusops_localsettings_supervisor]
 - include_role: {name: corpusops.roles/localsettings_jdk}
-  tags: jdk
-  when: provision_corpusops_localsettings_jdk
+  tags: [jdk]
+  when: [provision_corpusops_localsettings_jdk]
 - include_role: {name: corpusops.roles/localsettings_nscd}
-  tags: nscd
-  when: provision_corpusops_localsettings_nscd
+  tags: [nscd]
+  when: [provision_corpusops_localsettings_nscd]
 - include_role: {name: corpusops.roles/localsettings_screen}
-  tags: screen
-  when: provision_corpusops_localsettings_screen
+  tags: [screen]
+  when: [provision_corpusops_localsettings_screen]
 - include_role: {name: corpusops.roles/localsettings_ssh}
-  tags: ssh
-  when: provision_corpusops_localsettings_ssh
+  tags: [ssh]
+  when: [provision_corpusops_localsettings_ssh]
 - include_role: {name: corpusops.roles/localsettings_sudo}
-  tags: sudo
-  when: provision_corpusops_localsettings_sudo
+  tags: [sudo]
+  when: [provision_corpusops_localsettings_sudo]
 - include_role: {name: corpusops.roles/services_base_ntp}
-  tags: ntp
-  when: provision_corpusops_services_base_ntp
+  tags: [ntp]
+  when: [provision_corpusops_services_base_ntp]
 - include_role: {name: corpusops.roles/services_base_sshd}
-  tags: sshd
-  when: provision_corpusops_services_base_sshd
+  tags: [sshd]
+  when: [provision_corpusops_services_base_sshd]
 - include_role: {name: corpusops.roles/services_base_cron}
-  tags: cron
-  when: provision_corpusops_services_base_cron
+  tags: [cron]
+  when: [provision_corpusops_services_base_cron]
 - include_role: {name: corpusops.roles/services_magicbridge}
-  tags: magicbridge
-  when: provision_corpusops_services_magicbridge
+  tags: [magicbridge]
+  when: [provision_corpusops_services_magicbridge]
 - include_role: {name: corpusops.roles/services_virt_lxc}
-  tags: lxc
-  when: provision_corpusops_services_virt_lxc
+  tags: [lxc]
+  when: [provision_corpusops_services_virt_lxc]
 - include_role: {name: corpusops.roles/services_virt_docker}
-  tags: docker
-  when: provision_corpusops_services_virt_docker
+  tags: [docker]
+  when: [provision_corpusops_services_virt_docker]
 - include_role: {name: corpusops.roles/services_misc_xvfb}
-  tags: xvfb
-  when: provision_corpusops_services_misc_xvfb
+  tags: [xvfb]
+  when: [provision_corpusops_services_misc_xvfb]
 - include_role: {name: corpusops.roles/services_misc_robotframework}
-  tags: robotframework
-  when: provision_corpusops_services_misc_robotframework
+  tags: [robotframework]
+  when: [provision_corpusops_services_misc_robotframework]
 - include_role: {name: corpusops.roles/services_http_nginx}
-  tags: nginx
-  when: provision_corpusops_services_http_nginx
+  tags: [nginx]
+  when: [provision_corpusops_services_http_nginx]
 - include_role: {name: corpusops.roles/services_db_mysql_pkgmgr}
-  tags: mysql_pkgmgr
-  when: provision_corpusops_services_db_mysql_pkgmgr
+  tags: [mysql_pkgmgr]
+  when: [provision_corpusops_services_db_mysql_pkgmgr]
 - include_role: {name: corpusops.roles/services_db_mysql_client}
-  tags: mysql_client
-  when: provision_corpusops_services_db_mysql_client
+  tags: [mysql_client]
+  when: [provision_corpusops_services_db_mysql_client]
 - include_role: {name: corpusops.roles/services_db_mysql}
-  tags: mysql
-  when: provision_corpusops_services_db_mysql
+  tags: [mysql]
+  when: [provision_corpusops_services_db_mysql]
 - include_role: {name: corpusops.roles/services_db_postgresql_pkgmgr}
-  tags: postgresql_pkgmgr
-  when: provision_corpusops_services_db_postgresql_pkgmgr
+  tags: [postgresql_pkgmgr]
+  when: [provision_corpusops_services_db_postgresql_pkgmgr]
 - include_role: {name: corpusops.roles/services_db_postgresql_client}
-  tags: postgresql_client
-  when: provision_corpusops_services_db_postgresql_client
+  tags: [postgresql_client]
+  when: [provision_corpusops_services_db_postgresql_client]
 - include_role: {name: corpusops.roles/services_db_postgresql}
-  tags: postgresql
-  when: provision_corpusops_services_db_postgresql
+  tags: [postgresql]
+  when: [provision_corpusops_services_db_postgresql]
 - include_role: {name: corpusops.roles/services_db_postgis}
-  tags: postgis
-  when: provision_corpusops_services_db_postgis
+  tags: [postgis]
+  when: [provision_corpusops_services_db_postgis]
 - include_role: {name: corpusops.roles/services_backup_dbsmartbackup}
-  tags: dbsmartbackup
-  when: provision_corpusops_services_backup_dbsmartbackup
+  tags: [dbsmartbackup]
+  when: [provision_corpusops_services_backup_dbsmartbackup]
 - include_role: {name: corpusops.roles/services_php_fpm}
-  tags: php
-  when: provision_corpusops_services_php_fpm 
+  tags: [php]
+  when: [provision_corpusops_services_php_fpm ]
 - include_role: {name: corpusops.roles/services_mail_postfix}
-  tags: postfix
-  when: provision_corpusops_services_mail_postfix
+  tags: [postfix]
+  when: [provision_corpusops_services_mail_postfix]
 - include_role: {name: corpusops.roles/services_ftp_pureftpd}
-  tags: pureftpd
-  when: provision_corpusops_services_ftp_pureftpd
+  tags: [pureftpd]
+  when: [provision_corpusops_services_ftp_pureftpd]
 - include_role: {name: corpusops.roles/services_proxy_haproxy}
-  tags: haproxy
-  when: provision_corpusops_services_proxy_haproxy
+  tags: [haproxy]
+  when: [provision_corpusops_services_proxy_haproxy]
 - include_role: {name: corpusops.roles/sslcerts}
-  tags: sslcerts
-  when: provision_corpusops_sslcerts
+  tags: [sslcerts]
+  when: [provision_corpusops_sslcerts]
