@@ -1,4 +1,4 @@
 ---
 - hosts: "{{provision_host|default('all')}}"
   tasks:
-    - include_role: {name: corpusops.roles/provision/server}
+  - include_role: {public: false, name: corpusops.roles/provision/server}
