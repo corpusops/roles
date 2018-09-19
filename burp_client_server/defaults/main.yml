@@ -151,7 +151,6 @@ cops_burpclientserver_common_exclude_re: |
   exclude_regex = .*/mountpoints/.*
   exclude_regex = .*makina-states.*-lxc.*.tar.*xz
   exclude_regex = .*nobackup.*
-  exclude_regex = .*/remounts/.*
   exclude_regex = .*spool.*cyrus.*backup_log.*
   exclude_regex = .*srv.*projects.*archives.*
   exclude_regex = .*srv.*salt.*makina-states.*
