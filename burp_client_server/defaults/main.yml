@@ -107,40 +107,6 @@ cops_burpclientserver_profiles_baremetal: |
   cross_filesystem = /var/www
   cross_filesystem = /var/makina
   {{vars['cops_burpclientserver_baremetal_exclude_re']}}
-cops_burpclientserver_baremetal_exclude_re: |
-  exclude_regex = .*data.*burp.*
-  exclude_regex = .*lost.found.*
-  exclude_regex = .*makina-states.*-lxc.*.tar.*xz.*
-  exclude_regex = .*/mountpoints/.*
-  exclude_regex = .*nobackup.*
-  exclude_regex = .*/remounts/.*
-  exclude_regex = .*spool.*cyrus.*backup_log.*
-  exclude_regex = .*srv.*projects.*archives.*
-  exclude_regex = .*srv.*salt.*makina-states.*
-  exclude_regex = .*tmp_sync_rando.*
-  exclude_regex = .*usr.*src.*linux-headers.*
-  exclude_regex = .*var.*cache.*apt.*
-  exclude_regex = .*var.*cache.*salt.*master.*
-  exclude_regex = .*var.*cache.*salt.*minion.*
-  exclude_regex = .*var.*lib.*apt.*lists.*
-  exclude_regex = .*var.*lib.*docker.*aufs
-  exclude_regex = .*var.*lib.*docker.*overlay
-  exclude_regex = .*var.*lib.*docker.*overlay2
-  exclude_regex = .*var.*lib.*docker.*vfs
-  exclude_regex = .*var.*lib.*libvirt.*images.*
-  exclude_regex = .*var.*lib.*lxc.*del.*
-  exclude_regex = .*var.*lib.*lxc.*delta.*
-  exclude_regex = .*var.*lib.*lxc.*makina-states.*/tmp/.*
-  exclude_regex = .*var.*lib.*lxc.*rootfs.*
-  exclude_regex = .*var.*lib.*lxc.*tar.bz2
-  exclude_regex = .*var.*lib.*lxc.*tar.gz
-  exclude_regex = .*var.*lib.*lxc.*tar.xz
-  exclude_regex = .*var.*lib.*lxc.*tbz2
-  exclude_regex = .*var.*lib.*lxc.*tgz
-  exclude_regex = .*var.*lock.*
-  exclude_regex = .*var.*log.*atop.*
-  exclude_regex = .*var.*run.*
-  exclude_regex = .*var.*/tmp/.*
 cops_burpclientserver_profiles_vm: |
   # vm
   {{vars['cops_burpclientserver_common_lines']}}
@@ -179,11 +145,11 @@ cops_burpclientserver_profiles_vm: |
   include = /var/lib/docker/trust
   include = /var/lib/docker/volumes
   {{vars['cops_burpclientserver_vm_exclude_re']}}
-cops_burpclientserver_vm_exclude_re: |
+cops_burpclientserver_common_exclude_re: |
   exclude_regex = .*data.*burp.*
   exclude_regex = .*lost.found.*
-  exclude_regex = .*makina-states.*-lxc.*.tar.*xz
   exclude_regex = .*/mountpoints/.*
+  exclude_regex = .*makina-states.*-lxc.*.tar.*xz
   exclude_regex = .*nobackup.*
   exclude_regex = .*/remounts/.*
   exclude_regex = .*spool.*cyrus.*backup_log.*
@@ -206,3 +172,8 @@ cops_burpclientserver_vm_exclude_re: |
   exclude_regex = .*var.*log.*atop.*
   exclude_regex = .*var.*run.*
   exclude_regex = .*var.*/tmp/.*
+cops_burpclientserver_vm_exclude_re: |
+  {{vars['cops_burpclientserver_common_exclude_re']}}
+cops_burpclientserver_baremetal_exclude_re: |
+  {{vars['cops_burpclientserver_common_exclude_re']}}
+  exclude_regex = .*mozilla/firefox/.*/cache.*
