@@ -1,23 +1,4 @@
 ---
-- name: update & install prerequisites
-  package:
-    cache_valid_time: '{{60*60}}'
-    update_cache: yes
-    name: '{{item}}'
-    state: present
-  when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_localsettings_nvm_vars.packages is not none and
-          corpusops_localsettings_nvm_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_nvm_vars.packages}}"
-- name: update & install prerequisites
-  package:
-    update_cache: yes
-    name: '{{item}}'
-    state: present
-  when: "(ansible_os_family.lower() in ['redhat'] and
-          corpusops_localsettings_nvm_vars.packages is not none and
-          corpusops_localsettings_nvm_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_nvm_vars.packages}}"
 - name: files
   file:
     path: "{{item.path}}"
@@ -39,28 +20,67 @@
   with_items: "{{corpusops_localsettings_nvm_vars.configs}}"
   when: "(corpusops_localsettings_nvm_vars.configs is not none and
           corpusops_localsettings_nvm_vars.configs|length > 0)"
+- when: "ansible_user_uid == 0"
+  set_fact:
+    cacheable: false
+    _corpusops_localsettings_nvm_bashrc: "{{corpusops_localsettings_nvm_vars.system_bashrc}}"
+    _corpusops_localsettings_nvm_prefix: "{{_corpusops_localsettings_nvm_system_prefix}}"
+- when: "ansible_user_uid != 0"
+  set_fact:
+    cacheable: false
+    _corpusops_localsettings_nvm_bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
+    _corpusops_localsettings_nvm_prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
 # forward vars to handle include_role bugs...
+- when: '"latest" in corpusops_localsettings_nvm_vars.versions'
+  uri:
+    url: "https://api.github.com/repos/{{corpusops_localsettings_nvm_vars.github}}/releases/latest"
+  register: _cops_get_version_latest
+  changed_when: false
+- set_fact:
+    cacheable: false
+    _cops_nvm_versions: |-
+      {% set res = [] %}
+      {% for v in corpusops_localsettings_nvm_vars.versions %}
+      {% set vv = v %}
+      {% if v == 'latest' %}{% set vv = _cops_get_version_latest.json.tag_name %}{%endif%}
+      {% set _ = res.append(vv) %}
+      {% endfor %}
+      {{ res | to_json }}
 - debug:
     msg:
       _archive:
         mode: "0755"
         filetest: "{{corpusops_localsettings_nvm_vars.filetest}}"
-        archive: "{{_corpusops_localsettings_nvm_archive}}"
         app_path: "{{_corpusops_localsettings_nvm_app_path}}"
+        archive: "{{_corpusops_localsettings_nvm_archive|copsf_basename}}"
+        strip_components: "1"
         urls:
-          archive_crc: "{{corpusops_localsettings_nvm_vars.crc}}"
-          verify_sha256: "{{corpusops_localsettings_nvm_vars.verify_sha256}}"
-          archive: "{{_corpusops_localsettings_nvm_urls.archive}}"
-  vars:
-    version: "{{item}}"
-  with_items: "{{corpusops_localsettings_nvm_vars.versions}}"
+          archive_crc: null
+          verify_sha256: null
+          archive: "{{_corpusops_localsettings_nvm_archive}}"
+  vars: {version: "{{item}}"}
+  with_items: "{{_cops_nvm_versions}}"
   register: corpusops_localsettings_nvm_archives
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
   with_items: "{{corpusops_localsettings_nvm_archives.results}}"
-#
-- include_role: {name: corpusops.roles/set_alternatives}
-  vars:
-    version: "{{corpusops_localsettings_nvm_vars.version}}"
-    alternatives: "{{_corpusops_localsettings_nvm_alternatives}}"
-  when: "corpusops_localsettings_nvm_vars.version is not none"
+  tags: [download]
+- tags: [wire]
+  block:
+  - blockinfile:
+      unsafe_writes: true
+      dest: "{{_corpusops_localsettings_nvm_bashrc}}"
+      marker: "# corpusops load nvm - {mark}"
+      insertafter: EOF
+      block: |-
+        {% if _corpusops_localsettings_nvm_app_path|regex_search('^~') %}
+        export NVM_DIR="{{_corpusops_localsettings_nvm_app_path|regex_replace('^~', '$HOME')}}"
+        {% else %}
+        export NVM_DIR="{{_corpusops_localsettings_nvm_app_path }}"
+        {% endif %}
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  vars: {version: "{{_cops_nvm_versions[0]}}"}
+#- tags: [install]
+#  include_tasks: install.yml
+#  with_items: "{{corpusops_localsettings_nvm_archives.results}}"
