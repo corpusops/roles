@@ -1,0 +1,9 @@
+---
+- shell: |-
+    set -ex
+    if [ ! -e "npm" ];then
+      ./install.sh;echo "changednvm" >&2
+    fi
+  args: {chdir: "{{item.msg._archive.app_path}}"}
+  register: _cops_install
+  changed_when: "'changednvm' in _cops_install.stderr"
