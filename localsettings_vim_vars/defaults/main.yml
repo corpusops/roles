@@ -4,16 +4,15 @@ corpusops_localsettings_vim_cops_computed_defaults: []
 corpusops_localsettings_vim_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
 corpusops_localsettings_vim_cops_sub_os_append: {}
 corpusops_localsettings_vim_cops_lowered: []
-corpusops_localsettings_vim_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages',
-                      'vims']
+corpusops_localsettings_vim_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages', 'vims']
 corpusops_localsettings_vim_cops_sub_namespaces:
-  settings: {}
+settings: {}
 corpusops_localsettings_vim_packages: null
 corpusops_localsettings_vim_packages_default: [vim]
 corpusops_localsettings_vim_packages_debian: [vim-nox]
 corpusops_localsettings_vim_configs:
-  - {name: /etc/vim/vimrc.corpusops, mode: 644}
+- {name: /etc/vim/vimrc.corpusops, mode: 644}
 corpusops_localsettings_vim_files:
-  - { path: /etc/vim, state: directory, user: root, group: root, mode: 755 }
-  - { path: /etc/vim/vimrc, state: touch, user: root, group: root, mode: 644 }
+- { path: /etc/vim, state: directory, user: root, group: root, mode: 755 }
+- { path: /etc/vim/vimrc, state: touch, user: root, group: root, mode: 644 }
 corpusops_localsettings_vim_vimrc: [/etc/vimrc, /etc/vim/vimrc]
