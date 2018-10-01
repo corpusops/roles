@@ -638,6 +638,8 @@ def copsf_reset_vars_from_registry(ansible_vars,
                                   prefix,
                                   registryvars_suffix)
     old_vars = ansible_vars.pop(name_prefix, {})
+    if not isinstance(old_vars, dict):
+        old_vars = {}
     sprefixes = (prefix, prefix+prefix)
     prefixes = [name_prefix, prefix[:-1]]
     overrides_prefix = '_{0}'.format(prefixes[1])
