@@ -1,0 +1,12 @@
+---
+# SHOULD PASS
+- hosts: all
+  tasks:
+  - tags: [test1]
+    block:
+    - include_role: {name: corpusops.roles/localsettings_vim_vars, public: true}
+- hosts: all
+  tasks:
+  - tags: [test1]
+    block:
+    - include_role: {name: corpusops.roles/localsettings_monitoring_vars, public: true}

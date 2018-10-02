@@ -1,0 +1,44 @@
+---
+# SHOULD PASS
+- hosts: all
+  tasks:
+  - tags: [test1]
+    block:
+    - include_role: {name: corpusops.roles/localsettings_vim_vars, public: true}
+    - debug: {msg: "{{corpusops_localsettings_vim_vimrc}}"}
+# SHOULD FAIL
+- hosts: all
+  tags: [test2]
+  tasks:
+  - include_role: {name: corpusops.roles/localsettings_vim_vars, public: no}
+  - debug: {msg: "{{corpusops_localsettings_vim_vimrc}}"}
+# SHOULD FAIL
+- hosts: all
+  tags: [test3]
+  tasks:
+  - include_role: {name: corpusops.roles/localsettings_vim_vars, public: yes}
+- hosts: all
+  tags: [test3]
+  tasks:
+  - debug: {msg: "{{corpusops_localsettings_vim_vimrc}}"}
+# SHOULD FAIL
+- hosts: all
+  tags: [test4]
+  tasks:
+  - include_role: {name: corpusops.roles/localsettings_vim_vars, public: no}
+- hosts: all
+  tags: [test4]
+  tasks:
+  - debug: {msg: "{{corpusops_localsettings_vim_vimrc}}"}
+# SHOULD pass
+- hosts: all
+  tags: [test5]
+  tasks:
+  - include_role: {name: corpusops.roles/localsettings_vim_vars, public: yes}
+  - set_fact:
+      cacheable: false
+      corpusops_localsettings_vim_vimrc: "{{corpusops_localsettings_vim_vimrc}}"
+- hosts: all
+  tags: [test5]
+  tasks:
+  - debug: {msg: "{{corpusops_localsettings_vim_vimrc}}"}

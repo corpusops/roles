@@ -1,0 +1,7 @@
+---
+- include_jinja_vars:
+    content: |
+      ---
+      {% set prefix = 'var_b_' %}
+      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
+      {{ snamespaced | to_json}}
