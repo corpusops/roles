@@ -26,5 +26,5 @@ corpusops_localsettings_nvm_mirror: null
 corpusops_localsettings_nvm_repo: null
 corpusops_localsettings_nvm_packages: []
 corpusops_localsettings_nvm_debug: "1"
-corpusops_localsettings_nvm_system_bashrc: "/etc/bashrc"
+corpusops_localsettings_nvm_system_bashrc: "/etc/bash.bashrc"
 corpusops_localsettings_nvm_user_bashrc: "~/.bashrc"
