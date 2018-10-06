@@ -23,13 +23,16 @@
 - when: "ansible_user_uid == 0"
   set_fact:
     cacheable: false
-    _corpusops_localsettings_nvm_bashrc: "{{corpusops_localsettings_nvm_vars.system_bashrc}}"
     _corpusops_localsettings_nvm_prefix: "{{_corpusops_localsettings_nvm_system_prefix}}"
+    _corpusops_localsettings_nvm_bashrcs:
+    - "{{corpusops_localsettings_nvm_vars.system_bashrc}}"
+    - "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
 - when: "ansible_user_uid != 0"
   set_fact:
     cacheable: false
-    _corpusops_localsettings_nvm_bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
     _corpusops_localsettings_nvm_prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
+    _corpusops_localsettings_nvm_bashrcs:
+    - "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
 # forward vars to handle include_role bugs...
 - when: '"latest" in corpusops_localsettings_nvm_vars.versions'
   uri:
@@ -66,10 +69,9 @@
   with_items: "{{corpusops_localsettings_nvm_archives.results}}"
   tags: [download]
 - tags: [wire]
-  block:
-  - blockinfile:
+  blockinfile:
       unsafe_writes: true
-      dest: "{{_corpusops_localsettings_nvm_bashrc}}"
+      dest: "{{nvmbashrc}}"
       marker: "# corpusops load nvm - {mark}"
       insertafter: EOF
       block: |-
@@ -81,3 +83,5 @@
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
         [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
   vars: {version: "{{_cops_nvm_versions[0]}}"}
+  with_items: "{{_corpusops_localsettings_nvm_bashrcs}}"
+  loop_control: {loop_var: nvmbashrc}
