@@ -3,7 +3,15 @@
     name: "{{corpusops_localsettings_nvm_vars.group}}"
     system: yes
     state: present
-
+- file:
+    state: directory
+    owner: root
+    group: "{{corpusops_localsettings_nvm_vars.group}}"
+    dest: "{{_corpusops_localsettings_nvm_system_prefix}}"
+  vars:
+    version: "{{_cops_nvm_versions[0]}}"
+    prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
+    bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
 - debug:
     msg:
       _archive:
