@@ -11,16 +11,25 @@
           archive_crc: null
           verify_sha256: null
           archive: "{{_corpusops_localsettings_nvm_archive}}"
-  vars: {version: "{{item}}"}
   with_items: "{{_cops_nvm_versions}}"
+  loop_control: {loop_var: _cops_nvm_version}
   register: corpusops_localsettings_nvm_user_archives
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
   with_items: "{{corpusops_localsettings_nvm_user_archives.results}}"
-  tags: [download]
-- tags: [wire]
-  include_tasks: install_bashrc.yml
+  tags: [download, nvm_download]
+- block:
+  - tags: [wire]
+    include_tasks: install_bashrc.yml
+  - tags: [install_default_node]
+    shell: |-
+      set -e
+      . "{{prefix}}/nvm.sh"
+      nvm install "{{item}}"
+    changed_when: false
+    args: {executable: /bin/bash}
+    with_items: "{{corpusops_localsettings_nvm_user_installed}}"
   vars:
-    version: "{{_cops_nvm_versions[0]}}"
-    prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
+    _cops_nvm_version: "{{_cops_nvm_versions[0]}}"
+    prefix: "{{_corpusops_localsettings_nvm_user_prefix|regex_replace('^~', '$HOME')}}"
     bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
