@@ -9,13 +9,11 @@
     group: "{{corpusops_localsettings_nvm_vars.group}}"
     dest: "{{_corpusops_localsettings_nvm_system_prefix}}"
   vars:
-    version: "{{_cops_nvm_versions[0]}}"
+    _cops_nvm_version: "{{_cops_nvm_versions[0]}}"
     prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
-    bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
 - debug:
     msg:
       _archive:
-        mode: "0755"
         filetest: "{{corpusops_localsettings_nvm_vars.filetest}}"
         app_path: "{{_corpusops_localsettings_nvm_system_prefix}}"
         archive: "{{_corpusops_localsettings_nvm_archive|copsf_basename}}"
@@ -24,32 +22,36 @@
           archive_crc: null
           verify_sha256: null
           archive: "{{_corpusops_localsettings_nvm_archive}}"
-  vars: {version: "{{item}}"}
   with_items: "{{_cops_nvm_versions}}"
+  loop_control: {loop_var: _cops_nvm_version}
   register: corpusops_localsettings_nvm_system_archives
 - when: "_cops_nvm_install_system"
   include_role: {name: corpusops.roles/install_archive}
-  vars: {_archive: "{{item.msg._archive}}"}
   with_items: "{{corpusops_localsettings_nvm_system_archives.results}}"
-  tags: [download]
-- tags: [wire]
-  when: "_cops_nvm_install_system"
-  include_tasks: install_bashrc.yml
-  vars:
-    version: "{{_cops_nvm_versions[0]}}"
-    prefix: "{{_corpusops_localsettings_nvm_system_prefix}}"
-    bashrc: "{{corpusops_localsettings_nvm_vars.system_bashrc}}"
+  vars: {_archive: "{{item.msg._archive}}"}
+  tags: [download, nvm_download]
 - block:
   - name: "Make rvm group members able to control every nvm stuff"
     template:
       src: fixperms.sh
       dest: "{{_corpusops_localsettings_nvm_system_prefix}}/fixperms.sh"
       mode: "0700"
+    tags: [nvm_fixperms]
+    changed_when: false
   - shell: "{{_corpusops_localsettings_nvm_system_prefix}}/fixperms.sh"
     changed_when: false
-  tags: [fixperms]
+    tags: [nvm_fixperms]
+  - tags: [install_default_node]
+    when: "_cops_nvm_install_system"
+    include_tasks: install_bashrc.yml
+  - shell: |-
+      set -e
+      . "{{prefix}}/nvm.sh"
+      nvm install "{{item}}"
+    args: {executable: /bin/bash}
+    changed_when: false
+    with_items: "{{corpusops_localsettings_nvm_user_installed}}"
   vars:
-    version: "{{_cops_nvm_versions[0]}}"
-    prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
+    _cops_nvm_version: "{{_cops_nvm_versions[0]}}"
+    prefix: "{{_corpusops_localsettings_nvm_system_prefix|regex_replace('^~', '$HOME')}}"
     bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
-
