@@ -28,16 +28,16 @@
   changed_when: false
 - set_fact:
     cacheable: false
-    _cops_nvm_install_system: "(ansible_user_uid == 0) and corpusops_localsettings_nvm_system_vars.bashrc|copsf_asbool"
-
+    _cops_nvm_install_system: "{{(ansible_user_uid == 0) and corpusops_localsettings_nvm_vars.system_bashrc|copsf_asbool}}"
     _cops_nvm_versions: |-
       {% set res = [] %}
       {% for v in corpusops_localsettings_nvm_vars.versions %}
-      {%  set vv = v %}
       {%  if v == 'latest' %}
-      {%   set vv = _cops_get_version_latest.json.tag_name %}
+      {%    set _ = res.append({'tagversion': _cops_get_version_latest.json.tag_name,
+                                'version': v}) %}
+      {%  else %}
+      {%    set _ = res.append({'pversion': v, 'version': v}) %}
       {%  endif%}
-      {%  set _ = res.append({'pversion': v, 'version': vv}) %}
       {% endfor %}
       {{ res | to_json }}
 - when: "_cops_nvm_install_system"

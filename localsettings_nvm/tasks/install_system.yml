@@ -25,8 +25,7 @@
   with_items: "{{_cops_nvm_versions}}"
   loop_control: {loop_var: _cops_nvm_version}
   register: corpusops_localsettings_nvm_system_archives
-- when: "_cops_nvm_install_system"
-  include_role: {name: corpusops.roles/install_archive}
+- include_role: {name: corpusops.roles/install_archive}
   with_items: "{{corpusops_localsettings_nvm_system_archives.results}}"
   vars: {_archive: "{{item.msg._archive}}"}
   tags: [download, nvm_download]
@@ -34,17 +33,17 @@
   - name: "Make rvm group members able to control every nvm stuff"
     template:
       src: fixperms.sh
-      dest: "{{_corpusops_localsettings_nvm_system_prefix}}/fixperms.sh"
+      dest: "{{prefix}}/fixperms.sh"
       mode: "0700"
     tags: [nvm_fixperms]
     changed_when: false
-  - shell: "{{_corpusops_localsettings_nvm_system_prefix}}/fixperms.sh"
+  - shell: "{{prefix}}/fixperms.sh"
     changed_when: false
     tags: [nvm_fixperms]
-  - tags: [install_default_node]
-    when: "_cops_nvm_install_system"
+  - tags: [wire]
     include_tasks: install_bashrc.yml
-  - shell: |-
+  - tags: [install_default_node]
+    shell: |-
       set -e
       . "{{prefix}}/nvm.sh"
       nvm install "{{item}}"
@@ -54,4 +53,4 @@
   vars:
     _cops_nvm_version: "{{_cops_nvm_versions[0]}}"
     prefix: "{{_corpusops_localsettings_nvm_system_prefix|regex_replace('^~', '$HOME')}}"
-    bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
+    bashrc: "{{corpusops_localsettings_nvm_vars.system_bashrc}}"

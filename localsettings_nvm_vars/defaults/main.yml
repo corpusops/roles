@@ -14,9 +14,9 @@ corpusops_localsettings_nvm_files: []
 corpusops_localsettings_nvm_version: "{{corpusops_localsettings_nvm_versions[0]}}"
 corpusops_localsettings_nvm_filetest: [install.sh, nvm-exec, "nvm.sh"]
 corpusops_localsettings_nvm_github: "creationix/nvm"
-_corpusops_localsettings_nvm_archive: "https://github.com/{{corpusops_localsettings_nvm_github}}/archive/{{_cops_nvm_version.version}}.tar.gz"
-_corpusops_localsettings_nvm_system_prefix: "{{corpusops_core_apps_path}}/nvm-{{_cops_nvm_version.pversion}}"
-_corpusops_localsettings_nvm_user_prefix:  "~/.nvm-{{_cops_nvm_version.pversion}}"
+_corpusops_localsettings_nvm_archive: "https://github.com/{{corpusops_localsettings_nvm_github}}/archive/{{_cops_nvm_version.tagversion}}.tar.gz"
+_corpusops_localsettings_nvm_system_prefix: "{{corpusops_core_apps_path}}/nvm-{{_cops_nvm_version.version}}"
+_corpusops_localsettings_nvm_user_prefix:  "~/.nvm-{{_cops_nvm_version.version}}"
 corpusops_localsettings_nvm_configs: {}
 corpusops_localsettings_nvm_gpg_keys: []
 corpusops_localsettings_nvm_keyserver: "{{corpusops_core_keyserver}}"
