@@ -1,0 +1,47 @@
+---
+- group:
+    name: "{{corpusops_localsettings_nvm_vars.group}}"
+    system: yes
+    state: present
+
+- debug:
+    msg:
+      _archive:
+        mode: "0755"
+        filetest: "{{corpusops_localsettings_nvm_vars.filetest}}"
+        app_path: "{{_corpusops_localsettings_nvm_system_prefix}}"
+        archive: "{{_corpusops_localsettings_nvm_archive|copsf_basename}}"
+        strip_components: "1"
+        urls:
+          archive_crc: null
+          verify_sha256: null
+          archive: "{{_corpusops_localsettings_nvm_archive}}"
+  vars: {version: "{{item}}"}
+  with_items: "{{_cops_nvm_versions}}"
+  register: corpusops_localsettings_nvm_system_archives
+- when: "_cops_nvm_install_system"
+  include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  with_items: "{{corpusops_localsettings_nvm_system_archives.results}}"
+  tags: [download]
+- tags: [wire]
+  when: "_cops_nvm_install_system"
+  include_tasks: install_bashrc.yml
+  vars:
+    version: "{{_cops_nvm_versions[0]}}"
+    prefix: "{{_corpusops_localsettings_nvm_system_prefix}}"
+    bashrc: "{{corpusops_localsettings_nvm_vars.system_bashrc}}"
+- block:
+  - name: "Make rvm group members able to control every nvm stuff"
+    template:
+      src: fixperms.sh
+      dest: "{{_corpusops_localsettings_nvm_system_prefix}}/fixperms.sh"
+      mode: "0700"
+  - shell: "{{_corpusops_localsettings_nvm_system_prefix}}/fixperms.sh"
+    changed_when: false
+  tags: [fixperms]
+  vars:
+    version: "{{_cops_nvm_versions[0]}}"
+    prefix: "{{_corpusops_localsettings_nvm_user_prefix}}"
+    bashrc: "{{corpusops_localsettings_nvm_vars.user_bashrc}}"
+
