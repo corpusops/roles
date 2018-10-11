@@ -1,0 +1,45 @@
+---
+corpusops_localsettings_nvm_cops_do_format_resolve: false
+corpusops_localsettings_nvm_cops_computed_defaults: []
+corpusops_localsettings_nvm_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_nvm_cops_sub_os_append: {}
+corpusops_localsettings_nvm_cops_lowered: []
+corpusops_localsettings_nvm_cops_knobs: ['mirror', 'repo', 'version',
+                      'configs', 'sources_lists', 'packages']
+corpusops_localsettings_nvm_cops_sub_namespaces:
+  settings: {}
+corpusops_localsettings_nvm_version: '1.22.0'
+corpusops_localsettings_nvm_crc: "{{corpusops_localsettings_nvm_crc_versions.get(vars['corpusops_localsettings_nvm_version'], null)}}"
+corpusops_localsettings_nvm_crc_versions:
+  '1.20.1': '11a6923c2a589b946598fe205c8f645e57f3f4ee153d3b7315b7e1993c1b2ad1'
+  '1.16.1': '1804b0ce6596efe707b9cab05d74b161833ed503f0535a937dd5d17bea8fc50a'
+  '1.22.0': 'f679a24b93f291c3bffaff340467494f388c0c251649d640e661d509db9d57e9'
+corpusops_localsettings_nvm_verify_sha256: true
+corpusops_localsettings_nvm_bin: "docker-compose-{{corpusops_localsettings_nvm_platform}}-{{corpusops_localsettings_nvm_arch}}"
+corpusops_localsettings_nvm_filetest: ["{{corpusops_localsettings_nvm_bin}}"]
+corpusops_localsettings_nvm_versions: []
+corpusops_localsettings_nvm_platform: "Linux"
+corpusops_localsettings_nvm_arch: 'x86_64'
+corpusops_localsettings_nvm_configs: {}
+corpusops_localsettings_nvm_files:
+- {path: "{{corpusops_core_apps_path}}", state: directory, mode: "0755"}
+corpusops_localsettings_nvm_install_path: "/usr/local"
+corpusops_localsettings_nvm_gpg_keys: []
+corpusops_localsettings_nvm_keyserver: "{{corpusops_core_keyserver}}"
+corpusops_localsettings_nvm_sources_list: null
+corpusops_localsettings_nvm_mirror: null
+corpusops_localsettings_nvm_repo: null
+corpusops_localsettings_nvm_packages: []
+corpusops_localsettings_nvm_debug: "1"
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_nvm_alternatives:
+  docker-compose:
+    target: "{{corpusops_localsettings_nvm_install_path}}/bin/docker-compose"
+    bins:
+      - manualnvm:
+          target: "{{_corpusops_localsettings_nvm_app_path}}/{{corpusops_localsettings_nvm_bin}}"
+_corpusops_localsettings_nvm_app_path: "{{corpusops_core_apps_path}}/docker-compose-{{version}}"
+_corpusops_localsettings_nvm_archive: "{{corpusops_localsettings_nvm_bin}}"
+_corpusops_localsettings_nvm_urls:
+  archive: "https://github.com/docker/compose/releases/download/{{version}}/{{_corpusops_localsettings_nvm_archive}}"
+
