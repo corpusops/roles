@@ -15,16 +15,17 @@ corpusops_localsettings_nvm_version: "{{corpusops_localsettings_nvm_versions[0]}
 corpusops_localsettings_nvm_filetest: [install.sh, nvm-exec, "nvm.sh"]
 corpusops_localsettings_nvm_github: "creationix/nvm"
 _corpusops_localsettings_nvm_archive: "https://github.com/{{corpusops_localsettings_nvm_github}}/archive/{{version}}.tar.gz"
-_corpusops_localsettings_nvm_system_prefix: "{{corpusops_core_apps_path}}/nvm"
-_corpusops_localsettings_nvm_user_prefix: "~/.nvm"
-_corpusops_localsettings_nvm_app_path: "{{_corpusops_localsettings_nvm_prefix}}-{{version}}"
+_corpusops_localsettings_nvm_system_prefix: "{{corpusops_core_apps_path}}/nvm-{{version}}"
+_corpusops_localsettings_nvm_user_prefix:  "~/.npm-{{version}}"
 corpusops_localsettings_nvm_configs: {}
 corpusops_localsettings_nvm_gpg_keys: []
 corpusops_localsettings_nvm_keyserver: "{{corpusops_core_keyserver}}"
 corpusops_localsettings_nvm_sources_list: null
 corpusops_localsettings_nvm_mirror: null
 corpusops_localsettings_nvm_repo: null
+corpusops_localsettings_nvm_group: "nvm"
 corpusops_localsettings_nvm_packages: []
 corpusops_localsettings_nvm_debug: "1"
-corpusops_localsettings_nvm_system_bashrc: "/etc/bash.bashrc"
+corpusops_localsettings_nvm_system_bashrc: "{%
+  if ansible_os_family.lower() in ['debian'] %}/etc/bash.bashrc{%endif%}"
 corpusops_localsettings_nvm_user_bashrc: "~/.bashrc"

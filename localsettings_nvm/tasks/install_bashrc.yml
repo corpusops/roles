@@ -1,0 +1,14 @@
+---
+- blockinfile:
+    unsafe_writes: true
+    dest: "{{bashrc}}"
+    marker: "# corpusops load nvm - {mark}"
+    insertafter: EOF
+    block: |-
+      {% if prefix|regex_search('^~') %}
+      export NVM_DIR="{{prefix|regex_replace('^~', '$HOME')}}"
+      {% else %}
+      export NVM_DIR="{{prefix }}"
+      {% endif %}
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
