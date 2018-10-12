@@ -299,6 +299,16 @@ def looseversion(v):
     return LooseVersion(v)
 
 
+def version_compare(a, b, operator):
+    if operator not in ('==', '>=', '<=', '>', '<'):
+        raise ValueError('operator invalid')
+    oa = LooseVersion(a)
+    ob = LooseVersion(b)
+    code = 'oa {0} ob'.format(operator)
+    ret = eval(code)
+    return ret
+
+
 def unresolved(data, jinja=None):
     iddata = id(data)
     if jinja is None:
@@ -1208,6 +1218,7 @@ __funcs__ = {
     'copsf_format_resolve': copsf_format_resolve,
     'copsf_splitstrip': splitstrip,
     'copsf_looseversion': looseversion,
+    'copsf_version_compare': version_compare,
     'copsf_dictupdate': dictupdate,
     'copsf_deepcopy': cops_deepcopy,
     'copsf_copy': cops_copy,
