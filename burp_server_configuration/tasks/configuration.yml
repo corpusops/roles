@@ -1,4 +1,15 @@
 ---
+- include_role: {name: corpusops.roles/localsettings_burp, public: false}
+  tags: [burp_install]
+- shell: "( burp -V || burp -v ) 2>/dev/null"
+  register: ___cops_burp_ver
+  changed_when: false
+- set_fact:
+    cacheable: false
+    __cops_burp_ver: "{{___cops_burp_ver.stdout_lines[-1]}}"
+- set_fact:
+    cacheable: false
+    has_at_least_burp_210: "{{__cops_burp_ver|copsf_version_compare('burp-2.1.0', '>=')}}"
 - include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{cops_burp_vars.files}}"

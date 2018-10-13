@@ -28,7 +28,7 @@
       {%- endfor%}
       {%- set _ = data.update(cdata.get('burp_client_conf_extras', {})) %}
       {{- data|to_json }}
-- name: "Regsitering backup server conf for {{inventory_hostname}}"
+- name: "Registering backup server conf for {{inventory_hostname}}"
   include_role: {name: corpusops.roles/burp_client_configuration}
 - name: "Reset client - backup vars for {{inventory_hostname}}"
   include_jinja_vars:

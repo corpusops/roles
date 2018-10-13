@@ -15,10 +15,10 @@ corpusops_localsettings_burp_activated: True
 corpusops_localsettings_burp_disabled: "{{not corpusops_localsettings_burp_activated}}"
 corpusops_localsettings_burp_repo_keys_url: null
 corpusops_localsettings_burp_repo_keys: null
-corpusops_localsettings_burp_repo_keys_default: []
+corpusops_localsettings_burp_repo_keys_default: [4420973F]
 corpusops_localsettings_burp_keyserver: "{{corpusops_vars.hkp_keyserver}}"
 corpusops_localsettings_burp_repo: null
-corpusops_localsettings_burp_repo_debian: "ppa:vshn/backup"
+corpusops_localsettings_burp_repo_debian: "deb http://ppa.launchpad.net/corpusops/burp/ubuntu {{ansible_distribution_release.lower()}} main"
 corpusops_localsettings_burp_packages: null
 corpusops_localsettings_burp_packages_default: ["{{vars['corpusops_localsettings_burp_name']}}"]
 corpusops_localsettings_burp_services: null
