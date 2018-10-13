@@ -1,4 +1,26 @@
 ---
+- name: install localsettings_burp repokey
+  apt_key:
+    id: '{{item}}'
+    keyserver: "{{corpusops_localsettings_burp_vars.keyserver}}"
+    state: present
+  with_items: '{{corpusops_localsettings_burp_vars.repo_keys}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_burp_vars.repo_keys is not none and
+          corpusops_localsettings_burp_vars.repo_keys|length > 0)"
+  register: corpusops_localsettings_burp_key
+- name: install localsettings_burp repo
+  apt_repository:
+    repo: '{{corpusops_localsettings_burp_vars.repo}}'
+    filename: localsettings_burp
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+           corpusops_localsettings_burp_vars.repo is not none)"
+  register: corpusops_localsettings_burp_repoa
+- apt: {update_cache: yes}
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_burp_repoa.changed or
+          corpusops_localsettings_burp_key.changed)"
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -15,7 +37,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: '{{item}}'
-    state: present
+    state: latest
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_burp_vars.packages is not none and
           corpusops_localsettings_burp_vars.packages|length > 0)"

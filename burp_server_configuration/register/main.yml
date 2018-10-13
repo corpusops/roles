@@ -9,7 +9,10 @@
         burp_ca_name: "burpCA"
     - set_fact:
         cacheable: false
-        aburp_clients: "{{groups[burp_clients|default('burp_clients')]}}"
+        aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
+            if not c|copsf_isstr %}{{c|to_json}}{%
+            elif c in groups %}{{groups[c]}}{%
+            else%}{{c}}{%endif%}"
         aburp_server: "{{burp_server|default('burp_server')}}"
         aburp_ca_path: "{{burp_ca_path|default('/etc/burp-{0}/CA'.format(burp_name))}}"
         aburp_certs_dest: "{{burp_ca_path|default('/etc/burp-'+burp_name)}}"

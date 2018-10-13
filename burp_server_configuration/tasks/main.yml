@@ -19,5 +19,3 @@
     no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [cops_burp_server]
-  no_log: "{{not (cops_vars_debug|default(false))}}"
-

@@ -47,12 +47,21 @@ cops_burp_configs_default:
 - {name: "{{vars['cops_burp_initd_restore']}}"                 , mode: "0755", template: "../templates/etc/init.d/burp-restore"}
 - {name: "{{vars['cops_burp_unit_server']}}"                   , mode: "0640", template: "../templates/etc/systemd/system/burp-server.service"}
 - {name: "{{vars['cops_burp_unit_restore']}}"                  , mode: "0640", template: "../templates/etc/systemd/system/burp-restore.service"}
-- {name: "{{vars['cops_burp_timer_script']}}"                  , mode: "0755", template: "../templates/etc/burp/timer_script"}     
+- {name: "{{vars['cops_burp_timer_script']}}"                  , mode: "0755", template: "../templates/etc/burp/timer_script"}
 - {name: "{{vars['cops_burp_notify_script']}}"                 , mode: "0755", template: "../templates/etc/burp/notify_script"}
 cops_burp_cname: "{{ansible_fqdn}}"
+cops_burp_listen:
+- "{{vars['cops_burp_listen_address']}}:{{vars['cops_burp_port']}}"
+cops_burp_listen_status:
+- "{{vars['cops_burp_status_address']}}:{{vars['cops_burp_status_port']}}"
+cops_burp_restore_listen:
+- "{{vars['cops_burp_listen_address']}}:{{vars['cops_burp_restore_port']}}"
+cops_burp_restore_listen_status:
+- "{{vars['cops_burp_status_address']}}:{{vars['cops_burp_restore_status_port']}}"
+cops_burp_listen_address: "0.0.0.0"
 cops_burp_port: '4971'
 cops_burp_client_port: "{{cops_burp_port}}"
-cops_burp_status_address: '127.0.0.1'
+cops_burp_status_address: "127.0.0.1"
 cops_burp_status_port: "{{cops_burp_port|int+1}}"
 cops_burp_client_status_port: "{{cops_burp_status_port}}"
 cops_burp_restore_port: "{{cops_burp_port|int+2}}"

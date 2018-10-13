@@ -64,7 +64,30 @@
         [ --skip-tags burp_deploy_client_certs ]\
         [ --skip-tags burp_configure_clients ]
     ```
+- Reconfigure the burp server
 
+    ```sh
+    $COPS_ROOT/bin/ansible-playbook \
+    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+        -e "{burp_server: server_host}" \
+        --skip-tags burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients
+    ```
+    - only the client config file
+
+        ```sh
+        $COPS_ROOT/bin/ansible-playbook \
+        $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+            -e "{burp_client: [my.client], burp_server: server_host}" \
+            --skip-tags burp_configure_server,burp_fw,burp_sign,burp_deploy_client_certs,burp_configure_clients
+        ```
+- Reconfigure one client
+
+    ```sh
+    $COPS_ROOT/bin/ansible-playbook \
+    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+        -e "{burp_clients: [my.client], burp_server: server_host}" \
+        --skip-tags burp_configure_server
+    ```
 - Exemple inventory
 
     ```yaml
