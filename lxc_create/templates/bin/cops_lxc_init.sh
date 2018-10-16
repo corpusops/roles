@@ -57,11 +57,12 @@ elif [ -e /etc/network/interfaces ] && [ -e /tmp/interfaces ];then
         echo "$interfaces" >/etc/network/interfaces
     fi \
     && cp -f /tmp/interfaces /etc/network/interfaces.d/lxc \
-    && /etc/init.d/networking restart
-    if [ "x${?}" != "x0" ];then
+    && if [ "x${?}" != "x0" ];then
         echo "network/interfaces reconfiguration error" >&2
         exit 1
     fi
+    # can fail on upstart
+    ( /etc/init.d/networking restart || /bin/true)
 fi
 
 if [ -e "$rh" ] && [ ! -e $marker ];then
