@@ -62,7 +62,7 @@ elif [ -e /etc/network/interfaces ] && [ -e /tmp/interfaces ];then
         exit 1
     fi
     # can fail on upstart
-    ( /etc/init.d/networking restart || /bin/true)
+    ( /etc/init.d/networking restart || /bin/true )
 fi
 
 if [ -e "$rh" ] && [ ! -e $marker ];then
