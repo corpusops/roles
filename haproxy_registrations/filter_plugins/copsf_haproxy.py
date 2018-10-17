@@ -30,6 +30,14 @@ OBJECT_SANITIZER = re.compile('[\\\@+\$^&~"#\'()\[\]%*.:/]',
                               flags=re.M | re.U | re.X)
 registration_prefix = 'corpusops_haproxy_registrations_registrations_'
 DEFAULT_FRONTENDS = {80: {}, 443: {}}
+SSHPROXY = [
+  'option tcplog',
+  'tcp-request inspect-delay 5s',
+  'tcp-request content accept if HTTP',
+  'acl client_attempts_ssh payload(0,7) -m bin 5353482d322e30',
+  'use_backend {ssh_proxy} if !HTTP',
+  'use_backend {ssh_proxy} if client_attempts_ssh',
+  'use_backend {http_proxy} if HTTP']
 
 
 def sanitize(key):
@@ -89,6 +97,10 @@ def get_frontend_name(mode, port,
                            regex=regex,
                            wildcard=wildcard,
                            **kwargs)
+
+
+def get_ssh_backend_proxy_name(ssh_proxy_host, ssh_proxy_port, k='ssh'):
+    return get_backend_name('tcp', ssh_proxy_port, '{0}_{1}'.format(k, ssh_proxy_host))
 
 
 def ordered_backend_opts(opts=None):
@@ -155,6 +167,7 @@ def ordered_frontend_opts(opts=None):
     return opts
 
 
+
 def register_frontend(data,
                       port,
                       frontends=None,
@@ -162,11 +175,22 @@ def register_frontend(data,
                       mode=None,
                       hosts=None,
                       wildcards=None,
+                      raw_frontend=None,
                       regexes=None,
-                      letsencrypt=None):
+                      letsencrypt=None,
+                      ssh_proxy=None,
+                      ssh_proxy_host=None,
+                      ssh_proxy_port=None):
+    proxied_port = port
+    if ssh_proxy:
+        proxied_port = port + 1
     sbind = '*:{0}'.format(port)
     if not data['no_ipv6']:
         sbind = '{0},ipv6@:{1}'.format(sbind, port)
+    if ssh_proxy_host is None:
+        ssh_proxy_host = '127.0.0.1'
+    if ssh_proxy_port is None:
+        ssh_proxy_port = 22
     # if this is a TLS backend, append also the certificates
     # configured on the machine
     if frontends is None:
@@ -179,9 +203,26 @@ def register_frontend(data,
         sbind = '{0} ssl {1}'.format(
            sbind,
            data['ssl']['frontend_bind_options'])
-    fr = get_frontend_name(mode, port)
+    fbind = sbind
+    if ssh_proxy:
+        fbind = '127.0.0.1:{0}'.format(proxied_port)
+    fr = get_frontend_name(mode, proxied_port)
     frontend = frontends.setdefault(fr, {})
-    frontend.setdefault('bind', sbind)
+    frontend.setdefault('bind', fbind)
+    if ssh_proxy:
+        ssshbckname = get_ssh_backend_proxy_name(ssh_proxy_host, ssh_proxy_port,
+                                               k='ssh')
+        hsshbckname = get_ssh_backend_proxy_name('127.0.0.1', proxied_port,
+                                               k='https')
+        sshfr = get_frontend_name('tcp', port)
+        sshproxyfrontend = frontends.setdefault(sshfr, {})
+        sshproxyfrontend.setdefault('bind', sbind)
+        sshproxyfrontend["mode"] = "tcp"
+        sshproxyfrontend["raw_opts"] = [
+            a.format(http_proxy=hsshbckname, ssh_proxy=ssshbckname)
+            for a in SSHPROXY]
+    if raw_frontend is None:
+        raw_frontend = []
     # normalise https -> http  & default proxy mode to TCP
     hmode = frontend.setdefault(
         'mode',
@@ -204,7 +245,7 @@ def register_frontend(data,
             for match in chosts:
                 has['backend'] = True
                 bck_name = get_backend_name(
-                    mode, port, **{aclmode: match})
+                    mode, proxied_port, **{aclmode: match})
                 sane_match = sanitize(match)
                 if any([
                     aclmode == 'wildcard' and match == '*',
@@ -276,7 +317,7 @@ def register_frontend(data,
                 for acls in aclsdefs:
                     for cfgentry in acls:
                         cfgentry = cfgentry.format(
-                            port=port,
+                            port=proxied_port,
                             match=(aclmode == 'wildcard' and
                                    match[2:] or
                                    match),
@@ -294,6 +335,10 @@ def register_frontend(data,
         opts.append(
             'use_backend {0} if letsencrypt'.format(letsb))
         frontend['letsencrypt_activated'] = True
+    if raw_frontend:
+        if isinstance(raw_frontend, six.string_types):
+            raw_frontend = [raw_frontend]
+        opts.extend(raw_frontend)
     if has['ssl'] and not has['maincert_path'] or not has['backend']:
         frontends.pop(fr, None)
     return frontends
@@ -314,23 +359,36 @@ def register_servers_to_backends(data,
                                  ssl_check=None,
                                  inter_check=None,
                                  raw_srv=None,
+                                 raw_backend=None,
                                  ssl_terminated=None,
                                  http_fallback_port=None,
                                  http_fallback=None,
                                  letsencrypt=None,
                                  letsencrypt_host=None,
                                  letsencrypt_http_port=None,
-                                 letsencrypt_tls_port=None):
+                                 letsencrypt_tls_port=None,
+                                 ssh_proxy=None,
+                                 ssh_proxy_host=None,
+                                 ssh_proxy_port=None):
     '''
     Register a specific minion as a backend server
     where haproxy will forward requests to
     '''
+    proxied_port = port
+    if ssh_proxy:
+        proxied_port = port + 1
     if letsencrypt_host is None:
         letsencrypt_host = '127.0.0.1'
     if letsencrypt_http_port is None:
         letsencrypt_http_port = 54080
     if letsencrypt_tls_port is None:
         letsencrypt_tls_port = 54443
+    if ssh_proxy is None:
+        ssh_proxy = False
+    if ssh_proxy_host is None:
+        ssh_proxy_host = '127.0.0.1'
+    if ssh_proxy_port is None:
+        ssh_proxy_port = 22
     # if we proxy some https? traffic, we rely on host to choose a backend
     # and in other cases, we assume to proxy to a TCPs? backend
     if ssl_terminated is None:
@@ -338,6 +396,10 @@ def register_servers_to_backends(data,
     if http_fallback is None:
         if not ssl_terminated:
             http_fallback = True
+    if raw_backend is None:
+        raw_backend = []
+    if isinstance(raw_backend, six.string_types):
+        raw_backend = [raw_backend]
     if raw_srv is None:
         raw_srv = ''
     if ssl_check is None:
@@ -415,13 +477,32 @@ def register_servers_to_backends(data,
                 }]
             }
         })
+    if ssh_proxy:
+        sshbckname = get_ssh_backend_proxy_name(ssh_proxy_host, ssh_proxy_port,
+                                                k='ssh')
+        hsshbckname = get_ssh_backend_proxy_name('127.0.0.1', proxied_port,
+                                                 k='https')                  
+        backends.update({
+            hsshbckname: {
+                'mode': 'tcp',
+                'servers': [{'bind': '{0}:{1}'.format('127.0.0.1', proxied_port)}],
+            },
+            sshbckname: {
+                'mode': 'tcp',
+                'raw_opts': ['option tcplog', 'timeout server 2h'],
+                'servers': [{
+                    'bind': '{0}:{1}'.format(ssh_proxy_host, ssh_proxy_port)
+                }],
+            },
+        })
+
     for aclmode, hosts in aclmodes:
         if hosts:
             for match in hosts:
-                bck_name = get_backend_name(mode, port, **{aclmode: match})
+                bck_name = get_backend_name(mode, proxied_port, **{aclmode: match})
                 backend = backends.setdefault(bck_name, {})
                 backend.setdefault('mode', hmode)
-                bopts = backend.setdefault('raw_opts', [])
+                bopts = backend.setdefault('raw_opts', raw_backend)
                 for o in opts:
                     o = o.format(user=user, password=password)
                     if o not in bopts:
@@ -470,9 +551,14 @@ def make_registrations(data, ansible_vars=None):
                     'letsencrypt_http_port', None)
                 letsencrypt_tls_port = fdata.get(
                     'letsencrypt_tls_port', None)
+                ssh_proxy = fdata.get('ssh_proxy', None)
+                ssh_proxy_host = fdata.get('ssh_proxy_host', None)
+                ssh_proxy_port = fdata.get('ssh_proxy_port', None)
                 ssl_terminated = fdata.get('ssl_terminated', None)
                 inter_check = fdata.get('inter_check', None)
+                raw_backend = fdata.get('raw_backend', None)
                 raw_srv = fdata.get('raw_srv', None)
+                raw_frontend = fdata.get('raw_frontend', None)
                 ssl_check = fdata.get('ssl_check', None)
                 http_fallback = fdata.get('http_fallback', None)
                 http_fallback_port = fdata.get('http_fallback_port', None)
@@ -483,7 +569,11 @@ def make_registrations(data, ansible_vars=None):
                     backends=backends,
                     wildcards=wildcards,
                     regexes=regexes,
-                    letsencrypt=letsencrypt)
+                    raw_frontend=raw_frontend,
+                    letsencrypt=letsencrypt,
+                    ssh_proxy=ssh_proxy,
+                    ssh_proxy_host=ssh_proxy_host,
+                    ssh_proxy_port=ssh_proxy_port)
                 if not isinstance(payload['ip'], list):
                     payload['ip'] = payload['ip']
                 for ip in payload['ip']:
@@ -502,10 +592,14 @@ def make_registrations(data, ansible_vars=None):
                         http_fallback=http_fallback,
                         frontends=frontends,
                         backends=backends,
+                        raw_backend=raw_backend,
                         letsencrypt=letsencrypt,
                         letsencrypt_host=letsencrypt_host,
                         letsencrypt_http_port=letsencrypt_http_port,
-                        letsencrypt_tls_port=letsencrypt_tls_port)
+                        letsencrypt_tls_port=letsencrypt_tls_port,
+                        ssh_proxy=ssh_proxy,
+                        ssh_proxy_host=ssh_proxy_host,
+                        ssh_proxy_port=ssh_proxy_port)
     return data
 
 
