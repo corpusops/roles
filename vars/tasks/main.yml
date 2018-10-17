@@ -23,7 +23,6 @@
   changed_when: False
   register: cops_test_services_mgr
   tags: [corpusops_vars, corpusops_vars_core]
-  no_log: "{{not (cops_vars_debug|default(false))}}"
 - name: core
   include_jinja_vars:
     content: |-

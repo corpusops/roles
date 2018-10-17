@@ -263,6 +263,41 @@ corpusops_haproxy_registrations_registrations_mc_cloud_http2:
          "mode": "http"
 ```
 
+### Make a https to ssh proxy
+``hosts`` needs a value but this wont "virtualhost" ssh. Only one ssh host is possible.
+
+To register a proxy to ssh (from https) (eg: to bypass firewalls):
+
+```yaml
+- hosts: ["foobar"]
+  ssh_proxy: true
+  # ssh_proxy_host: 127.0.0.1
+  # ssh_proxy_port: 22
+```
+
+Then use this ssh slug to enjoy your proxy
+
+```ssh
+host AShortName
+User <your_user>
+HostName yourhost.net
+Port 443
+ProxyCommand openssl s_client -connect %h:%p -quiet
+ServerAliveInterval 5
+```
+
+Then use
+```sh
+ssh yourhost.net
+```
+
+### Add raw opts
+```yaml
+- hosts: ["foobar"]
+  # raw_frontend: []
+  # raw_backend: []
+```
+
 ## Role variables
 To see variables for this role, call it directly via
 ```bash
