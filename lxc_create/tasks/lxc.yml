@@ -6,7 +6,7 @@
         'lxc_container_name': lxc_container_name,
         'lxc_from_container': lxc_from_container
       } %}{{display | to_json}}
-  tags: corpusops_lxc_create,corpusops_lxc_create_vars
+  tags: [corpusops_lxc_create,corpusops_lxc_create_vars,lxc_create]
 - name: lxc create test
   shell: |-
     lxc-ls -P "{{lxc_path}}" --fancy |tail -n +2|awk '{print $1}'|\
