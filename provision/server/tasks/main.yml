@@ -22,6 +22,7 @@
       {% set corpusops_localsettings_makinastates    = corpusops_localsettings_makinastates     | default(False) %}
       {% set corpusops_localsettings_minikube        = corpusops_localsettings_minikube         | default(false) %}
       {% set corpusops_localsettings_nodejs          = corpusops_localsettings_nodejs           | default(False) %}
+      {% set corpusops_localsettings_nvm          = corpusops_localsettings_nvm           | default(False) %}
       {% set corpusops_localsettings_nscd            = corpusops_localsettings_nscd             | default(not is_docker) %}
       {% set corpusops_localsettings_packer          = corpusops_localsettings_packer           | default(False) %}
       {% set corpusops_localsettings_phantoms        = corpusops_localsettings_phantoms         | default(False) %}
@@ -92,6 +93,7 @@
       provision_corpusops_localsettings_makinastates: {{ corpusops_localsettings_makinastates }}
       provision_corpusops_localsettings_minikube: {{ corpusops_localsettings_minikube }}
       provision_corpusops_localsettings_nodejs: {{ corpusops_localsettings_nodejs }}
+      provision_corpusops_localsettings_nvm: {{ corpusops_localsettings_nvm }}
       provision_corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
       provision_corpusops_localsettings_packer: {{ corpusops_localsettings_packer }}
       provision_corpusops_localsettings_phantoms: {{ corpusops_localsettings_phantoms }}
@@ -215,6 +217,9 @@
 - include_role: {public: false, name: corpusops.roles/localsettings_nodejs}
   tags: [nodejs]
   when: [provision_corpusops_localsettings_nodejs]
+- include_role: {public: false, name: corpusops.roles/localsettings_nvm}
+  tags: [nvm]
+  when: [provision_corpusops_localsettings_nvm]
 - include_role: {public: false, name: corpusops.roles/localsettings_golang}
   tags: [golang]
   when: [provision_corpusops_localsettings_golang]
