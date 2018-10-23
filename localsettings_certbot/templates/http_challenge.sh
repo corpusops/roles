@@ -69,7 +69,10 @@ $local_ips
 CERTBOT_DOMAINS="${CERTBOT_DOMAINS:-"{{d.domains|join('\n')}}"}"
 updated=""
 cli_args="{{d.certonly_args.replace('\n', '')}}"
+if [[ -n "$CERTBOT_DOMAINS" ]];then
+exitcode=0
 while read domain;do
+if [[ -n $domain ]];then
 	cert_file="$CERTBOT_CONFIGDIR/live/$domain/fullchain.pem"
 	key_file="$CERTBOT_CONFIGDIR/live/$domain/privkey.pem"
 	force="${FORCE_RENEW-}"
@@ -119,13 +122,15 @@ $ip6"
             rm -rvf "$CERTBOT_CONFIGDIR/"{live,renewal,archive}/{${domain},${domain}.conf}
         fi
 		if ! ( $CERTBOT certonly $force_args $cli_args -d $domain; );then
-			failed="$failed $domain"
-			break
+            failed="$failed $domain"
+            exitcode=1
         else
             updated="$updated $domain"
 		fi
 	fi
+fi
 done <<< "$CERTBOT_DOMAINS"
+fi
 if [[ -n "$dnsmismatch" ]];then
 	log "certbot dns mismatch domains: $dnsmismatch"
 fi
@@ -135,4 +140,5 @@ fi
 if [[ -n "$updated" ]];then
 	log "certbot updated domains: $updated"
 fi
+exit $exitcode
 # vim:set et sts=4 ts=4 tw=0 et:
