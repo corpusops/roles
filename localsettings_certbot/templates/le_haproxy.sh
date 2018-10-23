@@ -13,9 +13,10 @@ group="{{d.group}}"
 howner="{{d.haproxy_owner}}"
 hgroup="{{d.haproxy_group}}"
 if [ ! -e "$hcertsd" ];then
-    log "haproxy certs dir $hcerts doesnt exists"
+    log "haproxy certs dir $hcertsd doesnt exists"
     exit 0
 fi
+if [[ -n "$domains" ]];then
 while read domain;do
     d="$certsd/$domain"
     t="$hcertsd/$domain.crt"
@@ -28,9 +29,9 @@ while read domain;do
             chmod 640 "$ct"
             chown $owner:$group "$ct"
             if [ -e "$t" ] && ( diff -q "$ct" "$t"; ) ;then
-                log "lehaproxy: already installed $domain cert"
+                log "lehaproxy: already installed $domain cert ($hcertsd)"
             else
-                log "lehaproxy: installing $domain cert"
+                log "lehaproxy: installing $domain cert ($hcertsd)"
                 cp -f "$ct" "$t"
                 chmod 640 "$t"
                 chown $howner:$hgroup "$t"
@@ -39,6 +40,7 @@ while read domain;do
         fi
     fi
 done <<< "$domains"
+fi
 if [[ -z ${SKIP_RELOAD} ]] && [[ -n "${reload}" ]];then
     service haproxy reload
 fi
