@@ -29,6 +29,13 @@
   with_items: "{{corpusops_localsettings_nvm_system_archives.results}}"
   vars: {_archive: "{{item.msg._archive}}"}
   tags: [download, nvm_download]
+- tags: [wire]
+  when: "_cops_nvm_install_system"
+  include_tasks: install_bashrc.yml
+  vars:
+    prefix: "{{_corpusops_localsettings_nvm_system_prefix}}"
+    bashrc: "{{corpusops_localsettings_nvm_vars.system_bashrc}}"
+    _cops_nvm_version: "{{_cops_nvm_versions[0]}}"
 - block:
   - name: "Make rvm group members able to control every nvm stuff"
     template:
