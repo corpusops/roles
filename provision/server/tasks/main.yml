@@ -259,12 +259,6 @@
 - include_role: {public: false, name: corpusops.roles/services_magicbridge}
   tags: [magicbridge]
   when: [provision_corpusops_services_magicbridge]
-- include_role: {public: false, name: corpusops.roles/services_virt_lxc}
-  tags: [lxc]
-  when: [provision_corpusops_services_virt_lxc]
-- include_role: {public: false, name: corpusops.roles/services_virt_docker}
-  tags: [docker]
-  when: [provision_corpusops_services_virt_docker]
 - include_role: {public: false, name: corpusops.roles/services_misc_xvfb}
   tags: [xvfb]
   when: [provision_corpusops_services_misc_xvfb]
@@ -307,6 +301,12 @@
 - include_role: {public: false, name: corpusops.roles/services_ftp_pureftpd}
   tags: [pureftpd]
   when: [provision_corpusops_services_ftp_pureftpd]
+- include_role: {public: false, name: corpusops.roles/services_virt_lxc}
+  tags: [lxc]
+  when: [provision_corpusops_services_virt_lxc]
+- include_role: {public: false, name: corpusops.roles/services_virt_docker}
+  tags: [docker]
+  when: [provision_corpusops_services_virt_docker]
 - include_role: {public: false, name: corpusops.roles/services_proxy_haproxy}
   tags: [haproxy]
   when: [provision_corpusops_services_proxy_haproxy]
