@@ -304,7 +304,7 @@
     src: "{{certlnk}}"
     dest: "{{(certlnk.split('.')[:-1]+[vars['ssl_ca_signed_cert_lnk_ext']])|join('.')}}"
   loop_control: {loop_var: certlnk}
-  when: "ssl_ca_signed_cert_vars.do_links and not certlnk.endswith(vars['ssl_ca_signed_cert_lnk_ext'])"
+  when: "ssl_ca_signed_cert_vars.do_links and not (certlnk.endswith(vars['ssl_ca_signed_cert_lnk_ext']) or certlnk.endswith('.key'))"
   with_items:
   - "{{ssl_ca_signed_cert_vars.dest_cert_path}}"
   - "{{ssl_ca_signed_cert_vars.dest_key_path}}"
