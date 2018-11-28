@@ -20,7 +20,7 @@
             'remove_password', 'docker',
             'included_config',
             'nameservers', 'ns_search',
-            'ssh_keys_paths', 'ssh_keys',
+            'ssh_keys_paths', 'ssh_keys', 'ssh_user',
             'auto_start', 'container_name', 'path',
             'backing_store', 'clone_snapshot',
             'from_container',
