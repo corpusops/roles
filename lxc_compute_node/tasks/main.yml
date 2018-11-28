@@ -9,7 +9,7 @@
   tags: [lxc_haproxy]
 - block:
   - include_role: {public: false, name: corpusops.roles/haproxy_registrations}
-  - service: {name: haproxy, state: "{{('{0}',format(haproxy_version.rc)=='0') and 'reloaded' or 'restarted'}}"}
+  - service: {name: haproxy, state: "{{('{0}'.format(haproxy_version.rc)=='0') and 'reloaded' or 'restarted'}}"}
   tags: [lxc_haproxy_registrations]
 - include_role: {public: false, name: corpusops.roles/services_firewall_ms_iptables}
   tags: [lxc_firewall]
