@@ -1,4 +1,6 @@
 ---
 - import_playbook: check.yml
 - hosts: "{{lxc_host|default('localhost')}}"
-  tasks: [include_role: {public: false, name: corpusops.roles/lxc_create}]
+  tasks:
+  - include_role: {public: false, name: corpusops.roles/ansible_plugins}
+  - include_role: {public: false, name: corpusops.roles/lxc_create}
