@@ -14,6 +14,7 @@ corpusops_lxc_cops_sub_sub_namespaces:
 # ssh keys allowed to connect as root inside the container
 corpusops_lxc_ssh_keys_paths: ["~/.ssh/id_rsa.pub"]
 corpusops_lxc_ssh_keys: []
+corpusops_lxc_ssh_user: root
 corpusops_lxc_included_config: "/usr/share/lxc/config/{{vars['corpusops_lxc_template']}}.common.conf"
 corpusops_lxc_path: /var/lib/lxc
 corpusops_lxc_container_name: "{{lxc_container_name|default(container_name)|default(None)}}"
