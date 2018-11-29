@@ -35,5 +35,6 @@
     ansible_host: "{{corpusops_lxc_register_ip.stdout}}"
     ansible_port: 22
     ansible_user: "{{corpusops_lxc_container_vars.msg['ssh_user']}}"
+    ansible_ssh_user: "{{corpusops_lxc_container_vars.msg['ssh_user']}}"
     ansible_ssh_common_args: "{{1|lxc_ssh_connection_proxy(inventory_hostname, hostvars)}}"
   register: cops_register_lxc_host
