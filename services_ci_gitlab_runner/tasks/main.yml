@@ -1,0 +1,30 @@
+---
+- name: "corpusops_services_ci_gitlab_runner preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_ci_gitlab_runner | default(True) }}"
+  register: corpusops_services_ci_gitlab_runner_can_run
+  tags: [corpusops_services_ci_gitlab_runner]
+- include_tasks: prerequisites.yml
+  when: ['corpusops_services_ci_gitlab_runner_can_run.msg == True',
+         "corpusops_services_ci_gitlab_runner_do_prerequisites|default(true)"]
+  tags: [corpusops_services_ci_gitlab_runner,
+         gitlab_runner_prerequisites,
+         corpusops_services_ci_gitlab_runner_prerequisites]
+- include_tasks: configuration.yml
+  when: ['corpusops_services_ci_gitlab_runner_can_run.msg == True',
+         "corpusops_services_ci_gitlab_runner_do_configuration|default(true)"]
+  tags: [corpusops_services_ci_gitlab_runner,
+         gitlab_runner_configuration,
+         corpusops_services_ci_gitlab_runner_configuration]
+- include_tasks: runtime.yml
+  when: ['corpusops_services_ci_gitlab_runner_can_run.msg == True',
+         "corpusops_services_ci_gitlab_runner_do_runtime|default(true)"]
+  tags: [corpusops_services_ci_gitlab_runner,
+         gitlab_runner_runtime,
+         corpusops_services_ci_gitlab_runner_runtime]
+- include_tasks: services.yml
+  when: ['corpusops_services_ci_gitlab_runner_can_run.msg == True',
+         "corpusops_services_ci_gitlab_runner_do_services|default(true)"]
+  tags: [corpusops_services_ci_gitlab_runner,
+         gitlab_runner_services,
+         corpusops_services_ci_gitlab_runner_services]
