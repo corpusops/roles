@@ -1,0 +1,23 @@
+---
+- set_fact:
+    cacheable: false
+    corpusops_gitlab_runner_service_state: >-
+      {% if (
+        corpusops_gitlab_runner_configs_changed     |default(False) or
+        corpusops_gitlab_runner_prequisites_changed |default(False)
+      )%}restarted{% else %}reloaded{%endif%}
+- set_fact:
+    cacheable: false
+    corpusops_gitlab_runner_service_state: "{{corpusops_gitlab_runner_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_ci_gitlab_runner_vars.activated
+     | ternary(corpusops_gitlab_runner_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_ci_gitlab_runner_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+    daemon_reload: true
+  with_items: "{{corpusops_services_ci_gitlab_runner_vars.services}}"
+  tags: corpusops_gitlab_runner
+- meta: flush_handlers
