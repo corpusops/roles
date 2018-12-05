@@ -13,11 +13,19 @@
     corpusops_services_mail_postfix_configst: "{{cops_configs_templates_results}}"
   register: corpusops_services_mail_postfix_configst2
   tags: [postfix_configs]
+- blockinfile:
+    unsafe_writes: true
+    dest: "{{corpusops_services_mail_postfix_vars.prefix}}/master.cf"
+    marker: "# {mark} corpusops"
+    insertafter: EOF
+    block: "{{corpusops_services_mail_postfix_vars.mastercf_extra}}"
+  register: corpusops_services_mail_postfix_mastercf
 - set_fact:
     cacheable: false
     corpusops_services_mail_postfix_configs_changed: "{{(
       corpusops_services_mail_postfix_filest is changed or
       corpusops_services_mail_postfix_filesct is changed or
+      corpusops_services_mail_postfix_mastercf is changed or
       corpusops_services_mail_postfix_configst is changed)}}"
 - set_fact:
     cacheable: false

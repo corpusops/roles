@@ -65,7 +65,7 @@ corpusops_services_mail_postfix_certs_configs:
    user: "root", group: "postfix", mode: "640"}
 corpusops_services_mail_postfix_configs_default:
 - {name: "{{corpusops_services_mail_postfix_prefix}}/resetperms.sh",
-   user: "root", group: "postfix", mode: "750"} 
+   user: "root", group: "postfix", mode: "750"}
 - {name: "{{corpusops_vars.config_dir}}/mailname",
    user: "root", group: "root", mode: "644"}
 - {name: "{{corpusops_services_mail_postfix_prefix}}/virtual_alias_maps",
@@ -130,10 +130,26 @@ corpusops_services_mail_postfix_inet_protocols: ["ipv4"]
 corpusops_services_mail_postfix_virtual_mailbox_base: "{{corpusops_vars.var_dir}}/mail/virtual"
 corpusops_services_mail_postfix_mailbox_size_limit: 0
 corpusops_services_mail_postfix_local_networks: ["127.0.0.0/8"]
-corpusops_services_mail_postfix_mynetworks:
+corpusops_services_mail_postfix_mynetworks_extra: []
+corpusops_services_mail_postfix_mynetworks_default:
 - "127.0.0.1/8": "OK"
 - "[::1]/128]": "OK"
 - "[::ffff:127.0.0.0]/104": "OK"
+corpusops_services_mail_postfix_mynetworks: |-
+  {% set res = [] %}
+  {% set _ = res.extend(corpusops_services_mail_postfix_mynetworks_extra) %}
+  {% if corpusops_services_mail_postfix_is_relay %}
+  {% set _ = res.extend(corpusops_services_mail_postfix_mynetworks_default) %}
+  {% endif  %}
+  {{ res | to_json }}
+corpusops_services_mail_postfix_tls_high_cipherlist: "HIGH:!aNULL:!MD5:!ADH:!RC4:!DH"
+corpusops_services_mail_postfix_ssl_prototocols: " !SSLv2, !SSLv3, TLSv1.1, TLSv1.2"
+
+corpusops_services_mail_postfix_smtpd_tls_protocols: "{{corpusops_services_mail_postfix_ssl_prototocols}}"
+corpusops_services_mail_postfix_smtpd_tls_mandatory_protocols: "{{corpusops_services_mail_postfix_ssl_prototocols}}"
+corpusops_services_mail_postfix_smtp_tls_protocols: "{{corpusops_services_mail_postfix_ssl_prototocols}}"
+corpusops_services_mail_postfix_smtp_tls_mandatory_protocols: "{{corpusops_services_mail_postfix_ssl_prototocols}}"
+
 corpusops_services_mail_postfix_smtpd_relay_restrictions: |-
   permit_mynetworks,
     permit_sasl_authenticated ,
@@ -280,4 +296,5 @@ corpusops_services_mail_postfix_inet_interfaces: "{{(
   corpusops_services_mail_postfix_inet_interfaces_extra+
   corpusops_services_mail_postfix_inet_interfaces_default)}}"
 corpusops_services_mail_postfix_sasl_passwd: []
+corpusops_services_mail_postfix_mastercf_extra: ""
 #- entry: '[mail.foo.com]', user: "bar@foo.com", password: "xxx"

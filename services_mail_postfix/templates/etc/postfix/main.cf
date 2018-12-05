@@ -73,6 +73,12 @@ recipient_delimiter = +
 # tls
 # http://www.postfix.org/TLS_README.html#client_tls_may
 smtp_tls_security_level = {{data.smtp_tls_security_level}}
+tls_high_cipherlist  = {{data.tls_high_cipherlist}}
+
+smtpd_tls_protocols={{data.smtpd_tls_protocols}}
+smtpd_tls_mandatory_protocols={{data.smtpd_tls_mandatory_protocols}}
+smtp_tls_protocols={{data.smtp_tls_protocols}}
+smtp_tls_mandatory_protocols = {{data.smtp_tls_mandatory_protocols}}
 
 owner_request_special = {{data.owner_request_special}}
 

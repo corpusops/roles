@@ -64,7 +64,7 @@ corpusops_services_mail_postfix_transport: "{{
   corpusops_services_mail_postfix_virtual_alias_map_default}}
 ```
 
-## Authencated relay
+## Authenticated relay
 ```yaml
 corpusops_services_mail_postfix_sasl_passwd:
 - entry: '[mail.foo.com]', user: "bar@foo.com", password: "xxx"
@@ -99,7 +99,7 @@ mail_alias_map:
 - "/.*@{{inventory_hostname}}/": "{{mail_sysadmin}}"
 - "/.*@localhost/": "{{mail_sysadmin}}"
 - "/.*@.local/": "{{mail_sysadmin}}"
-corpusops_services_mail_postfix_catchall: "{{mail_catchall|default('')}}"  
+corpusops_services_mail_postfix_catchall: "{{mail_catchall|default('')}}"
 corpusops_services_mail_postfix_mode: relay
 corpusops_services_mail_postfix_sasl_passwd:
 - {entry: "[{{mail_relay}}]", user: "{{mail_user}}", password: "{{mail_pwd}}"}
