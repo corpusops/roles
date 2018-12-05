@@ -4,11 +4,27 @@ auto {{ifc}}
 {% if idata.get('dhcp4', False) %}
 iface {{ifc}} inet dhcp
 {% else %}
+{%- set net = "" %}
+{%- if '/' in idata.addresses[0] %}
+{%- set net = idata.addresses[0].split('/')[1] %}
+{%- endif %}
+{%-  set ip = idata.addresses[0].split('/')[0] %}
+{%- if net %}
+{%-  set netm = idata.addresses[0]|ipaddr('netmask') %}
+{%- else %}
+{%-  set netm = idata.addresses[0]|copsf_lxc_subnet(cidr=False)  %}
+{%- endif%}
 iface {{ifc}} inet static
-  address {{idata.addresses[0].split('/')[0]}}
-  network {{idata.addresses[0]|copsf_lxc_subnet(cidr=False)}}
+  address {{ip}}
+  netmask {{netm}}
   {% if idata.get("gateway4", "") %}
-  gateway {{idata.gateway4}}{%endif%}
+   post-up   sh -c 'ip route del default || /bin/true'
+   post-up   ip route add             {{idata.gateway4}} dev {{ifc}}
+   post-up   ip route add default via {{idata.gateway4}} dev {{ifc}}
+   post-down ip route del             {{idata.gateway4}}
+   post-down ip route del default via {{idata.gateway4}}
+  {%endif%}
+  {% if "{0}".format(net)=="32" %}broadcast {{ip}}{%endif%}
   {% if data.get('ns_search', [])
   %}dns-search {{data.ns_search|join(' ')}}
   {% endif%}
