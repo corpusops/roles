@@ -7,7 +7,8 @@ iface {{ifc}} inet dhcp
 iface {{ifc}} inet static
   address {{idata.addresses[0].split('/')[0]}}
   network {{idata.addresses[0]|copsf_lxc_subnet(cidr=False)}}
-  gateway {{idata.gateway4}}
+  {% if idata.get("gateway4", "") %}
+  gateway {{idata.gateway4}}{%endif%}
   {% if data.get('ns_search', [])
   %}dns-search {{data.ns_search|join(' ')}}
   {% endif%}
