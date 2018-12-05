@@ -4,7 +4,7 @@
     msg: |-
         {% set conds = [corpusops_services_virt_lxc | default(True)] %}
         {% if ansible_lsb.id.lower() in ['ubuntu'] %}
-        {% if ansible_lsb.release <= '16.04' %}
+        {% if ansible_lsb.release < '16.04' %}
         {% set _ = conds.append(False) %}
         {% endif %}
         {% elif ansible_os_family.lower() in ['redhat'] %}
