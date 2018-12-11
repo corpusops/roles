@@ -62,6 +62,7 @@ CONFIG="${CERTBOT_CONFIG:-{{d.config}}}"
 local_ips="$(ip -o addr \
             | awk '!/^[0-9]*: ?lo|link\/ether/ {print $4}'\
             | sed -e "s/\/.*//g")"
+PREFERED_CHALLENGES="{{d.preferred_challenges|join(' ')}}"
 CERTBOT_IPS="${CERTBOT_IPS:-"
 {{corpusops_network_live_ext_ip}}
 $local_ips
@@ -121,12 +122,20 @@ $ip6"
                 $(find "$CERTBOT_CONFIGDIR/"{live,renewal,archive}/{${domain},${domain}.conf} -maxdepth 0 -mindepth 0) &&\
             rm -rvf "$CERTBOT_CONFIGDIR/"{live,renewal,archive}/{${domain},${domain}.conf}
         fi
-		if ! ( $CERTBOT certonly $force_args $cli_args -d $domain; );then
+        current_updated=
+        for i in $PREFERED_CHALLENGES;do
+            if ( $CERTBOT certonly $force_args $cli_args --preferred-challenges $i -d $domain; );then
+                current_updated=1
+                updated="$updated $domain"
+                break
+            else
+                echo "Challenge $i failed for $domain" >&2
+            fi
+        done
+        if [[ -z "$current_updated" ]];then
             failed="$failed $domain"
             exitcode=1
-        else
-            updated="$updated $domain"
-		fi
+        fi
 	fi
 fi
 done <<< "$CERTBOT_DOMAINS"
