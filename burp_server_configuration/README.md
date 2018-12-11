@@ -77,8 +77,8 @@
         ```sh
         $COPS_ROOT/bin/ansible-playbook \
         $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
-            -e "{burp_client: [my.client], burp_server: server_host}" \
-            --skip-tags burp_configure_server,burp_fw,burp_sign,burp_deploy_client_certs,burp_configure_clients
+          -e "{burp_client: [my.client], burp_server: server_host}" \
+          --skip-tags burp_configure_server,burp_fw,burp_sign,burp_deploy_client_certs,burp_configure_clients
         ```
 - Reconfigure one client
 
@@ -130,4 +130,39 @@
         project_burp_servers:
           hosts:
             backupserver.foo.net:
-    ```
+            ```
+
+## configure per client configuration
+
+ - You can use the following default macros (profile and common conf that can be also reused).
+    - ``cops_burpclientserver_profiles_baremetal``
+    - ``cops_burpclientserver_profiles_vm``
+    - ``cops_burpclientserver_common_exclude_re``
+    - ``cops_burpclientserver_vm_exclude_re``
+    - ``cops_burpclientserver_baremetal_exclude_re``
+### define using a profile
+```yaml
+    burp_client_use_profile: true
+    burp_client_profile: baremetal
+    burp_client_conf_custom_lines: |
+        include=/Foo
+```
+
+Or a new
+
+```yaml
+    burp_client_use_profile: true
+    burp_client_profile: myprofile
+    burp_client_profiles_myprofile:
+        {{vars['cops_burpclientserver_common_lines']}}
+        include=/Foo
+```
+
+### define using a new blank config
+```yaml
+    burp_client_use_profile: false
+    burp_client_profile: null
+    burp_client_conf_custom_lines: |
+        {{vars['cops_burpclientserver_common_lines']}}
+        include=/Foo
+```
