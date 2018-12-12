@@ -39,10 +39,14 @@ corpusops_haproxy_registrations_backend_opts_http_strict:
 - 'option http-keep-alive'
 - 'option httpchk'
 - 'option log-health-checks'
+- "http-request set-header X-Forwarded-Proto http  if !{bracket} ssl_fc {ebracket}"
+- "http-request set-header X-Forwarded-Proto https if {bracket} ssl_fc {ebracket}"
 corpusops_haproxy_registrations_backend_opts_https_strict:
 - 'balance roundrobin'
 - 'option forwardfor'
 - 'option http-keep-alive'
+- "http-request set-header X-Forwarded-Proto http  if !{bracket} ssl_fc {ebracket}"
+- "http-request set-header X-Forwarded-Proto https if {bracket} ssl_fc {ebracket}"
 - 'http-request set-header X-FORWARDED-SSL %[ssl_fc]'
 - 'http-request set-header X-SSL %[ssl_fc]'
 - 'option httpchk'
@@ -54,10 +58,14 @@ corpusops_haproxy_registrations_backend_opts_http:
 - 'option httpchk'
 - 'option log-health-checks'
 - 'http-check expect rstatus (2|3|4|5)[0-9][0-9]'
+- "http-request set-header X-Forwarded-Proto http  if !{bracket} ssl_fc {ebracket}"
+- "http-request set-header X-Forwarded-Proto https if {bracket} ssl_fc {ebracket}"
 corpusops_haproxy_registrations_backend_opts_https:
 - 'balance roundrobin'
 - 'option forwardfor'
 - 'option http-keep-alive'
+- "http-request set-header X-Forwarded-Proto http  if !{bracket} ssl_fc {ebracket}"
+- "http-request set-header X-Forwarded-Proto https if {bracket} ssl_fc {ebracket}"
 - 'http-request set-header X-FORWARDED-SSL %[ssl_fc]'
 - 'http-request set-header X-SSL %[ssl_fc]'
 - 'option httpchk'
