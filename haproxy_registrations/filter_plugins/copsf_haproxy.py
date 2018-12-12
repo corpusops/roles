@@ -202,7 +202,8 @@ def register_frontend(data,
         has.update({'ssl': True})
         sbind = '{0} ssl {1}'.format(
            sbind,
-           data['ssl']['frontend_bind_options'])
+           data['ssl']['frontend_bind_options'],
+           bracket='{', ebracket='}')
     fbind = sbind
     if ssh_proxy:
         fbind = '127.0.0.1:{0}'.format(proxied_port)
@@ -219,7 +220,8 @@ def register_frontend(data,
         sshproxyfrontend.setdefault('bind', sbind)
         sshproxyfrontend["mode"] = "tcp"
         sshproxyfrontend["raw_opts"] = [
-            a.format(http_proxy=hsshbckname, ssh_proxy=ssshbckname)
+            a.format(http_proxy=hsshbckname, ssh_proxy=ssshbckname,
+                     bracket='{', ebracket='}')
             for a in SSHPROXY]
     if raw_frontend is None:
         raw_frontend = []
@@ -322,7 +324,8 @@ def register_frontend(data,
                                    match[2:] or
                                    match),
                             sane_match=sane_match,
-                            bck_name=bck_name)
+                            bck_name=bck_name,
+                            bracket='{', ebracket='}')
                         if cfgentry not in opts:
                             opts.append(cfgentry)
     if letsencrypt and not frontend.get('letsencrypt_activated'):
@@ -428,7 +431,8 @@ def register_servers_to_backends(data,
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
                      'bind': '{0}:{1}'.format(ip, to_port),
                      'opts': 'check weight 100 {0} {1} {2}'.format(
-                         inter_check, ssl_check, raw_srv)})
+                         inter_check, ssl_check, raw_srv,
+                         bracket='{', ebracket='}')})
             else:
                 servers.append(
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
@@ -441,11 +445,13 @@ def register_servers_to_backends(data,
                                        ip, http_fallback_port),
                                    'opts': ('check weight 50'
                                             ' {0} backup {1}').format(
-                                                inter_check, raw_srv)})
+                                                inter_check, raw_srv,
+                                                bracket='{', ebracket='}',)})
         else:
             servers = [{'name': 'srv_{0}'.format(sane_ip),
                         'bind': '{0}:{1}'.format(ip, to_port),
-                        'opts': 'check {0} {1}'.format(inter_check, raw_srv)}]
+                        'opts': 'check {0} {1}'.format(inter_check, raw_srv,
+                                                       bracket='{', ebracket='}')}]
 
     elif mode in [
         'rabbitmq', 'tcp', 'tcps',
@@ -481,7 +487,7 @@ def register_servers_to_backends(data,
         sshbckname = get_ssh_backend_proxy_name(ssh_proxy_host, ssh_proxy_port,
                                                 k='ssh')
         hsshbckname = get_ssh_backend_proxy_name('127.0.0.1', proxied_port,
-                                                 k='https')                  
+                                                 k='https')
         backends.update({
             hsshbckname: {
                 'mode': 'tcp',
@@ -504,7 +510,7 @@ def register_servers_to_backends(data,
                 backend.setdefault('mode', hmode)
                 bopts = backend.setdefault('raw_opts', raw_backend)
                 for o in opts:
-                    o = o.format(user=user, password=password)
+                    o = o.format(user=user, password=password, bracket='{', ebracket='}')
                     if o not in bopts:
                         bopts.append(o)
                 bopts = backend['raw_opts']
