@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 # BEGIN: corpusops common glue
+readlinkf() {
+    if ( uname | egrep -iq "linux|darwin|bsd" );then
+        if ( which greadlink 2>&1 >/dev/null );then
+            greadlink -f "$@"
+        elif ( which perl 2>&1 >/dev/null );then
+            perl -MCwd -le 'print Cwd::abs_path shift' "$@"
+        elif ( which python 2>&1 >/dev/null );then
+            python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$@"
+        fi
+    else
+        readlink -f "$@"
+    fi
+}
 # scripts vars
 SCRIPT=$0
 LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
@@ -19,12 +32,14 @@ SYSTEM_COPS_ROOT=${SYSTEM_COPS_ROOT-$DEFAULT_COPS_ROOT}
 DOCKER_COPS_ROOT=${DOCKER_COPS_ROOT-$SYSTEM_COPS_ROOT}
 COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
 BASE_PREPROVISION_IMAGES="ubuntu:latest_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:18.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:16.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:14.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/centos:7_preprovision"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
 
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:18.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:16.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:14.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/centos:7"
@@ -435,6 +450,87 @@ get_python2() {
     done
     echo $py2
 }
+has_python_module() {
+    local py="${py:-python}"
+    for i in $@;do
+        if ! ( "${py}" -c "import $i" 2>/dev/null );then
+            return 1
+        fi
+     done
+}
+pymod_ver() {
+    local mod="${1}"
+    local py="${2:-${py:-python}}"
+    "$py" -c "from __future__ import print_function;import $mod;print($mod.__version__)"
+}
+install_pip() {
+    local py="${1:-python}"
+    local DEFAULT_PIP_URL="https://bootstrap.pypa.io/get-pip.py"
+    local PIP_URL="${PIP_URL:-$DEFAULT_PIP_URL}"
+    PIP_INST="$(mktemp)"
+    log "Reinstalling pip via $PIP_URL (copy to $PIP_INST)"
+    if ! ( "$py" -c "import urllib; print urllib.urlopen('$PIP_URL').read()" > "$PIP_INST" );then
+        log "Error downloading pip installer"
+        return 1
+    fi
+    $(may_sudo) "$py" "$PIP_INST" -U pip setuptools six
+}
+uninstall_at_least_pymodule() {
+    local py="${3:-${py-python}}"
+    local ver="${2}"
+    local mod="${1}"
+    local import="${4:-${1}}"
+    if ( ( has_python_module "$mod" ) && ( version_lt "$(pymod_ver "$mod" "$py")" "$ver" ) );then
+        local modd=$($py -c "from __future__ import print_function;import $import,os;print(os.path.dirname($import.__file__.replace('/__init__.pyc', '')))")
+        local modb="$HOME/.$mod.backup.$chrono.tar.bz2"
+        ( log "Backup mod install in $modb" \
+          && if [ -e "$modd/${import}.py" ];then
+            tar cjf "$modb" $modd/${import}.py* $modd/${mod}*egg-info &&\
+                $(may_sudo) rm -rf $modd/${import}.py* $modd/${mod}*egg-info; \
+            elif [ -e "$modd/${import}" ];then
+                tar cjf "$modb" $modd/${import} $modd/${mod}*egg-info &&\
+                    $(may_sudo) rm -rf $modd/${import} $modd/${mod}*egg-info; \
+            fi && log "Upgrading now from legacy pre $mod $ver" ) || \
+        die_in_error "Removing legacy $mod failed"
+    fi
+}
+upgrade_pip() {
+    local py="${1:-python}"
+    local pyc="$(get_command "$py")"
+    local dpy="$(dirname $pyc)"
+    local chrono=$(date +%F_%T|sed -e "s/:/-/g")
+    # force reinstalling pip in same place where it is (not /usr/local but /usr)
+    # __version__ is set by pip, uninstall last
+    if ( version_lt "$($py -V 2>&1|awk '{print $2}')" "3.0" );then
+        vv uninstall_at_least_pymodule requests  2.18.3 "$py"
+        vv uninstall_at_least_pymodule pyasn1    0.4.2  "$py"
+        vv uninstall_at_least_pymodule urllib3   1.20   "$py"
+        vv uninstall_at_least_pymodule pyopenssl 18.0.0 "$py" OpenSSL
+    fi
+    uninstall_at_least_pymodule six     1.11.0
+    uninstall_at_least_pymodule chardet 2.3.0
+    uninstall_at_least_pymodule pip     2.0
+    if ! ( has_python_module pip );then
+        install_pip "$py" || die "pip install failed for $py"
+        if ! ( has_python_module pip );then
+            log "pip not found for $py"
+            return 1
+        fi
+    fi
+    log "ReInstalling pip for $py"
+    if ( corpusops_use_venv );then
+        local maysudo=""
+    else
+        local maysudo=$(may_sudo)
+    fi
+    vv $maysudo "${py}" -m pip install -U setuptools \
+        && vv $maysudo "${py}" -m pip install -U pip six urllib3\
+        && vv $maysudo "${py}" -m pip install chardet \
+        && if ( version_lt "$($py -V 2>&1|awk '{print $2}')" "3.0" );then
+            vv $maysudo "${py}" -m pip install -U backports.ssl_match_hostname ndg-httpsclient pyasn1 &&\
+            vv $maysudo "${py}" -m pip install urllib3 pyopenssl
+        fi
+}
 make_virtualenv() {
     local py=${1:-$(get_python2)}
     local DEFAULT_VENV_PATH=$SCRIPT_ROOT/venv
@@ -474,31 +570,34 @@ make_virtualenv() {
         --system-site-packages --unzip-setuptools \
         "${venv_path}" &&\
     ( . "${venv_path}/bin/activate" &&\
-      "${venv_path}/bin/easy_install" -U setuptools &&\
-      "${venv_path}/bin/pip" install -U pip &&\
+      upgrade_pip "${venv_path}/bin/python" &&\
       deactivate; )
     fi
 }
 ensure_last_python_requirement() {
-    local PIP=${PIP:-pip}
     local COPS_PYTHON=${COPS_PYTHON:-python}
-    local i=
+    local COPS_UPGRADE=${COPS_UPGRADRE:-"-U"}
     local PIP_CACHE=${PIP_CACHE:-${VENV_PATH:-$(pwd)}/cache}
     # inside the for loop as at first pip can not have the opts
     # but can be upgraded to have them after
     local copt=
-    if "$py" "$PIP" --help | grep -q download-cache; then
+    if "$py" -m pip --help | grep -q download-cache; then
         copt="--download-cache"
-    elif $PIP --help | grep -q cache-dir; then
+    elif "$py" -m pip --help | grep -q cache-dir; then
         copt="--cache-dir"
     fi
     log "Installing last version of $@"
-    if [[ -n "$copt" ]];then
-        vvv "$COPS_PYTHON" "$PIP" install \
-            --src "$(get_eggs_src_dir)" -U $copt "${PIP_CACHE}" $@
+    if ( corpusops_use_venv );then
+        local maysudo=""
     else
-        vvv "$COPS_PYTHON" "$PIP" install \
-            --src "$(get_eggs_src_dir)" -U $@
+        local maysudo=$(may_sudo)
+    fi
+    if [[ -n "$copt" ]];then
+        vvv $maysudo "$COPS_PYTHON" -m pip install \
+            --src "$(get_eggs_src_dir)" $COPS_UPGRADE $copt "${PIP_CACHE}" $@
+    else
+        vvv $maysudo "$COPS_PYTHON" -m pip install \
+            --src "$(get_eggs_src_dir)" $COPS_UPGRADE $@
     fi
 }
 usage() { die 128 "No usage found"; }
@@ -533,6 +632,7 @@ DO_UPDATE=${DO_UPDATE-default}
 DO_INSTALL=${DO_INSTALL-default}
 CHECK_OS=${CHECK_OS-}
 container=${container-}
+WHOAMI=$(whoami)
 
 ###
 i_y() {
@@ -719,7 +819,11 @@ is_aptget_available() {
     if ! apt-cache show ${@} >/dev/null 2>&1; then
         return 1
     else
-        return 0
+        if ! apt-get install -s ${@} >/dev/null 2>&1;then
+            return 1
+        else
+            return 0
+        fi
     fi
 }
 
@@ -813,20 +917,52 @@ update() {
     fi
 }
 
+secondround_pkgscan() {
+    # after update, check for packages that werent found at first
+    # if we can now resolve them
+    if [[ -n "${SECONDROUND}" ]]; then
+        for i in ${SECONDROUND};do
+            if ! is_${INSTALLER}_installed $i;then
+                if is_${INSTALLER}_available ${i}; then
+                    COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES} ${i}"
+                else
+                    sdie "Package '${i}' not found"
+                fi
+            else
+                debug "PostPackage '${i}' found"
+                already_installed="${already_installed} ${i}"
+            fi
+        done
+    fi
+    if [[ -n "${SECONDROUND_EXTRA}" ]]; then
+        for i in ${SECONDROUND_EXTRA};do
+            if ! is_${INSTALLER}_installed ${i}; then
+                if is_${INSTALLER}_available ${i};then
+                    COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES} ${i}"
+                else
+                    warn "EXTRA Package '${i}' not found"
+                fi
+            else
+                debug "PostEPackage '${i}' found'"
+                already_installed="${already_installed} ${i}"
+            fi
+        done
+    fi
+}
+
 prepare_install() {
-    candidates=""
     already_installed=""
-    secondround=""
-    secondround_extra=""
+    SECONDROUND=""
+    SECONDROUND_EXTRA=""
     if [[ -z "${SKIP_INSTALL}" ]];then
         # test if all packages are there
         if [[ -n "${WANTED_PACKAGES}" ]]; then
             for i in $WANTED_PACKAGES;do
                 if ! is_${INSTALLER}_installed $i;then
                     if is_${INSTALLER}_available ${i}; then
-                        candidates="${candidates} ${i}"
+                        COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES} ${i}"
                     else
-                        secondround="${secondround} ${i}"
+                        SECONDROUND="${SECONDROUND} ${i}"
                     fi
                 else
                     debug "Package '${i}' found"
@@ -838,9 +974,9 @@ prepare_install() {
             for i in $WANTED_EXTRA_PACKAGES;do
                 if ! is_${INSTALLER}_installed ${i}; then
                     if is_${INSTALLER}_available ${i};then
-                        candidates="${candidates} ${i}"
+                        COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES} ${i}"
                     else
-                        secondround_extra="${secondround_extra} ${i}"
+                        SECONDROUND_EXTRA="${SECONDROUND_EXTRA} ${i}"
                     fi
                 else
                     debug "EPackage '${i}' found"
@@ -849,60 +985,30 @@ prepare_install() {
             done
         fi
         # skip update & rest if everything is there
-        if [[ -z "${candidates}" ]];then
+        if [[ -z "${COPS_PKGMGR_PKGCANDIDATES}" ]];then
             if [ "x${DO_UPDATE}" = "xdefault" ];then
                 DO_UPDATE=""
             fi
         fi
-        if [[ -n $secondround ]];then
-            warn "Packages $(echo ${secondround}) not found before update"
+        if [[ -n $SECONDROUND ]];then
+            warn "Packages $(echo ${SECONDROUND}) not found before update"
         fi
-        if [[ -n $secondround_extra ]];then
-            warn "EXTRA Packages $(echo ${secondround_extra}) not found before update"
+        if [[ -n $SECONDROUND_EXTRA ]];then
+            warn "EXTRA Packages $(echo ${SECONDROUND_EXTRA}) not found before update"
         fi
-        #
-        #
-        update
-        #
-        #
-        # after update, check for packages that werent found at first
-        # if we can now resolve them
-        if [[ -n "${secondround}" ]]; then
-            for i in ${secondround};do
-                if ! is_${INSTALLER}_installed $i;then
-                    if is_${INSTALLER}_available ${i}; then
-                        candidates="${candidates} ${i}"
-                    else
-                        sdie "Package '${i}' not found"
-                    fi
-                else
-                    debug "PostPackage '${i}' found"
-                    already_installed="${already_installed} ${i}"
-                fi
-            done
+        if [ "x$WHOAMI" = "xroot" ];then
+            if [[ -n $SECONDROUND ]] || [[ -n $SECONDROUND_EXTRA ]];then
+                ( DO_UPDATE=1 update )
+                secondround_pkgscan
+            fi
         fi
-        if [[ -n "${secondround_extra}" ]]; then
-            for i in ${secondround_extra};do
-                if ! is_${INSTALLER}_installed ${i}; then
-                    if is_${INSTALLER}_available ${i};then
-                        candidates="${candidates} ${i}"
-                    else
-                        warn "EXTRA Package '${i}' not found"
-                    fi
-                else
-                    debug "PostEPackage '${i}' found'"
-                    already_installed="${already_installed} ${i}"
-                fi
-            done
-        fi
-
     else
         debug "Skip pre-flight install"
     fi
-    candidates=$( echo "${candidates}" | xargs -n1 | sort -u )
+    COPS_PKGMGR_PKGCANDIDATES=$( echo "${COPS_PKGMGR_PKGCANDIDATES}" | xargs -n1 | sort -u )
     already_installed=$( echo "${already_installed}" | xargs -n1 | sort -u )
-    if [[ -n "${candidates}" ]]; then
-        log "Will install: $(echo ${candidates})"
+    if [[ -n "${COPS_PKGMGR_PKGCANDIDATES}" ]]; then
+        log "Will install: $(echo ${COPS_PKGMGR_PKGCANDIDATES})"
     fi
     if [[ -n "${already_installed}" ]]; then
         log "Already installed: $(echo ${already_installed})"
@@ -910,7 +1016,7 @@ prepare_install() {
 }
 
 setup() {
-    if [[ -z "${SKIP_SETUP}" ]] &&  [[ -n "${DO_SETUP}" ]];then
+    if [[ -z "${SKIP_SETUP}" ]] && [[ -n "${DO_SETUP}" ]];then
         debug ${INSTALLER}_setup
         ${INSTALLER}_setup
         may_die $? $? "setup failed"
@@ -923,32 +1029,61 @@ setup() {
 }
 
 upgrade() {
-    if [[ -z "${SKIP_UPGRADE}" ]] &&  [[ -n "${DO_UPGRADE}" ]];then
+    if ( todo_upgrade );then
         log ${INSTALLER}_upgrade
         ${INSTALLER}_upgrade
-        may_die $? $? "upgrade failed"
     else
         debug "Skip upgrade"
     fi
+    may_die $? $? "upgrade failed"
 }
 
 install() {
-    upgrade
-    if [[ -z "${SKIP_INSTALL}" ]] \
-        && [[ -n "${DO_INSTALL}" ]] \
-        && [[ -n "${candidates}" ]]; then
-        log ${INSTALLER}_install ${candidates}
-        ${INSTALLER}_install ${candidates}
+    if ( todo_install );then
+        upgrade
+        log ${INSTALLER}_install ${COPS_PKGMGR_PKGCANDIDATES}
+        ${INSTALLER}_install ${COPS_PKGMGR_PKGCANDIDATES}
         may_die $? $? "install failed"
     else
         debug "Skip install"
     fi
 }
 
+todo_upgrade() { [[ -z "${SKIP_UPGRADE}" ]] && [[ -n "${DO_UPGRADE}" ]]; }
+todo_install() {
+    if [[ -z "${SKIP_INSTALL}" ]] && [[ -n "${DO_INSTALL}" ]];then
+        if [[ -n "${COPS_PKGMGR_PKGCANDIDATES}" ]];then
+            return 0
+        fi
+        if [[ -n "$SECONDROUND_EXTRA" ]] || [[ -n "$SECONDROUND" ]];then
+            return 0
+        fi
+    fi
+    return 1
+}
+
 detect_os
 parse_cli "${@}"
-setup
+if [ "x$WHOAMI" = "xroot" ];then
+    setup
+fi
 prepare_install  # calls: update
-upgrade
-install
+if ( todo_upgrade );then todo=1;else debug "Skip upgrade";fi
+if ( todo_install );then todo=1;else debug "Skip install";fi
+if [[ -z $todo ]] && [[ -z ${FORCE_RUN} ]];then
+    log "Nothing to do"
+else
+    if [ "x$WHOAMI" = "xroot" ];then
+        upgrade
+        install
+        ret=$?
+    else
+        export WANTED_PACKAGES=$COPS_PKGMGR_PKGCANDIDATES $SECONDROUND
+        export WANTED_EXTRA_PACKAGES=$SECONDROUND_EXTRA
+        log "Escalating privileges (root) for installing: $WANTED_PACKAGES $WANTED_EXTRA_PACKAGES"
+        $(may_sudo) "$0" "$@"
+        ret=$?
+    fi
+fi
+exit $ret
 # vim:set et sts=4 ts=4 tw=80:
