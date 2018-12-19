@@ -17,3 +17,9 @@
   - include_role: {public: false, name: corpusops.roles/ms_iptables_registrations}
   - service: {name: ms_iptables, state: reloaded}
   tags: [lxc_ms_iptables_registrations]
+- block:
+  - include_role: {public: false, name: corpusops.roles/localsettings_certbot}
+    tags: [lxc_letsencrypt_setup]
+  - shell: "/home/certbot/le_renew.sh"
+    tags: [lxc_letsencrypt_renew]
+  tags: [lxc_letsencrypt]
