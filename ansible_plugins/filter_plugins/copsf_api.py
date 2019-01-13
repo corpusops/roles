@@ -1170,7 +1170,8 @@ def update_registry(registry, ansible_vars, prefix, *a, **kw):
         registry, ansible_vars, prefix, *a, **kw)
 
 
-def copsf_refilter(items, regex, flags=None, search=True, filtermode=True):
+def copsf_refilter(items, regex, flags=None,
+                   search=True, filtermode=True, whitelist=None):
     flat = False
     reflags = None
     ret = []
@@ -1184,11 +1185,18 @@ def copsf_refilter(items, regex, flags=None, search=True, filtermode=True):
         items = [items]
         flat = True
     searcher = re.compile(regex, flags=reflags)
+    whitelist_re = None
+    if whitelist:
+        whitelist_re = re.compile(whitelist, flags=reflags)
     if search:
         method = searcher.search
     else:
         method = searcher.match
+
     for item in items:
+        if whitelist_re and whitelist_re.search(item):
+            ret.append(item)
+            continue
         matched = method(item)
         if matched and not filtermode:
             ret.append(item)
