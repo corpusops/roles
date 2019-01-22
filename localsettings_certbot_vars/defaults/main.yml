@@ -83,6 +83,7 @@ corpusops_localsettings_certbot_haproxy: false
 corpusops_localsettings_certbot_haproxy_certs_dir: "/etc/ssl/haproxy/certs"
 corpusops_localsettings_certbot_haproxy_owner: "root"
 corpusops_localsettings_certbot_haproxy_group: "haproxy"
+corpusops_localsettings_certbot_haproxy_reload_mode: "restart"
 corpusops_localsettings_certbot_days: 30
 corpusops_localsettings_certbot_listenaddr: localhost
 corpusops_localsettings_certbot_dns_server: "8.8.8.8"

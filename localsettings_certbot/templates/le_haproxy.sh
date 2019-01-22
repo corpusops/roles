@@ -12,6 +12,7 @@ owner="{{d.user}}"
 group="{{d.group}}"
 howner="{{d.haproxy_owner}}"
 hgroup="{{d.haproxy_group}}"
+reload_mode="{{d.haproxy_reload_mode}}"
 if [ ! -e "$hcertsd" ];then
     log "haproxy certs dir $hcertsd doesnt exists"
     exit 0
@@ -42,6 +43,6 @@ while read domain;do
 done <<< "$domains"
 fi
 if [[ -z ${SKIP_RELOAD} ]] && [[ -n "${reload}" ]];then
-    service haproxy reload
+    service haproxy $reload_mode
 fi
 # vim:set et sts=4 ts=4 tw=0:
