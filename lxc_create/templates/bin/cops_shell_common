@@ -9,19 +9,6 @@ ANSIBLE_FILTER_OUTPUT="${ANSIBLE_FILTER_OUTPUT}))"
 DEFAULT_COPS_URL="https://github.com/corpusops/corpusops.bootstrap.git"
 
 # BEGIN: corpusops common glue
-readlinkf() {
-    if ( uname | egrep -iq "linux|darwin|bsd" );then
-        if ( which greadlink 2>&1 >/dev/null );then
-            greadlink -f "$@"
-        elif ( which perl 2>&1 >/dev/null );then
-            perl -MCwd -le 'print Cwd::abs_path shift' "$@"
-        elif ( which python 2>&1 >/dev/null );then
-            python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$@"
-        fi
-    else
-        readlink -f "$@"
-    fi
-}
 # scripts vars
 SCRIPT=$0
 LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
