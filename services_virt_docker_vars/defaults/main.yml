@@ -54,4 +54,4 @@ corpusops_services_virt_docker_settings_TMPDIR: ""
 corpusops_services_virt_docker_cleanup_script: /usr/local/bin/cops_docker_cleanup.sh
 # set periodicity to null to deactivate
 corpusops_services_virt_docker_cleanup_cron: |
-  0 3 * * * root sh -c 'if [ -f {{vars['corpusops_services_virt_docker_cleanup_script']}} ] && [ ! -e /etc/docker_no_cleanup ];then {{vars['corpusops_services_virt_docker_cleanup_script']}} >/dev/null 2>&1;fi'"
+  0 3 * * * root sh -c 'if [ -f {{vars['corpusops_services_virt_docker_cleanup_script']}} ] && [ ! -e /etc/docker_no_cleanup ];then {{vars['corpusops_services_virt_docker_cleanup_script']}} >/dev/null 2>&1;fi'
