@@ -7,9 +7,10 @@
   loop_control: {loop_var: hdockeritemd}
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
   when: "(corpusops_services_virt_docker_vars.activated and
+          corpusops_services_virt_docker_services|default(True) and
           corpusops_vars.has_services_manager and
           (ansible_service_mgr == 'systemd'))"
-  tags: corpusops_services_virt_docker
+  tags: [corpusops_services_virt_docker, corpusops_services_virt_docker_services]
 - listen: restart_corpusops_services_virt_docker
   cops_service:
     state: restarted
@@ -17,6 +18,7 @@
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
   loop_control: {loop_var: hdockeritemc}
   when: "(corpusops_services_virt_docker_vars.activated and
+          corpusops_services_virt_docker_services|default(True) and
           corpusops_vars.has_services_manager and
           (ansible_service_mgr != 'systemd'))"
-  tags: corpusops_services_virt_docker
+  tags: [corpusops_services_virt_docker, corpusops_services_virt_docker_services]

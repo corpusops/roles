@@ -36,5 +36,5 @@
     name: "{{dockeritemg}}"
   with_items: "{{corpusops_services_virt_docker_vars.services}}"
   loop_control: {loop_var: dockeritemg}
-  tags: corpusops_services_virt_docker
+  tags: [corpusops_services_virt_docker, corpusops_services_virt_docker_services]
 - meta: flush_handlers
