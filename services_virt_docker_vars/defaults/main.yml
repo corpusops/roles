@@ -17,7 +17,7 @@ corpusops_services_virt_docker_services_default: [docker]
 corpusops_services_virt_docker_files: null
 corpusops_services_virt_docker_filescopy: null
 corpusops_services_virt_docker_filescopy_default:
-  - {template: "{{cops_root}}/bin/cops_docker_cleanup.sh",
+  - {template: "usr/local/bin/cops_docker_cleanup.sh",
      dest: "{{vars['corpusops_services_virt_docker_cleanup_script']}}",
      mode: "755"}
 corpusops_services_virt_docker_files_default:

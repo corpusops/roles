@@ -1,4 +1,4 @@
-{{ ansible_managed }}
+# {{ ansible_managed }}
 {% if corpusops_services_virt_docker_vars.cleanup_cron %}
 {{ corpusops_services_virt_docker_vars.cleanup_cron }}
 {% endif %}
