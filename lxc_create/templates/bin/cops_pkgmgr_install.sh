@@ -1,24 +1,14 @@
 #!/usr/bin/env bash
 # BEGIN: corpusops common glue
-readlinkf() {
-    if ( uname | egrep -iq "linux|darwin|bsd" );then
-        if ( which greadlink 2>&1 >/dev/null );then
-            greadlink -f "$@"
-        elif ( which perl 2>&1 >/dev/null );then
-            perl -MCwd -le 'print Cwd::abs_path shift' "$@"
-        elif ( which python 2>&1 >/dev/null );then
-            python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$@"
-        fi
-    else
-        readlink -f "$@"
-    fi
-}
 # scripts vars
 SCRIPT=$0
 LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
 SCRIPT_NAME=$(basename "${SCRIPT}")
 SCRIPT_DIR=$(cd "$(dirname $0)" && pwd)
 SCRIPT_ROOT=${SCRIPT_ROOT:-$(dirname $SCRIPT_DIR)}
+COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES-}"
+SECONDROUND_EXTRA="${SECONDROUND_EXTRA-}"
+SECONDROUND="${SECONDROUND-}"
 # OW: from where script was called (must be defined from callee)
 OW="${OW:-$(pwd)}"
 # W is script_dir/..
