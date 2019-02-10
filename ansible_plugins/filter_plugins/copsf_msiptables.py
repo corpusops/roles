@@ -30,6 +30,13 @@ def make_registrations(data, ansible_vars=None):
             v.startswith(registration_prefix))],
         key=natural_sort_key)
     knobs = data['knobs']
+    load_registrations = ansible_vars.get(
+        '_corpusops_ms_iptables_registrations', {}
+    ).get('load_registrations',
+          ansible_vars.get(
+              'corpusops_ms_iptables_registrations_load_registrations', True))
+    if not load_registrations:
+        return data
     for v in candidates:
         if v in [registration_prefix,
                  registration_prefix+'vars']:
