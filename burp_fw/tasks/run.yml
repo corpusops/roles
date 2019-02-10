@@ -7,6 +7,7 @@
   - include_role: {name: corpusops.roles/ms_iptables_registrations}
     vars:
       _corpusops_ms_iptables_registrations:
+        load_registrations: false
         priority: "{{cops_burpfw_vars.ms_iptables_priority}}"
         service_state: "{{cops_burpfw_vars.ms_iptables_state}}"
         name: "burp_{{cops_burpfw_vars.name}}"
