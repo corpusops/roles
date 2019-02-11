@@ -97,6 +97,9 @@
       #  one_host_with_custom_hosts.foo.net:
       #    burp_password: toto
       #    burp_client_ip: 1.2.3.4
+      ## or
+      #    burp_client_ip: "{{corpusops_network_live_vars.mainip}}"
+      #
       #    burp_client_server: foobar.net (default to server fqdn)
       #    burp_client_profile: overridenprofile
       #    burp_client_conf_restore_clients: ["foo.bar"]
