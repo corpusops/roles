@@ -8,7 +8,7 @@ c="{{data.ca_conf}}"
 ca="{{data.ca}}"
 burp_ca="burp_ca --config $c -d $ca"
 burp_cag="burp_ca --config $c -d $ca/gen"
-cacn="{{data.ca_name}}"
+cacn="burpCA"
 cname="${1:-"$(hostname -f)"}"
 if [ "x$cname" = "x" ];then echo "missing CN, provide at least one";exit 1;fi
 if [ ! -e "$ca" ];then

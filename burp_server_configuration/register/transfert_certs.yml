@@ -9,7 +9,7 @@
   delegate_to: "{{hostvars.localhost.aburp_server}}"
   changed_when: false
   no_log: "{{not hostvars.localhost.aburp_debug}}"
-- shell: "cat {{hostvars.localhost.aburp_ca_path}}/CA_{{hostvars.localhost.burp_ca_name}}.crt"
+- shell: "cat {{hostvars.localhost.aburp_ca_path}}/CA_burpCA.crt"
   register: burp_cert_ca_cert
   delegate_to: "{{hostvars.localhost.aburp_server}}"
   no_log: "{{not hostvars.localhost.aburp_debug}}"

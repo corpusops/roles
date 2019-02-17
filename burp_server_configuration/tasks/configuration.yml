@@ -42,7 +42,7 @@
     remote_src: true
     force: true
   with_items:
-  - [["{{cops_burpsign_vars.ca}}/CA_{{cops_burpsign_vars.ca_name}}.crt",
+  - [["{{cops_burpsign_vars.ca}}/CA_burpCA.crt",
       "{{cops_burp_vars.ssl_cert_ca}}"]]
   - [["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt",
       "{{cops_burp_vars.ssl_cert}}"]]
