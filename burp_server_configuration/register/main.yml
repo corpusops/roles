@@ -6,7 +6,6 @@
     - set_fact:
         cacheable: false
         burp_name: "corpusops"
-        burp_ca_name: "burpCA"
     - set_fact:
         cacheable: false
         aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
@@ -42,7 +41,6 @@
             {% if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
             {% endfor %}
             {{ res | to_json }}
-      when: hostvars.localhost.aburp_debug
     - include_role: {name: corpusops.roles/burp_sign}
     tags: [burp_server, sign, burp_sign]
   - tags: [burp_server, register_to_server, burp_register_to_server]

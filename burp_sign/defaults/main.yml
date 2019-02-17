@@ -25,4 +25,3 @@ cops_burpsign_configs_default:
 cops_burpsign_cnames: []
 cops_burpsign_ca: "{{vars['cops_burpsign_prefix']}}/CA"
 cops_burpsign_ca_conf: "{{vars['cops_burpsign_prefix']}}/CA.cnf"
-cops_burpsign_ca_name: 'burpCA'

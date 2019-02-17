@@ -28,7 +28,6 @@ cops_burp_prefix: "{{corpusops_vars.config_dir}}/burp-{{vars['cops_burp_name']}}
 cops_burp_ca_conf: "{{vars['cops_burp_prefix']}}/CA.cnf"
 cops_burp_ca_server_name: "{{vars['cops_burp_cname']}}"
 cops_burp_ca_burp_ca: /usr/sbin/burp_ca
-cops_burp_ca_name: "{{vars['cops_burp_name']}}"
 cops_burp_ca_dir: "{{vars['cops_burp_prefix']}}/CA"
 cops_burp_initd_server:  "{{corpusops_vars.config_dir}}/init.d/burp-server-{{vars['cops_burp_name']}}"
 cops_burp_initd_restore: "{{corpusops_vars.config_dir}}/init.d/burp-restore-{{vars['cops_burp_name']}}"
