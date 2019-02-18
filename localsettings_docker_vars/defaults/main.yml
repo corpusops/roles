@@ -21,7 +21,8 @@ corpusops_localsettings_docker_repo_keys: null
 corpusops_localsettings_docker_repo_keys_default: [58118E89F3A912897C070ADBF76221572C52609D]
 corpusops_localsettings_docker_keyserver: "hkp://p80.pool.sks-keyservers.net:80"
 # 20180419: no packages for bionic yet, taking it in artful
-corpusops_localsettings_docker_repo_debian: "{% set d = corpusops_core_mint_ubuntu_release.lower()%}{% if d in ['bionic'] %}{% set d='artful'%}{%endif%}deb [arch=amd64] https://download.docker.com/linux/{{corpusops_core_mint_ubuntu_dist.lower()}} {{d}} stable edge"
+# corpusops_localsettings_docker_repo_debian: "{% set d = corpusops_core_mint_ubuntu_release.lower()%}{% if d in ['bionic'] %}{% set d='artful'%}{%endif%}deb [arch=amd64] https://download.docker.com/linux/{{corpusops_core_mint_ubuntu_dist.lower()}} {{d}} stable edge"
+corpusops_localsettings_docker_repo_debian: "{% set d = corpusops_core_mint_ubuntu_release.lower()%}deb [arch=amd64] https://download.docker.com/linux/{{corpusops_core_mint_ubuntu_dist.lower()}} {{d}} stable edge"
 corpusops_localsettings_docker_repo_redhat: 'https://download.docker.com/linux/centos/docker-ce.repo'
 corpusops_localsettings_docker_repo_fedora: 'https://download.docker.com/linux/fedora/docker-ce.repo'
 corpusops_localsettings_docker_py_packages: ["docker[tls]>=3.3.0"]
