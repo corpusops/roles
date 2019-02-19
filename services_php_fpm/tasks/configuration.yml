@@ -54,6 +54,6 @@
   vars:
     corpusops_php_ext_ext: xdebug
   when: |
-      (corpusops_services_php_fpm_vars.xdebug_install and
-       corpusops_services_php_fpm_vars.xdebug_enabled)
+      (corpusops_localsettings_php_vars.xdebug_install and
+       corpusops_localsettings_php_vars.xdebug_enabled)
 - meta: flush_handlers
