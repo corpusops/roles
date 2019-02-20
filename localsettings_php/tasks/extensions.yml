@@ -2,7 +2,8 @@
 - include_role:
     name: corpusops.roles/php_ext
   vars:
-    corpusops_php_ext_ext: xdebug
-    corpusops_php_ext_activation_status: "{{(
+    _corpusops_php_ext:
+      ext: xdebug
+      activation_status: "{{(
        corpusops_localsettings_php_vars.xdebug_install and
        corpusops_localsettings_php_vars.xdebug_enabled)}}"
