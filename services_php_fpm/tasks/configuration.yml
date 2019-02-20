@@ -52,7 +52,7 @@
 - include_role:
     name: corpusops.roles/php_ext
   vars:
-    corpusops_php_ext_ext: xdebug
+    _corpusops_php_ext: {ext: xdebug}
   when: |
       (corpusops_localsettings_php_vars.xdebug_install and
        corpusops_localsettings_php_vars.xdebug_enabled)
