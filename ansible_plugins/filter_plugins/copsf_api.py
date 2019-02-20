@@ -637,6 +637,10 @@ def copsf_reset_vars_from_registry(ansible_vars,
     old_vars = ansible_vars.pop(name_prefix, {})
     sprefixes = (prefix, prefix+prefix)
     prefixes = [name_prefix, prefix[:-1]]
+    overrides_prefix = '_{0}'.format(prefixes[1])
+    overrides = ansible_vars.get(overrides_prefix, {})
+    if not isinstance(overrides, dict):
+        overrides = {}
     for var in [
         a for a in ansible_vars
         if (
@@ -645,18 +649,40 @@ def copsf_reset_vars_from_registry(ansible_vars,
         )
     ]:
         svar = var.split(prefix, 1)[1]
-        reg_val = dsvars.get(svar, REGISTRY_DEFAULT_VALUE)
+        # try to sync overrides with ansible var ASAP
         cur_val = ansible_vars.get(var, REGISTRY_DEFAULT_VALUE)
+        reg_val = dsvars.get(svar, REGISTRY_DEFAULT_VALUE)
         old_val = old_vars.get(svar, REGISTRY_DEFAULT_VALUE)
+        # if registry was not already loaded one time
+        # or this one registry variable in it's flatten form
+        # if not set yet,
         if (
             cur_val == REGISTRY_DEFAULT_VALUE or
             reg_val == REGISTRY_DEFAULT_VALUE
         ):
             continue
+        # if registry value (defaults/main.yml:reg_foo) matches
+        # the old_value (ref_vars.foo and the registry value
+        # isnt equal either to the overrides dict (_reg) or
+        # to the flatten value (reg_foo)
+        # we reset the registry value for this var  to the "cur_val"
         if (reg_val == old_val and reg_val != cur_val):
-            dsvars[var] = cur_val
+            dsvars[svar] = cur_val
             continue
-        ansible_vars[var] = reg_val
+        # We need to determine if the value needs to be resetted
+        # as it can have been changed in-between the successible calls
+        # to the same registry loading.
+        # The rule is that we only reset it if we have not called the
+        # registry loader with an overrides dict containing a value for
+        # this specific var or we take the value from the defaults registry.
+        try:
+            overrides[svar]
+            # will be reset later in registry loading, via load_overrides
+            ansible_vars.pop(var, None)
+            old_vars.pop(svar, None)
+        except KeyError:
+            if reg_val != REGISTRY_DEFAULT_VALUE and old_val == cur_val:
+                old_vars[svar] = ansible_vars[var] = reg_val
     return ansible_vars
 
 
@@ -771,21 +797,30 @@ def copsf_load_registry_pre(ansible_vars,
     return registry
 
 
+def copsf_get_registry_overrides(ansible_vars,
+                                 prefix,
+                                 registry_suffix=REGISTRY_DEFAULT_SUFFIX,
+                                 overrides_prefix=None):
+    if overrides_prefix is None and prefix:
+        overrides_prefix = '_{0}'.format(prefix[:-1])
+    overrides = ansible_vars.get(overrides_prefix, {})
+    return overrides
+
+
 def copsf_load_registry_overrides(ansible_vars,
                                   prefix,
                                   registry=None,
                                   registry_suffix=REGISTRY_DEFAULT_SUFFIX,
                                   overrides_prefix=None):
-    if overrides_prefix is None and prefix:
-        overrides_prefix = '_{0}'.format(prefix[:-1])
-    overrides = ansible_vars.get(overrides_prefix, {})
+    overrides = copsf_get_registry_overrides(
+        ansible_vars, prefix, registry_suffix, overrides_prefix)
     registry = registry or ansible_vars.get(prefix, {})
     if (
         isinstance(overrides, dict) and
         isinstance(registry, dict)
     ):
         registry.update(overrides)
-    return registry
+    return registry, overrides
 
 
 def copsf_subos_append(ansible_vars,
@@ -939,6 +974,8 @@ def copsf_to_namespace(ansible_vars,
             prefixes.append(get_name_prefix(None, d['p']))
     else:
         snkeys = rsnkeys = []
+    overrides = copsf_get_registry_overrides(
+        ansible_vars, prefix, registry_suffix, overrides_prefix)
     ansible_vars_keys = [var for var in ansible_vars
                          if not (
                              (var in prefixes) or
@@ -946,6 +983,10 @@ def copsf_to_namespace(ansible_vars,
                                  (registry_suffix))) or
                              (var.startswith(prefix+prefix)) or
                              (not var.startswith(prefix)))]
+    for svar in overrides:
+        ansible_vars = register_default_val(
+            ansible_vars, svar, prefix,
+            registry_suffix, sub_registries_key)
     for var in ansible_vars_keys[:]:
         svar = var.split(prefix, 1)[1]
         ansible_vars = register_default_val(
@@ -1014,7 +1055,7 @@ def copsf_to_namespace(ansible_vars,
                            subos_append)
 
     if do_load_overrides:
-        namespaced = copsf_load_registry_overrides(
+        namespaced, overrides = copsf_load_registry_overrides(
             ansible_vars,
             prefix,
             overrides_prefix=overrides_prefix,
