@@ -1,0 +1,43 @@
+cops_project_backup_db: true
+cops_project_backup_docker_volumes: true
+cops_project_backup_files: true
+cops_project_backup_prune: true
+cops_project_backup_postgresql: false
+
+cops_project_backup_chrono: "{{'%Y%m%d-%H%M%S'|strftime(ansible_date_time.epoch)}}"
+cops_project_backups_dir: "/srv/backups/deliverybackups"
+
+cops_project_backup_dir: "{{cops_project_backups_dir}}/delivery"
+cops_project_backup_postgresql_dir: "{{cops_project_backup_dir}}/postgresql"
+cops_project_backup_files_dir:  "{{cops_project_backup_dir}}/files"
+cops_project_backup_docker_volumes_dir: "{{cops_project_backup_dir}}/docker_volumes"
+
+cops_project_backup_keep: 3
+cops_project_backup_keep_db: "{{cops_project_backup_keep}}"
+cops_project_backup_keep_volumes: "{{cops_project_backup_keep}}"
+cops_project_backup_keep_files: "{{cops_project_backup_keep}}"
+
+cops_project_backup_docker_volumes_path: /var/lib/docker/volumes
+
+cops_project_backup_docker_volumes: []
+cops_project_backup_paths_to_backup: []
+cops_project_backup_docker_volumes_paths: |-
+  {%- set res = [] %}
+  {%- for i in cops_project_backup_docker_volumes %}
+  {%- set _ = res.append('/'.join([cops_project_backup_docker_volumes_path, i])) %}
+  {%- endfor %}
+  {{- res | to_json }}
+cops_project_backup_pgdump_urls: []
+#- name: "{{cops_django_db_name}}"
+#  url: "postgres://{{
+#      cops_django_db_user}}:{{cops_django_db_password}}@{{
+#        cops_django_db_host}}:{{cops_django_db_port}}/{{
+#          cops_django_db_name}}"}
+#  docker_dir: "{{cops_django_dir}}"
+#  docker_service: backup
+#  docker_compose: docker-compose -f foo.yml
+
+cops_project_backup_prune_dry_run: false
+cops_project_backup_db_prune_dry_run: "{{cops_project_backup_prune_dry_run}}"
+cops_project_backup_paths_prune_dry_run: "{{cops_project_backup_prune_dry_run}}"
+cops_project_backup_docker_volumes_prune_dry_run: "{{cops_project_backup_prune_dry_run}}"

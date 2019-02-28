@@ -1,0 +1,36 @@
+- file:
+    state: directory
+    path: "{{cops_project_backup_postgresql_dir}}"
+- name: "Backup project databases"
+  shell: |-
+    set -eux
+    set -o pipefail
+    {% if item.docker_dir|default('') %}
+    cd "{{item.docker_dir}}"
+    {% set dc = item.docker_compose|default('docker-compose') %}
+    {% if item.docker_service|default('') %}
+    if ( echo 'select 1' \
+      | {{dc}} run --rm --entrypoint sh {{item.docker_service}} \
+      -c 'psql "{{item.url}}" -v ON_ERROR_STOP=1' >/dev/null 2>&1 );then
+      {{dc}} run --rm -T --entrypoint bash \
+      "{{item.docker_service}}" -c 'pg_dump -F t "{{item.url}}"' \
+      | gzip -ck > "{{cops_project_backup_postgresql_dir}}/{{
+          cops_project_backup_chrono}}-{{item.name}}.tar.gz"
+    fi
+    {% endif %}
+    {% endif %}
+  args: {executable: "/bin/bash"}
+  with_items: "{{cops_project_backup_pgdump_urls}}"
+- when: ["{{cops_project_backup_prune}}"]
+  name: "Prune old deliveries db dumps"
+  shell: |-
+    set -euxo pipefail
+    find "{{cops_project_backup_postgresql_dir}}" \
+      -mindepth 1 -maxdepth 1 -type f -printf '%T@ %p\0'\
+    | sort -r -z -n \
+    | awk 'BEGIN { RS="\0"; ORS="\0"; FS="" } \
+           NR > {{cops_project_backup_keep_db}} \
+           { sub("^[0-9]*(.[0-9]*)? ", ""); print }' \
+    | xargs --no-run-if-empty -0 {% if cops_project_backup_db_prune_dry_run %} \
+        echo{%endif%} rm -fvr
+  args: {executable: "/bin/bash"}
