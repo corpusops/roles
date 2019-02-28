@@ -1,0 +1,20 @@
+---
+- name: project files existence test
+  stat: {path: "{{item}}"}
+  with_items: "{{backup_paths}}"
+  register: _files_to_backup
+#- debug: {msg: "{{_files_to_backup}}"}
+- debug:
+    msg: |-
+      {% set r = [] %}
+      {% for i in _files_to_backup.results %}
+      {% if i.stat.exists %}
+      {% set _ = r.append(i.stat.path) %}
+      {% endif %}
+      {% endfor %}
+      {{ r | to_json }}
+  register: __files_to_backup
+- include: rbackup.yml
+  with_items: "{{__files_to_backup.msg}}"
+  loop_control: {loop_var: backup_path}
+  when: ["__files_to_backup.msg|length>0"]

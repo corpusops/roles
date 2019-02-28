@@ -1,0 +1,52 @@
+---
+- file:
+    state: directory
+    path: "{{item}}"
+  with_items: ["{{cops_project_backups_dir}}"]
+  tags: [backup_init]
+
+- name: install rbackup script
+  block:
+  - shell: "rsync --version >/dev/null 2>&1"
+    register: has_rsync
+    changed_when: false
+  - package: {name: [rsync]}
+    when: ["has_rsync.rc != 0"]
+  - copy:
+      force: true
+      src: "{{item}}"
+      dest: "{{cops_project_backups_dir}}/{{item}}"
+      mode: "0755"
+    with_items: [rbackup.sh]
+  tags: [backup_prereqs]
+
+- when: ["cops_project_backup_db"]
+  tags: [backup_db]
+  name: "Databases backup"
+  block:
+  - when: ["cops_project_backup_postgresql"]
+    include_tasks: backup_postgresql.yml
+
+- when: ["cops_project_backup_files"]
+  tags: [backup_files]
+  name: "Backup projet files"
+  block:
+  - include: rbackup_wrapper.yml
+    with_items: ["{{cops_project_backup_paths_to_backup}}"]
+    loop_control: {loop_var: backup_paths}
+  vars:
+    backup_dest: "{{cops_project_backup_files_dir}}"
+    backup_keep: "{{cops_project_backup_keep_files}}"
+    prune_dry_run: "{{cops_project_backup_paths_prune_dry_run}}"
+
+- when: ["cops_project_backup_docker_volumes"]
+  tags: [backup_docker_volumes]
+  name: "Backup projet docker volumes"
+  block:
+  - include: rbackup_wrapper.yml
+    with_items: ["{{cops_project_backup_docker_volumes_paths}}"]
+    loop_control: {loop_var: backup_paths}
+  vars:
+    backup_dest: "{{cops_project_backup_docker_volumes_dir}}"
+    backup_keep: "{{cops_project_backup_keep_volumes}}"
+    prune_dry_run: "{{cops_project_backup_docker_volumes_prune_dry_run}}"

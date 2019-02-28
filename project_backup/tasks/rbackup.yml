@@ -1,0 +1,17 @@
+---
+- block:
+  - file:
+      state: directory
+      path: "{{backup_dest}}/{{inner_path}}"
+  - shell: |-
+     set -euxo pipefail
+     d="{{backup_dest}}/{{inner_path}}"
+     rbackup="{{cops_project_backups_dir}}/rbackup.sh"
+     $rbackup {% if prune_dry_run %} --dry-run{% endif %}\
+      -s "{{backup_path}}" -d "$d" {%
+      if cops_project_backup_prune %} -k {{backup_keep}}{%endif%}
+    args: {executable: "/bin/bash"}
+  vars:
+    inner_path: "{{backup_path.replace(
+      '/var/lib/docker/volumes/', '').replace(
+      '/var/lib/docker/volumes', '').replace('/', '__')}}"
