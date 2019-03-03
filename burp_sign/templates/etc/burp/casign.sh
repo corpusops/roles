@@ -6,8 +6,16 @@ changed() { echo "CHANGED $@">&2; }
 pref="{{data.prefix}}"
 c="{{data.ca_conf}}"
 ca="{{data.ca}}"
-burp_ca="burp_ca --config $c -d $ca"
-burp_cag="burp_ca --config $c -d $ca/gen"
+# fix typo in casign script
+burp_ca_bin="$(which burp_ca 2>/dev/null)"
+if [ -e $burp_ca_bin ];then
+    sed -i -e 's/="-days $2"/="$2"/g' "$burp_ca_bin"
+else
+    echo "no burp ca"
+    exit 1
+fi
+burp_ca="$burp_ca_bin --config $c -d $ca"
+burp_cag="$burp_ca_bin --config $c -d $ca/gen"
 cacn="burpCA"
 cname="${1:-"$(hostname -f)"}"
 if [ "x$cname" = "x" ];then echo "missing CN, provide at least one";exit 1;fi
