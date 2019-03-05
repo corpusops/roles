@@ -9,7 +9,7 @@
     - set_fact:
         cacheable: false
         aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
-            if not c|copsf_isstr %}{{c|to_json}}{%
+            if not c|copsf_isstr %}{{c}}{%
             elif c in groups %}{{groups[c]}}{%
             else%}{{c}}{%endif%}"
         aburp_server: "{{burp_server|default('burp_server')}}"
