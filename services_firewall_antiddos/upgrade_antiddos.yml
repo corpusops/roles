@@ -1,0 +1,16 @@
+- hosts: all
+  gather_facts: false
+  roles:
+  - corpusops.roles/plugins
+  tasks:
+  - stat: {path: /etc/init.d/corpusops-antiddos}
+    register: testantiddos
+- hosts: all
+  tasks:
+  - when: testantiddos.stat.exists
+    include_role: {name: corpusops.roles/services_firewall_antiddos}
+    tags: [do_role]
+  - shell:
+      iptables -D INPUT -s {{item}} -j DROP || /bin/true
+    with_items: "{{antiddos_old_dropped|default([])}}"
+    tags: [do_unban]
