@@ -20,10 +20,10 @@
 #      rsync: bare sync asked folders (use case: vagrant/test)
 #      git: sync inner git folders and reset --hard on HEAD commits (use case: staging/prod)
 #   git_folder: git folder (.git)
-- set_fact:
-    cacheable: false
-    __cops_provision_push_codes: "{{__cops_provision_push_codes|default([])}}"
-    ___FORCE_COPS_PROVISION_PUSH_CODE: "{{FORCE_COPS_PROVISION_PUSH_CODE|default(false)}}"
+- include_jinja_vars:
+    content:
+      __cops_provision_push_codes: "{{__cops_provision_push_codes|default([])}}"
+      ___FORCE_COPS_PROVISION_PUSH_CODE: "{{FORCE_COPS_PROVISION_PUSH_CODE|default(false)}}"
 - block:
     - tempfile: {}
       changed_when: false

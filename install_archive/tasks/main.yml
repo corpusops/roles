@@ -3,9 +3,9 @@
 - include_role: {name: corpusops.roles/vars_registry}
   vars: {cops_vars_registry_target: archive}
   tags: [corpusops_install_archive, corpusops_install_archive_vars]
-- set_fact:
-    cacheable: false
-    archive_basename: "{{archive_vars.archive or archive_vars.urls.archive | copsf_basename}}"
+- include_jinja_vars:
+    content:
+      archive_basename: "{{archive_vars.archive or archive_vars.urls.archive | copsf_basename}}"
 # do the real stuff
 - name: install archive
   include_tasks: run.yml
