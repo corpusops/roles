@@ -24,10 +24,9 @@
   - when: ["vars[cops_get_secret_variable_vars.name] is none"]
     include_tasks: run.yml
     tags: [get_secret_variable, get_secret_variable_run]
-  - set_fact:
-      cacheable: false
-      cops_get_secret_variable_name: null
-      _cops_get_secret_variable: {}
-      cops_get_secret_variable_vars: {}
-      no_log: True
-
+  - include_jinja_vars:
+      content:
+        cops_get_secret_variable_name: null
+        _cops_get_secret_variable: {}
+        cops_get_secret_variable_vars: {}
+    no_log: True
