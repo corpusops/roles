@@ -1,4 +1,10 @@
 ---
+- file:
+    state: directory
+    dest: "{{corpusops_services_ci_gitlab_runner_vars.working_directory}}"
+    mode: "0755"
+    owner: "{{corpusops_services_ci_gitlab_runner_vars.user}}"
+    group: "{{corpusops_services_ci_gitlab_runner_vars.group}}"
 - include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{corpusops_services_ci_gitlab_runner_vars.files}}"
