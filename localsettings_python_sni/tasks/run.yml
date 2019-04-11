@@ -1,0 +1,94 @@
+---
+- when: "ansible_os_family.lower() in ['debian']"
+  block:
+  - name: install python_sni packages
+    block:
+    - package:
+        cache_valid_time: '{{60*60}}'
+        update_cache: yes
+        name: [apt-transport-https, ca-certificates, curl]
+        state: present
+      register: corpusops_localsettings_python_sni_c_prepkgs
+  - shell: update-ca-certificates
+    changed_when: false
+    when: "corpusops_localsettings_python_sni_c_prepkgs is changed"
+- when: "((ansible_os_family.lower() in ['redhat']) or
+          (ansible_distribution.lower() == 'ubuntu' and
+           ((ansible_distribution_major_version|copsf_looseversion)
+            < ('15'|copsf_looseversion))) or
+          ((vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint') and
+           ((ansible_distribution_major_version|copsf_looseversion)
+            < ('18'|copsf_looseversion)))
+         )"
+  block:
+  - name: install pre - prerequisites
+    package:
+      cache_valid_time: '{{60*60}}'
+      update_cache: yes
+      name: [python-pip, python-dev, libffi-dev, libssl-dev, python-urllib3]
+      state: present
+    when: "ansible_os_family.lower() in ['debian']"
+  - name: install pre - prerequisites
+    package:
+      name: [python-pip, python-devel,
+             libffi-devel, openssl-devel]
+      state: present
+    when: "ansible_os_family.lower() in ['redhat']"
+  - name: install python pre - prerequisites - pre ubuntu16.04
+    shell: |
+      py="{{item}}"
+      imports="import pyasn1;import OpenSSL;import asn1crypto"
+      imports="$imports;import urllib3;import cryptography"
+      if ! ( $py -c "$imports" );then
+        # retry to use wheels
+        # if ( $py -m pip install --help 2>&1|egrep -iq -- --no-binary; );then
+        #   nb="--no-binary :all:"
+        # elif ( $py -m pip install --help 2>&1|egrep -iq -- --no-use-wheel; );then
+        #   nb="--no-use-wheel"
+        # else
+        #   nb=""
+        # fi
+        nb=""
+        if ( $py -V 2>&1|grep -iq "python 2");then
+          sreq="setuptools<45"
+        else
+          sreq="setuptools"
+        fi
+        if ( $py -m pip install -U ${nb} \
+            backports.ssl_match_hostname \
+            pyopenssl ndg-httpsclient pyasn1 );then
+            echo "changed=yes" >&2
+        else
+               $py -m pip install -U $sreq \
+            && $py -m pip install -U pip \
+            && if ( $py -c "import six" );then
+               $py -m pip install -U --ignore-installed six
+            fi \
+            && if ( $py -c "import OpenSSL" );then
+               $py -m pip install -U --ignore-installe pyopenssl
+            fi \
+            && $py -m pip install -U ${nb} \
+            backports.ssl_match_hostname \
+            pyopenssl ndg-httpsclient pyasn1 && echo "changed=yes" >&2
+        fi
+      fi
+    with_items: ["{{ansible_python.executable}}"]
+    register: cops_oldubuntu_backport_sni
+    changed_when: '"changed=yes" in cops_oldubuntu_backport_sni.stderr'
+- when: "not (
+         (ansible_distribution.lower() == 'ubuntu' and
+          ((ansible_distribution_major_version|copsf_looseversion)
+           < ('15'|copsf_looseversion))) or
+         ((vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint') and
+           ((ansible_distribution_major_version|copsf_looseversion)
+           < ('18'|copsf_looseversion)))
+        )"
+  block:
+  - name: install pre - prerequisites
+    package:
+      cache_valid_time: '{{60*60}}'
+      update_cache: yes
+      name: [python-urllib3, python-openssl,
+             python-pyasn1, python-ndg-httpsclient]
+      state: present
+    when: "ansible_os_family.lower() in ['debian']"
