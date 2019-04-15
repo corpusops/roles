@@ -6,8 +6,8 @@
 - include_jinja_vars:
     content: |-
       {%- set prefix = cops_vars_registry_prefix %}
-      {%- set registry = {} %}
-      {%- set namespaced = corpusops_lxc_vars %}
+      {%- set namespaced = vars[cops_vars_registry_prefix+'vars'] %}
+      {%- set registry = {cops_vars_registry_prefix+'vars': namespaced} %}
       {%- if namespaced['container_name'] %}
       {%-  set _ = namespaced['containers'].setdefault(namespaced['container_name'], {}) %}
       {%- endif %}
