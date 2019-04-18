@@ -557,9 +557,9 @@ def make_registrations(data, ansible_vars=None):
                     'letsencrypt_http_port', None)
                 letsencrypt_tls_port = fdata.get(
                     'letsencrypt_tls_port', None)
-                ssh_proxy = fdata.get('ssh_proxy', None)
-                ssh_proxy_host = fdata.get('ssh_proxy_host', None)
-                ssh_proxy_port = fdata.get('ssh_proxy_port', None)
+                ssh_proxy = payload.get('ssh_proxy', None)
+                ssh_proxy_host = payload.get('ssh_proxy_host', None)
+                ssh_proxy_port = payload.get('ssh_proxy_port', None)
                 ssl_terminated = fdata.get('ssl_terminated', None)
                 inter_check = fdata.get('inter_check', None)
                 raw_backend = fdata.get('raw_backend', None)
@@ -580,6 +580,9 @@ def make_registrations(data, ansible_vars=None):
                     ssh_proxy=ssh_proxy,
                     ssh_proxy_host=ssh_proxy_host,
                     ssh_proxy_port=ssh_proxy_port)
+                if ssh_proxy:
+                    payload.setdefault(
+                        'ip', [ssh_proxy_host or '127.0.0.1'])
                 if not isinstance(payload['ip'], list):
                     payload['ip'] = payload['ip']
                 for ip in payload['ip']:
