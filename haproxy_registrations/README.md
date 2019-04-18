@@ -269,8 +269,7 @@ corpusops_haproxy_registrations_registrations_mc_cloud_http2:
 To register a proxy to ssh (from https) (eg: to bypass firewalls):
 
 ```yaml
-- hosts: ["foobar"]
-  ssh_proxy: true
+- ssh_proxy: true
   # ssh_proxy_host: 127.0.0.1
   # ssh_proxy_port: 22
 ```
