@@ -18,9 +18,10 @@
         aburp_debug: "{{burp_debug|default(True)}}"
 - hosts: "{{['localhost', hostvars.localhost.aburp_server]+hostvars.localhost.aburp_clients}}"
   gather_facts: true
-  roles: [corpusops.roles/vars]
+  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
 - hosts: "{{hostvars.localhost.aburp_server}}"
   gather_facts: false
+  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
   tasks:
   - block:
     - include_role: {name: corpusops.roles/burp_server_configuration}
@@ -50,6 +51,7 @@
       with_items: "{{hostvars.localhost.aburp_clients}}"
 - hosts: "{{hostvars.localhost.aburp_clients}}"
   gather_facts: false
+  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
   tasks:
   - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]
     block:
