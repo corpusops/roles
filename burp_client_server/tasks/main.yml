@@ -4,18 +4,21 @@
   - include_jinja_vars:
       content: |-
         ---
-        {% set prefix = 'cops_burpclientserver_' %}
-        {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-        {% set data = snamespaced[prefix+'vars'] %}
-        {%- if data.use_profile and data.profile %}
-        {%-   set r = (data.custom_lines|copsf_deepcopy) %}
-        {%-   set _ = r.append(data.get('profiles_'+data.profile, '')) %}
-        {%-   set _ = data.update({'custom_lines': r})%}
+        {%- set prefix = 'cops_burpclientserver_' %}
+        {%- set client = inventory_hostname %}
+        {%- set hvars = hostvars[client] %}
+        {%- set snamespaced, vars = vars|copsf_registry(prefix) %}
+        {%- set data = snamespaced[prefix+'vars'] %}
+        {%- set r = [] %}
+        {%- if not data.use_profile %}
+        {%- elif data.profile %}
+        {%-   set _ = r.append(data.get('profiles_'+data.profile)) %}
         {%- endif %}
-        {{ (snamespaced[prefix+'vars']
+        {%- set _ = r.extend(data.custom_lines) %}
+        {%- set _ = data.update({'custom_lines_computed': r})%}
+        {{- (snamespaced[prefix+'vars']
             |copsf_registry_to_vars(vars, prefix, global_scope=True)
-           )[0]
-           | to_json}}
+           )[0] | to_yaml}}
     no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [cops_burpclientserver_server]

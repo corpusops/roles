@@ -1,26 +1,18 @@
 ---
+
 - name: "Getting backup vars for {{item}}"
   include_jinja_vars:
    name: _cops_burpclientserver
    content: |-
-      {%- set cdata = hostvars[item] %}
-      {%- set cname = cdata.get('burp_cname', '') or cdata['inventory_hostname'] %}
-      {%- set profile = ansible_virtualization_type in [
-            'docker', 'lxc'] and 'vm' or 'baremetal' %}
-      {%- set profile = cdata.get('burp_client_profile', profile) %}
+      {%- set hvars = hostvars[item] %}
+      {%- set cname, profile = vars|copsfburp_get_cname_and_profile(hvars) %}
       {%- set data = {'cname': cname,
                       'password': vars['cops_burpclient_password_'+item],
                       'profile': profile,
-                      'use_profile': cdata.get('burp_client_use_profile',
+                      'use_profile': hvars.get('burp_client_use_profile',
                                                profile is not none)}
       %}
-      {%- for k in ['restore_clients', 'custom_lines'] %}
-      {%-   set val = cdata.get('burp_client_conf_'+k, none) %}
-      {%-   if val is not none %}
-      {%-     set _ = data.update({k: val}) %}
-      {%-   endif %}
-      {%- endfor%}
-      {%- set _ = data.update(cdata.get('burp_client_conf_extras', {})) %}
+      {%- set data = data|copsfburp_finish_settings('client', hvars) %}
       {{- data|to_json }}
 - name: "Registering backup server conf for {{item}}"
   include_role: {name: corpusops.roles/burp_client_server}

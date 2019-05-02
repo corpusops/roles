@@ -79,17 +79,27 @@
         $COPS_ROOT/bin/ansible-playbook \
         $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
           -e "{burp_client: [my.client], burp_server: server_host}" \
-          --skip-tags burp_configure_server,burp_fw,burp_sign,burp_deploy_client_certs,burp_configure_clients
+          # --skip-tags burp_configure_server,burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients
         ```
-- Reconfigure one client
+## Call
+- You cant at the moment mix groups and hosts in the ansible call.
+- Reconfigure one **client** (note that clients is a list
 
     ```sh
-    $COPS_ROOT/bin/ansible-playbook \
-    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
-        -e "{burp_clients: [my.client], burp_server: server_host}" \
-        --skip-tags burp_configure_server
+    $COPS_ROOT/bin/ansible-playbook -vvv  $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+        -e "{burp_clients: [xxx.foo.net], burp_server: yyy.foo.net, cops_vars_debug: true}" \
+        # --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients
     ```
-- Exemple inventory
+
+- Reconfigure one **group** (note that clients is a string)
+
+    ```sh
+    $COPS_ROOT/bin/ansible-playbook -vvv  $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+        -e "{burp_clients: burp_clients, burp_server: yyy.foo.net, cops_vars_debug: true}" \
+        # --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients
+    ```
+
+## Exemple inventory
 
     ```yaml
     ---

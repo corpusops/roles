@@ -29,8 +29,10 @@ cops_burpclientserver_clientconfdir: "{{vars['cops_burpclientserver_prefix']}}/c
 cops_burpclientserver_restore_clients: ["{{vars['cops_burpclientserver_cname']}}", "{{ansible_fqdn}}"]
 # computed for a part in main.yml
 cops_burpclientserver_custom_lines: []
+cops_burpclientserver_custom_lines_computed: []
 cops_burpclientserver_use_profile: true
-cops_burpclientserver_profile: null
+cops_burpclientserver_profile: "{{ (
+  vars.get('cops_burpclientserver_profiles_{0}'.format(vars['cops_burpclientserver_cname']), '')) }}"
 # cops_burpclientserver_password_{{vars['cops_burpclientserver_cname']}}: null  # MUST BE SET !
 cops_burpclientserver_common_lines: |
   nobackup = .nobackup
