@@ -3,13 +3,15 @@
     msg: "{{cops_burp | default(True) }}"
   register: cops_burpclient_can_run
   tags: [cops_burp]
-- include_tasks: configuration.yml
-  when: 'cops_burpclient_can_run.msg == True'
+- block:
+  - include_tasks: configuration.yml
+    when: 'cops_burpclient_can_run.msg == True'
   tags: [cops_burp,
          burp_configuration,
          cops_burpclient_configuration]
-- include_tasks: services.yml
-  when: 'cops_burpclient_can_run.msg == True'
+- block:
+  - include_tasks: services.yml
+    when: 'cops_burpclient_can_run.msg == True'
   tags: [cops_burp,
          burp_services,
          cops_burpclient_services]
