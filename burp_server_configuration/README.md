@@ -40,6 +40,7 @@
     burp_password: null
     # ip to restrict (default public facable ipv4)
     burp_restrict_ips: []
+    burp_restrict_ips: []
     # backup profile to use (null to disable)
     burp_client_profile: baremetal
     # custom lines inside burp.conf
@@ -97,6 +98,8 @@
       #  one_host_with_custom_hosts.foo.net:
       #    burp_password: toto
       #    burp_client_ip: 1.2.3.4
+      #    burp_client_ips: [1.2.3.5]
+      #    # public_ips: [1.2.3.5]
       ## or
       #    burp_client_ip: "{{corpusops_network_live_vars.mainip}}"
       #

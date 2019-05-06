@@ -9,12 +9,23 @@
           'ms_iptables_state': cdata.get(
             'burp_ms_iptables_state', None),
           'restrict_ips': cdata.get('burp_restrict_ips', [])} %}
-        {% set ip = (cdata.get('burp_client_ip', '') or
-              cdata.get('corpusops_network_live_vars', {}).get(
-                  'ext_ip', None)) %}
-        {% if ip and (ip not in res.restrict_ips) %}
-        {%  set _ = res.restrict_ips.append(ip) %}
+        {% set bips = cdata.get('burp_client_ips', '') %}
+        {% set bip = cdata.get('burp_client_ip', '') %}
+        {% if bip %}
+        {%  set _ = res.restrict_ips.append(bip) %}
         {% endif %}
+        {% if bips %}
+        {%  set _ = res.restrict_ips.extends(bips) %}
+        {% endif %}
+        {% if not (bip or bips) %}
+        {%  for ip in (
+            cdata.get('public_ips', []) +
+            [cdata.get('public_ip', '127.0.0.1'),
+             cdata.get('corpusops_network_live_vars', {}).get('ext_ip', None)]) %}
+        {%    set _ = res.restrict_ips.append(ip) %}
+        {%  endfor %}
+        {% endif %}
+        {% set _ = res.update({'restrict_ips': res.restrict_ips|copsf_uniquify}) %}
         {{ res | to_json }}
 - include_role: {name: corpusops.roles/burp_fw}
   when: "_cops_burpfw.restrict_ips|copsf_bool"
