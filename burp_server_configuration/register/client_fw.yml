@@ -1,5 +1,4 @@
 ---
-- debug: msg={{item}}
 - include_jinja_vars:
     content:
       _cops_burpfw: |-
@@ -20,9 +19,11 @@
         {% if not (bip or bips) %}
         {%  for ip in (
             cdata.get('public_ips', []) +
-            [cdata.get('public_ip', '127.0.0.1'),
+            [cdata.get('public_ip', None),
              cdata.get('corpusops_network_live_vars', {}).get('ext_ip', None)]) %}
-        {%    set _ = res.restrict_ips.append(ip) %}
+        {%    if ip is not none %}
+        {%      set _ = res.restrict_ips.append(ip) %}
+        {%    endif %}
         {%  endfor %}
         {% endif %}
         {% set _ = res.update({'restrict_ips': res.restrict_ips|copsf_uniquify}) %}
