@@ -1,4 +1,14 @@
 ---
+- debug:
+    msg: "{% set cdata = hostvars.get(item, {}) %}{{(
+         cdata.get('public_ips', []) +
+         [cdata.get('public_ip', None),
+          cdata.get('corpusops_network_live_vars', {}).get('ext_ip', None)])
+        |copsf_uniquify}}"
+  delegate_to: "{{item}}"
+  delegate_facts: true
+  when: item in hostvars
+  register: burppublicips
 - include_jinja_vars:
     content:
       _cops_burpfw: |-
@@ -17,10 +27,7 @@
         {%  set _ = res.restrict_ips.extends(bips) %}
         {% endif %}
         {% if not (bip or bips) %}
-        {%  for ip in (
-            cdata.get('public_ips', []) +
-            [cdata.get('public_ip', None),
-             cdata.get('corpusops_network_live_vars', {}).get('ext_ip', None)]) %}
+        {%  for ip in (burppublicips.msg or []) %}
         {%    if ip is not none %}
         {%      set _ = res.restrict_ips.append(ip) %}
         {%    endif %}
