@@ -1,0 +1,14 @@
+- include_role: {name: corpusops.roles/plugins}
+- debug:
+    msg:
+      groups: "{{groups|to_json}}"
+      vars: |-
+        {% set res = {} %}
+        {% if export_host | default('') %}
+        {%  set res = hostvars[export_host] %}
+        {% elif export_group | default('') %}
+        {%  set res = hostvars[groups[export_group][0]] %}
+        {% else %}
+        {%  set res = hostvars[inventory_hostname] %}
+        {% endif %}
+        {{ res | to_json }}
