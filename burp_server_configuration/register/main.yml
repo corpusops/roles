@@ -50,7 +50,7 @@
     - include_tasks: backup_to_server.yml
       with_items: "{{hostvars.localhost.aburp_clients}}"
 - hosts: "{{hostvars.localhost.aburp_clients}}"
-  gather_facts: false
+  gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
   tasks:
   - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]

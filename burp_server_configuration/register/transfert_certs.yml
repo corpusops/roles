@@ -2,16 +2,19 @@
 - shell: "cat {{hostvars.localhost.aburp_ca_path}}/{{burp_cname}}.crt"
   register: burp_cert_cert
   delegate_to: "{{hostvars.localhost.aburp_server}}"
+  delegate_facts: true
   changed_when: false
   no_log: "{{not hostvars.localhost.aburp_debug}}"
 - shell: "cat {{hostvars.localhost.aburp_ca_path}}/{{burp_cname}}.key"
   register: burp_cert_key
   delegate_to: "{{hostvars.localhost.aburp_server}}"
+  delegate_facts: true
   changed_when: false
   no_log: "{{not hostvars.localhost.aburp_debug}}"
 - shell: "cat {{hostvars.localhost.aburp_ca_path}}/CA_burpCA.crt"
   register: burp_cert_ca_cert
   delegate_to: "{{hostvars.localhost.aburp_server}}"
+  delegate_facts: true
   no_log: "{{not hostvars.localhost.aburp_debug}}"
   changed_when: false
 - file:
