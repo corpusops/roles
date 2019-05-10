@@ -1,4 +1,19 @@
 ---
+# - debug:
+#     msg: "{% set cdata = hostvars.get(item, {}) %}{{ cdata.get('public_ips', [])}}"
+#   delegate_to: "{{item}}"
+#   delegate_facts: true
+#   when: item in hostvars
+# - debug:
+#     msg: "{% set cdata = hostvars.get(item, {}) %}{{cdata.get('public_ip', None)}}"
+#   delegate_to: "{{item}}"
+#   delegate_facts: true
+#   when: item in hostvars
+# - debug:
+#     msg: "{% set cdata = hostvars.get(item, {}) %}{{cdata.get('corpusops_network_live_vars', {}).get('ext_ip', None)}}"
+#   delegate_to: "{{item}}"
+#   delegate_facts: true
+#   when: item in hostvars
 - debug:
     msg: "{% set cdata = hostvars.get(item, {}) %}{{(
          cdata.get('public_ips', []) +
