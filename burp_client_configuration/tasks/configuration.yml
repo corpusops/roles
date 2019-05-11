@@ -1,6 +1,7 @@
 ---
 - include_role: {name: corpusops.roles/localsettings_burp, public: false}
-  tags: [burp_install]
+  when: "burpclient_install|default(false) or burp_install|default(false)"
+  tags: [burpclient_install, burp_install]
 - include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{cops_burpclient_vars.files}}"
