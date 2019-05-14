@@ -77,7 +77,7 @@ get_running_haproxy_pid() {
 haproxy_pids=$(get_running_haproxy_pid)
 # restart haproxy also if it was started before any new certificate was placed
 if [[ -n $haproxy_pids ]];then
-	for pid in $haproxy_pids;do
+    for pid in $haproxy_pids;do
         for lstart in "$(ps axo pid,lstart|grep "$pid "|grep -v grep|head -n1)";do
             dlstart=$(echo "$lstart"|cut -d " " -f2-|sed -e "s/^ //g")
             ts=$(date -d "$dlstart" "+%s")
