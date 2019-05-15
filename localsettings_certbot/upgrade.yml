@@ -1,0 +1,9 @@
+- hosts: all
+  tasks:
+  - include_role: {name: "corpusops.roles/localsettings_certbot"}
+    tags: [certbot]
+  - shell: "/home/certbot/le_haproxy.sh"
+    register: cmd
+    changed_when: "'reload haproxy' in cmd.stderr"
+    tags: [reload]
+
