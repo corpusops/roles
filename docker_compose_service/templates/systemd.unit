@@ -20,7 +20,7 @@ TimeoutSec={{v.timeout_sec}}
 {% endif %}
 WorkingDirectory={{w}}
 ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} -p "{{d}}" config {{v.config_args}}
-ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} -p "{{d}}" pull   {{v.pull_args}}
+{% if not v.pull %}# {%endif%}ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} -p "{{d}}" pull   {{v.pull_args}}
 ExecStartPre=/usr/bin/env docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} -p "{{d}}" config {{v.config_args}}
 ExecStart=/usr/bin/env    docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} -p "{{d}}" up     {{v.up_args}}
 ExecStop=/usr/bin/env     docker-compose {% for i in v._files%}-f "{{i}}" {%endfor%} -p "{{d}}" config {{v.config_args}}

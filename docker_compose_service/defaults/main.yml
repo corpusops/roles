@@ -11,6 +11,7 @@ docker_compose_service_service_activated: "{{vars['docker_compose_service_vars']
 #  no, on-success, on-failure, on-abnormal,
 #  on-watchdog, on-abort, or always.
 docker_compose_service_args: ""
+docker_compose_service_pull: false
 docker_compose_service_pull_args:   "{{vars['docker_compose_service_vars'].args}}"
 docker_compose_service_config_args: "{{vars['docker_compose_service_vars'].args}}"
 docker_compose_service_up_args:     "{{vars['docker_compose_service_vars'].args}}"
