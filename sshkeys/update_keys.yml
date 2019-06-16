@@ -16,20 +16,27 @@
         _c_updatesshkeys: |-
           {% set to_update = to_update|default([]) %}
           {% set hs = [] %}
+          {% set wd = want_default | default (False) %}
           {% set todo = [] %}
-          {% for i in groups['all'] %}
+          {% set default_add = [] %}
+          {% set default_remove = [] %}
+          {% if wd %}
+          {%   set default_add =    _c_ssh.msg.corpusops_ssh_added_keys_map.get("default", []) %}
+          {%   set default_remove = _c_ssh.msg.corpusops_ssh_added_keys_map.get("default", []) %}
+          {% endif %}
+          {% for i in groups['all'] | sort %}
           {%  set _ = hs.append(i) %}
           {% endfor %}
           {% for h in hs %}
-          {%  set m = _c_ssh.msg.corpusops_ssh_added_keys_map.get(h, []) %}
-          {%  set n = _c_ssh.msg.corpusops_ssh_removed_keys_map.get(h, []) %}
+          {%  set m = _c_ssh.msg.corpusops_ssh_added_keys_map.get(h, default_add) %}
+          {%  set n = _c_ssh.msg.corpusops_ssh_removed_keys_map.get(h, default_remove) %}
           {%  for i in to_update %}
           {%    if i in m or i in n %}
           {%      set _ = todo.append(h)  %}
           {%    endif %}
           {%  endfor %}
           {% endfor %}
-          {{ todo | to_json }}
+          {{ todo | sort | to_json }}
 - hosts: "{{hostvars.localhost._c_updatesshkeys}}"
   tags: [do]
   tasks:
