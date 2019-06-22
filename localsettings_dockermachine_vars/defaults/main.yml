@@ -1,0 +1,34 @@
+---
+corpusops_localsettings_dockermachine_cops_do_format_resolve: false
+corpusops_localsettings_dockermachine_cops_computed_defaults: []
+corpusops_localsettings_dockermachine_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_dockermachine_cops_sub_os_append: {}
+corpusops_localsettings_dockermachine_cops_lowered: []
+corpusops_localsettings_dockermachine_cops_knobs: ['version']
+corpusops_localsettings_dockermachine_cops_sub_namespaces: {}
+corpusops_localsettings_dockermachine_version: '0.16.1'
+corpusops_localsettings_dockermachine_packages: []
+corpusops_localsettings_dockermachine_files: []
+corpusops_localsettings_dockermachine_configs: []
+corpusops_localsettings_dockermachine_verify_sha256: true
+corpusops_localsettings_dockermachine_bin: "docker-machine-{{corpusops_localsettings_dockermachine_platform}}-{{corpusops_localsettings_dockermachine_arch}}"
+corpusops_localsettings_dockermachine_versions: []
+corpusops_localsettings_dockermachine_platform: "Linux"
+corpusops_localsettings_dockermachine_arch: 'x86_64'
+corpusops_localsettings_dockermachine_filetest: [sha256sum.txt]
+corpusops_localsettings_dockermachine_install_path: "/usr/local"
+corpusops_localsettings_dockermachine_debug: "1"
+corpusops_localsettings_dockermachine_url: "https://github.com/docker/machine/releases/download"
+# compiled just in time variables (recursive variables)
+_corpusops_localsettings_dockermachine_alternatives:
+  docker-machine:
+    target: "{{corpusops_localsettings_dockermachine_install_path}}/bin/docker-machine"
+    bins:
+      - manualdockermachine:
+          target: "{{_corpusops_localsettings_dockermachine_app_path}}/{{corpusops_localsettings_dockermachine_bin}}"
+_corpusops_localsettings_dockermachine_app_path: "{{corpusops_core_apps_path}}/docker-machine-{{version}}"
+_corpusops_localsettings_dockermachine_archive: "{{corpusops_localsettings_dockermachine_bin}}"
+_corpusops_localsettings_dockermachine_urls:
+  archive: "{{vars['corpusops_localsettings_dockermachine_url']}}/v{{version}}/{{_corpusops_localsettings_dockermachine_archive}}"
+  crc: "{{vars['corpusops_localsettings_dockermachine_url']}}/v{{version}}/sha256sum.txt"
+
