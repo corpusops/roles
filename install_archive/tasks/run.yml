@@ -4,7 +4,7 @@
   file:
     path: "{{iitem}}"
     state: "directory"
-    mode: "0755"
+    mode: "{{archive_vars.container_mode or omit}}"
   loop_control: {loop_var: iitem}
   with_items: [ "{{archive_vars.app_path}}"]
 - name: "existing archive test"
