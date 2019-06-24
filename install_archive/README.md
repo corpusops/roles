@@ -2,7 +2,7 @@
 
 ## Documentation
 
-- Download, unpack, Install an archive from a remote source
+- Download, unpack, Install an archive or a file  from a remote source
 - It supports sha1, sha256 gpg or no-check tarball integrity checks
 - The gpg key or the shas can be either a string or
   downloaded from a remote http location
@@ -58,6 +58,8 @@
         verify_gpg: [9D41F3C3, http://goog.net/pub.key]
   with_items: [1.0, 2.0]
 ```
+
+- If your archive is not zip/tarable, set ``unpack: false``
 
 ## Role variables
 To see variables for this role, call it directly via
