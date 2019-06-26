@@ -15,3 +15,4 @@ dependencies:
 - role: corpusops.roles/localsettings_python_sni
 - role: corpusops.roles/localsettings_docker_vars
 - role: corpusops.roles/localsettings_dockercompose
+- role: corpusops.roles/localsettings_dockermachine
