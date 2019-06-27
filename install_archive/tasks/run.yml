@@ -176,7 +176,7 @@
     force: true
   loop_control: {loop_var: liitem}
   when: |
-        archive_vars.urls.unpack and (
+        archive_vars.urls.unpack|default(true) and (
         ('.tbz2' in liitem.bn) or
         ('.tar.bz2' in liitem.bn) or
         ('.bz2' in liitem.bn) or
