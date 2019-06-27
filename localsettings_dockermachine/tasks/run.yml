@@ -9,13 +9,13 @@
   with_items: "{{corpusops_localsettings_dockermachine_vars.files}}"
   when: "(corpusops_localsettings_dockermachine_vars.files is not none and
           corpusops_localsettings_dockermachine_vars.files|length > 0)"
-# forward vars to handle include_role bugs...
+#
 - debug:
     msg:
       _archive:
         archive: "{{_corpusops_localsettings_dockermachine_archive}}"
         app_path: "{{_corpusops_localsettings_dockermachine_app_path}}"
-        filetest: "{{corpusops_localsettings_dockermachine_vars.filetest}}" 
+        filetest: "{{corpusops_localsettings_dockermachine_vars.filetest}}"
         mode: "0755"
         urls:
           archive: "{{_corpusops_localsettings_dockermachine_urls.archive}}"
@@ -29,6 +29,26 @@
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
   with_items: "{{corpusops_localsettings_dockermachine_archives.results}}"
+#
+- debug:
+    msg:
+      _archive:
+        archive: "{{_corpusops_localsettings_dockermachine_sc_archive}}"
+        app_path: "{{_corpusops_localsettings_dockermachine_app_path}}"
+        filetest: "{{corpusops_localsettings_dockermachine_vars.sc_filetest}}"
+        mode: "0755"
+        strip_components: 0
+        urls:
+          archive: "{{_corpusops_localsettings_dockermachine_sc_urls.archive}}"
+          archive_crc: false
+          verify_sha256: false
+  vars:
+    version: "{{item}}"
+  with_items: "{{corpusops_localsettings_dockermachine_vars.versions}}"
+  register: corpusops_localsettings_dockermachine_sc_archives
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  with_items: "{{corpusops_localsettings_dockermachine_sc_archives.results}}"
 #
 - include_role: {name: corpusops.roles/set_alternatives}
   vars:
