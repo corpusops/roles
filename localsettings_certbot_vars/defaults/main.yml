@@ -34,6 +34,7 @@ corpusops_localsettings_certbot_logsdir: "{{corpusops_vars.log_dir}}/letsencrypt
 corpusops_localsettings_certbot_workdir: "{{vars['corpusops_localsettings_certbot_home']}}/letsencrypt"
 corpusops_localsettings_certbot_home: /home/certbot
 corpusops_localsettings_certbot_config: "{{vars['corpusops_localsettings_certbot_configdir']}}/cli.ini"
+corpusops_localsettings_certbot_dns_config: "{{vars['corpusops_localsettings_certbot_configdir']}}/dns.ini"
 corpusops_localsettings_certbot_files_default:
 - {path: "{{vars['corpusops_localsettings_certbot_webroot']}}",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
@@ -43,7 +44,19 @@ corpusops_localsettings_certbot_files_default:
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
 - {name: "{{vars['corpusops_localsettings_certbot_configdir']}}",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", state: directory, mode: "0750"}
-corpusops_localsettings_certbot_configs_default:
+corpusops_localsettings_certbot_configs_default: |-
+  {% set c = corpusops_localsettings_certbot_configs_common[:] %}
+  {% if vars['corpusops_localsettings_certbot_http'] %}
+  {%  set _ =  c.extend(vars['corpusops_localsettings_certbot_configs_http']) %}
+  {% endif %}
+  {% if vars['corpusops_localsettings_certbot_dns'] %}
+  {%  set _ =  c.extend(vars['corpusops_localsettings_certbot_configs_dns']) %}
+  {%  if 'ovh' in vars['corpusops_localsettings_certbot_dns_authenticator'] %}
+  {%    set _ =  c.extend(vars['corpusops_localsettings_certbot_configs_ovh']) %}
+  {%  endif %}
+  {% endif %}
+  {{c|to_json}}
+corpusops_localsettings_certbot_configs_common:
 - {name: "{{vars['corpusops_localsettings_certbot_config']}}",
    template: "../templates/cli.ini",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0640"}
@@ -53,14 +66,37 @@ corpusops_localsettings_certbot_configs_default:
 - {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_haproxy.sh",
    template: "../templates/le_haproxy.sh",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+corpusops_localsettings_certbot_configs_http:
 - {name: "{{vars['corpusops_localsettings_certbot_home']}}/http_challenge.sh",
    template: "../templates/http_challenge.sh",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+corpusops_localsettings_certbot_configs_dns:
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/dns_challenge.sh",
+   template: "../templates/dns_challenge.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_dns_config']}}",
+   template: "../templates/dns.ini",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0640"}
+corpusops_localsettings_certbot_configs_ovh:
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/ovh.ini",
+   template: "../templates/ovh.ini",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0640"}
 corpusops_localsettings_certbot_domains: ["{{ansible_fqdn}}"]
+corpusops_localsettings_certbot_dns_authenticator: dns-ovh
 corpusops_localsettings_certbot_authenticator: standalone
 corpusops_localsettings_certbot_email: foo@example.com
 corpusops_localsettings_certbot_keysize: 4096
-corpusops_localsettings_certbot_preferred_challenges: [tls-sni-01, http-01]
+corpusops_localsettings_certbot_preferred_challenges_http: [tls-sni-01, http-01]
+corpusops_localsettings_certbot_preferred_challenges_dns: [dns]
+corpusops_localsettings_certbot_preferred_challenges: |-
+  {% set challenges = [] %}
+  {% if vars['corpusops_localsettings_certbot_dns']%}
+  {% set _ = challenges.extend(vars['corpusops_localsettings_certbot_preferred_challenges_dns']) %}
+  {% endif %}
+  {% if vars['corpusops_localsettings_certbot_http']%}
+  {% set _ = challenges.extend(vars['corpusops_localsettings_certbot_preferred_challenges_http']) %}
+  {% endif %}
+  {{ challenges | to_json }}
 corpusops_localsettings_certbot_v2_staging_server: "https://acme-staging-v02.api.letsencrypt.org/directory"
 corpusops_localsettings_certbot_v2_server: "https://acme-v02.api.letsencrypt.org/directory"
 corpusops_localsettings_certbot_server: "{%
@@ -72,6 +108,7 @@ corpusops_localsettings_certbot_port: 54080
 corpusops_localsettings_certbot_sport: 54443
 corpusops_localsettings_certbot_expiry: 86400
 corpusops_localsettings_certbot_http: false
+corpusops_localsettings_certbot_dns: false
 corpusops_localsettings_certbot_test: true
 corpusops_localsettings_certbot_mailto: ""
 corpusops_localsettings_certbot_has_cron: |
@@ -87,9 +124,23 @@ corpusops_localsettings_certbot_haproxy_reload_mode: "restart"
 corpusops_localsettings_certbot_days: 30
 corpusops_localsettings_certbot_listenaddr: localhost
 corpusops_localsettings_certbot_dns_server: "8.8.8.8"
+corpusops_localsettings_certbot_dns_ovh_endpoint: ovh-eu
+corpusops_localsettings_certbot_dns_ovh_application_key: null
+corpusops_localsettings_certbot_dns_ovh_application_secret: null
+corpusops_localsettings_certbot_dns_ovh_consumer_key: null
 corpusops_localsettings_certbot_certonly_args: >
   -n
   --agree-tos
   --config=$CONFIG
   --http-01-port {{vars['corpusops_localsettings_certbot_port']}}
   --tls-sni-01-port {{vars['corpusops_localsettings_certbot_sport']}}
+corpusops_localsettings_certbot_dns_force_workers_restart: false
+corpusops_localsettings_certbot_dns_certonly_args: >
+  -n
+  --register
+  --agree-tos
+  --config=$CONFIG
+  --{{vars['corpusops_localsettings_certbot_dns_authenticator']}}
+  {% if 'ovh' in vars['corpusops_localsettings_certbot_dns_authenticator']%}
+  --dns-ovh-credentials {{vars['corpusops_localsettings_certbot_home']}}/ovh.ini
+  {% endif %}
