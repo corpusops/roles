@@ -1,0 +1,9 @@
+---
+- hosts: "{{certs_masters|default('all')}}"
+  tasks:
+  - block:
+    - include_role: {name: corpusops.roles/localsettings_certbot}
+      tags: [install]
+    - shell: "/home/certbot/le_renew.sh"
+      tags: [gen_certs, propagate_certs]
+    vars:

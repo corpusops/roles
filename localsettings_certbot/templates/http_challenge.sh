@@ -67,7 +67,7 @@ CERTBOT_IPS="${CERTBOT_IPS:-"
 {{corpusops_network_live_ext_ip}}
 $local_ips
 "}"
-CERTBOT_DOMAINS="${CERTBOT_DOMAINS:-"{{d.domains|join('\n')}}"}"
+CERTBOT_DOMAINS="${CERTBOT_DOMAINS:-"{{d.http_domains|join('\n')}}"}"
 updated=""
 cli_args="{{d.certonly_args.replace('\n', '')}}"
 if [[ -n "$CERTBOT_DOMAINS" ]];then

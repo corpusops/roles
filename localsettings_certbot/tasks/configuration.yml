@@ -35,3 +35,28 @@
     mode: "0640"
     force: true
   when: "corpusops_localsettings_certbot_vars.has_cron"
+- when: >
+    corpusops_localsettings_certbot_vars.propagate or
+    corpusops_localsettings_certbot_vars.pull
+  block:
+  - file:
+      path: "{{corpusops_localsettings_certbot_vars.home}}/.ssh"
+      state: directory
+      mode: "0750"
+      owner: "{{corpusops_localsettings_certbot_vars.user}}"
+      group: "{{corpusops_localsettings_certbot_vars.group}}"
+  - blockinfile:
+      path: "{{corpusops_localsettings_certbot_vars.home}}/.ssh/config"
+      marker: "# -- {mark} ANSIBLE MANAGED BLOCK: {{corpusops_localsettings_certbot_vars.ssh_host}} --"
+      create: true
+      mode: "0600"
+      owner: "{{corpusops_localsettings_certbot_vars.user}}"
+      group: "{{corpusops_localsettings_certbot_vars.group}}"
+      insertafter: EOF
+      content: "{{corpusops_localsettings_certbot_vars.ssh_config}}"
+  - copy:
+      dest: "{{corpusops_localsettings_certbot_vars.private_ssh_key_file}}"
+      content: "{{corpusops_localsettings_certbot_vars.private_ssh_key}}"
+      mode: "0600"
+      owner: "{{corpusops_localsettings_certbot_vars.user}}"
+      group: "{{corpusops_localsettings_certbot_vars.group}}"
