@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- hosts: "{{lxc_compute_node|default('all')}}"
   roles:
   - {name: corpusops.roles/vars}
   - {name: corpusops.roles/lxc_compute_node}
+

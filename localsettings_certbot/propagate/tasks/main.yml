@@ -1,0 +1,12 @@
+---
+- file:
+    state: directory
+    path: "{{corpusops_localsettings_certbot_configdir}}"
+- template:
+    name: "{{vars['corpusops_localsettings_certbot_home']}}/le_haproxy.sh"
+    template: "../../templates/le_haproxy.sh"
+    mode: "0750"
+
+# sync certs to remote dest
+
+# restart daemons

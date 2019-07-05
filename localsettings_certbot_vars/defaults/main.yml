@@ -1,4 +1,11 @@
 ---
+# actions
+corpusops_localsettings_certbot_http: false
+corpusops_localsettings_certbot_dns: false
+corpusops_localsettings_certbot_propagate: false
+corpusops_localsettings_certbot_pull: false
+corpusops_localsettings_certbot_haproxy: false
+# end actions
 corpusops_localsettings_certbot_cops_do_format_resolve: false
 corpusops_localsettings_certbot_cops_computed_defaults: []
 corpusops_localsettings_certbot_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
@@ -66,6 +73,12 @@ corpusops_localsettings_certbot_configs_common:
 - {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_haproxy.sh",
    template: "../templates/le_haproxy.sh",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_pull.sh",
+   template: "../templates/le_pull.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_propagate.sh",
+   template: "../templates/le_propagate.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
 corpusops_localsettings_certbot_configs_http:
 - {name: "{{vars['corpusops_localsettings_certbot_home']}}/http_challenge.sh",
    template: "../templates/http_challenge.sh",
@@ -82,6 +95,8 @@ corpusops_localsettings_certbot_configs_ovh:
    template: "../templates/ovh.ini",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0640"}
 corpusops_localsettings_certbot_domains: ["{{ansible_fqdn}}"]
+corpusops_localsettings_certbot_http_domains: "{{vars['corpusops_localsettings_certbot_domains']}}"
+corpusops_localsettings_certbot_dns_domains: "{{vars['corpusops_localsettings_certbot_domains']}}"
 corpusops_localsettings_certbot_dns_authenticator: dns-ovh
 corpusops_localsettings_certbot_authenticator: standalone
 corpusops_localsettings_certbot_email: foo@example.com
@@ -107,8 +122,7 @@ corpusops_localsettings_certbot_server: "{%
 corpusops_localsettings_certbot_port: 54080
 corpusops_localsettings_certbot_sport: 54443
 corpusops_localsettings_certbot_expiry: 86400
-corpusops_localsettings_certbot_http: false
-corpusops_localsettings_certbot_dns: false
+corpusops_localsettings_certbot_dns_slaves: []
 corpusops_localsettings_certbot_test: true
 corpusops_localsettings_certbot_mailto: ""
 corpusops_localsettings_certbot_has_cron: |
@@ -116,7 +130,6 @@ corpusops_localsettings_certbot_cron: |
   MAILTO="{{vars['corpusops_localsettings_certbot_mailto']}}"
   {{vars['corpusops_localsettings_certbot_periodicity']}} root {{vars['corpusops_localsettings_certbot_home']}}/le_renew.sh
 corpusops_localsettings_certbot_periodicity: "24 3 * * *"
-corpusops_localsettings_certbot_haproxy: false
 corpusops_localsettings_certbot_haproxy_certs_dir: "/etc/ssl/haproxy/certs"
 corpusops_localsettings_certbot_haproxy_owner: "root"
 corpusops_localsettings_certbot_haproxy_group: "haproxy"
@@ -144,3 +157,21 @@ corpusops_localsettings_certbot_dns_certonly_args: >
   {% if 'ovh' in vars['corpusops_localsettings_certbot_dns_authenticator']%}
   --dns-ovh-credentials {{vars['corpusops_localsettings_certbot_home']}}/ovh.ini
   {% endif %}
+corpusops_localsettings_certbot_propagate_id: "pr-{{ansible_fqdn}}"
+corpusops_localsettings_certbot_repo_dir: "{{vars['corpusops_localsettings_certbot_home']}}/propagate_{{vars['corpusops_localsettings_certbot_propagate_id']}}"
+corpusops_localsettings_certbot_private_ssh_key: ""
+# -----BEGIN RSA PRIVATE KEY-----
+# -----END RSA PRIVATE KEY-----
+corpusops_localsettings_certbot_private_ssh_key_file: "{{vars['corpusops_localsettings_certbot_home']}}/.ssh/{{vars['corpusops_localsettings_certbot_propagate_id']}}"
+corpusops_localsettings_certbot_ssh_hostname: "localhost"
+corpusops_localsettings_certbot_ssh_port: "22"
+corpusops_localsettings_certbot_ssh_host: "certssync-{{vars['corpusops_localsettings_certbot_propagate_id']}}"
+corpusops_localsettings_certbot_ssh_user: "certs"
+corpusops_localsettings_certbot_git_url: "ssh://{{vars['corpusops_localsettings_certbot_ssh_host']}}/home/git/certs"
+corpusops_localsettings_certbot_ssh_config: |-
+  Host {{vars['corpusops_localsettings_certbot_ssh_host']}}
+  HostName {{vars['corpusops_localsettings_certbot_ssh_hostname']}}
+  Port {{vars['corpusops_localsettings_certbot_ssh_port']}}
+  User {{vars['corpusops_localsettings_certbot_ssh_user']}}
+  IdentityFile {{vars['corpusops_localsettings_certbot_private_ssh_key_file']}}
+  IdentitiesOnly yes
