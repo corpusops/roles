@@ -35,11 +35,6 @@ W="$(dirname $(readlink -f "$0"))"
 {% endif %}
 {{pullc}}if ! ( su {{d.user}} -c "{{d.home}}/le_pull.sh" );then
 {{pullc}}    ret=1
-{{pullc}}if [ -e live ] && [ -e haproxy ] && [ -e "$W/le_haproxy.sh" ];then
-{{pullc}}    HAPROXY_CERTS_DIR="$REPO/haproxy" \
-{{pullc}}    CERTBOT_LIVE_DIR="$REPO/live" \
-{{pullc}}        "$W/le_haproxy.sh"
-{{pullc}}fi
 {{pullc}}fi
 
 {% set haproxyc='#' %}
@@ -49,6 +44,11 @@ W="$(dirname $(readlink -f "$0"))"
 {{haproxyc}}if ! ( {{d.home}}/le_haproxy.sh; );then
 {{haproxyc}}    ret=1
 {{haproxyc}}fi
+
+{{pullc}}if [ -e "$REPO/live" ] && [ -e "$REPO/haproxy" ] && [ -e "$W/le_haproxy.sh" ];then
+{{pullc}}    CERTBOT_LIVE_DIR="$REPO/live" \
+{{pullc}}        "$W/le_haproxy.sh"
+{{pullc}}fi
 
 exit $ret
 # vim:set et sts=4 ts=4 tw=0:
