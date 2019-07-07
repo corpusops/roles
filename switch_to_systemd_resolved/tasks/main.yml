@@ -1,0 +1,13 @@
+- file:
+    state: link
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    force: true
+- package:
+    state: absent
+    name: [resolvconf]
+- systemd:
+    daemon_reload: true
+    enabled: true
+    name: systemd-resolved
+    state: restarted
