@@ -7,6 +7,11 @@
       {% set is_docker    = corpusops_vars.is_docker %}
       {% set is_lxc       = corpusops_vars.is_lxc %}
       {% set is_container = corpusops_vars.is_container %}
+      {% if ansible_lsb.id == 'Ubuntu' and ((ansible_distribution_major_version|copsf_looseversion) >= ('18'|copsf_looseversion)) %}
+      {% set bionic_and_later = True %}
+      {% else %}
+      {% set bionic_and_later = False %}
+      {% endif %}
       {% set corpusops_localsettings_autoupgrades    = corpusops_localsettings_autoupgrades     | default(corpusops_vars.security) %}
       {% set corpusops_localsettings_basepkgs        = corpusops_localsettings_basepkgs         | default(True) %}
       {% set corpusops_localsettings_hostname        = corpusops_localsettings_hostname         | default(False) %}
@@ -62,7 +67,8 @@
       {% set corpusops_services_proxy_haproxy        = corpusops_services_proxy_haproxy         | default(False) %}
       {% set corpusops_services_virt_docker          = corpusops_services_virt_docker           | default(False) %}
       {% set corpusops_services_virt_lxc             = corpusops_services_virt_lxc              | default(False) %}
-      {% set corpusops_sslcerts                      = corpusops_sslcerts                        | default(True) %}
+      {% set corpusops_switch_to_systemd_resolved    = corpusops_switch_to_systemd_resolved     | default(bionic_and_later) %}
+      {% set corpusops_sslcerts                      = corpusops_sslcerts                       | default(True) %}
       {% set corpusops_sshkeys                       = corpusops_sshkeys                        | default(True) %}
       {% set corpusops_localsettings_dns_servers     = corpusops_localsettings_dns_servers      | default([]) %}
       {% set corpusops_localsettings_dns_search      = corpusops_localsettings_dns_search       | default([]) %}
@@ -92,7 +98,7 @@
       provision_corpusops_localsettings_timezone: {{ corpusops_localsettings_timezone }}
       provision_corpusops_localsettings_makinastates: {{ corpusops_localsettings_makinastates }}
       provision_corpusops_localsettings_minikube: {{ corpusops_localsettings_minikube }}
-      provision_corpusops_localsettings_nodejs: {{ corpusops_localsettings_nodejs }}
+      provision_corpusops_switch_to_systemd_resolved: {{ corpusops_switch_to_systemd_resolved }}
       provision_corpusops_localsettings_nvm: {{ corpusops_localsettings_nvm }}
       provision_corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
       provision_corpusops_localsettings_packer: {{ corpusops_localsettings_packer }}
@@ -135,6 +141,9 @@
       provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
       provision_corpusops_sslcerts: {{ corpusops_sslcerts }}
   tags: [prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision]
+- include_role: {public: false, name: corpusops.roles/switch_to_systemd_resolved}
+  tags: [switch_to_systemd]
+  when: [provision_corpusops_switch_to_systemd_resolved]
 - include_role: {public: false, name: corpusops.roles/sshkeys}
   tags: [sshkeys]
   when: [provision_corpusops_sshkeys]
