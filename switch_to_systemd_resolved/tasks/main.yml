@@ -1,13 +1,9 @@
-- file:
-    state: link
-    src: /run/systemd/resolve/resolv.conf
-    dest: /etc/resolv.conf
-    force: true
-- package:
-    state: absent
-    name: [resolvconf]
-- systemd:
-    daemon_reload: true
-    enabled: true
-    name: systemd-resolved
-    state: restarted
+---
+- name: "corpusops_switch_to_systemd_resolved preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_switch_to_systemd_resolved | default(True) }}"
+  register: corpusops_switch_to_systemd_resolved_can_run
+  tags: corpusops_switch_to_systemd_resolved
+- include_tasks: run.yml
+  when: "corpusops_switch_to_systemd_resolved_can_run.msg == True"
+  tags: corpusops_switch_to_systemd_resolved
