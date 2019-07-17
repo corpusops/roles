@@ -43,6 +43,8 @@ has_command() {
     return ${ret}
 }
 CERTBOT="${CERTBOT:-$(get_command certbot)}"
+CERTBOT_DOMAINS="${CERTBOT_DOMAINS:-"{{d.http_domains|join('\n')}}"}"
+if [[ -z "$CERTBOT_DOMAINS" ]];then log "No domain for HTTP challenge";exit 0;fi
 for i in dig ip bc openssl $CERTBOT;do
     if ! ( has_command $i; );then
         log "Missing; $i"
@@ -67,7 +69,6 @@ CERTBOT_IPS="${CERTBOT_IPS:-"
 {{corpusops_network_live_ext_ip}}
 $local_ips
 "}"
-CERTBOT_DOMAINS="${CERTBOT_DOMAINS:-"{{d.http_domains|join('\n')}}"}"
 updated=""
 cli_args="{{d.certonly_args.replace('\n', '')}}"
 if [[ -n "$CERTBOT_DOMAINS" ]];then

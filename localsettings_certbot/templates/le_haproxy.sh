@@ -105,18 +105,24 @@ while read d;do
                 if [ -e "$t" ] && ( diff -q "$ct" "$t"; ) ;then
                     log "lehaproxy: already installed $domain cert ($HAPROXY_CERTS_DIR)"
                 else
-                    log "lehaproxy: installing $domain cert ($HAPROXY_CERTS_DIR)"
-                    cp -f "$ct" "$t"
-                    chmod 640 "$t"
-                    chown $howner:$hgroup "$t"
-                    reload=1
+                    if ( getent group $hgroup &>/dev/null );then
+                        log "lehaproxy: installing $domain cert ($HAPROXY_CERTS_DIR)"
+                        cp -f "$ct" "$t"
+                        chmod 640 "$t"
+                        chown $howner:$hgroup "$t"
+                        reload=1
+                    else
+                        log "WARN lehaproxy: not installing $domain cert ($HAPROXY_CERTS_DIR) => no group"
+                    fi
                 fi
                 # Record the certificate which has the latest update date (to restart haproxy in case)
-                for ts in $(stat -c "%Y" "$d")  $(stat -c "%Y" "$t");do
-                    if [[ -n $ts ]] && [ $ts -ge $mincertsts ];then
-                        mincertsts=$ts
-                    fi
-                done
+                if ( getent group $hgroup &>/dev/null );then
+                    for ts in $(stat -c "%Y" "$d")  $(stat -c "%Y" "$t");do
+                        if [[ -n $ts ]] && [ $ts -ge $mincertsts ];then
+                            mincertsts=$ts
+                        fi
+                    done
+                fi
             fi
         fi
     fi
