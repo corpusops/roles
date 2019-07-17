@@ -64,9 +64,8 @@ get_running_haproxy_pid() {
     filter_host_pids $(ps axo pid,cmd|grep "haproxy "|grep -v grep|awk '{print $1}')
 }
 
-
-
 if [ "x${DEBUG}" != "x" ];then set -x;fi
+W="$(dirname $(readlink -f "$0"))"
 log() { echo "$@" >&2;  }
 SKIP_RELOAD=${SKIP_RELOAD-}
 SKIP_INSTALL=${SKIP_INSTALL-}
@@ -77,8 +76,8 @@ reload=${FORCE_HAPROXY_RELOAD-}
 # {% set d = corpusops_localsettings_certbot_vars %}
 HAPROXY_CERTS_DIR="${HAPROXY_CERTS_DIR:-{{d.haproxy_certs_dir}}}"
 CERTBOT_LIVE_DIR="${CERTBOT_LIVE_DIR:-{{d.configdir}}/live}"
-owner="{{d.user}}"
-group="{{d.group}}"
+owner="${CERTBOT_OWNER:-{{d.user}}}"
+group="${CERTBOT_GROUP:-{{d.group}}}"
 howner="{{d.haproxy_owner}}"
 hgroup="{{d.haproxy_group}}"
 reload_mode="{{d.haproxy_reload_mode}}"
@@ -90,6 +89,8 @@ if [ ! -e "$HAPROXY_CERTS_DIR" ];then
     chmod o-rwx "$HAPROXY_CERTS_DIR"
 fi
 if [ -e "$CERTBOT_LIVE_DIR" ];then
+# export certbot data to formats for other daemons (nginx, haproxy)
+$W/le_formatters.sh
 while read d;do
     domain=$(basename $d)
     t="$HAPROXY_CERTS_DIR/$domain.crt"
@@ -98,9 +99,6 @@ while read d;do
     k="$d/privkey.pem"
     if [ -e "$d" ];then
         if [ -e "$f" ] && [ -e "$k" ];then
-            cat "$f" "$k" > "$ct"
-            chmod 640 "$ct"
-            chown $owner:$group "$ct"
             if [[ -z ${SKIP_INSTALL} ]];then
                 if [ -e "$t" ] && ( diff -q "$ct" "$t"; ) ;then
                     log "lehaproxy: already installed $domain cert ($HAPROXY_CERTS_DIR)"

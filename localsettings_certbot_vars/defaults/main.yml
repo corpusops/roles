@@ -67,6 +67,9 @@ corpusops_localsettings_certbot_configs_common:
 - {name: "{{vars['corpusops_localsettings_certbot_config']}}",
    template: "../templates/cli.ini",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0640"}
+- {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_formatters.sh",
+   template: "../templates/le_formatters.sh",
+   owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
 - {name: "{{vars['corpusops_localsettings_certbot_home']}}/le_renew.sh",
    template: "../templates/le_renew.sh",
    owner: "{{vars['corpusops_localsettings_certbot_user']}}", group: "{{vars['corpusops_localsettings_certbot_group']}}", mode: "0750"}
