@@ -33,6 +33,8 @@ from ansible.errors import AnsibleError, AnsibleUndefinedVariable
 from ansible.module_utils.six import string_types
 from ansible.plugins.lookup import LookupBase
 from ansible.module_utils import six
+import logging
+import traceback
 
 from collections import OrderedDict
 from copsf_api import __funcs__, REGISTRY_DEFAULT_SUFFIX
@@ -41,6 +43,7 @@ from copsf_api import __funcs__, REGISTRY_DEFAULT_SUFFIX
 class LookupModule(LookupBase):
 
     def run(self, terms, variables=None, **kwargs):
+        log = logging.getLogger('corpusops.lookup.cops_registry')
         if variables is not None:
             self._templar.available_variables = variables
 
@@ -52,6 +55,31 @@ class LookupModule(LookupBase):
         ret = []
         for value in terms:
             try:
+                # try to resolve the overrides dict if it comes from 
+                # recent ansible versions and a form like:
+                # - include_role: {name: corpusops/registry}
+                #   loop: "{{myvar}}" /
+                #   vars: 
+                #      cops_vars_registry_target: foo
+                #      _foo: "{{myvar.subelement}}"
+                overrides_prefix = '_{0}'.format(value[:-1])
+                ov = self._templar.available_variables.get(overrides_prefix, None)
+                if ( 
+                    ov and 
+                    isinstance(ov, six.string_types) and
+                    '{{' in ov and
+                    '}}' in ov and
+                    '\n' not in ov
+                ):
+                    try:
+                        ovr = self._templar.template(ov)
+                        if isinstance(ovr, dict):
+                            self._templar.available_variables.update(
+                                {overrides_prefix: ovr})
+                    except Exception:
+                        trace = traceback.format_exc()
+                        log.error('failed to render registry overrides: {0}'.format(value))
+                        log.error(trace)
                 val = __funcs__['copsf_registry'](
                     self._templar.available_variables, value, **kwargs)
                 registry = self._templar.template(self._templar.template(val[0], fail_on_undefined=True))
