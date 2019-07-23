@@ -1,15 +1,28 @@
 ---
-archive:
-  container_mode: null
-  filetest: null
-  archive: null
-  app_path: null
-  mode: "0644"
-  strip_components: 1
-  urls:
+archive_container_mode: null
+archive_filetest: null
+archive_archive: null
+archive_app_path: null
+archive_mode: "0644"
+archive_strip_components: 1
+archive_urls:
     archive: null
     archive_crc: null
     verify_sha1: null
     verify_sha256: null
     verify_gpg: null
     unpack: true
+archive:
+  container_mode: "{{archive_container_mode}}"
+  filetest: "{{archive_filetest}}"
+  archive:  "{{archive_archive}}"
+  app_path: "{{archive_app_path}}"
+  mode:  "{{archive_mode}}"
+  strip_components:  "{{archive_strip_components}}"
+  urls:
+    archive: "{{archive_urls.archive}}"
+    archive_crc: "{{archive_urls.archive_crc}}"
+    verify_sha1: "{{archive_urls.verify_sha1}}"
+    verify_sha256: "{{archive_urls.verify_sha256}}"
+    verify_gpg: "{{archive_urls.verify_gpg}}"
+    unpack:  "{{archive_urls.unpack}}"
