@@ -1,0 +1,8 @@
+#
+# {% set d = corpusops_services_firewall_qos_voip_vars %}
+{% for i, v in d.items() -%}
+{% if i.startswith('defaults') and v is not none and i not in ['defaults_extra']
+%}{{i.replace('defaults_', '').upper()}}={{v}}
+{% endif %}
+{%- endfor %}
+{{d['defaults_extra']}}

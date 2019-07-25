@@ -1,0 +1,712 @@
+#!/usr/bin/env bash
+### BEGIN INIT INFO
+# Provides:        qos_voip
+# Required-Start:   $remote_fs $syslog
+# Required-Stop:    $remote_fs $syslog
+# Should-Start:     ms_iptables
+# Should-Stop:      ms_iptables
+# Default-Start:    2 3 4 5
+# Default-Stop:
+# Short-Description:    QOS VOIP trafic shaper
+### END INIT INFO
+
+# QOS Script for Linux IPTABLES/TC  to prioritise VOIP traffic (both in and egress) amongst all
+# and make regular enterprise trafic shaping follow those priorities:
+#   - protocol/routing/dns/dhcp
+#   - vpn/ssh
+#   - mail
+#   - web
+#   - rest of traffic
+# On general trafic, just make piorities, but do not shape trafic
+#                            |
+#                           root
+#               +------------+------------+
+#               |                         |
+#             egress                    ingress
+#   +-----------+                     +--------+
+#   |           |                     |        |
+# |VOIP|        |                   |VOIP|     |
+#              |O|                            |O|
+#               |                              |
+#      +--------+--------+------+     +--------+-------+-----+
+#      |        |        |      |     |        |       |     |
+#   |Routing|   |        |      |  |Routing|   |       |     |
+#             |ssh/vpn|  |      |          |ssh/vpn|   |     |
+#                       |work|  |                    |work|  |
+#                              |o|                          |o|
+#
+# with filters, map packets to their relative queues
+# CLASS_(IN/E)GRESS_VOIP     -> (sip, and VOIP traffic)
+# CLASS_(IN/E)GRESS_RT       -> (routing, ICMP)
+# CLASS_(IN/E)GRESS_UDP      -> (udp)
+# CLASS_(IN/E)GRESS_VPN      -> (vpn traffic)
+# CLASS_(IN/E)GRESS_SSH      -> (ssh traffic)
+# CLASS_(IN/E)GRESS_MAIL     -> (mail/imap)
+# CLASS_(IN/E)GRESS_WEB      -> (http(s))
+# CLASS_(IN/E)GRESS_DEFAULT  -> (anything not tagged yet)
+
+shopt -s extglob
+
+# degraded mode of LSB functions
+log_action_begin_msg() {
+    log "$@"
+}
+
+log_action_msg() {
+    log "$@\n"
+}
+
+log_action_end_msg() {
+    local status=OK
+    if [ "x$1" != "x0" ];then status=fail;fi
+    plog "\n [ $status ]\n"
+    return $1
+}
+
+#
+#
+#
+
+log() { echo "$@">&2; }
+
+plog() { printf "$@">&2; }
+
+die() { log "$@";exit 255; }
+
+calcawk() {
+     awk "BEGIN {print $@}"
+}
+
+icalcawk() {
+    awk "BEGIN {print int($@)}"
+}
+
+DEFAULT_USE_LSB=
+if [ -e /lib/lsb/init-functions ];then DEFAULT_USE_LSB=1;fi
+USE_LSB="${USE_LSB-${DEFAULT_USE_LSB}}"
+NUMIFBS=${NUMIFBS:-5}
+SCRIPT=$(basename $0)
+BASH_OPTS=-e
+SDEBUG=${SDEBUG-}
+DEBUG=${DEBUG-${SDEBUG}}
+DRY_RUN=${DRY_RUN-}
+
+export LOCALE=C LC_ALL=C
+DEFAULT_SETTINGS="${DEFAULT_SETTINGS:-"/etc/default/$SCRIPT"}"
+if [ -r "$DEFAULT_SETTINGS" ]; then . "$DEFAULT_SETTINGS";fi
+if [ "x$USE_LSB" != "x"  ] && [ -e /lib/lsb/init-functions ];then
+    . /lib/lsb/init-functions
+fi
+
+if [ "x$DEBUG" != "x" ];then BASH_OPTS="$BASH_OPTS -x";fi
+if [ "x$SDEBUG" != "x" ];then set -x;fi
+#
+export LANG=$LOCALE
+export LC_ALL=$LOCALE
+export LC_NUMERIC=$LOCALE
+
+# Main connected network adapter
+QOS_IF=${QOS_IF:-br0}
+# speed in MBps of links
+INGRESS_SPEED=${INGRESS_SPEED:-1000}
+EGRESS_SPEED=${EGRESS_SPEED:-1000}
+# Marking vlans if any also
+VOIP_IFS=${VOIP_IFS:-}
+VOIP_VLANS=${VOIP_VLANS-}
+GENERAL_IFS=${GENERAL_IFS:-}
+GENERAL_VLANS=${GENERAL_VLANS-}
+#
+#
+#
+EGRESS_IF=${EGRESS_IF:-$QOS_IF}
+INGRESS_IF=${INGRESS_IF-${QOS_IF}}
+REAL_INGRESS_IF=${INGRESS_IF}
+#
+# If we do not have two interfaces to control ingress trafic, use IFB to fine control trafic on ingress.
+if [ "x${INGRESS_IF}" = "x$EGRESS_IF" ];then
+    REAL_INGRESS_IF=$INGRESS_IF
+    INGRESS_IF=ifb0
+fi
+#
+OVERHEAD=${OVERHEAD:-0.97}
+HAS_IPV6=${HAS_IPV6-1}
+# capped speed for queues not to overload the routers
+INGRESS_RATE=$(calcawk $INGRESS_SPEED*$OVERHEAD)
+EGRESS_RATE=$(calcawk $EGRESS_SPEED*$OVERHEAD)
+INGRESS_CEIL=${INGRESS_CEIL:-${INGRESS_RATE}}
+EGRESS_CEIL=${EGRESS_CEIL:-${EGRESS_RATE}}
+# VOIP Rates: we allocate low but explicit resources dedicated to VOIP
+HAS_VOIP=${HAS_VOIP-1}
+
+VOIP_RATE=${VOIP_RATE:-$((4*1024))}
+VOIP_CEIL=${VOIP_CEIL:-${VOIP_RATE}}
+
+VOIP_EGRESS_RATE=${VOIP_EGRESS_RATE:-${VOIP_RATE}}
+VOIP_INGRESS_RATE=${VOIP_INGRESS_RATE:-${VOIP_RATE}}
+VOIP_EGRESS_CEIL=${VOIP_EGRESS_CEIL:-${VOIP_CEIL}}
+VOIP_INGRESS_CEIL=${VOIP_INGRESS_CEIL:-${VOIP_CEIL}}
+
+
+# If we do not have VOIP Support, keep our bandwidth straight
+if [ "x${HAS_VOIP}" != "x1" ];then
+    VOIP_EGRESS_RATE=0
+    VOIP_EGRESS_CEIL=0
+    VOIP_INGRESS_RATE=0
+    VOIP_INGRESS_CEIL=0
+fi
+
+# Keep a track of the bandwith available less the VOIP channels
+GENERAL_EGRESS_RATE=${GENERAL_EGRESS_RATE:-$(   icalcawk $EGRESS_RATE-$VOIP_EGRESS_RATE)}
+GENERAL_INGRESS_RATE=${GENERAL_INGRESS_RATE:-$( icalcawk $INGRESS_RATE-$VOIP_INGRESS_RATE)}
+GENERAL_EGRESS_CEIL=${GENERAL_EGRESS_CEIL:-$(   icalcawk $EGRESS_CEIL-$VOIP_EGRESS_CEIL)}
+GENERAL_INGRESS_CEIL=${GENERAL_INGRESS_CEIL:-$( icalcawk $INGRESS_CEIL-$VOIP_INGRESS_CEIL)}
+
+RT_EGRESS_RATE=${RT_EGRESS_RATE:-$(             icalcawk 0.03*$GENERAL_EGRESS_RATE)}
+RT_INGRESS_RATE=${RT_INGRESS_RATE:-$(           icalcawk 0.03*$GENERAL_INGRESS_RATE)}
+RT_EGRESS_CEIL=${RT_EGRESS_CEIL:-$(             icalcawk 0.30*$EGRESS_CEIL)}
+RT_INGRESS_CEIL=${RT_INGRESS_CEIL:-$(           icalcawk 0.40*$INGRESS_CEIL)}
+
+UDP_EGRESS_RATE=${UDP_EGRESS_RATE:-$(           icalcawk 0.03*$GENERAL_EGRESS_RATE)}
+UDP_INGRESS_RATE=${UDP_INGRESS_RATE:-$(         icalcawk 0.03*$GENERAL_INGRESS_RATE)}
+UDP_EGRESS_CEIL=${UDP_EGRESS_CEIL:-$(           icalcawk 0.70*$EGRESS_CEIL)}
+UDP_INGRESS_CEIL=${UDP_INGRESS_CEIL:-$(         icalcawk 0.70*$INGRESS_CEIL)}
+
+VPN_EGRESS_RATE=${VPN_EGRESS_RATE:-$(           icalcawk 0.07*$GENERAL_EGRESS_RATE)}
+VPN_INGRESS_RATE=${VPN_INGRESS_RATE:-$(         icalcawk 0.07*$GENERAL_INGRESS_RATE)}
+VPN_EGRESS_CEIL=${VPN_EGRESS_CEIL:-$(           icalcawk 0.70*$EGRESS_CEIL)}
+VPN_INGRESS_CEIL=${VPN_INGRESS_CEIL:-$(         icalcawk 0.70*$INGRESS_CEIL)}
+
+SSH_EGRESS_RATE=${SSH_EGRESS_RATE:-$(           icalcawk 0.07*$GENERAL_EGRESS_RATE)}
+SSH_INGRESS_RATE=${SSH_INGRESS_RATE:-$(         icalcawk 0.07*$GENERAL_INGRESS_RATE)}
+SSH_EGRESS_CEIL=${SSH_EGRESS_CEIL:-$(           icalcawk 0.70*$EGRESS_CEIL)}
+SSH_INGRESS_CEIL=${SSH_INGRESS_CEIL:-$(         icalcawk 0.70*$INGRESS_CEIL)}
+
+MAIL_EGRESS_RATE=${MAIL_EGRESS_RATE:-$(         icalcawk 0.30*$GENERAL_EGRESS_RATE)}
+MAIL_INGRESS_RATE=${MAIL_INGRESS_RATE:-$(       icalcawk 0.30*$GENERAL_INGRESS_RATE)}
+MAIL_EGRESS_CEIL=${MAIL_EGRESS_CEIL:-$(         icalcawk 1.00*$EGRESS_CEIL)}
+MAIL_INGRESS_CEIL=${MAIL_INGRESS_CEIL:-$(       icalcawk 1.00*$INGRESS_CEIL)}
+
+WEB_EGRESS_RATE=${WEB_EGRESS_RATE:-$(           icalcawk 0.30*$GENERAL_EGRESS_RATE)}
+WEB_INGRESS_RATE=${WEB_INGRESS_RATE:-$(         icalcawk 0.30*$GENERAL_INGRESS_RATE)}
+WEB_EGRESS_CEIL=${WEB_EGRESS_CEIL:-$(           icalcawk 1.00*$EGRESS_CEIL)}
+WEB_INGRESS_CEIL=${WEB_INGRESS_CEIL:-$(         icalcawk 1.00*$INGRESS_CEIL)}
+
+DEFAULT_EGRESS_RATE=${DEFAULT_EGRESS_RATE:-$(   icalcawk 0.20*$GENERAL_EGRESS_RATE)}
+DEFAULT_INGRESS_RATE=${DEFAULT_INGRESS_RATE:-$( icalcawk 0.20*$GENERAL_INGRESS_RATE)}
+DEFAULT_EGRESS_CEIL=${DEFAULT_EGRESS_CEIL:-$(   icalcawk 1.00*$EGRESS_CEIL)}
+DEFAULT_INGRESS_CEIL=${DEFAULT_INGRESS_CEIL:-$( icalcawk 1.00*$INGRESS_CEIL)}
+
+# iptables markers fpr marking packets up to their queues
+CLASS_INGRESS_RT=${CLASS_INGRESS_RT:-21}
+CLASS_INGRESS_VOIP=${CLASS_INGRESS_VOIP:-22}
+CLASS_INGRESS_UDP=${CLASS_INGRESS_UDP:-23}
+CLASS_INGRESS_VPN=${CLASS_INGRESS_VPN:-24}
+CLASS_INGRESS_SSH=${CLASS_INGRESS_SSH:-25}
+CLASS_INGRESS_WEB=${CLASS_INGRESS_WEB:-26}
+CLASS_INGRESS_MAIL=${CLASS_INGRESS_WEB:-27}
+CLASS_INGRESS_DEFAULT=${CLASS_INGRESS_WEB:-28}
+CLASS_EGRESS_RT=${CLASS_EGRESS_RT:-31}
+CLASS_EGRESS_VOIP=${CLASS_EGRESS_VOIP:-32}
+CLASS_EGRESS_UDP=${CLASS_EGRESS_UDP:-33}
+CLASS_EGRESS_VPN=${CLASS_EGRESS_VPN:-34}
+CLASS_EGRESS_SSH=${CLASS_EGRESS_SSH:-35}
+CLASS_EGRESS_WEB=${CLASS_EGRESS_WEB:-36}
+CLASS_EGRESS_MAIL=${CLASS_EGRESS_MAIL:-37}
+CLASS_EGRESS_DEFAULT=${CLASS_EGRESS_MAIL:-38}
+
+# declare |sort -u|egrep -i "CEIL|RATE" ; exit 1
+
+QOS_SCRIPT=""
+IPTABLES_SCRIPT=""
+MODPROBE_SCRIPT=""
+
+may_dry_run() {
+    if [ "x$DRY_RUN" = "x1" ];then
+        printf "     Run:\n$@\n"
+    else
+        bash $BASH_OPTS -ec "$@"
+    fi
+}
+
+modprobe_() {
+    local action="${action:-start}"
+    MODPROBE_SCRIPT="$MODPROBE_SCRIPT
+modprobe $@ \
+    $(if [ "x$action" = "xstop" ];then echo "|| /bin/true";fi)\
+"
+}
+
+ip_() {
+    local action="${action:-start}"
+    IP_SCRIPT="$IP_SCRIPT
+ip $@ \
+    $(if [ "x$action" = "xstop" ];then echo "|| /bin/true";fi)\
+"
+}
+
+iptables_() {
+    local action="${action:-start}"
+    local iscript="iptables $@"
+    if [ "x$HAS_IPV6" != "x" ];then
+        iscript="$iscript && ip6tables $@"
+    fi
+    if [ "x$action" = "xstop" ];then
+        local icheck="iptables $(echo  "$@"|sed -re "s/ -A/ -C/")"
+        local i6check="ip6tables $(echo  "$@"|sed -re "s/ -A/ -C/")"
+        local idelete="iptables $(echo "$@"|sed -re "s/ -A/ -D/")"
+        local i6delete="ip6tables $(echo "$@"|sed -re "s/ -A/ -D/")"
+        local iscript="if ( $icheck &>/dev/null );then $idelete;fi"
+        if [ "x$HAS_IPV6" != "x" ];then
+            iscript="$icheck && if ( $i6check &>/dev/null );then $i6delete;fi"
+        fi
+    fi
+    IPTABLES_SCRIPT="$(printf "$IPTABLES_SCRIPT\n $iscript\n")"
+}
+
+tc_() {
+    local action="${action:-start}"
+    QOS_SCRIPT="$QOS_SCRIPT
+tc $@ \
+    $(if [ "x$action" = "xstop" ];then echo "|| /bin/true";fi)\
+"
+}
+
+
+do_qos_flush() {
+    local QOS_SCRIPT=""
+    log_action_begin_msg "  Flushing QoS rules"
+    for i in ${EGRESS_IF} ${INGRESS_IF};do
+        if ( tc filter show dev $i | grep -q filter );then
+            action=stop tc_ filter del dev $i
+        fi
+    done
+    for i in ${EGRESS_IF} ${INGRESS_IF};do
+        if ( tc qdisc show dev $i|grep " root "|grep -q " htb");then
+            action=stop tc_ qdisc del dev $i root
+        fi
+    done
+    if ( echo ${EGRESS_IF} | grep -iq ifb );then
+        if ( tc qdisc show dev ${INGRESS_IF} | grep ingress | grep -q ffff );then
+            action=stop tc_ qdisc del dev ${INGRESS_IF} handle ffff: ingress
+        fi
+    fi
+    if ( echo ${INGRESS_IF} | grep -iq ifb );then
+        if ( tc qdisc show dev ${EGRESS_IF} | grep ingress | grep -q ffff );then
+            action=stop tc_ qdisc del dev ${EGRESS_IF} handle ffff: ingress
+        fi
+    fi
+    may_dry_run "$QOS_SCRIPT"
+    log_action_end_msg "$?"
+}
+
+load_egress_shape_rules() {
+    if [ "x$EGRESS_IF" = "x" ];then return 0;fi
+    #
+    # EGRESS RULES
+    #
+    # ROOT queues container
+    tc_     qdisc add dev ${EGRESS_IF} root handle 1:0 htb default 5001
+
+    # EGRESS main queue
+    tc_     class add dev ${EGRESS_IF} parent 1:0  classid 1:1      htb rate ${EGRESS_RATE}kbit        ceil ${EGRESS_CEIL}kbit        prio 1000
+
+    if [ "x$HAS_VOIP" != "x" ];then
+        tc_ class add dev ${EGRESS_IF} parent 1:1  classid 1:1000   htb rate ${VOIP_EGRESS_RATE}kbit   ceil ${VOIP_EGRESS_CEIL}kbit   prio 2000
+        tc_ qdisc add dev ${EGRESS_IF} parent 1:1000 handle 1001: sfq perturb 10
+    fi
+
+    # TCP Routing packets (high priority trafic)
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:2100  htb rate ${RT_EGRESS_RATE}kbit      ceil ${RT_EGRESS_CEIL}kbit      prio 3000
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:2100 handle 2101: sfq perturb 10
+
+    # UDP
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:2200  htb rate ${UDP_EGRESS_RATE}kbit     ceil ${UDP_EGRESS_CEIL}kbit     prio 4000
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:2200 handle 2201: sfq perturb 10
+
+    # vpn/ssh
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:3100  htb rate ${VPN_EGRESS_RATE}kbit     ceil ${VPN_EGRESS_RATE}kbit     prio 5000
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:3200  htb rate ${SSH_EGRESS_RATE}kbit     ceil ${SSH_EGRESS_RATE}kbit     prio 6000
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:3100 handle 3101: sfq perturb 10
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:3200 handle 3201: sfq perturb 10
+
+    ### # work usages
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:4100  htb rate ${MAIL_EGRESS_RATE}kbit    ceil ${MAIL_EGRESS_CEIL}kbit    prio 7000
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:4200  htb rate ${WEB_EGRESS_RATE}kbit     ceil ${WEB_EGRESS_CEIL}kbit     prio 8000
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:4100 handle 4101: sfq perturb 10
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:4200 handle 4201: sfq perturb 10
+
+    ### # default
+    tc_     class add dev ${EGRESS_IF} parent 1:1  classid 1:5000  htb rate ${DEFAULT_EGRESS_RATE}kbit ceil ${DEFAULT_EGRESS_CEIL}kbit prio 9000
+    tc_     qdisc add dev ${EGRESS_IF} parent 1:5000 handle 5001: sfq perturb 10
+
+    # with filters, map packets to their relative queues
+    if [ "x${HAS_VOIP}" != "x" ];then
+        tc_ filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_VOIP}     fw classid 1:1000
+    fi
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_RT}       fw classid 1:2100
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_UDP}      fw classid 1:2200
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_VPN}      fw classid 1:3100
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_SSH}      fw classid 1:3200
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_MAIL}     fw classid 1:4100
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_WEB}      fw classid 1:4200
+    tc_     filter add dev ${EGRESS_IF} handle ${CLASS_EGRESS_DEFAULT}  fw classid 1:5000
+}
+
+load_ingress_shape_rules() {
+    if [ "x$INGRESS_IF" = "x" ] || [ "x$EGRESS_IF" = "x$INGRESS_IF" ];then return 0;fi
+    #
+    # INGRESS RULES
+    #
+    # we have to manage the IFB interface
+    if ( echo ${INGRESS_IF} | grep -iq ifb );then
+        # If we use only one interface for QOS and rely on IFB mirroring to QOS ingress
+        tc_ qdisc  add dev ${EGRESS_IF} handle ffff: ingress
+        tc_ filter add dev ${REAL_INGRESS_IF} parent ffff: protocol ip u32 match u32 0 0 action connmark action mirred egress redirect dev ${INGRESS_IF}
+    fi
+
+    # ROOT queues container
+    tc_ qdisc add dev ${INGRESS_IF} root handle 2:0 htb default 5001
+
+    # INGRESS Queue
+    tc_     class add dev ${INGRESS_IF} parent 2:0  classid 2:1     htb rate ${INGRESS_RATE}kbit         ceil ${INGRESS_CEIL}kbit         prio 1000
+
+    if [ "x$HAS_VOIP" != "x" ];then
+        tc_ class add dev ${INGRESS_IF} parent 2:1  classid 2:1000  htb rate ${VOIP_INGRESS_RATE}kbit    ceil ${VOIP_INGRESS_CEIL}kbit    prio 1000
+        tc_ qdisc add dev ${INGRESS_IF} parent 2:1000 handle 1001: sfq perturb 10
+    fi
+
+    # TCP Routing packets (high priority trafic)
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:2100  htb rate ${RT_INGRESS_RATE}kbit      ceil ${RT_INGRESS_CEIL}kbit      prio 3000
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:2100 handle 2101: sfq perturb 10
+
+    # UDP
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:2200  htb rate ${UDP_INGRESS_RATE}kbit     ceil ${RT_INGRESS_CEIL}kbit      prio 4000
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:2200 handle 2201: sfq perturb 10
+
+    # vpn/ssh
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:3100  htb rate ${VPN_INGRESS_RATE}kbit     ceil ${VPN_INGRESS_RATE}kbit     prio 5000
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:3200  htb rate ${SSH_INGRESS_RATE}kbit     ceil ${SSH_INGRESS_RATE}kbit     prio 6000
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:3100 handle 3101: sfq perturb 10
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:3200 handle 3201: sfq perturb 10
+
+    # work usages
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:4100  htb rate ${MAIL_INGRESS_RATE}kbit    ceil ${MAIL_INGRESS_CEIL}kbit    prio 7000
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:4200  htb rate ${WEB_INGRESS_RATE}kbit     ceil ${WEB_INGRESS_CEIL}kbit     prio 8000
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:4100 handle 4101: sfq perturb 10
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:4200 handle 4201: sfq perturb 10
+
+    # default
+    tc_     class add dev ${INGRESS_IF} parent 2:1  classid 2:5000  htb rate ${DEFAULT_INGRESS_RATE}kbit ceil ${DEFAULT_INGRESS_CEIL}kbit prio 9000
+    tc_     qdisc add dev ${INGRESS_IF} parent 2:5000 handle 5001: sfq perturb 10
+
+    # with filters, map packets to their relative queue
+    if [ "x$HAS_VOIP" != "x" ];then
+        tc_ filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_VOIP}     fw classid 2:1000
+    fi
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_RT}       fw classid 2:2100
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_UDP}      fw classid 2:2200
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_VPN}      fw classid 2:3100
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_SSH}      fw classid 2:3200
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_MAIL}     fw classid 2:4100
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_WEB}      fw classid 2:4200
+    tc_     filter add dev ${INGRESS_IF} handle ${CLASS_INGRESS_DEFAULT}  fw classid 2:5000
+}
+
+qos_enable() {
+    log_action_begin_msg "  Adding QoS rules"
+    local QOS_SCRIPT="" MODPROBE_SCRIPT=""
+    # Flush any existing queues and isolate VOIP traffic from other trafic
+    load_egress_shape_rules
+    load_ingress_shape_rules
+    may_dry_run "$QOS_SCRIPT"
+    ret=$?
+    log_action_end_msg "$ret"
+    return $ret
+}
+
+do_kernel_setup() {
+    local MODPROBE_SCRIPT=""
+    log_action_msg "  Kernel setup"
+    if ( echo ${INGRESS_IF} | grep -iq ifb );then
+        # If we use only one interface for QOS and rely on IFB mirroring to QOS ingress
+        if ! (ip a|grep -q ifb);then
+            log_action_begin_msg "    Load IFB"
+            modprobe_ ifb  numifbs=${NUMIFBS}
+        else
+            log_action_msg "    Already loaded IFB"
+        fi
+    fi
+
+    may_dry_run "$MODPROBE_SCRIPT"
+    ret=$?
+    if [ "x$ret" = "x0" ] && [ "x$DRY_RUN" != "x1" ] && ! (ip a|grep -q ifb);then
+        log_action_msg "ERROR: no ifb"
+        ret=1
+    fi
+    # avoid at any prize: tc mirred to Houston: device ifb0 is down
+    # (IOW: ifb adapter is not up)
+    if [ "x$ret" = "x0" ] \
+        && ( echo ${INGRESS_IF} | grep -iq ifb ) \
+        && ( ip link show ${INGRESS_IF} | grep -iq "state down" ); then
+        ip_ link set dev ${INGRESS_IF} up
+        may_dry_run "$IP_SCRIPT"
+        ret=$?
+    fi
+    log_action_end_msg $ret
+}
+
+iptables_mark_voip() {
+    # VOIP routing
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -m tos --tos 0xb8           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -m tos --tos 0xb8           -j MARK --set-mark ${CLASS_INGRESS_VOIP}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --dport 4569   -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --sport 4569   -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --dport 4569    -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --sport 4569    -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    #
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    #
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    # VOIP Vlan match
+    for i in $VOIP_VLANS;do
+        for j in $VOIP_IFS;do
+            iptables_ -t mangle -A POSTROUTING -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j    NMARK --set-mark ${CLASS_INGRESS_VOIP}
+            iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+            iptables_ -t mangle -A PREROUTING  -i $j                 -o ${EGRESS_IF} --vlan-id $i -j CONNMARK --set-mark ${CLASS_EGRESS_VOIP}
+            iptables_ -t mangle -A POSTROUTING -i $j                 -o ${EGRESS_IF} --vlan-id $i -j     MARK --set-mark ${CLASS_EGRESS_VOIP}
+        done
+    done
+    #
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_VOIP} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_VOIP} -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_VOIP} -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_VOIP}  -j RETURN
+}
+
+iptables_mark() {
+    log_action_begin_msg "  Activating iptables mappings to QoS rules"
+    local IPTABLES_SCRIPT=""
+    local action="${action:-start}"
+
+    if [ "x${HAS_VOIP}" != "x" ];then
+        iptables_mark_voip
+    fi
+
+    # Give "protocol dedicated" packets highest priority
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --syn -m length --length 40:68                    -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL SYN,ACK -m length --length 40:68  -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK     -m length --length 40:100 -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL RST                               -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK,RST                           -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK,FIN                           -j MARK --set-mark ${CLASS_EGRESS_RT}
+    #
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --syn -m length --length 40:68                    -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL SYN,ACK -m length --length 40:68  -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK     -m length --length 40:100 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL RST                               -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK,RST                           -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK,FIN                           -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m multiport --sports 53,67,68 -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m multiport --sports 53,67,68 -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m multiport --dports 53,67,68 -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m multiport --dports 53,67,68 -j MARK --set-mark ${CLASS_EGRESS_RT}
+    #
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 53,67,68 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m multiport --sports 53,67,68 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 53,67,68 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m multiport --dports 53,67,68 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    # ICMP
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p icmp -m length --length 28:1500  -j MARK --set-mark ${CLASS_EGRESS_RT}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p icmp -m length --length 28:1500  -j MARK --set-mark ${CLASS_INGRESS_RT}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_RT}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_RT} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_RT} -j RETURN
+
+    # OpenVPN
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --dports 1194,4000 -j MARK     --set-mark ${CLASS_EGRESS_VPN}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 1194,4000 -j CONNMARK --set-mark ${CLASS_INGRESS_VPN}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --sports 1194,4000 -j MARK     --set-mark ${CLASS_EGRESS_VPN}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 1194,4000 -j CONNMARK --set-mark ${CLASS_INGRESS_VPN}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_VPN}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_VPN} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_VPN} -j RETURN
+
+    # SSH
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp --dport 22 -j MARK     --set-mark ${CLASS_EGRESS_SSH}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp --sport 22 -j CONNMARK --set-mark ${CLASS_INGRESS_SSH}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp --sport 22 -j MARK     --set-mark ${CLASS_EGRESS_SSH}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp --dport 22 -j CONNMARK --set-mark ${CLASS_INGRESS_SSH}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_SSH}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_SSH} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_SSH} -j RETURN
+
+    # SMTP/IMAP
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --dports 25,465,143,990,587 -j MARK     --set-mark ${CLASS_EGRESS_MAIL}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 25,465,143,990,587 -j CONNMARK --set-mark ${CLASS_INGRESS_MAIL}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --sports 25,465,143,990,587 -j MARK     --set-mark ${CLASS_EGRESS_MAIL}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 25,465,143,990,587 -j CONNMARK --set-mark ${CLASS_INGRESS_MAIL}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_MAIL}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_MAIL} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_MAIL} -j RETURN
+
+    # HTTP/HTTPS/HTTPv3 (udp)
+    for p in tcp udp;do
+        iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p $p -m multiport --dports 80,443 -j MARK --set-mark ${CLASS_EGRESS_WEB}
+        #
+        iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p $p -m multiport --dports 80,443 -j MARK --set-mark ${CLASS_INGRESS_WEB}
+    done
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_WEB}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_WEB} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_WEB}  -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_WEB} -j RETURN
+
+    # UDP
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}  -p udp -j MARK     --set-mark ${CLASS_EGRESS_UDP}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p udp -j CONNMARK --set-mark ${CLASS_INGRESS_UDP}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_UDP}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
+
+    # General VLAN match
+    for i in $GENERAL_VLANS;do
+        for j in $GENERAL_IFS;do
+            iptables_ -t mangle -A POSTROUTING -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j     MARK --set-mark ${CLASS_INGRESS_DEFAULT}
+            iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j CONNMARK --set-mark ${CLASS_INGRESS_DEFAULT}
+            iptables_ -t mangle -A PREROUTING  -i $j                 -o ${EGRESS_IF} --vlan-id $i -j CONNMARK --set-mark ${CLASS_EGRESS_DEFAULT}
+            iptables_ -t mangle -A POSTROUTING -i $j                 -o ${EGRESS_IF} --vlan-id $i -j     MARK --set-mark ${CLASS_EGRESS_DEFAULT}
+        done
+    done
+
+    # default to DEFAULT class for any non routed yet packet !
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}  -j MARK     --set-mark ${CLASS_EGRESS_DEFAULT}
+    iptables_ -t mangle -A PREROUTING  -i ${INGRESS_IF} -j CONNMARK --set-mark ${CLASS_INGRESS_DEFAULT}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_DEFAULT}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_DEFAULT} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_DEFAULT} -j RETURN
+
+    # if we are tiring down everything, reverse commands order
+    if [ "x$action" = "xstop" ];then
+        IPTABLES_SCRIPT="$(echo "$IPTABLES_SCRIPT"|tac)"
+    fi
+
+    may_dry_run "$IPTABLES_SCRIPT"
+    log_action_end_msg "$?"
+
+}
+
+# (re)start:  kernel_setup, iptables drop, flush tc, tc, iptables
+# stop:                     iptables drop, flush tc
+do_() {
+    local action=$1
+    log_action_msg "$action QoS script"
+    if [ "x$action" != "xstop" ]; then
+        do_kernel_setup || die "Kernel setup failed"
+    fi
+    action=stop iptables_mark
+    do_qos_flush || die "QoS failed to flush"
+    if [ "x$action" != "xstop" ]; then
+        qos_enable || die "QoS was not activated correctly"
+        iptables_mark || die "iptables mappings failed to activate"
+    fi
+}
+
+do_start() {
+    do_ start
+}
+
+do_stop() {
+    do_ stop
+}
+
+do_restart() {
+    do_ restart
+}
+
+do_status() {
+    ret="3"
+    hint="0"
+    confidence="33"
+    #
+    # Check iptables
+    #
+    ct1=$(iptables -t mangle -L -n -v 2>&1 \
+        | egrep "mark match 0x(16|20|15|18|19|1a|24|17|16|18|22)" \
+        | sort -u | wc -l)
+    if [ $ct1 -ge 16 ];then hint=$(($hint+1));fi
+    #
+    # Check TC filters
+    #
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:1 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:1000 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:2100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:2200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:3100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:3200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:4100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:4200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $INGRESS_IF | egrep -q "htb .*2:5001" ) ;then hint=$(($hint+1));fi
+    #
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "htb .*2: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*2101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*2201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*3101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*3201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*4101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*4201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $INGRESS_IF | egrep -q "sfq .*5001: " ) ;then hint=$(($hint+1));fi
+    #
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:1 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:1000 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:2100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:2200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:3100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:3200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:4100 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:4200 " ) ;then hint=$(($hint+1));fi
+    if ( tc class show dev $EGRESS_IF | egrep -q "htb .*1:5001" ) ;then hint=$(($hint+1));fi
+    #
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "htb .*1: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*2101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*2201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*3101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*3201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*4101: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*4201: " ) ;then hint=$(($hint+1));fi
+    if ( tc qdisc show dev $EGRESS_IF | egrep -q "sfq .*5001: " ) ;then hint=$(($hint+1));fi
+    # with any confidence, we are loaded
+    if [ $hint -ge $confidence ];then
+        if [ "x$DEBUG" != "x " ];then
+            log "hint : $hint"
+        fi
+        ret=0
+    fi
+    return $ret
+}
+
+do_usage() {
+    echo "Traffic shapper to preserve some bandwith for VOIP traffic"
+    echo "$0: kernel_setup|qos_flush|stop|start|restart|force-reload|reload|status|usage"
+}
+
+case $1 in
+    kernel_setup|qos_flush|start|stop|restart|status) do_$1;exit $?;;
+    flush) do_qos_flush;exit $?;;
+    reload|force-reload) do_restart; exit $?;;
+    *) do_usage;;
+esac
+# vim:set et sts=4 ts=4 tw=0:
