@@ -1,0 +1,9 @@
+---
+- include_jinja_vars:
+    content: |-
+      ---
+      {% set prefix = 'corpusops_services_firewall_qos_voip_' %}
+      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
+      {{ snamespaced | to_json}}
+  tags: [corpusops_vars, corpusops_services_firewall_qos_voip_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
