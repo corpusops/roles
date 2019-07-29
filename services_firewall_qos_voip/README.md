@@ -5,7 +5,7 @@
 - This script use TC and IP(6)TABLES to shape internet trafic on your router
 - Please read [the script](./templates/etc/init.d/qos_voip) comments to understand what's under the hood
 
-## Example configurations
+## Example configurations
 ```yaml
 corpusops_services_firewall_qos_voip_defaults_qos_if: "brnet"
 corpusops_services_firewall_qos_voip_defaults_ingress_speed: "{{85*1024}}"
