@@ -1,0 +1,100 @@
+---
+corpusops_services_firewall_qos_voip_cops_do_format_resolve: false
+corpusops_services_firewall_qos_voip_cops_computed_defaults: []
+corpusops_services_firewall_qos_voip_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_firewall_qos_voip_cops_sub_os_append: {}
+corpusops_services_firewall_qos_voip_cops_lowered: ["repo"]
+corpusops_services_firewall_qos_voip_cops_knobs:  ['files', 'filescopy', 'configs', 'packages', 'services',
+                      'repo_keys', 'repo_keys_url', 'repo',
+                      ]
+corpusops_services_firewall_qos_voip_cops_sub_namespaces:
+  settings: {}
+  fw: {}
+corpusops_services_firewall_qos_voip_activated: True
+corpusops_services_firewall_qos_voip_disabled: "{{not corpusops_services_firewall_qos_voip_activated}}"
+corpusops_services_firewall_qos_voip_repo_keys_url: null
+corpusops_services_firewall_qos_voip_repo_keys: null
+corpusops_services_firewall_qos_voip_repo_keys_default: []
+corpusops_services_firewall_qos_voip_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_firewall_qos_voip_repo: null
+corpusops_services_firewall_qos_voip_packages: null
+corpusops_services_firewall_qos_voip_packages_default:
+  - 'iptables'
+corpusops_services_firewall_qos_voip_services: null
+corpusops_services_firewall_qos_voip_group: qos_voip
+corpusops_services_firewall_qos_voip_services_default: [qos_voip]
+corpusops_services_firewall_qos_voip_files: null
+corpusops_services_firewall_qos_voip_filescopy: null
+corpusops_services_firewall_qos_voip_filescopy_default: []
+corpusops_services_firewall_qos_voip_files_apt: []
+corpusops_services_firewall_qos_voip_configs:
+  - {name: "/etc/init.d/qos_voip",
+     template: "../templates/etc/init.d/qos_voip",
+     owner: root, group: root, state: directory, mode: "0755"}
+  - {name: "/etc/default/qos_voip",
+     owner: root, group: root, state: directory, mode: "0755"}
+corpusops_services_firewall_qos_voip_user: 'qos_voip'
+# those would be appended, raw, at the end of the defaults file
+corpusops_services_firewall_qos_voip_defaults_extra: ""
+corpusops_services_firewall_qos_voip_dry_run: '1'
+corpusops_services_firewall_qos_voip_defaults_default_has_ipv6: ""
+corpusops_services_firewall_qos_voip_defaults_qos_if: null
+corpusops_services_firewall_qos_voip_defaults_egress_if: null
+corpusops_services_firewall_qos_voip_defaults_ingres_if: null
+corpusops_services_firewall_qos_voip_defaults_general_vlans: null
+corpusops_services_firewall_qos_voip_defaults_general_ifs: null
+corpusops_services_firewall_qos_voip_defaults_voip_vlans: null
+corpusops_services_firewall_qos_voip_defaults_voip_ifs: null
+corpusops_services_firewall_qos_voip_defaults_overhead: null
+#
+corpusops_services_firewall_qos_voip_defaults_egress_speed: null
+corpusops_services_firewall_qos_voip_defaults_ingress_speed: null
+corpusops_services_firewall_qos_voip_defaults_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_egress_ceil: null
+#
+corpusops_services_firewall_qos_voip_defaults_has_voip: null
+corpusops_services_firewall_qos_voip_defaults_voip_rate: null
+corpusops_services_firewall_qos_voip_defaults_voip_ceil: null
+corpusops_services_firewall_qos_voip_defaults_voip_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_voip_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_voip_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_voip_ingress_ceil: null
+#
+corpusops_services_firewall_qos_voip_defaults_debug: null
+corpusops_services_firewall_qos_voip_defaults_ingress_ifb: null
+#
+corpusops_services_firewall_qos_voip_defaults_general_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_rt_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_udp_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_vpn_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_ssh_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_mail_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_web_egress_rate: null
+corpusops_services_firewall_qos_voip_defaults_default_egress_rate: null
+#
+corpusops_services_firewall_qos_voip_defaults_general_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_rt_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_udp_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_vpn_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_ssh_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_mail_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_web_ingress_rate: null
+corpusops_services_firewall_qos_voip_defaults_default_ingress_rate: null
+##
+corpusops_services_firewall_qos_voip_defaults_general_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_rt_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_udp_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_vpn_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_ssh_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_mail_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_web_egress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_default_egress_ceil: null
+#
+corpusops_services_firewall_qos_voip_defaults_general_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_rt_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_udp_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_vpn_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_ssh_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_mail_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_web_ingress_ceil: null
+corpusops_services_firewall_qos_voip_defaults_default_ingress_ceil: null

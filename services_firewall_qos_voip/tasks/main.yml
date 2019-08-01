@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_firewall_qos_voip preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_firewall_qos_voip | default(True) }}"
+  register: corpusops_services_firewall_qos_voip_can_run
+  tags: [corpusops_services_firewall_qos_voip]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_firewall_qos_voip_can_run.msg == True'
+  tags: [corpusops_services_firewall_qos_voip,
+         qos_voip_prerequisites,
+         corpusops_services_firewall_qos_voip_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_firewall_qos_voip_can_run.msg == True'
+  tags: [corpusops_services_firewall_qos_voip,
+         qos_voip_configuration,
+         corpusops_services_firewall_qos_voip_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_firewall_qos_voip_can_run.msg == True'
+  tags: [corpusops_services_firewall_qos_voip,
+         qos_voip_services,
+         corpusops_services_firewall_qos_voip_services]
