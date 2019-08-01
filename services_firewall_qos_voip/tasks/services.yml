@@ -1,0 +1,23 @@
+---
+- set_fact:
+    cacheable: false
+    corpusops_services_firewall_qos_voip_service_state: >-
+      {% if (
+        corpusops_services_firewall_qos_voip_configs_changed     |default(False) or
+        corpusops_services_firewall_qos_voip_prequisites_changed |default(False) or
+        corpusops_services_firewall_qos_voip_wrappers_changed    |default(False)
+      )%}re{%endif%}started
+- set_fact:
+    cacheable: false
+    corpusops_services_firewall_qos_voip_service_state: "{{corpusops_services_firewall_qos_voip_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_firewall_qos_voip_vars.activated
+     | ternary(corpusops_services_firewall_qos_voip_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_firewall_qos_voip_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+  with_items: "{{corpusops_services_firewall_qos_voip_vars.services}}"
+  tags: [corpusops_services_firewall_qos_voip, corpusops_services_firewall_qos_voip_services]
+- meta: flush_handlers
