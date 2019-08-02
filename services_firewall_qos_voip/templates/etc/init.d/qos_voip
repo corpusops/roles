@@ -110,12 +110,6 @@ QOS_IF=${QOS_IF:-br0}
 # speed in MBps of links
 INGRESS_SPEED=${INGRESS_SPEED:-1000}
 EGRESS_SPEED=${EGRESS_SPEED:-1000}
-# Marking vlans if any also
-VOIP_IFS=${VOIP_IFS:-}
-VOIP_VLANS=${VOIP_VLANS-}
-GENERAL_IFS=${GENERAL_IFS:-}
-GENERAL_VLANS=${GENERAL_VLANS-}
-#
 #
 #
 EGRESS_IF=${EGRESS_IF:-$QOS_IF}
@@ -244,6 +238,10 @@ ip $@ \
 "
 }
 
+redirect_no_debug() {
+    if ! [ "x${SDEBUG}" != "x" ];then echo '&>/dev/null';fi
+}
+
 iptables_() {
     local action="${action:-start}"
     local iscript="iptables $@"
@@ -255,9 +253,9 @@ iptables_() {
         local i6check="ip6tables $(echo  "$@"|sed -re "s/ -A/ -C/")"
         local idelete="iptables $(echo "$@"|sed -re "s/ -A/ -D/")"
         local i6delete="ip6tables $(echo "$@"|sed -re "s/ -A/ -D/")"
-        local iscript="if ( $icheck &>/dev/null );then $idelete;fi"
+        local iscript="if ( $icheck $(redirect_no_debug) );then $idelete;fi"
         if [ "x$HAS_IPV6" != "x" ];then
-            iscript="$icheck && if ( $i6check &>/dev/null );then $i6delete;fi"
+            iscript="$iscript && if ( $i6check $(redirect_no_debug) );then $i6delete;fi"
         fi
     fi
     IPTABLES_SCRIPT="$(printf "$IPTABLES_SCRIPT\n $iscript\n")"
@@ -443,6 +441,14 @@ do_kernel_setup() {
         log_action_msg "ERROR: no ifb"
         ret=1
     fi
+    if [ "x${BRIDGE_VLAN}" = "x1" ];then
+        if [ "x$ret" = "x0" ] && ! ( sysctl -w net.bridge.bridge-nf-filter-vlan-tagged=1 );then
+            log_action_msg "ERROR: activating bridge vlan/iptables tagging"
+            ret=1
+        else
+            log_action_msg "Activated bridge vlan/iptables tagging"
+        fi
+    fi
     # avoid at any prize: tc mirred to Houston: device ifb0 is down
     # (IOW: ifb adapter is not up)
     if [ "x$ret" = "x0" ] \
@@ -471,15 +477,6 @@ iptables_mark_voip() {
     #
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
-    # VOIP Vlan match
-    for i in $VOIP_VLANS;do
-        for j in $VOIP_IFS;do
-            iptables_ -t mangle -A POSTROUTING -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j    NMARK --set-mark ${CLASS_INGRESS_VOIP}
-            iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
-            iptables_ -t mangle -A PREROUTING  -i $j                 -o ${EGRESS_IF} --vlan-id $i -j CONNMARK --set-mark ${CLASS_EGRESS_VOIP}
-            iptables_ -t mangle -A POSTROUTING -i $j                 -o ${EGRESS_IF} --vlan-id $i -j     MARK --set-mark ${CLASS_EGRESS_VOIP}
-        done
-    done
     #
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_VOIP} -j RETURN
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_VOIP} -j RETURN
@@ -580,16 +577,6 @@ iptables_mark() {
     iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_UDP}  -j RETURN
     iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
-
-    # General VLAN match
-    for i in $GENERAL_VLANS;do
-        for j in $GENERAL_IFS;do
-            iptables_ -t mangle -A POSTROUTING -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j     MARK --set-mark ${CLASS_INGRESS_DEFAULT}
-            iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -o $j           --vlan-id $i -j CONNMARK --set-mark ${CLASS_INGRESS_DEFAULT}
-            iptables_ -t mangle -A PREROUTING  -i $j                 -o ${EGRESS_IF} --vlan-id $i -j CONNMARK --set-mark ${CLASS_EGRESS_DEFAULT}
-            iptables_ -t mangle -A POSTROUTING -i $j                 -o ${EGRESS_IF} --vlan-id $i -j     MARK --set-mark ${CLASS_EGRESS_DEFAULT}
-        done
-    done
 
     # default to DEFAULT class for any non routed yet packet !
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}  -j MARK     --set-mark ${CLASS_EGRESS_DEFAULT}
