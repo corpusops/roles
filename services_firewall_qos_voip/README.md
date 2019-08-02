@@ -10,10 +10,6 @@
 corpusops_services_firewall_qos_voip_defaults_qos_if: "brnet"
 corpusops_services_firewall_qos_voip_defaults_ingress_speed: "{{85*1024}}"
 corpusops_services_firewall_qos_voip_defaults_egress_speed: "{{900*1024}}"
-corpusops_services_firewall_qos_voip_defaults_voip_ifs: "vltel@eth1"
-corpusops_services_firewall_qos_voip_defaults_voip_vlans: "4"
-corpusops_services_firewall_qos_voip_defaults_general_ifs: "vllan@eth1"
-corpusops_services_firewall_qos_voip_defaults_general_vlans: "3"
 corpusops_services_firewall_qos_voip_defaults_dry_run: ""
 ```
 
