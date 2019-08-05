@@ -197,8 +197,9 @@ CLASS_INGRESS_UDP=${CLASS_INGRESS_UDP:-23}
 CLASS_INGRESS_VPN=${CLASS_INGRESS_VPN:-24}
 CLASS_INGRESS_SSH=${CLASS_INGRESS_SSH:-25}
 CLASS_INGRESS_WEB=${CLASS_INGRESS_WEB:-26}
-CLASS_INGRESS_MAIL=${CLASS_INGRESS_WEB:-27}
-CLASS_INGRESS_DEFAULT=${CLASS_INGRESS_WEB:-28}
+CLASS_INGRESS_MAIL=${CLASS_INGRESS_MAIL:-27}
+CLASS_INGRESS_DEFAULT=${CLASS_INGRESS_DEFAULT:-28}
+
 CLASS_EGRESS_RT=${CLASS_EGRESS_RT:-31}
 CLASS_EGRESS_VOIP=${CLASS_EGRESS_VOIP:-32}
 CLASS_EGRESS_UDP=${CLASS_EGRESS_UDP:-33}
@@ -206,7 +207,7 @@ CLASS_EGRESS_VPN=${CLASS_EGRESS_VPN:-34}
 CLASS_EGRESS_SSH=${CLASS_EGRESS_SSH:-35}
 CLASS_EGRESS_WEB=${CLASS_EGRESS_WEB:-36}
 CLASS_EGRESS_MAIL=${CLASS_EGRESS_MAIL:-37}
-CLASS_EGRESS_DEFAULT=${CLASS_EGRESS_MAIL:-38}
+CLASS_EGRESS_DEFAULT=${CLASS_EGRESS_DEFAULT:-38}
 
 # declare |sort -u|egrep -i "CEIL|RATE" ; exit 1
 STRICT_RATES=${STRICT_RATES-}
@@ -486,14 +487,14 @@ do_kernel_setup() {
 
 iptables_mark_voip() {
     # VOIP routing
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -m tos --tos 0xb8           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -m tos --tos 0xb8           -j MARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -m tos --tos 0xb8              -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -m tos --tos 0xb8          -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
     #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --dport 4569   -j MARK --set-mark ${CLASS_EGRESS_VOIP}
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --sport 4569   -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --dport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --sport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
     #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --dport 4569    -j MARK --set-mark ${CLASS_EGRESS_VOIP}
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --sport 4569    -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --dport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --sport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
     #
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
@@ -501,7 +502,7 @@ iptables_mark_voip() {
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
     #
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_VOIP} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${LASS_INGRESS_VOIP} -j RETURN
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_VOIP} -j RETURN
     iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_VOIP} -j RETURN
     iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_VOIP}  -j RETURN
@@ -516,17 +517,74 @@ iptables_mark() {
         iptables_mark_voip
     fi
 
+    # OpenVPN
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --dports 1194,4000 -j MARK     --set-mark ${CLASS_EGRESS_VPN}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 1194,4000 -j CONNMARK --set-mark ${CLASS_INGRESS_VPN}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --sports 1194,4000 -j MARK     --set-mark ${CLASS_EGRESS_VPN}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 1194,4000 -j CONNMARK --set-mark ${CLASS_INGRESS_VPN}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_VPN}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_VPN} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_VPN}  -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_VPN} -j RETURN
+
+    # SSH
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp --dport 22 -j MARK     --set-mark ${CLASS_EGRESS_SSH}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp --sport 22 -j CONNMARK --set-mark ${CLASS_INGRESS_SSH}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp --sport 22 -j MARK     --set-mark ${CLASS_EGRESS_SSH}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp --dport 22 -j CONNMARK --set-mark ${CLASS_INGRESS_SSH}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_SSH}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_SSH} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_SSH}  -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_SSH} -j RETURN
+
+    # SMTP/IMAP
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --dports 25,465,143,990,587 -j MARK     --set-mark ${CLASS_EGRESS_MAIL}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 25,465,143,990,587 -j CONNMARK --set-mark ${CLASS_INGRESS_MAIL}
+    #
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --sports 25,465,143,990,587 -j MARK     --set-mark ${CLASS_EGRESS_MAIL}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 25,465,143,990,587 -j CONNMARK --set-mark ${CLASS_INGRESS_MAIL}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_MAIL}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_MAIL} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_MAIL}  -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_MAIL} -j RETURN
+
+    # HTTP/HTTPS/HTTPv3 (udp)
+    for p in tcp udp;do
+        iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p $p -m multiport --dports 80,443 -j MARK --set-mark ${CLASS_EGRESS_WEB}
+        #
+        iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p $p -m multiport --dports 80,443 -j CONNMARK --set-mark ${CLASS_INGRESS_WEB}
+    done
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_WEB}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_WEB} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_WEB}  -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_WEB} -j RETURN
+
+    # UDP
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}  -p udp -j MARK     --set-mark ${CLASS_EGRESS_UDP}
+    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p udp -j CONNMARK --set-mark ${CLASS_INGRESS_UDP}
+    #
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_UDP}  -j RETURN
+    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_UDP}  -j RETURN
+    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
+
     # Give "protocol dedicated" packets highest priority
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --syn -m length --length 40:68                    -j MARK --set-mark ${CLASS_EGRESS_RT}
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL SYN,ACK -m length --length 40:68  -j MARK --set-mark ${CLASS_EGRESS_RT}
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK     -m length --length 40:100 -j MARK --set-mark ${CLASS_EGRESS_RT}
+    # iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL SYN,ACK -m length --length 40:68  -j MARK --set-mark ${CLASS_EGRESS_RT}
+    # iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK     -m length --length 40:100 -j MARK --set-mark ${CLASS_EGRESS_RT}
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL RST                               -j MARK --set-mark ${CLASS_EGRESS_RT}
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK,RST                           -j MARK --set-mark ${CLASS_EGRESS_RT}
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp --tcp-flags ALL ACK,FIN                           -j MARK --set-mark ${CLASS_EGRESS_RT}
     #
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --syn -m length --length 40:68                    -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
-    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL SYN,ACK -m length --length 40:68  -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
-    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK     -m length --length 40:100 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    # iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL SYN,ACK -m length --length 40:68  -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
+    # iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK     -m length --length 40:100 -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL RST                               -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK,RST                           -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
     iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp --tcp-flags ALL ACK,FIN                           -j CONNMARK --set-mark ${CLASS_INGRESS_RT}
@@ -547,59 +605,6 @@ iptables_mark() {
     iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_RT}  -j RETURN
     iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_RT} -j RETURN
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_RT} -j RETURN
-
-    # OpenVPN
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --dports 1194,4000 -j MARK     --set-mark ${CLASS_EGRESS_VPN}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 1194,4000 -j CONNMARK --set-mark ${CLASS_INGRESS_VPN}
-    #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --sports 1194,4000 -j MARK     --set-mark ${CLASS_EGRESS_VPN}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 1194,4000 -j CONNMARK --set-mark ${CLASS_INGRESS_VPN}
-    #
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_VPN}  -j RETURN
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_VPN} -j RETURN
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_VPN} -j RETURN
-
-    # SSH
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp --dport 22 -j MARK     --set-mark ${CLASS_EGRESS_SSH}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp --sport 22 -j CONNMARK --set-mark ${CLASS_INGRESS_SSH}
-    #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp --sport 22 -j MARK     --set-mark ${CLASS_EGRESS_SSH}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp --dport 22 -j CONNMARK --set-mark ${CLASS_INGRESS_SSH}
-    #
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_SSH}  -j RETURN
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_SSH} -j RETURN
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_SSH} -j RETURN
-
-    # SMTP/IMAP
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --dports 25,465,143,990,587 -j MARK     --set-mark ${CLASS_EGRESS_MAIL}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --sports 25,465,143,990,587 -j CONNMARK --set-mark ${CLASS_INGRESS_MAIL}
-    #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p tcp -m multiport --sports 25,465,143,990,587 -j MARK     --set-mark ${CLASS_EGRESS_MAIL}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p tcp -m multiport --dports 25,465,143,990,587 -j CONNMARK --set-mark ${CLASS_INGRESS_MAIL}
-    #
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_MAIL}  -j RETURN
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_MAIL} -j RETURN
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_MAIL} -j RETURN
-
-    # HTTP/HTTPS/HTTPv3 (udp)
-    for p in tcp udp;do
-        iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -p $p -m multiport --dports 80,443 -j MARK --set-mark ${CLASS_EGRESS_WEB}
-        #
-        iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p $p -m multiport --dports 80,443 -j MARK --set-mark ${CLASS_INGRESS_WEB}
-    done
-    #
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_WEB}  -j RETURN
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_WEB} -j RETURN
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_WEB}  -j RETURN
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_WEB} -j RETURN
-
-    # UDP
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}  -p udp -j MARK     --set-mark ${CLASS_EGRESS_UDP}
-    iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -p udp -j CONNMARK --set-mark ${CLASS_INGRESS_UDP}
-    #
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_EGRESS_UDP}  -j RETURN
-    iptables_ -t mangle -A POSTROUTING --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
-    iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_INGRESS_UDP} -j RETURN
 
     # default to DEFAULT class for any non routed yet packet !
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}  -j MARK     --set-mark ${CLASS_EGRESS_DEFAULT}
