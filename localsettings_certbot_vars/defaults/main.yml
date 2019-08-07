@@ -160,13 +160,13 @@ corpusops_localsettings_certbot_dns_certonly_args: >
   {% if 'ovh' in vars['corpusops_localsettings_certbot_dns_authenticator']%}
   --dns-ovh-credentials {{vars['corpusops_localsettings_certbot_home']}}/ovh.ini
   {% endif %}
-corpusops_localsettings_certbot_propagate_id: "pr-{{ansible_fqdn}}"
-corpusops_localsettings_certbot_repo_dir: "{{vars['corpusops_localsettings_certbot_home']}}/propagate_{{vars['corpusops_localsettings_certbot_propagate_id']}}"
+corpusops_localsettings_certbot_propagate_id: "pr-{{vars['corpusops_localsettings_certbot_ssh_hostname']}}"
+corpusops_localsettings_certbot_repo_dir: "{{vars['corpusops_localsettings_certbot_home']}}/{{vars['corpusops_localsettings_certbot_propagate_id']}}"
 corpusops_localsettings_certbot_private_ssh_key: ""
 # -----BEGIN RSA PRIVATE KEY-----
 # -----END RSA PRIVATE KEY-----
 corpusops_localsettings_certbot_private_ssh_key_file: "{{vars['corpusops_localsettings_certbot_home']}}/.ssh/{{vars['corpusops_localsettings_certbot_propagate_id']}}"
-corpusops_localsettings_certbot_ssh_hostname: "localhost"
+corpusops_localsettings_certbot_ssh_hostname: "{{ansible_fqdn}}"
 corpusops_localsettings_certbot_ssh_port: "22"
 corpusops_localsettings_certbot_ssh_host: "certssync-{{vars['corpusops_localsettings_certbot_propagate_id']}}"
 corpusops_localsettings_certbot_ssh_user: "certs"

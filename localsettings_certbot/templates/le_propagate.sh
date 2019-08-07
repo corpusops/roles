@@ -22,14 +22,14 @@ cd "$REPO"
 if [ -e "$certsd" ];then rsync $rsynco "${certsd}/" live/;fi
 if [ ! -e .git ];then git init .;fi
 if [ -e "$W/le_haproxy.sh" ];then
-    SKIP_INSTALL="y" SKIP_RELOAD="y" \
+    SKIP_INSTALL="" SKIP_RELOAD="y" \
         HAPROXY_CERTS_DIR="$REPO/haproxy" \
         CERTBOT_LIVE_DIR="$REPO/live" \
         "$W/le_haproxy.sh"
 fi
-for i in haproxy live;do if [ -e $i ];then git add -f "$i/"*;fi;done
-git remote rm certsremote || /bin/true
-git remote add certsremote "$GIT_URL"
+for i in haproxy live;do if [ -e $i ];then touch $i/.empty;git add -f "$i/"*;fi;done
+git remote rm  origin || /bin/true
+git remote add origin "$GIT_URL"
 git config --remove-section user || /bin/true
 git config user.email 'cert@certs.com'
 git config user.name 'certs'
@@ -42,5 +42,5 @@ if ( echo "$GIT_URL" | egrep -q 'ssh://([^/]+)/(.*)' );then
         ssh $ssh_host git init --bare "$ssh_path"
     fi
 fi
-git push --force certsremote HEAD:master
+git push --force origin HEAD:master
 # vim:set et sts=4 ts=4 tw=0:
