@@ -103,6 +103,7 @@
       provision_corpusops_localsettings_nscd: {{ corpusops_localsettings_nscd }}
       provision_corpusops_localsettings_packer: {{ corpusops_localsettings_packer }}
       provision_corpusops_localsettings_phantoms: {{ corpusops_localsettings_phantoms }}
+      provision_corpusops_localsettings_nodejs: {{ corpusops_localsettings_nodejs }}
       provision_corpusops_localsettings_php: {{ corpusops_localsettings_php }}
       provision_corpusops_localsettings_pkgmgr: {{ corpusops_localsettings_pkgmgr }}
       provision_corpusops_localsettings_profile: {{ corpusops_localsettings_profile }}
