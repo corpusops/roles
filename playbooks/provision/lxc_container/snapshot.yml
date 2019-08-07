@@ -13,10 +13,14 @@
       cacheable: false
       corpusops_lxc_from_container: "{{container}}"
       corpusops_lxc_container_name: "{{image}}"
+  - stat: {path: "/var/lib/lxc/{{image}}/rootfs"}
+    register: alreadythere
   - include_role: {public: false, name: corpusops.roles/lxc_create}
     vars: {corpusops_lxc_auto_start: "0"}
+    when: not alreadythere.stat.exists
   - include_role: {public: false, name: corpusops.roles/lxc_start}
     vars: {corpusops_lxc_container_name: "{{image}}"}
+    when: not alreadythere.stat.exists
   - block:
     - name: "Synchronise image from container"
       shell: |
