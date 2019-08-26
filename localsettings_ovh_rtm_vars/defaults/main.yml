@@ -1,0 +1,18 @@
+---
+corpusops_localsettings_ovh_rtm_cops_do_format_resolve: false
+corpusops_localsettings_ovh_rtm_cops_computed_defaults: []
+corpusops_localsettings_ovh_rtm_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_localsettings_ovh_rtm_cops_sub_os_append: {}
+corpusops_localsettings_ovh_rtm_cops_lowered: []
+corpusops_localsettings_ovh_rtm_cops_knobs: ['files', 'filescopy', 'services', 'configs', 'packages',
+                      'rtms']
+corpusops_localsettings_ovh_rtm_cops_sub_namespaces:
+  settings: {}
+corpusops_localsettings_ovh_rtm_packages: null
+corpusops_localsettings_ovh_rtm_packages_default: []
+corpusops_localsettings_ovh_rtm_packages_debian: []
+corpusops_localsettings_ovh_rtm_configs: []
+# - {name: /etc/rtm/rtmrc.corpusops, mode: 644}
+corpusops_localsettings_ovh_rtm_files: []
+#  - { path: /etc/rtm, state: directory, user: root, group: root, mode: 755 }
+#  - { path: /etc/rtm/rtmrc, state: touch, user: root, group: root, mode: 644 }
