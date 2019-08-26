@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_ovh_rtm preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_ovh_rtm | default(True) }}"
+  register: corpusops_localsettings_ovh_rtm_can_run
+  tags: corpusops_localsettings_ovh_rtm
+- include_tasks: run.yml
+  when: 'corpusops_localsettings_ovh_rtm_can_run.msg == True'
+  tags: corpusops_localsettings_ovh_rtm

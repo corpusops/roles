@@ -42,6 +42,7 @@
       {% set corpusops_localsettings_sysctls         = corpusops_localsettings_sysctls          | default(not is_docker) %}
       {% set corpusops_localsettings_timezone        = corpusops_localsettings_timezone         | default(True) %}
       {% set corpusops_localsettings_vim             = corpusops_localsettings_vim              | default(not is_docker) %}
+      {% set corpusops_localsettings_ovh_rtm         = corpusops_localsettings_ovh_rtm          | default(False) %}
       {% set corpusops_localsettings_monitoring      = corpusops_localsettings_monitoring       | default(False) %}
       {% set corpusops_localsettings_burp            = corpusops_localsettings_burp             | default(False) %}
       {% set corpusops_services_backup_dbsmartbackup = corpusops_services_backup_dbsmartbackup  | default(False) %}
@@ -114,6 +115,7 @@
       provision_corpusops_localsettings_supervisor: {{ corpusops_localsettings_supervisor }}
       provision_corpusops_localsettings_sysctls: {{ corpusops_localsettings_sysctls }}
       provision_corpusops_localsettings_vim: {{ corpusops_localsettings_vim }}
+      provision_corpusops_localsettings_ovh_rtm: {{ corpusops_localsettings_ovh_rtm }}
       provision_corpusops_localsettings_burp: {{ corpusops_localsettings_burp }}
       provision_corpusops_localsettings_monitoring: {{ corpusops_localsettings_monitoring }}
       provision_corpusops_services_backup_dbsmartbackup: {{ corpusops_services_backup_dbsmartbackup }}
@@ -191,6 +193,9 @@
 - include_role: {public: false, name: corpusops.roles/localsettings_vim}
   tags: [vim]
   when: [provision_corpusops_localsettings_vim]
+- include_role: {public: false, name: corpusops.roles/localsettings_ovh_rtm}
+  tags: [ovh_rtm]
+  when: [provision_corpusops_localsettings_ovh_rtm]
 - include_role: {public: false, name: corpusops.roles/localsettings_burp}
   tags: [burp]
   when: [provision_corpusops_localsettings_burp]

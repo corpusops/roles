@@ -15,5 +15,10 @@
           corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades       |default(not is_container)}}
           corpusops_services_firewall_ms_iptables: {{ corpusops_services_firewall_ms_iptables |default(not is_docker)}}
           corpusops_services_firewall_fail2ban: {{ corpusops_services_firewall_fail2ban |default(not is_docker)}}
+          corpusops_localsettings_ovh_rtm: {{ corpusops_localsettings_ovh_rtm |default(
+            "ovh" in ansible_fqdn or "ovh" in inventory_hostname or
+            "soyoustart" in ansible_fqdn or "soyoustart" in inventory_hostname or
+            "sys" in ansible_fqdn or "sys" in inventory_hostname
+            )}}
       tags: prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision
 - import_playbook: ./server.yml
