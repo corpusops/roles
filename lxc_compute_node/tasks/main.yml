@@ -1,25 +1,3 @@
 - include_role: {public: false, name: corpusops.roles/services_virt_lxc}
   tags: [lxc_setup]
-- shell: haproxy -v
-  register: haproxy_version
-  tags: [lxc_haproxy, lxc_haproxy_registrations]
-  failed_when: false
-  changed_when: false
-- include_role: {public: false, name: corpusops.roles/services_proxy_haproxy}
-  tags: [lxc_haproxy]
-- block:
-  - include_role: {public: false, name: corpusops.roles/haproxy_registrations}
-  - service: {name: haproxy, state: "{{('{0}'.format(haproxy_version.rc)=='0') and 'reloaded' or 'restarted'}}"}
-  tags: [lxc_haproxy_registrations]
-- include_role: {public: false, name: corpusops.roles/services_firewall_ms_iptables}
-  tags: [lxc_firewall]
-- block:
-  - include_role: {public: false, name: corpusops.roles/ms_iptables_registrations}
-  - service: {name: ms_iptables, state: reloaded}
-  tags: [lxc_ms_iptables_registrations]
-- block:
-  - include_role: {public: false, name: corpusops.roles/localsettings_certbot}
-    tags: [lxc_letsencrypt_setup]
-  - shell: "/home/certbot/le_renew.sh"
-    tags: [lxc_letsencrypt_renew]
-  tags: [lxc_letsencrypt]
+- include_role: {public: false, name: corpusops.roles/compute_node}

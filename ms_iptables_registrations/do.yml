@@ -1,0 +1,3 @@
+---
+- hosts: all
+  roles: [corpusops.roles/ms_iptables_registrations/do]
