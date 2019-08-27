@@ -1,0 +1,6 @@
+---
+- hosts: "{{compute_node|default('all')}}"
+  roles:
+  - {name: corpusops.roles/vars}
+  - {name: corpusops.roles/compute_node}
+
