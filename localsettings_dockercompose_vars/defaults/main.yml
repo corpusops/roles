@@ -35,12 +35,10 @@ corpusops_localsettings_dockercompose_repo: null
 corpusops_localsettings_dockercompose_packages: []
 corpusops_localsettings_dockercompose_debug: "1"
 # compiled just in time variables (recursive variables)
-_corpusops_localsettings_dockercompose_alternatives:
+_corpusops_localsettings_dockercompose_bins:
   docker-compose:
-    target: "{{corpusops_localsettings_dockercompose_install_path}}/bin/docker-compose"
-    bins:
-      - manualdockercompose:
-          target: "{{_corpusops_localsettings_dockercompose_app_path}}/{{corpusops_localsettings_dockercompose_bin}}"
+    path: "{{corpusops_localsettings_dockercompose_install_path}}/bin/docker-compose"
+    src: "{{_corpusops_localsettings_dockercompose_app_path}}/{{corpusops_localsettings_dockercompose_bin}}"
 _corpusops_localsettings_dockercompose_app_path: "{{corpusops_core_apps_path}}/docker-compose-{{version}}"
 _corpusops_localsettings_dockercompose_archive: "{{corpusops_localsettings_dockercompose_bin}}"
 _corpusops_localsettings_dockercompose_urls:

@@ -59,8 +59,12 @@
   vars: {_archive: "{{item.msg._archive}}"}
   with_items: "{{corpusops_localsettings_dockercompose_archives.results}}"
 #
-- include_role: {name: corpusops.roles/set_alternatives}
+- name: "link {{item.key}}"
+  file:
+    force: true
+    state: link
+    src: "{{item.value.src}}"
+    path: "{{item.value.path}}"
   vars:
     version: "{{corpusops_localsettings_dockercompose_vars.version}}"
-    alternatives: "{{_corpusops_localsettings_dockercompose_alternatives}}"
-  when: "corpusops_localsettings_dockercompose_vars.version is not none"
+  with_dict: "{{_corpusops_localsettings_dockercompose_bins}}"

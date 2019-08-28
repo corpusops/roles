@@ -21,17 +21,13 @@ corpusops_localsettings_dockermachine_debug: "1"
 corpusops_localsettings_dockermachine_url: "https://github.com/docker/machine/releases/download"
 corpusops_localsettings_dockermachine_sc_url: "https://github.com/scaleway/docker-machine-driver-scaleway/releases/download"
 # compiled just in time variables (recursive variables)
-_corpusops_localsettings_dockermachine_alternatives:
+_corpusops_localsettings_dockermachine_bins:
   docker-machine:
-    target: "{{corpusops_localsettings_dockermachine_install_path}}/bin/docker-machine"
-    bins:
-      - manualdockermachine:
-          target: "{{_corpusops_localsettings_dockermachine_app_path}}/{{corpusops_localsettings_dockermachine_bin}}"
+    path: "{{corpusops_localsettings_dockermachine_install_path}}/bin/docker-machine"
+    src: "{{_corpusops_localsettings_dockermachine_app_path}}/{{corpusops_localsettings_dockermachine_bin}}"
   docker-machine-driver-scaleway:
-    target: "{{corpusops_localsettings_dockermachine_install_path}}/bin/docker-machine-driver-scaleway"
-    bins:
-      - manualdockermachinesc:
-          target: "{{_corpusops_localsettings_dockermachine_app_path}}/{{corpusops_localsettings_dockermachine_sc_bin}}"
+    path: "{{corpusops_localsettings_dockermachine_install_path}}/bin/docker-machine-driver-scaleway"
+    src: "{{_corpusops_localsettings_dockermachine_app_path}}/{{corpusops_localsettings_dockermachine_sc_bin}}"
 _corpusops_localsettings_dockermachine_app_path: "{{corpusops_core_apps_path}}/docker-machine-{{version}}"
 _corpusops_localsettings_dockermachine_archive: "{{corpusops_localsettings_dockermachine_bin}}"
 _corpusops_localsettings_dockermachine_sc_archive: "docker-machine-driver-scaleway_{{corpusops_localsettings_dockermachine_sc_version}}_{{corpusops_localsettings_dockermachine_sc_platform}}_{{corpusops_localsettings_dockermachine_sc_arch}}{%
