@@ -1,0 +1,11 @@
+- shell: haproxy -v
+  register: haproxy_version
+  tags: [haproxy, haproxy_registrations]
+  failed_when: false
+  changed_when: false
+- include_role: {public: false, name: corpusops.roles/services_proxy_haproxy}
+  tags: [haproxy, haproxy_setup]
+- block:
+  - include_role: {public: false, name: corpusops.roles/haproxy_registrations}
+  - service: {name: haproxy, state: "{{('{0}'.format(haproxy_version.rc)=='0') and 'reloaded' or 'restarted'}}"}
+  tags: [haproxy, haproxy_registrations]

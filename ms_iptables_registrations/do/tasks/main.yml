@@ -1,0 +1,6 @@
+- include_role: {public: false, name: corpusops.roles/services_firewall_ms_iptables}
+  tags: [firewall]
+- block:
+  - include_role: {public: false, name: corpusops.roles/ms_iptables_registrations}
+  - service: {name: ms_iptables, state: reloaded}
+  tags: [ms_iptables_registrations]

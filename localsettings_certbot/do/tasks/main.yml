@@ -1,0 +1,6 @@
+- block:
+  - include_role: {public: false, name: corpusops.roles/localsettings_certbot}
+    tags: [letsencrypt_setup]
+  - shell: "/home/certbot/le_renew.sh"
+    tags: [letsencrypt_renew]
+  tags: [letsencrypt]
