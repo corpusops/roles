@@ -49,9 +49,21 @@
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
   with_items: "{{corpusops_localsettings_dockermachine_sc_archives.results}}"
-#
-- include_role: {name: corpusops.roles/set_alternatives}
+# 
+- file:
+    force: true
+    state: link
+    path: "{{corpusops_localsettings_dockermachine_install_path}}/bin/docker-machine"
+    src: "{{_corpusops_localsettings_dockermachine_app_path}}/{{corpusops_localsettings_dockermachine_bin}}"
   vars:
     version: "{{corpusops_localsettings_dockermachine_vars.version}}"
-    alternatives: "{{_corpusops_localsettings_dockermachine_alternatives}}"
   when: "corpusops_localsettings_dockermachine_vars.version is not none"
+- name: "link {{item.key}}"
+  file:
+    force: true
+    state: link
+    src: "{{item.value.src}}"
+    path: "{{item.value.path}}"
+  vars:
+    version: "{{corpusops_localsettings_dockermachine_vars.version}}"
+  with_dict: "{{_corpusops_localsettings_dockermachine_bins}}"
