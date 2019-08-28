@@ -14,6 +14,7 @@
       {% endif %}
       {% set corpusops_localsettings_autoupgrades    = corpusops_localsettings_autoupgrades     | default(corpusops_vars.security) %}
       {% set corpusops_localsettings_basepkgs        = corpusops_localsettings_basepkgs         | default(True) %}
+      {% set corpusops_localsettings_certbot         = corpusops_localsettings_certbot          | default(False) %}
       {% set corpusops_localsettings_hostname        = corpusops_localsettings_hostname         | default(False) %}
       {% set corpusops_localsettings_dockercompose   = corpusops_localsettings_dockercompose    | default(False) %}
       {% set corpusops_localsettings_docker          = corpusops_localsettings_docker           | default(False) %}
@@ -68,6 +69,11 @@
       {% set corpusops_services_proxy_haproxy        = corpusops_services_proxy_haproxy         | default(False) %}
       {% set corpusops_services_virt_docker          = corpusops_services_virt_docker           | default(False) %}
       {% set corpusops_services_virt_lxc             = corpusops_services_virt_lxc              | default(False) %}
+      {% set corpusops_do_certbot                    = corpusops_do_certbot                     | default(False) %}
+      {% set corpusops_do_haproxy_registrations      = corpusops_do_haproxy_registrations       | default(False) %}
+      {% set corpusops_do_ms_iptables_registrations  = corpusops_do_ms_iptables_registrations   | default(False) %}
+      {% set corpusops_do_compute_node               = corpusops_do_compute_node                | default(False) %}
+      {% set corpusops_do_lxc_compute_node           = corpusops_do_lxc_compute_node            | default(False) %}
       {% set corpusops_switch_to_systemd_resolved    = corpusops_switch_to_systemd_resolved     | default(bionic_and_later) %}
       {% set corpusops_sslcerts                      = corpusops_sslcerts                       | default(True) %}
       {% set corpusops_sshkeys                       = corpusops_sshkeys                        | default(True) %}
@@ -82,6 +88,12 @@
       {% set corpusops_localsettings_dns = (
             corpusops_localsettings_dns_servers or
             corpusops_localsettings_dns_search) | length > 0 %}
+      provision_corpusops_do_ms_iptables_registrations: {{ corpusops_do_ms_iptables_registrations }}
+      provision_corpusops_do_certbot: {{ corpusops_do_certbot }}
+      provision_corpusops_do_haproxy_registrations: {{ corpusops_do_haproxy_registrations }}
+      provision_corpusops_localsettings_certbot: {{ corpusops_localsettings_certbot }}
+      provision_corpusops_do_compute_node: {{ corpusops_do_compute_node }}
+      provision_corpusops_do_lxc_compute_node: {{ corpusops_do_lxc_compute_node }}
       provision_corpusops_localsettings_apparmor: {{ corpusops_localsettings_apparmor }}
       provision_corpusops_localsettings_autoupgrades: {{ corpusops_localsettings_autoupgrades }}
       provision_corpusops_localsettings_hostname: {{ corpusops_localsettings_hostname }}
@@ -328,3 +340,18 @@
 - include_role: {public: false, name: corpusops.roles/sslcerts}
   tags: [sslcerts]
   when: [provision_corpusops_sslcerts]
+- include_role: {public: false, name: corpusops.roles/compute_node}
+  tags: [compute_node]
+  when: [provision_corpusops_do_compute_node]
+- include_role: {public: false, name: corpusops.roles/lxc_compute_node}
+  tags: [lxc_compute_node]
+  when: [provision_corpusops_do_lxc_compute_node]
+- include_role: {public: false, name: corpusops.roles/haproxy_registrations/do}
+  tags: [haproxy_registrations]
+  when: [provision_corpusops_do_haproxy_registrations]
+- include_role: {public: false, name: corpusops.roles/ms_iptables_registrations/do}
+  tags: [ms_iptables_registrations]
+  when: [provision_corpusops_do_ms_iptables_registrations]
+- include_role: {public: false, name: corpusops.roles/localsettings_certbot/do}
+  tags: [certbot]
+  when: [provision_corpusops_do_certbot]
