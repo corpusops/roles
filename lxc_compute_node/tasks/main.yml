@@ -1,3 +1,5 @@
 - include_role: {public: false, name: corpusops.roles/services_virt_lxc}
   tags: [lxc_setup]
 - include_role: {public: false, name: corpusops.roles/compute_node}
+  tags: [lxc_haproxy_registrations, lxc_ms_iptables_registrations, letsencrypt,
+         haproxy, ms_iptables, certbot]
