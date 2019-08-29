@@ -13,4 +13,5 @@
   when:
   - "corpusops_localsettings_dns_can_run.msg == True"
   - "corpusops_localsettings_dns_vars.use_systemd_resolved"
+  - "not corpusops_vars.is_docker"
   tags: corpusops_localsettings_dns
