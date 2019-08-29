@@ -6,7 +6,8 @@
   - include_role: {name: corpusops.roles/lxc_register}
 - hosts: "{{lxc_container_name}}"
   tasks:
-  - include_role: {public: false, name: corpusops.roles/provision/server}
+  - block:
+    - include_role: {public: false, name: corpusops.roles/provision/server}
     vars:
       corpusops_localsettings_autoupgrades: True
       corpusops_localsettings_basepkgs: True
@@ -26,7 +27,7 @@
       corpusops_services_base_sshd: True
       # docker-compose fail when in a full provision (a bug)
       # deactivating in the meanwhile
-      # corpusops_services_virt_docker: "{{lxc_docker_in_lxc|default(lxc_docker|default('docker' in lxc_container_name))}}"
+      corpusops_services_virt_docker: "{{lxc_docker_in_lxc|default(lxc_docker|default('docker' in lxc_container_name))}}"
       # To reactivate maybe at a later time
       # corpusops_localsettings_sysctls: False
       # no use in LXC by default
