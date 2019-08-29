@@ -66,7 +66,7 @@ local_ips="$(ip -o addr \
             | sed -e "s/\/.*//g")"
 PREFERED_CHALLENGES="{{d.preferred_challenges|join(' ')}}"
 CERTBOT_IPS="${CERTBOT_IPS:-"
-{{corpusops_network_live_ext_ip}}
+{{corpusops_network_live_ext_ip|default(vars.get('ansible_default_ipv4', {}).get('address', ''))}}
 $local_ips
 "}"
 updated=""
