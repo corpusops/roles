@@ -1,6 +1,6 @@
 - include_role: {name: corpusops.roles/haproxy_registrations/do}
-  tags: [haproxy] 
+  tags: [haproxy, lxc_haproxy_registrations]
 - include_role: {name: corpusops.roles/ms_iptables_registrations/do}
-  tags: [ms_iptables]
+  tags: [ms_iptables, lxc_ms_iptables_registrations]
 - include_role: {name: corpusops.roles/localsettings_certbot/do}
-  tags: [certbot]
+  tags: [certbot, letsencrypt]
