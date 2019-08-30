@@ -3,4 +3,14 @@ corpusops_localsettings_dns_enabled: false
 corpusops_localsettings_dns_servers: []
 corpusops_localsettings_dns_search: []
 corpusops_localsettings_dns_configs:
-  - {name: /usr/bin/ms-resolv-conf.sh, mode: '755'}
+- {name: /usr/bin/ms-resolv-conf.sh, mode: '755'}
+corpusops_localsettings_dns_systemd_configs:
+- {name: //etc/systemd/resolved.conf, mode: '0644'}
+corpusops_localsettings_dns_use_systemd_resolved: |-
+  {% set res = {'r': false} %}
+  {%- if ansible_distribution.lower() in ['ubuntu', 'mint'] %}
+  {%-  if ansible_distribution_version|copsf_looseversion >= '18.04'|copsf_looseversion %}
+  {%     set _ = res.update({'r': true}) %}
+  {%-  endif %}
+  {%- endif %}
+  {{ res.r | to_json }}
