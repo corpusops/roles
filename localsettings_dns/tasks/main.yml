@@ -5,5 +5,12 @@
   register: corpusops_localsettings_dns_can_run
   tags: corpusops_localsettings_dns
 - include_tasks: run.yml
-  when: "corpusops_localsettings_dns_can_run.msg == True"
+  when:
+  - "corpusops_localsettings_dns_can_run.msg == True"
+  - "not corpusops_localsettings_dns_vars.use_systemd_resolved"
+  tags: corpusops_localsettings_dns
+- include_tasks: run_systemd.yml
+  when:
+  - "corpusops_localsettings_dns_can_run.msg == True"
+  - "corpusops_localsettings_dns_vars.use_systemd_resolved"
   tags: corpusops_localsettings_dns

@@ -1,0 +1,14 @@
+---
+- name: configs
+  template:
+    src: "../templates/{{item.name}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
+  with_items: "{{corpusops_localsettings_dns_vars.systemd_configs}}"
+  when: "(corpusops_localsettings_dns_vars.configs is not none and
+          corpusops_localsettings_dns_vars.configs|length > 0)"
+  tags: corpusops_localsettings_dns
+- include_role: {name: corpusops.roles/switch_to_systemd_resolved}
