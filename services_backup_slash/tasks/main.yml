@@ -1,0 +1,21 @@
+---
+- name: "corpusops_services_backup_slash preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_backup_slash | default(True) }}"
+  register: corpusops_services_backup_slash_can_run
+  tags: [corpusops_services_backup_slash]
+- include_tasks: prerequisites.yml
+  when: 'corpusops_services_backup_slash_can_run.msg == True'
+  tags: [corpusops_services_backup_slash,
+         backup_prerequisites,
+         corpusops_services_backup_slash_prerequisites]
+- include_tasks: configuration.yml
+  when: 'corpusops_services_backup_slash_can_run.msg == True'
+  tags: [corpusops_services_backup_slash,
+         backup_configuration,
+         corpusops_services_backup_slash_configuration]
+- include_tasks: services.yml
+  when: 'corpusops_services_backup_slash_can_run.msg == True'
+  tags: [corpusops_services_backup_slash,
+         backup_services,
+         corpusops_services_backup_slash_services]

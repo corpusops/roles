@@ -1,0 +1,16 @@
+- file:
+    state: directory
+    path: "{{item.value.odir}}"
+- file:
+    state: directory
+    path: "{{item.value.ddir}}"
+
+- debug: {msg: "{{ansible_facts.mounts}}"}
+- mount:
+    path: "{{item.value.odir}}"
+    src: "{{item.value.device}}"
+    fstype: "{{item.value.fstype}}"
+    opts: "{{item.value.options|regex_replace(',?(no)?auto', '')+',noauto'}}"
+    state: mounted
+  register: mountedregistered
+  when: item.value.do_mount

@@ -1,0 +1,86 @@
+---
+- debug:
+    msg: |-
+      {%- set data = {} %}
+      {%- set odirs = {} %}
+      {%- for m in ansible_facts.mounts %}
+      {%- if (
+            (m.fstype|regex_search('(brtfs|ext(4|3|2))'))
+            and corpusops_services_backup_slash_dest_dir not in m.device
+            and corpusops_services_backup_slash_dest_dir not in m.mount
+            and not (m.options|regex_search(corpusops_services_backup_slash_options_filter))
+            and not (m.device|regex_search(corpusops_services_backup_slash_filter))
+            and not (m.mount|regex_search(corpusops_services_backup_slash_filter))
+        ) %}
+      {% set k = m.mount.replace('/', 'SLASH') %}
+      {%- set _ = m.update({
+          'k': k,
+          'do_mount': True,
+          'ddir': '{0}/{1}'.format(corpusops_services_backup_slash_dest_dir, k),
+          'odir': '{0}/{1}'.format(corpusops_services_backup_slash_dir, k)}) %}
+      {%- set _ = data.update({k: m}) %}
+      {%- set _ = odirs.update({m.odir: m}) %}
+      {%- endif %}
+      {%- endfor %}
+      {%- for i, idata in odirs.items() %}
+      {%-  for m in ansible_facts.mounts %}
+      {%-     if i == m.mount or idata.odir == m.mount %}
+      {%-       set _ = data[idata.k].update({'do_mount': False}) %}
+      {%-     endif %}
+      {%-   endfor %}
+      {%- endfor %}
+      {{- data|to_json}}
+  register: backup_slash_to_backup_backups
+- include_tasks: mount.yml
+  with_dict: "{{backup_slash_to_backup_backups.msg}}"
+- name: files
+  file:
+    path: "{{item.path}}"
+    state: "{{item.state|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_backup_slash_vars.files}}"
+  when: "(corpusops_services_backup_slash_vars.files is not none and
+          corpusops_services_backup_slash_vars.files|length > 0)"
+  register: corpusops_services_backup_slash_filest
+  tags: [backup_configs]
+- name: files copy
+  copy:
+    dest: "{{item.dest|default(omit)}}"
+    src: "{{item.template
+            | default('../templates/'+item.dest)}}"
+    force: "{{item.get('force', True)}}"
+    mode: "{{item.mode|default(omit)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    recurse: "{{item.recurse|default(omit)}}"
+  with_items: "{{corpusops_services_backup_slash_vars.filescopy}}"
+  when: "(corpusops_services_backup_slash_vars.filescopy is not none and
+          corpusops_services_backup_slash_vars.filescopy|length > 0)"
+  register: corpusops_services_backup_slash_filesct
+  tags: [backup_configs]
+- name: configs
+  template:
+    src: "{{item.template
+            | default('../templates/'+item.name)}}"
+    dest: "{{item.name}}"
+    mode: "{{item.mode|default(omit)}}"
+    force: "{{item.force|default(True)}}"
+    owner: "{{item.owner|default(omit)}}"
+    group: "{{item.group|default(omit)}}"
+    trim_blocks: "{{item.trim_blocks|default(False)}}"
+  with_items: "{{corpusops_services_backup_slash_vars.configs}}"
+  when: "(corpusops_services_backup_slash_vars.configs is not none and
+          corpusops_services_backup_slash_vars.configs|length > 0)"
+  register: corpusops_services_backup_slash_configst
+- set_fact:
+    cacheable: false
+    corpusops_services_backup_slash_configs_changed: "{{(
+       corpusops_services_backup_slash_filest.changed or
+       corpusops_services_backup_slash_filesct.changed or
+       corpusops_services_backup_slash_configst.changed)}}"
+  tags: [backup_configs]
+- meta: flush_handlers
