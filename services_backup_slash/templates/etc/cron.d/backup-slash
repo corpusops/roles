@@ -1,0 +1,2 @@
+MAILTO="{{corpusops_services_backup_slash_vars.cron_mailto}}"
+{{corpusops_services_backup_slash_vars.cron}}
