@@ -28,6 +28,8 @@ corpusops_localsettings_docker_repo_fedora: 'https://download.docker.com/linux/f
 corpusops_localsettings_docker_py_packages: ["docker[tls]>=3.3.0"]
 # corpusops_localsettings_docker_py_packages: ["https://github.com/corpusops/docker-py/archive/ddcca89aceaaf13c4c74fe81bf9323b8018b004d.zip#egg=docker[tls]"]
 corpusops_localsettings_docker_packages: null
+corpusops_localsettings_docker_packages_redhat: [
+  gnupg2, python-pip, docker-ce]
 corpusops_localsettings_docker_packages_default: [
   gnupg2, pass, python-pip, docker-ce]
 corpusops_localsettings_docker_files: null
