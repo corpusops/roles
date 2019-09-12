@@ -5,5 +5,7 @@
   register: corpusops_switch_to_systemd_resolved_can_run
   tags: corpusops_switch_to_systemd_resolved
 - include_tasks: run.yml
-  when: "corpusops_switch_to_systemd_resolved_can_run.msg == True"
+  when:
+  - "corpusops_switch_to_systemd_resolved_can_run.msg == True"
+  - not corpusops_core_is_docker|default(false)
   tags: corpusops_switch_to_systemd_resolved
