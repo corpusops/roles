@@ -42,6 +42,8 @@ corpusops_services_ftp_pureftpd_files_default:
      owner: root, group: root, state: directory, mode: "0755"}
   - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/pureftpd.passwd",
      owner: "root", group: "root", state: touch, mode: "0644"}
+corpusops_services_ftp_pureftpd_use_ppa: "{% if ansible_os_family.lower() in ['debian']%}True{%else%}False{%endif%}"
+corpusops_services_ftp_pureftpd_repo_debian: "ppa:corpusops/pure-ftpd"
 corpusops_services_ftp_pureftpd_filescopy: null
 corpusops_services_ftp_pureftpd_filescopy_default: []
 corpusops_services_ftp_pureftpd_files_apt: []
