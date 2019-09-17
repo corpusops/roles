@@ -1,4 +1,30 @@
 ---
+- name: install services_ftp_pureftpd repokey
+  apt_key:
+    id: '{{item}}'
+    keyserver: "{{corpusops_services_ftp_pureftpd_vars.keyserver}}"
+    state: present
+  with_items: '{{corpusops_services_ftp_pureftpd_vars.repo_keys}}'
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_ftp_pureftpd_vars.repo_keys is not none and
+          corpusops_services_ftp_pureftpd_vars.repo_keys|length > 0)"
+  register: corpusops_services_ftp_pureftpd_key
+- name: install services_ftp_pureftpd repo
+  apt_repository:
+    repo: '{{corpusops_services_ftp_pureftpd_vars.repo}}'
+    filename: services_ftp_pureftpd
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+           corpusops_services_ftp_pureftpd_vars.use_ppa and
+           corpusops_services_ftp_pureftpd_vars.repo is not none)"
+  register: corpusops_services_ftp_pureftpd_repoa
+- name: deinstall services_ftp_pureftpd repo
+  file:
+    state: absent
+    path: '/etc/apt/sources.list.d/services_ftp_pureftpd.list'
+  when: "not corpusops_services_ftp_pureftpd_vars.use_ppa"
+  register: corpusops_services_ftp_pureftpd_repoda
+
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
@@ -20,6 +46,17 @@
           corpusops_services_ftp_pureftpd_vars.packages is not none and
           corpusops_services_ftp_pureftpd_vars.packages|length > 0)"
   with_items: "{{corpusops_services_ftp_pureftpd_vars.packages}}"
+- name: verify installed php packages when backward from ppa
+  package:
+    cache_valid_time: '1'
+    update_cache: yes
+    name: "{{item}}"
+    state: latest
+  with_items: '{{corpusops_services_ftp_pureftpd_vars.packages}}'
+  register: corpusops_services_ftp_pureftpd_pkgstd
+  when: "(corpusops_services_ftp_pureftpd_repoda.changed or
+          corpusops_services_ftp_pureftpd_vars.use_ppa)"
+#
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -61,5 +98,5 @@
 - set_fact:
     cacheable: false
     corpusops_services_ftp_pureftpd_prequisites_changed: "{{(
-         corpusops_services_ftp_pureftpd_pkgst.changed 
+         corpusops_services_ftp_pureftpd_pkgst.changed
        )}}"
