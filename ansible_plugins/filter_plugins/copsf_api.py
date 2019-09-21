@@ -1248,8 +1248,17 @@ def copsf_refilter(items, regex, flags=None,
     return ret
 
 
+def copsf_small_name(res):
+    if isinstance(res, six.string_types):
+        res = res.replace(
+            '.', '_').replace(
+                '-', '_').replace(
+                    '*', 'star')
+    return res
+
 
 __funcs__ = {
+    'copsf_small_name': copsf_small_name,
     'copsf_refilter': copsf_refilter,
     'copsf_registry_and_defaults': registry_and_defaults,
     'copsf_uniquify': uniquify,
