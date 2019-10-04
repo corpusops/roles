@@ -5,6 +5,14 @@ if [ "x${DEBUG}" != "x" ];then set -x;fi
 ret=0
 REPO="{{d.repo_dir}}"
 W="$(dirname $(readlink -f "$0"))"
+
+fixperms() {
+    while read f;do
+        chown -Rvf {{d.user}} "$f"
+    done < <( cd {{d.home}}  && \
+        find *.ini propagate_* le_*.sh *_challenge.sh letsencrypt 2>/dev/null -not -user {{d.user}}  )
+}
+
 {% set dnsc='#' %}
 {% if d.dns %}
 {% set dnsc='' %}
@@ -12,6 +20,7 @@ W="$(dirname $(readlink -f "$0"))"
 {{dnsc}}if ! ( su {{d.user}} -c "{{d.home}}/dns_challenge.sh" );then
 {{dnsc}}    ret=1
 {{dnsc}}fi
+{{dnsc}}fixperms
 
 {% set httpc='#' %}
 {% if d.http %}
@@ -20,6 +29,7 @@ W="$(dirname $(readlink -f "$0"))"
 {{httpc}}if ! ( su {{d.user}} -c "{{d.home}}/http_challenge.sh" );then
 {{httpc}}    ret=1
 {{httpc}}fi
+{{httpc}}fixperms
 
 {% set propagatec='#' %}
 {% if d.propagate %}
@@ -28,6 +38,7 @@ W="$(dirname $(readlink -f "$0"))"
 {{propagatec}}if ! ( su {{d.user}} -c "{{d.home}}/le_propagate.sh" );then
 {{propagatec}}    ret=1
 {{propagatec}}fi
+{{propagatec}}fixperms
 
 {% set pullc='#' %}
 {% if d.pull %}
@@ -36,6 +47,7 @@ W="$(dirname $(readlink -f "$0"))"
 {{pullc}}if ! ( su {{d.user}} -c "{{d.home}}/le_pull.sh" );then
 {{pullc}}    ret=1
 {{pullc}}fi
+{{pullc}}fixperms
 
 {% set haproxyc='#' %}
 {% if d.haproxy %}
@@ -44,11 +56,13 @@ W="$(dirname $(readlink -f "$0"))"
 {{haproxyc}}if ! ( {{d.home}}/le_haproxy.sh; );then
 {{haproxyc}}    ret=1
 {{haproxyc}}fi
+{{haproxyc}}fixperms
 
 {{pullc}}if [ -e "$REPO/live" ] && [ -e "$REPO/haproxy" ] && [ -e "$W/le_haproxy.sh" ];then
 {{pullc}}    CERTBOT_LIVE_DIR="$REPO/live" \
 {{pullc}}        "$W/le_haproxy.sh"
 {{pullc}}fi
+{{pullc}}fixperms
 
 exit $ret
 # vim:set et sts=4 ts=4 tw=0:
