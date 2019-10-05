@@ -39,7 +39,8 @@
         mst =  !git mstn && git mste
         rn = config user.email "regis.leroy@makina-corpus.com"
         re = config user.name 'Régis Leroy'
-        r =  !git rn && git re
+        rle =  !git rn && git re
+        r = !"f() { git reset $@; git checkout $@; }; f"
         kn = config user.email "kiorky@cryptelium.net"
         ke = config user.name 'Mathieu Le Marec - Pasquet'
         k =  !git kn && git ke
