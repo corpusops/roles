@@ -1,0 +1,21 @@
+- hosts: mastersalt
+  roles: ["corpusops.roles/ansible_plugins"]
+  tasks:
+  - blockinfile:
+      path: "~/.ssh/config"
+      insertafter: EOF
+      marker: "# {mark} ANSIBLE inv2ssh MANAGED BLOCK"
+      block: |-
+        {% for h in groups['all']|sort|copsf_uniquify
+         %}{% set hvars = hostvars[h]
+         %}{% if not hvars.get('ansible_connection', '') == 'local' %}
+        # {{h}} / {{ hvars.get('ansible_connection', 'ssh') }}
+        Host {{hvars.inventory_hostname}}
+        Hostname {{hvars.get('ansible_host', hvars.inventory_hostname)}}
+        {% if hvars.get('ssh_proxycommand', '') %}
+        ProxyCommand {{hvars.ssh_proxycommand}}
+        {% elif hvars.ssh_port|default(none)%}
+        Port {{hvars.get('ssh_port', 22)}}
+        {%- endif %}
+
+        {%endif%}{% endfor %}
