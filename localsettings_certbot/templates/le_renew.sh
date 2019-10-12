@@ -64,5 +64,18 @@ fixperms() {
 {{pullc}}fi
 {{pullc}}fixperms
 
+{% if pullc or httpc or dnsc %}
+{% set etcsslc = '' %}
+{% else %}
+{% set etcsslc = '#' %}
+{% endif %}
+{{etcsslc}}if ( find "{{d.home}}" -name live -type d | egrep . ) && [ -e "/etc/ssl" ];then
+{{etcsslc}}while read f;do rsync -aL "$f/" "/etc/ssl/letsencrypt/";done < <(find "{{d.home}}" -name live -type d)
+{{etcsslc}}chown -Rf root:root "/etc/ssl/letsencrypt/"
+{{etcsslc}}while read f;do chmod -v 0751 "$f";done < <(find "/etc/ssl/letsencrypt" -type d)
+{{etcsslc}}while read f;do chmod -v 0644 "$f";done < <(find "/etc/ssl/letsencrypt" -type f)
+{{etcsslc}}fi
+{{etcsslc}}fixperms
+
 exit $ret
 # vim:set et sts=4 ts=4 tw=0:
