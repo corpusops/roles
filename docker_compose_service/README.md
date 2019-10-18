@@ -28,7 +28,6 @@
       files: [docker-compose.yml]
       # name of the systemd service to install, default to directory basename
       project: null
-      name: null  # default: $project (systemd unit name)
       service_activated: true/false
       args: common args for all cmds
       state: service state configured

@@ -1,7 +1,7 @@
 ---
 - template:
     src: systemd.unit
-    dest: "/etc/systemd/system/{{docker_compose_service_vars.name}}.service"
+    dest: "/etc/systemd/system/{{docker_compose_service_vars.project}}.service"
     mode: "0644"
     trim_blocks: false
   tags: [service, systemd]
@@ -10,7 +10,7 @@
   notify: [restart_docker_compose_service]
 - template:
     src: upstart.conf
-    dest: "/etc/init/{{docker_compose_service_vars.name}}.conf"
+    dest: "/etc/init/{{docker_compose_service_vars.project}}.conf"
     mode: "0644"
     trim_blocks: false
   tags: [service, upstart]
@@ -23,7 +23,7 @@
     name: "{{item}}"
     enabled: "{{docker_compose_service_vars.service_activated
                   | ternary(True, False)}}"
-  with_items: ["{{docker_compose_service_vars.name}}"]
+  with_items: ["{{docker_compose_service_vars.project}}"]
   tags: [service, systemd_do]
   when: "(corpusops_vars.has_services_manager and
           (docker_compose_service_vars.state|copsf_asbool) and
