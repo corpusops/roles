@@ -24,7 +24,8 @@ retry() {
 }
 retry 15 1 ping -q -W 4 -c 1 8.8.8.8
 if ! which python >/dev/null 2>/dev/null;then
-  retry 15 1 /bin/cops_pkgmgr_install.sh python
+  retry 15 1 /bin/cops_pkgmgr_install.sh python \
+    || DO_UPDATE=y retry 15 1 /bin/cops_pkgmgr_install.sh python
   if [ "x${?}" != "x0" ];then
       echo "cant install prerequisites" >&2
       exit 1
