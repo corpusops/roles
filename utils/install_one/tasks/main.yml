@@ -75,7 +75,6 @@
   vars:
     keys: "{{corpusops_uo_tests.msg.verify_gpg}}"
   loop_control: {loop_var: keyitem}
-  changed_when: false
   with_items: "{{corpusops_uo_tests.msg.verify_gpg}}"
   when: "(corpusops_uo_tests.msg.verify_gpg is not none and
           corpusops_uo_tests.msg.verify_gpg|length > 0)"
