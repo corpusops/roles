@@ -48,7 +48,7 @@ is_container() {
 
 filter_host_pids() {
     pids=""
-    if [ "x$(is_container)" != "x0" ];then
+    if [ "x$(is_container)" = "x0" ];then
         pids="${pids} $(echo "${@}")"
     else
         for pid in ${@};do
@@ -82,6 +82,7 @@ howner="{{d.haproxy_owner}}"
 hgroup="{{d.haproxy_group}}"
 reload_mode="{{d.haproxy_reload_mode}}"
 mincertsts=0
+HAPROXY_MAX_LIFETIMESECS=${HAPROXY_MAX_LIFETIMESECS:-{{d.haproxy_max_lifetime}}}
 if [ ! -e "$HAPROXY_CERTS_DIR" ];then
     log "haproxy certs dir $HAPROXY_CERTS_DIR doesnt exists, creating it"
     mkdir -p "$HAPROXY_CERTS_DIR"
@@ -127,6 +128,7 @@ while read d;do
 done < <(find "$CERTBOT_LIVE_DIR" -mindepth 1 -maxdepth 1 -type d)
 fi
 
+now_ts=$(date "+%s")
 if [[ -z ${SKIP_RELOAD} ]];then
     haproxy_pids=$(get_running_haproxy_pid)
     # restart haproxy also if it was started before any new certificate was placed
@@ -135,7 +137,8 @@ if [[ -z ${SKIP_RELOAD} ]];then
             for lstart in "$(ps axo pid,lstart|grep "$pid "|grep -v grep|head -n1)";do
                 dlstart=$(echo "$lstart"|cut -d " " -f2-|sed -e "s/^ //g")
                 ts=$(date -d "$dlstart" "+%s")
-                if [ $ts -le $mincertsts ];then
+                to_be_restarted_after=$(($ts+$HAPROXY_MAX_LIFETIMESECS))
+                if [ $to_be_restarted_after -le $now_ts ];then
                     reload=1
                 fi
             done
