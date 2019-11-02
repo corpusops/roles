@@ -489,18 +489,21 @@ iptables_mark_voip() {
     # VOIP routing
     iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF}       -m tos --tos 0xb8              -j MARK --set-mark ${CLASS_EGRESS_VOIP}
     iptables_ -t mangle -A PREROUTING  -i ${REAL_INGRESS_IF} -m tos --tos 0xb8          -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    for i in 5060 4569 5036;do
     #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --dport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --sport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --dport $i      -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p udp -m udp --sport $i      -j MARK --set-mark ${CLASS_EGRESS_VOIP}
     #
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --dport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
-    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --sport 4569           -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --dport $i      -j MARK --set-mark ${CLASS_EGRESS_VOIP}
+    iptables_ -t mangle -A POSTROUTING -o ${EGRESS_IF} -p tcp -m tcp --sport $i      -j MARK --set-mark ${CLASS_EGRESS_VOIP}
     #
-    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
-    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --dport $i -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p udp -m udp --sport $i -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
     #
-    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --dport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
-    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --sport 4569  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --dport $i  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    iptables_ -t mangle -A PREROUTING -i ${REAL_INGRESS_IF} -p tcp -m tcp --sport $i  -j CONNMARK --set-mark ${CLASS_INGRESS_VOIP}
+    #
+    done
     #
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${LASS_INGRESS_VOIP} -j RETURN
     iptables_ -t mangle -A PREROUTING  --match mark --mark ${CLASS_EGRESS_VOIP} -j RETURN
