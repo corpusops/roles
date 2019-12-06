@@ -5,7 +5,7 @@
     _cops_get_secret_variable:
       name: "corpusops_services_db_mysql_{{item}}"
       path: /etc/secrets
-  with_items: "{{corpusops_services_db_mysql_secret_variables}}"
+  loop: "{{corpusops_services_db_mysql_secret_variables|flatten(levels=1)}}"
 - include_jinja_vars:
     content: |-
       ---

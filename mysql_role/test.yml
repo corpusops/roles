@@ -15,7 +15,7 @@
         login_port: "{{corpusops_services_db_mysql_vars.client_port}}"
         login_user: "{{corpusops_services_db_mysql_vars.root_user}}"
         login_password: "{{corpusops_services_db_mysql_vars.root_password}}"
-      with_items:
+      loop:
         - mysql_role_udb2
         - mysql_role_udb3
     - include_role: {name: corpusops.roles/mysql_db}

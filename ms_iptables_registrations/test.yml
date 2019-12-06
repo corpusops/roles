@@ -4,7 +4,7 @@
     - file:
         path: "{{item}}"
         state: absent
-      with_items: ["/tmp/ms_iptables/test1.cfg"]
+      loop: ["/tmp/ms_iptables/test1.cfg"]
     - include_role: {name: corpusops.roles/ms_iptables_registrations}
       vars:
         _corpusops_ms_iptables_registrations:
@@ -16,7 +16,7 @@
           load_default_rules: true
     - stat: "path={{item}}"
       register: ms_iptables_test_files
-      with_items: ["/tmp/ms_iptables/test1.cfg"]
+      loop: ["/tmp/ms_iptables/test1.cfg"]
     - debug:
         msg: |
              {% set ret = {"r": True} %}

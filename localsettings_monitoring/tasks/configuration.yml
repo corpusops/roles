@@ -16,7 +16,7 @@
   - cops_service:
       state: started
       name: "{{item}}"
-    with_items: "{{vars['corpusops_localsettings_monitoring_sysstat_services']}}"
+    loop: "{{vars['corpusops_localsettings_monitoring_sysstat_services']|flatten(levels=1)}}"
 - tags: [monitoring_configs]
   block:
   - set_fact:

@@ -4,18 +4,18 @@
     state: directory
     mode: "0700"
   loop_control: {loop_var: bkey_path}
-  with_dict: "{{cops_deploy_ssh_key_paths}}"
+  loop: "{{cops_deploy_ssh_key_paths|dict2items}}"
 - copy:
     dest: "{{akey_path.value.path}}"
     content: "{{akey_path.value.private}}"
     mode: "0600"
     force: true
   loop_control: {loop_var: akey_path}
-  with_dict: "{{cops_deploy_ssh_key_paths}}"
+  loop: "{{cops_deploy_ssh_key_paths|dict2items}}"
 - copy:
     dest: "{{ckey_path.value.path}}.pub"
     content: "{{ckey_path.value.pub}}"
     mode: "0600"
     force: true
   loop_control: {loop_var: ckey_path}
-  with_dict: "{{cops_deploy_ssh_key_paths}}"
+  loop: "{{cops_deploy_ssh_key_paths|dict2items}}"

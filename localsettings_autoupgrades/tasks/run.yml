@@ -5,7 +5,7 @@
     update_cache: yes
     name: "{{item}}"
     state: latest
-  with_items: "{{corpusops_localsettings_autoupgrades_vars.packages}}"
+  loop: "{{corpusops_localsettings_autoupgrades_vars.packages|flatten(levels=1)}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and
           ansible_os_family.lower() in ['debian'] and
@@ -16,7 +16,7 @@
     update_cache: yes
     name: "{{item}}"
     state: present
-  with_items: "{{corpusops_localsettings_autoupgrades_vars.packages}}"
+  loop: "{{corpusops_localsettings_autoupgrades_vars.packages|flatten(levels=1)}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and
           ansible_os_family.lower() in ['redhat'] and
@@ -30,7 +30,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_autoupgrades_vars.configs}}"
+  loop: "{{corpusops_localsettings_autoupgrades_vars.configs|flatten(levels=1)}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.configs is not none and
           corpusops_localsettings_autoupgrades_vars.configs|length > 0)"
@@ -46,7 +46,7 @@
     daemon_reload: yes
     state: started
     enabled: yes
-  with_items: "{{corpusops_localsettings_autoupgrades_vars.services}}"
+  loop: "{{corpusops_localsettings_autoupgrades_vars.services|flatten(levels=1)}}"
   when: "(corpusops_localsettings_autoupgrades_vars.activated and
           corpusops_localsettings_autoupgrades_vars.services|length > 0 and
           (ansible_service_mgr == 'systemd'))"

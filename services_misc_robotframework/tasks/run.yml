@@ -5,7 +5,7 @@
     update_cache: yes
     name: "{{item}}"
     state: present
-  with_items: '{{corpusops_services_misc_robotframework_vars.packages}}'
+  loop: '{{corpusops_services_misc_robotframework_vars.packages}}'
   when: "(corpusops_services_misc_robotframework_vars.packages is not none and
           corpusops_services_misc_robotframework_vars.packages|length > 0)"
   tags: corpusops_services_misc_robotframework
@@ -19,7 +19,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_misc_robotframework_vars.files}}"
+  loop: "{{corpusops_services_misc_robotframework_vars.files|flatten(levels=1)}}"
   when: "(corpusops_services_misc_robotframework_vars.files is not none and
           corpusops_services_misc_robotframework_vars.files|length > 0)"
   tags: corpusops_services_misc_robotframework
@@ -34,7 +34,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_misc_robotframework_vars.filescopy}}"
+  loop: "{{corpusops_services_misc_robotframework_vars.filescopy|flatten(levels=1)}}"
   when: "(corpusops_services_misc_robotframework_vars.filescopy is not none and
           corpusops_services_misc_robotframework_vars.filescopy|length > 0)"
   tags: corpusops_services_misc_robotframework
@@ -48,7 +48,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_misc_robotframework_vars.configs}}"
+  loop: "{{corpusops_services_misc_robotframework_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_services_misc_robotframework_vars.configs is not none and
           corpusops_services_misc_robotframework_vars.configs|length > 0)"
   tags: corpusops_services_misc_robotframework
@@ -60,6 +60,6 @@
     enabled: "{{corpusops_services_misc_robotframework_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_misc_robotframework_vars.services}}"
+  loop: "{{corpusops_services_misc_robotframework_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_misc_robotframework
 - meta: flush_handlers

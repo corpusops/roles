@@ -17,7 +17,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_editor_vars.configs}}"
+  loop: "{{corpusops_localsettings_editor_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_editor_vars.configs is not none and 
           corpusops_localsettings_editor_vars.configs|length > 0)"
   tags: corpusops_localsettings_editor

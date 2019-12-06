@@ -6,7 +6,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_localsettings_pkgmgr_vars.files}}"
+  loop: "{{corpusops_localsettings_pkgmgr_vars.files|flatten(levels=1)}}"
   when: >-
      (corpusops_localsettings_pkgmgr_vars.files is not none and
       corpusops_localsettings_pkgmgr_vars.files|length > 0)
@@ -19,7 +19,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_pkgmgr_vars.apt_clean_configs}}"
+  loop: "{{corpusops_localsettings_pkgmgr_vars.apt_clean_configs|flatten(levels=1)}}"
   when: >-
      (corpusops_localsettings_pkgmgr_vars.apt_clean and
       corpusops_localsettings_pkgmgr_vars.apt_clean_configs is not none and
@@ -33,7 +33,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_pkgmgr_vars.configs}}"
+  loop: "{{corpusops_localsettings_pkgmgr_vars.configs|flatten(levels=1)}}"
   when: >-
      (corpusops_localsettings_pkgmgr_vars.configs is not none and
       corpusops_localsettings_pkgmgr_vars.configs|length > 0)

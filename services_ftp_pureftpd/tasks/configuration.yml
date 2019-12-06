@@ -38,7 +38,7 @@
       owner: root
       group: root
     register: corpusops_services_ftp_pureftpd_configst3
-    with_dict: |
+    loop: |
       {%- set res = {} %}
       {%- set data = corpusops_services_ftp_pureftpd_vars %}
       {%- set passive = data.conf['ForcePassiveIP'] or data.conf['PassivePortRange']%}
@@ -53,7 +53,7 @@
       {%- set _ = res.update({setting: value}) %}
       {%- endif %}
       {%- endfor %}
-      {{- res|to_json }}
+      {{- res|dict2items }}
   - file:
       state: link
       path: "{{corpusops_services_ftp_pureftpd_vars.prefix}}/auth/50puredb"
@@ -62,7 +62,7 @@
       state: absent
       dest: "{{corpusops_services_ftp_pureftpd_vars.prefix}}/conf/{{item.key}}"
     register: corpusops_services_ftp_pureftpd_configst4
-    with_dict: |-
+    loop: |-
       {%- set res = {} %}
       {%- set data = corpusops_services_ftp_pureftpd_vars %}
       {%- set passive = data.conf['ForcePassiveIP'] or data.conf['PassivePortRange']%}
@@ -77,7 +77,7 @@
       {%- set _ = res.update({setting: value}) %}
       {%- endif %}
       {%- endfor %}
-      {{- res|to_json }}
+      {{- res|dict2items }}
 - blockinfile:
     dest: "{{corpusops_vars.config_dir}}/shells"
     marker: "# {mark} pureftpd cops shell"

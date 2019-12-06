@@ -41,7 +41,7 @@
     src: "{{item[0]}}"
     remote_src: true
     force: true
-  with_items:
+  loop:
   - [["{{cops_burpsign_vars.ca}}/CA_burpCA.crt",
       "{{cops_burp_vars.ssl_cert_ca}}"]]
   - [["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt",

@@ -10,7 +10,7 @@
     dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
     mode: 644
     trim_blocks: false
-  with_items:
+  loop:
     - fstab
   when: not lxc_fstab_test.stat.exists
   tags: corpusops_lxc_create,corpusops_lxc_create_scripts

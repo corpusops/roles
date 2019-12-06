@@ -17,7 +17,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_sysctls_vars.configs}}"
+  loop: "{{corpusops_localsettings_sysctls_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_sysctls_vars.configs is not none and
           corpusops_localsettings_sysctls_vars.configs|length > 0)"
   tags: corpusops_localsettings_sysctls
@@ -26,12 +26,12 @@
     name: "{{item.name}}"
     value: "{{item.value}}"
     state: present
-  with_items: |-
-    {% set d = [] %}
-    {% for i in  corpusops_localsettings_sysctls_vars.knobs
-          if i.name not in corpusops_localsettings_sysctls_vars.disabled_knobs%}
-    {%  set _ = d.append(i) %}
-    {% endfor %}
-    {{ d | to_json }}
+  loop: |-
+    {%- set d = [] %}
+    {%- for i in  corpusops_localsettings_sysctls_vars.knobs
+      -    if i.name not in corpusops_localsettings_sysctls_vars.disabled_knobs%}
+    {%-  set _ = d.append(i) %}
+    {%- endfor %}
+    {{- d | to_json }}
   tags: corpusops_localsettings_sysctls
 

@@ -19,11 +19,11 @@
   - file:
       state: directory
       path: "{{item.key}}"
-    with_dict: "{{dirs}}"
+    loop: "{{dirs|dict2items}}"
   - file:
       state: directory
       path: "{{item.value}}"
-    with_dict: "{{dirs}}"
+    loop: "{{dirs|dict2items}}"
   - name: "a"
     shell: |-
       set -e
@@ -33,7 +33,7 @@
           && touch "$f" \
           && echo tchanged >&2
       fi
-    with_dict: "{{dirs}}"
+    loop: "{{dirs|dict2items}}"
     register: a
     changed_when: "'changed' in a.stderr"
   - mount:
@@ -42,4 +42,4 @@
       path: "{{item.value}}"
       fstype: "none"
       opts: bind,rw
-    with_dict: "{{dirs}}"
+    loop: "{{dirs|dict2items}}"

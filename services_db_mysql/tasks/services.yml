@@ -18,7 +18,7 @@
     enabled: "{{corpusops_services_db_mysql_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_db_mysql_vars.services}}"
+  loop: "{{corpusops_services_db_mysql_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_db_mysql
 # with debian cluster mgmnt, verify our mysql is really up
 # and die otherwise
@@ -45,7 +45,7 @@
     enabled: "{{corpusops_services_db_mysql_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{cops_mysql_service}}"
+  loop: "{{cops_mysql_service|flatten(levels=1)}}"
   tags: corpusops_services_db_mysql
   when: |
     (cops_mysql_service|copsf_asbool and

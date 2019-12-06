@@ -8,7 +8,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_http_nginx_vars.files}}"
+  loop: "{{corpusops_services_http_nginx_vars.files|flatten(levels=1)}}"
   when: "(corpusops_services_http_nginx_vars.files is not none and
           corpusops_services_http_nginx_vars.files|length > 0)"
   register: corpusops_services_http_nginx_filest
@@ -22,7 +22,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_http_nginx_vars.filescopy}}"
+  loop: "{{corpusops_services_http_nginx_vars.filescopy|flatten(levels=1)}}"
   when: "(corpusops_services_http_nginx_vars.filescopy is not none and
           corpusops_services_http_nginx_vars.filescopy|length > 0)"
   register: corpusops_services_http_nginx_filesct
@@ -35,7 +35,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_http_nginx_vars.configs}}"
+  loop: "{{corpusops_services_http_nginx_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_services_http_nginx_vars.configs is not none and
           corpusops_services_http_nginx_vars.configs|length > 0)"
   register: corpusops_services_http_nginx_configst

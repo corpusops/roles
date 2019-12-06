@@ -9,7 +9,7 @@
           corpusops_services_base_ntp_vars.packages is not none and
           corpusops_services_base_ntp_vars.packages|length > 0)"
   tags: corpusops_services_base_ntp
-  with_items: "{{corpusops_services_base_ntp_vars.packages}}"
+  loop: "{{corpusops_services_base_ntp_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -19,7 +19,7 @@
           corpusops_services_base_ntp_vars.packages is not none and
           corpusops_services_base_ntp_vars.packages|length > 0)"
   tags: corpusops_services_base_ntp
-  with_items: "{{corpusops_services_base_ntp_vars.packages}}"
+  loop: "{{corpusops_services_base_ntp_vars.packages|flatten(levels=1)}}"
 - name: files
   file:
     path: "{{item.path}}"
@@ -29,7 +29,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_base_ntp_vars.files}}"
+  loop: "{{corpusops_services_base_ntp_vars.files|flatten(levels=1)}}"
   when: "(corpusops_services_base_ntp_vars.files is not none and
           corpusops_services_base_ntp_vars.files|length > 0)"
   tags: corpusops_services_base_ntp
@@ -45,7 +45,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_base_ntp_vars.filescopy}}"
+  loop: "{{corpusops_services_base_ntp_vars.filescopy|flatten(levels=1)}}"
   when: "(corpusops_services_base_ntp_vars.filescopy is not none and
           corpusops_services_base_ntp_vars.filescopy|length > 0)"
   tags: corpusops_services_base_ntp
@@ -60,7 +60,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_base_ntp_vars.configs}}"
+  loop: "{{corpusops_services_base_ntp_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_services_base_ntp_vars.configs is not none and
           corpusops_services_base_ntp_vars.configs|length > 0)"
   tags: corpusops_services_base_ntp
@@ -81,6 +81,6 @@
     enabled: "{{corpusops_services_base_ntp_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_base_ntp_vars.services}}"
+  loop: "{{corpusops_services_base_ntp_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_base_ntp
 - meta: flush_handlers

@@ -22,11 +22,11 @@
           archive_crc: null
           verify_sha256: null
           archive: "{{_corpusops_localsettings_nvm_archive}}"
-  with_items: "{{_cops_nvm_versions}}"
+  loop: "{{_cops_nvm_versions|flatten(levels=1)}}"
   loop_control: {loop_var: _cops_nvm_version}
   register: corpusops_localsettings_nvm_system_archives
 - include_role: {name: corpusops.roles/install_archive}
-  with_items: "{{corpusops_localsettings_nvm_system_archives.results}}"
+  loop: "{{corpusops_localsettings_nvm_system_archives.results|flatten(levels=1)}}"
   vars: {_archive: "{{item.msg._archive}}"}
   tags: [download, nvm_download]
 - tags: [wire]
@@ -56,7 +56,7 @@
       nvm install "{{item}}"
     args: {executable: /bin/bash}
     changed_when: false
-    with_items: "{{corpusops_localsettings_nvm_user_installed}}"
+    loop: "{{corpusops_localsettings_nvm_user_installed|flatten(levels=1)}}"
   vars:
     _cops_nvm_version: "{{_cops_nvm_versions[0]}}"
     prefix: "{{_corpusops_localsettings_nvm_system_prefix|regex_replace('^~', '$HOME')}}"

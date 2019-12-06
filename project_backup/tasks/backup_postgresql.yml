@@ -20,7 +20,7 @@
     {% endif %}
     {% endif %}
   args: {executable: "/bin/bash"}
-  with_items: "{{cops_project_backup_pgdump_urls}}"
+  loop: "{{cops_project_backup_pgdump_urls|flatten(levels=1)}}"
 - when: ["{{cops_project_backup_prune}}"]
   name: "Prune old deliveries db dumps"
   shell: |-

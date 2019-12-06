@@ -12,4 +12,4 @@
     validate_certs: "{{subkey.validate_certs|default(subitem.value.validate_certs|default(omit))}}"
     exclusive: "{{subkey.exclusive|default(subitem.value.exclusive|default(omit))}}"
   loop_control: {loop_var: subkey}
-  with_items: "{{subitem.value.ssh_keys}}"
+  loop: "{{subitem.value.ssh_keys|flatten(levels=1)}}"

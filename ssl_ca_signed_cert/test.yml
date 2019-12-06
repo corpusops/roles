@@ -2,7 +2,7 @@
 - hosts: all
   tasks:
   - file: {state: absent, path: "{{item}}"}
-    with_items: [/tmp/catest]
+    loop: [/tmp/catest]
   - set_fact:
       _ssl_ca_signed_cert:
         prefix: /tmp/catest

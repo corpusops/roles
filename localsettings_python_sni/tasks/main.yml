@@ -67,7 +67,7 @@
             pyopenssl ndg-httpsclient pyasn1 && echo "changed=yes" >&2
         fi
       fi
-    with_items: ["{{ansible_python.executable}}"]
+    loop: "{{[ansible_python.executable]|flatten(levels=1)}}"
     register: cops_oldubuntu_backport_sni
     changed_when: '"changed=yes" in cops_oldubuntu_backport_sni.stderr'
 - when: "not (

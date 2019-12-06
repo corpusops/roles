@@ -8,7 +8,7 @@
     owner: "root"
     group: "root"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_pkgmgr_vars.base_rpm_repos}}"
+  loop: "{{corpusops_localsettings_pkgmgr_vars.base_rpm_repos|flatten(levels=1)}}"
   tags: corpusops_localsettings_pkgmgr
 - name: redhat - repos
   yum_repository:
@@ -21,7 +21,7 @@
     gpgkey: "{{item.gpgkey|default(omit)}}"
     enabled: "{{item.enabled|default(True)}}"
     file: "{{item.file|default(omit)}}"
-  with_items: "{{corpusops_localsettings_pkgmgr_vars.rpm_repos}}"
+  loop: "{{corpusops_localsettings_pkgmgr_vars.rpm_repos|flatten(levels=1)}}"
   tags: corpusops_localsettings_pkgmgr
 - name: redhat - update cache
   shell: |

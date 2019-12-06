@@ -49,7 +49,7 @@
     localedef -c {%if cp %}-f {{cp}}{%endif%} -i {{lang}} {{localeo}}
     {%   endif %}
     {% endif %}
-  with_items: '{{corpusops_localsettings_locales_vars.locales}}'
+  loop: '{{corpusops_localsettings_locales_vars.locales}}'
   when: 'item not in corpusops_localsettings_locales_installed_locales.stdout_lines'
 - shell: locale -a | sed -re "s/utf8/UTF-8/g"
   failed_when: False
@@ -60,7 +60,7 @@
   debug: msg=locales
   failed_when: "(item not in
                  corpusops_localsettings_locales_installed_locales2.stdout_lines)"
-  with_items: '{{corpusops_localsettings_locales_vars.locales}}'
+  loop: '{{corpusops_localsettings_locales_vars.locales}}'
 
 - shell: which update-locale
   failed_when: False
@@ -99,6 +99,6 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_locales_vars.configs}}"
+  loop: "{{corpusops_localsettings_locales_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_locales_vars.configs is not none and
           corpusops_localsettings_locales_vars.configs|length > 0)"

@@ -8,7 +8,7 @@
     name: '{{item}}'
     state: present
   when: "(ansible_os_family.lower() in ['debian'])"
-  with_items: [postgresql-common]
+  loop: [postgresql-common]
 - name: "update & install pgsql-common (redhat)"
   package:
     update_cache: yes
@@ -16,7 +16,7 @@
     name: '{{item}}'
     state: present
   when: "(ansible_os_family.lower() in ['redhat'])"
-  with_items: [postgresql-common]
+  loop: [postgresql-common]
 - name: maybe disable cluster creation
   shell: |
     if [ -e /etc/postgresql-common/createcluster.conf ] && (
@@ -36,7 +36,7 @@
     update_cache: yes
     name: "{{item}}"
     state: present
-  with_items: '{{corpusops_services_db_postgresql_vars.packages}}'
+  loop: '{{corpusops_services_db_postgresql_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_db_postgresql_vars.packages is not none and
           corpusops_services_db_postgresql_vars.packages|length > 0)"
@@ -50,7 +50,7 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_db_postgresql_vars.packages is not none and
           corpusops_services_db_postgresql_vars.packages|length > 0)"
-  with_items: "{{corpusops_services_db_postgresql_vars.packages}}"
+  loop: "{{corpusops_services_db_postgresql_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -60,11 +60,11 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_db_postgresql_vars.packages is not none and
           corpusops_services_db_postgresql_vars.packages|length > 0)"
-  with_items: "{{corpusops_services_db_postgresql_vars.packages}}"
+  loop: "{{corpusops_services_db_postgresql_vars.packages|flatten(levels=1)}}"
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{item}}"
-  with_items: ["{{corpusops_services_db_postgresql_vars.repo}}"]
+  loop: "{{[corpusops_services_db_postgresql_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_db_postgresql_vars.packages is not none and
           corpusops_services_db_postgresql_vars.packages|length > 0)"
@@ -77,7 +77,7 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_db_postgresql_vars.packages is not none and
           corpusops_services_db_postgresql_vars.packages|length > 0)"
-  with_items: "{{corpusops_services_db_postgresql_vars.packages}}"
+  loop: "{{corpusops_services_db_postgresql_vars.packages|flatten(levels=1)}}"
 #
 - group:
     name: "{{corpusops_services_db_postgresql_vars.group}}"

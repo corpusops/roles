@@ -9,7 +9,7 @@
           corpusops_localsettings_nscd_vars.packages is not none and
           corpusops_localsettings_nscd_vars.packages|length > 0)"
   tags: corpusops_localsettings_nscd
-  with_items: "{{corpusops_localsettings_nscd_vars.packages}}"
+  loop: "{{corpusops_localsettings_nscd_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -19,7 +19,7 @@
           corpusops_localsettings_nscd_vars.packages is not none and
           corpusops_localsettings_nscd_vars.packages|length > 0)"
   tags: corpusops_localsettings_nscd
-  with_items: "{{corpusops_localsettings_nscd_vars.packages}}"
+  loop: "{{corpusops_localsettings_nscd_vars.packages|flatten(levels=1)}}"
 - name: configs
   template:
     src: "../templates/{{item.name}}"
@@ -28,7 +28,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_nscd_vars.configs}}"
+  loop: "{{corpusops_localsettings_nscd_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_nscd_vars.configs is not none and
           corpusops_localsettings_nscd_vars.configs|length > 0)"
   tags: corpusops_localsettings_nscd
@@ -39,7 +39,7 @@
     enabled: "{{corpusops_localsettings_nscd_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_localsettings_nscd_vars.services}}"
+  loop: "{{corpusops_localsettings_nscd_vars.services|flatten(levels=1)}}"
   tags: corpusops_localsettings_nscd
   when: "corpusops_vars.has_services_manager"
 - meta: flush_handlers

@@ -10,7 +10,7 @@
   failed_when: False
   changed_when: False
   when: "ansible_os_family.lower() in ['debian']"
-  with_items: "{{corpusops_localsettings_jdk_versions}}"
+  loop: "{{corpusops_localsettings_jdk_versions|flatten(levels=1)}}"
 - name: install jdk ppa
   apt_repository:
     repo: '{{corpusops_localsettings_jdk_vars.repo}}'
@@ -33,7 +33,7 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_jdk_vars.packages is not none and
           corpusops_localsettings_jdk_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_jdk_vars.packages}}"
+  loop: "{{corpusops_localsettings_jdk_vars.packages|flatten(levels=1)}}"
 - name: "update & install prerequisites"
   package:
     update_cache: yes
@@ -42,13 +42,13 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_jdk_vars.packages is not none and
           corpusops_localsettings_jdk_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_jdk_vars.packages}}"
+  loop: "{{corpusops_localsettings_jdk_vars.packages|flatten(levels=1)}}"
 - name: containers
   file:
     path: "{{item.value.d}}"
     mode: "0755"
     state: directory
-  with_dict: "{{corpusops_localsettings_jdk_vars.urls}}"
+  loop: "{{corpusops_localsettings_jdk_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_jdk_vars.versions is not none and
           corpusops_localsettings_jdk_vars.versions|length > 0)"
 - name: plugin directories
@@ -56,7 +56,7 @@
     path: "{{item}}"
     mode: "0755"
     state: directory
-  with_items:
+  loop:
     - /usr/lib/mozilla/plugins
   when: "(corpusops_localsettings_jdk_vars.versions is not none and
           corpusops_localsettings_jdk_vars.versions|length > 0)"
@@ -68,13 +68,13 @@
     remote_src: true
     dest: "{{'{d}/{bn}'.format(**item.value)}}"
     mode: "0644"
-  with_dict: "{{corpusops_localsettings_jdk_vars.urls}}"
+  loop: "{{corpusops_localsettings_jdk_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_jdk_vars.versions is not none and
           corpusops_localsettings_jdk_vars.versions|length > 0)"
 - name: "test if alreagy java unpacked"
   stat: {path: "{{'{d}/bin/java'.format(**item.value)}}"}
   failed_when: false
-  with_dict: "{{corpusops_localsettings_jdk_vars.urls}}"
+  loop: "{{corpusops_localsettings_jdk_vars.urls|dict2items}}"
   register: corpusops_localsettings_jdk_testbinsr
 - debug: {msg: "{{corpusops_localsettings_jdk_testbinsr }}"}
 - debug:
@@ -100,7 +100,7 @@
         {{ opts | to_json }}
     src: "{{'{d}/{bn}'.format(**item.value)}}"
     dest: "{{item.value.d}}"
-  with_dict: "{{corpusops_localsettings_jdk_vars.urls}}"
+  loop: "{{corpusops_localsettings_jdk_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_jdk_vars.versions is not none and
           corpusops_localsettings_jdk_vars.versions|length > 0 and
           not corpusops_localsettings_jdk_testbins.msg.get(
@@ -114,7 +114,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_jdk_vars.configs}}"
+  loop: "{{corpusops_localsettings_jdk_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_jdk_vars.configs is not none and
           corpusops_localsettings_jdk_vars.configs|length > 0)"
 - name: 'install jdk versions'
@@ -206,7 +206,7 @@
     dest: "{{item.value.d}}/java.env"
     src: "../templates/java.env"
     mode: "0644"
-  with_dict: "{{corpusops_localsettings_jdk_vars.installs}}"
+  loop: "{{corpusops_localsettings_jdk_vars.installs|dict2items}}"
   when: "(corpusops_localsettings_jdk_vars.version is not none and
           corpusops_localsettings_jdk_vars.installs is not none and
           corpusops_localsettings_jdk_vars.installs|length > 0)"

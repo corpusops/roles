@@ -14,7 +14,7 @@
       path: "{{secretvariablesldata.msg.path|default(corpusops_vars.secrets_dir)}}"
       registry_prefix: "{{secretvariablesldata.msg.registry_prefix|default(none)}}"
   register: secretvariablesdata
-  with_items: "{{secretvariablesldata.msg.variables}}"
+  loop: "{{secretvariablesldata.msg.variables|flatten(levels=1)}}"
 - include_role: {name: corpusops.roles/utils/set_secret_variable}
   loop_control: {loop_var: secretvariable}
   with_items: |-
