@@ -10,7 +10,7 @@
     dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
     mode: 644
     trim_blocks: false
-  with_items:
+  loop:
     - manual_lxc.conf
   when: not lxc_manual_lxc_conf_test.stat.exists
   tags: corpusops_lxc_create,corpusops_lxc_create_manual_lxc_conf

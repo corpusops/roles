@@ -6,5 +6,5 @@
     sysctl_set: true
   loop_control:
     loop_var: s
-  with_dict: "{{item}}"
+  loop: "{{item|dict2items}}"
 

@@ -1,7 +1,7 @@
 ---
 - stat: {path: "{{item.value}}"}
   register: "_ca_corpusops_localsettings_sysctls_knobs_changed"
-  with_dict: "{{corpusops_localsettings_sysctls_knobs_changed}}"
+  loop: "{{corpusops_localsettings_sysctls_knobs_changed|dict2items}}"
 - debug:
     msg: |
       {%- set r = {} %}

@@ -1,7 +1,7 @@
 ---
 - include_tasks: _ca_layout.yml
   loop_control: {loop_var: ca_dir}
-  with_items:
+  loop:
     - directory: "{{ssl_ca_signed_cert_vars.directory}}"
       group: "{{ssl_ca_signed_cert_vars.group}}"
       owner: "{{ssl_ca_signed_cert_vars.owner}}"
@@ -238,7 +238,7 @@
     owner: "{{ssl_ca_signed_cert_vars.owner or omit}}"
     group: "{{ssl_ca_signed_cert_vars.group or omit}}"
     path: "{{item}}"
-  with_items:
+  loop:
   - "{{ssl_ca_signed_cert_vars.dest_cert_path     |copsf_dirname}}"
   - "{{ssl_ca_signed_cert_vars.dest_cert_full_path|copsf_dirname}}"
   - "{{ssl_ca_signed_cert_vars.dest_key_path      |copsf_dirname}}"
@@ -305,7 +305,7 @@
     dest: "{{(certlnk.split('.')[:-1]+[vars['ssl_ca_signed_cert_lnk_ext']])|join('.')}}"
   loop_control: {loop_var: certlnk}
   when: "ssl_ca_signed_cert_vars.do_links and not (certlnk.endswith(vars['ssl_ca_signed_cert_lnk_ext']) or certlnk.endswith('.key'))"
-  with_items:
+  loop:
   - "{{ssl_ca_signed_cert_vars.dest_cert_path}}"
   - "{{ssl_ca_signed_cert_vars.dest_key_path}}"
   - "{{ssl_ca_signed_cert_vars.dest_cert_full_path}}"

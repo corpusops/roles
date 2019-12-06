@@ -17,7 +17,7 @@
                 | ternary(True, False)}}"
     name: "{{item}}"
     daemon_reload: true
-  with_items: "{{cops_burpclient_vars.services}}"
+  loop: "{{cops_burpclient_vars.services|flatten(levels=1)}}"
   tags: burpclient
   when: "corpusops_vars.has_services_manager"
 - meta: flush_handlers

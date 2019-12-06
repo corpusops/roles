@@ -5,7 +5,7 @@
     update_cache: yes
     name: "{{item}}"
     state: present
-  with_items: '{{corpusops_services_db_postgresql_vars.client_packages}}'
+  loop: '{{corpusops_services_db_postgresql_vars.client_packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_db_postgresql_vars.client_packages is not none and
           corpusops_services_db_postgresql_vars.client_packages|length > 0)"
@@ -18,7 +18,7 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_db_postgresql_vars.client_packages is not none and
           corpusops_services_db_postgresql_vars.client_packages|length > 0)"
-  with_items: "{{corpusops_services_db_postgresql_vars.client_packages}}"
+  loop: "{{corpusops_services_db_postgresql_vars.client_packages|flatten(levels=1)}}"
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -28,7 +28,7 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_db_postgresql_vars.client_packages is not none and
           corpusops_services_db_postgresql_vars.client_packages|length > 0)"
-  with_items: "{{corpusops_services_db_postgresql_vars.client_packages}}"
+  loop: "{{corpusops_services_db_postgresql_vars.client_packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -38,4 +38,4 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_db_postgresql_vars.client_packages is not none and
           corpusops_services_db_postgresql_vars.client_packages|length > 0)"
-  with_items: "{{corpusops_services_db_postgresql_vars.client_packages}}"
+  loop: "{{corpusops_services_db_postgresql_vars.client_packages|flatten(levels=1)}}"

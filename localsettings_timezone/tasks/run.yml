@@ -30,10 +30,10 @@
     state: absent
     path: "{{item.path}}"
   when: "item.exists and item.islnk"
-  with_items: |
-    {%  set val = [corpusops_localsettings_timezone_ltzd.stat,
+  loop: |
+    {%-  set val = [corpusops_localsettings_timezone_ltzd.stat,
                    corpusops_localsettings_timezone_ltd.stat] %}
-    {{ val | to_json  }}
+    {{- val | to_json  }}
   changed_when: False
 - name: localtime
   file:
@@ -54,7 +54,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_timezone_vars.configs}}"
+  loop: "{{corpusops_localsettings_timezone_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_timezone_vars.configs is not none and
           corpusops_localsettings_timezone_vars.configs|length > 0)"
   tags: corpusops_localsettings_timezone

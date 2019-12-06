@@ -9,7 +9,7 @@
       async: 100000
       poll: 0
       register: cops_async_results
-      with_items: "{{test_cmds}}"
+      loop: "{{test_cmds|flatten(levels=1)}}"
     - include_role: {name: corpusops.roles/async_wait, public: false}
       vars: {cops_async_retry_delay: 1, cops_async_retries: 1}
     rescue:
@@ -21,7 +21,7 @@
       async: 100000
       poll: 0
       register: cops_async_results
-      with_items: "{{test_cmds[:-1]}}"
+      loop: "{{test_cmds[:-1]|flatten(levels=1)}}"
     - include_role: {name: corpusops.roles/async_wait, public: false}
       vars: {cops_async_retry_delay: 1, cops_async_retries: 45}
     rescue:
@@ -33,7 +33,7 @@
       async: 100000
       poll: 0
       register: cops_async_results
-      with_items: "{{test_cmds[:-2]}}"
+      loop: "{{test_cmds[:-2]|flatten(levels=1)}}"
     - include_role: {name: corpusops.roles/async_wait, public: false}
       vars: {cops_async_retry_delay: 1, cops_async_retries: 4}
 

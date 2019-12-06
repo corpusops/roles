@@ -6,12 +6,12 @@
     state: "directory"
     mode: "{{archive_vars.container_mode or omit}}"
   loop_control: {loop_var: iitem}
-  with_items: [ "{{archive_vars.app_path}}"]
+  loop: [ "{{archive_vars.app_path}}"]
 - name: "existing archive test"
   stat:
     path: "{{'/'.join([archive_vars.app_path, iiitem])}}"
   register: install_one_filet
-  with_items: "{{archive_vars.filetest}}"
+  loop: "{{archive_vars.filetest|flatten(levels=1)}}"
   loop_control: {loop_var: iiitem}
 - debug:
    msg: |-
@@ -40,7 +40,7 @@
   vars:
     keys: "{{corpusops_uo_tests.msg.verify_gpg}}"
   loop_control: {loop_var: keyitem}
-  with_items: "{{corpusops_uo_tests.msg.verify_gpg}}"
+  loop: "{{corpusops_uo_tests.msg.verify_gpg|flatten(levels=1)}}"
   when:  "(corpusops_uo_tests.msg.verify_gpg is not none and
            corpusops_uo_tests.msg.verify_gpg|length > 0)"
 
@@ -191,5 +191,5 @@
         ('.tar.xz' in liitem.bn) or
         ('.xz' in liitem.bn)
         ) and not corpusops_uo_tests.msg.done
-  with_items: [{d: "{{archive_vars.app_path}}", bn: "{{archive_basename}}"}]
+  loop: [{d: "{{archive_vars.app_path}}", bn: "{{archive_basename}}"}]
 

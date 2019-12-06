@@ -2,7 +2,7 @@
 - file:
     state: directory
     path: "{{item}}"
-  with_items: ["{{cops_project_backups_dir}}"]
+  loop: "{{[cops_project_backups_dir]}}"
   tags: [backup_init]
 
 - name: install rbackup script
@@ -17,7 +17,7 @@
       src: "{{item}}"
       dest: "{{cops_project_backups_dir}}/{{item}}"
       mode: "0755"
-    with_items: [rbackup.sh]
+    loop: [rbackup.sh]
   tags: [backup_prereqs]
 
 - when: ["cops_project_backup_db"]
@@ -32,7 +32,7 @@
   name: "Backup projet files"
   block:
   - include: rbackup_wrapper.yml
-    with_items: ["{{cops_project_backup_paths_to_backup}}"]
+    loop: "{{[cops_project_backup_paths_to_backup]}}"
     loop_control: {loop_var: backup_paths}
   vars:
     backup_dest: "{{cops_project_backup_files_dir}}"
@@ -44,7 +44,7 @@
   name: "Backup projet docker volumes"
   block:
   - include: rbackup_wrapper.yml
-    with_items: ["{{cops_project_backup_docker_volumes_paths}}"]
+    loop: "{{[cops_project_backup_docker_volumes_paths]}}"
     loop_control: {loop_var: backup_paths}
   vars:
     backup_dest: "{{cops_project_backup_docker_volumes_dir}}"

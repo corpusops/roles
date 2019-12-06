@@ -6,7 +6,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_localsettings_dockermachine_vars.files}}"
+  loop: "{{corpusops_localsettings_dockermachine_vars.files|flatten(levels=1)}}"
   when: "(corpusops_localsettings_dockermachine_vars.files is not none and
           corpusops_localsettings_dockermachine_vars.files|length > 0)"
 #
@@ -24,11 +24,11 @@
           unpack: false
   vars:
     version: "{{item}}"
-  with_items: "{{corpusops_localsettings_dockermachine_vars.versions}}"
+  loop: "{{corpusops_localsettings_dockermachine_vars.versions|flatten(levels=1)}}"
   register: corpusops_localsettings_dockermachine_archives
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
-  with_items: "{{corpusops_localsettings_dockermachine_archives.results}}"
+  loop: "{{corpusops_localsettings_dockermachine_archives.results|flatten(levels=1)}}"
 #
 - debug:
     msg:
@@ -44,11 +44,11 @@
           verify_sha256: false
   vars:
     version: "{{item}}"
-  with_items: "{{corpusops_localsettings_dockermachine_vars.versions}}"
+  loop: "{{corpusops_localsettings_dockermachine_vars.versions|flatten(levels=1)}}"
   register: corpusops_localsettings_dockermachine_sc_archives
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
-  with_items: "{{corpusops_localsettings_dockermachine_sc_archives.results}}"
+  loop: "{{corpusops_localsettings_dockermachine_sc_archives.results|flatten(levels=1)}}"
 # 
 - file:
     force: true
@@ -66,4 +66,4 @@
     path: "{{item.value.path}}"
   vars:
     version: "{{corpusops_localsettings_dockermachine_vars.version}}"
-  with_dict: "{{_corpusops_localsettings_dockermachine_bins}}"
+  loop: "{{_corpusops_localsettings_dockermachine_bins|dict2items}}"

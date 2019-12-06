@@ -33,7 +33,7 @@
       cacheable: false
       cops_sshkeys_users_final: "{{[subitem.key]}}"
 - include_tasks: _manage_key.yml
-  with_items: "{{cops_sshkeys_users_final}}"
+  loop: "{{cops_sshkeys_users_final|flatten(levels=1)}}"
   loop_control: {loop_var: subuser}
   register: cops_sshkeys_removed_retin
   tags: [sshkeys, sshkeys_manage]

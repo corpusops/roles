@@ -13,7 +13,7 @@
     dest: "{{lxc_cpath}}/{{item}}"
     mode: "0755"
   tags: corpusops_lxc_sshauth,corpusops_lxc_sshauth_scripts
-  with_items: [cops_sshkeys.sh]
+  loop: [cops_sshkeys.sh]
 - name: ansible ssh key cleanup
   shell: |
     rm -f {{lxc_cpath}}/sshkeys/keypaths_*
@@ -37,7 +37,7 @@
     mode: "0644"
     trim_blocks: false
   tags: corpusops_lxc_sshauth,corpusops_lxc_sshauth_scripts
-  with_items: [sshkeys.pub]
+  loop: [sshkeys.pub]
 - name: ansible ssh key - auth
   shell: "{{lxc_cpath}}/cops_sshkeys.sh"
   register: corpusops_lxc_sshauth_res

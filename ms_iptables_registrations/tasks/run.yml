@@ -35,7 +35,7 @@
 - when: "not corpusops_ms_iptables_registrations_vars.enable"
   block:
   - file: {state: absent, path: "{{item.name}}"}
-    with_items: "{{corpusops_ms_iptables_registrations_vars.configs}}"
+    loop: "{{corpusops_ms_iptables_registrations_vars.configs|flatten(levels=1)}}"
     register: _c_cops_ms_iptables_registration_check_f
   - set_fact:
       cacheable: false

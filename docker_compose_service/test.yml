@@ -15,7 +15,7 @@
               entrypoint: >
                 sh -c "while true;do echo {{item}};sleep 10;done"
         dest: "/tmp/dtest/{{item}}.yml"
-    with_items: "{{c}}"
+    loop: "{{c|flatten(levels=1)}}"
   - copy:
         content: |
           ---
@@ -26,9 +26,9 @@
               entrypoint: >
                 sh -c "while true;do echo {{item}};sleep 10;done"
         dest: "/tmp/dtest/{{item}}b.yml"
-    with_items: "{{c}}"
+    loop: "{{c|flatten(levels=1)}}"
   - include_role: {name: corpusops.roles/docker_compose_service}
-    with_items: [a]
+    loop: [a]
     vars:
       _docker_compose_service:
         docker_compose_file: "{{item}}.yml"
@@ -46,7 +46,7 @@
         state: stopped
         project: "compose-{{item}}"
   - include_role: {name: corpusops.roles/docker_compose_service}
-    with_items: [b]
+    loop: [b]
     vars:
       _docker_compose_service:
         files: ["{{item}}.yml"]
@@ -59,7 +59,7 @@
         state: stopped
         project: "compose-{{item}}"
   - include_role: {name: corpusops.roles/docker_compose_service}
-    with_items: [c]
+    loop: [c]
     vars:
       _docker_compose_service:
         docker_compose_file: "{{item}}.yml"

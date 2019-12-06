@@ -9,7 +9,7 @@
     - file:
         path: "{{item}}"
         state: absent
-      with_items:
+      loop:
         - "/tmp/haproxy/test1.cfg"
     - include_role: {name: corpusops.roles/haproxy_registrations}
       vars:
@@ -56,7 +56,7 @@
               http_fallback: false
     - stat: "path={{item}}"
       register: nginx_test_files
-      with_items:
+      loop:
         - "/tmp/haproxy/test1.cfg"
     - debug:
         msg: |

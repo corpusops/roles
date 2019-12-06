@@ -15,7 +15,7 @@
       exit 0
     fi
     {{ corpusops_php_ext_vars.phpenmod}} -v {{v}} -s {{item}} {{ext}} && echo copsextmod >&2
-  with_items: "{{corpusops_php_ext_csapi}}"
+  loop: "{{corpusops_php_ext_csapi|flatten(levels=1)}}"
   when: "corpusops_php_ext_vars.activation_status"
   register: corpusops_php_ext_installed
   changed_when: "'copsextmod' in corpusops_php_ext_installed.stderr"
@@ -45,4 +45,4 @@
     )
   register: corpusops_php_ext_deinstalled
   changed_when: "'copsdextmod' in corpusops_php_ext_deinstalled.stderr"
-  with_items: "{{corpusops_php_ext_csapi}}"
+  loop: "{{corpusops_php_ext_csapi|flatten(levels=1)}}"

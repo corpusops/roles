@@ -6,7 +6,7 @@
 - name: "Setup secrets"
   include_role: {name: corpusops.roles/get_secret_variable}
   loop_control: {loop_var: _cops_get_secret_variable}
-  with_items:
+  loop:
     - name: "cops_supervisor_passwords_{{cops_supervisor_name}}"
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_jinja_vars:

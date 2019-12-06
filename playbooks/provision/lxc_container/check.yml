@@ -3,7 +3,7 @@
   vars: {ansible_connection: local}
   tasks:
     - include_role: {public: false, name: corpusops.roles/ansible_plugins}
-    - with_items: [lxc_host, lxc_container_name]
+    - loop: [lxc_host, lxc_container_name]
       assert:
         that: ["{{item}} is not none"]
         msg: "{{item}} is not defined"

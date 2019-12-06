@@ -1,6 +1,6 @@
 ---
 - name: update & install prerequisites
-  with_items: '{{corpusops_localsettings_ovh_rtm_vars.packages}}'
+  loop: '{{corpusops_localsettings_ovh_rtm_vars.packages}}'
   package:
     update_cache: yes
     name: '{{item}}'
@@ -28,7 +28,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_localsettings_ovh_rtm_vars.files}}"
+  loop: "{{corpusops_localsettings_ovh_rtm_vars.files|flatten(levels=1)}}"
 - name: configs
   template:
     src: "../templates/{{item.name}}"
@@ -37,7 +37,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_ovh_rtm_vars.configs}}"
+  loop: "{{corpusops_localsettings_ovh_rtm_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_ovh_rtm_vars.configs is not none and
           corpusops_localsettings_ovh_rtm_vars.configs|length > 0)"
   tags: corpusops_localsettings_ovh_rtm

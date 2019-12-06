@@ -34,7 +34,7 @@
     - include_tasks: register.yml
     - include_tasks: "via_{{__cops_provision_push_code_vars.sync_mode}}.yml"
       loop_control: {loop_var: __cops_provision_push_code_vars}
-      with_items: "{{__cops_provision_push_codes}}"
+      loop: "{{__cops_provision_push_codes|flatten(levels=1)}}"
   always:
     - include_tasks: cleanup.yml
       when: "ansible_become_pass|default(false)"

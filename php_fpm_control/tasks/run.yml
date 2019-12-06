@@ -9,7 +9,7 @@
     state: "{{corpusops_php_fpm_control_vars.activated}}"
     enabled: "{{corpusops_php_fpm_control_vars.enabled}}"
     name: "{{item}}"
-  with_items: "{{corpusops_php_fpm_control_vars.services}}"
+  loop: "{{corpusops_php_fpm_control_vars.services|flatten(levels=1)}}"
   when: "(corpusops_php_fpm_control_vars.handle_php_fpm and
           corpusops_vars.has_services_manager)"
 - meta: flush_handlers

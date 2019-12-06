@@ -23,7 +23,7 @@
     name: "{{item}}"
     enabled: "{{docker_compose_service_vars.service_activated
                   | ternary(True, False)}}"
-  with_items: ["{{docker_compose_service_vars.project}}"]
+  loop: "{{[docker_compose_service_vars.project]|flatten(levels=1)}}"
   tags: [service, systemd_do]
   when: "(corpusops_vars.has_services_manager and
           (docker_compose_service_vars.state|copsf_asbool) and

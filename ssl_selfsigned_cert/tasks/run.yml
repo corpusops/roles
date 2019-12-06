@@ -7,7 +7,7 @@
   - file:
       state: directory
       path: "{{item|copsf_dirname}}"
-    with_items:
+    loop:
       - "{{ssl_selfsigned_cert_vars.gen_key_path}}"
       - "{{ssl_selfsigned_cert_vars.gen_cert_path}}"
       - "{{ssl_selfsigned_cert_vars.dest_key_path}}"

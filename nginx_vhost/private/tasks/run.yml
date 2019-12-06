@@ -18,7 +18,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_nginx_vhost_vars.files}}"
+  loop: "{{corpusops_nginx_vhost_vars.files|flatten(levels=1)}}"
   when: "(corpusops_nginx_vhost_vars.files is not none and
           corpusops_nginx_vhost_vars.files|length > 0)"
 - when:
@@ -32,7 +32,7 @@
       owner: "{{corpusops_nginx_vhost_vars.owner|default(omit)}}"
       group: "{{corpusops_nginx_vhost_vars.group|default(omit)}}"
       recurse: "{{item.recurse|default(omit)}}"
-    with_items:
+    loop:
     - "{{corpusops_nginx_vhost_vars.ssl_key_path}}"
     - "{{corpusops_nginx_vhost_vars.ssl_cert_path}}"
   - copy:
@@ -42,7 +42,7 @@
       mode: "750"
       owner: "{{corpusops_nginx_vhost_vars.owner|default(omit)}}"
       group: "{{corpusops_nginx_vhost_vars.group|default(omit)}}"
-    with_items:
+    loop:
     - "{{corpusops_nginx_vhost_vars.ssl_cert_path}}"
   - copy:
       dest: "{{item}}"
@@ -51,7 +51,7 @@
       mode: "750"
       owner: "{{corpusops_nginx_vhost_vars.owner|default(omit)}}"
       group: "{{corpusops_nginx_vhost_vars.group|default(omit)}}"
-    with_items:
+    loop:
     - "{{corpusops_nginx_vhost_vars.ssl_key_path}}"
 - name: files containers
   file:
@@ -62,7 +62,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items:
+  loop:
   - {path: "{{corpusops_nginx_vhost_vars.ssl_cert_path | copsf_api_dirname }}",
     owner: "{{corpusops_nginx_vhost_vars.user}}",
     group: "{{corpusops_nginx_vhost_vars.group}}",
@@ -92,7 +92,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: false
-  with_items: "{{corpusops_nginx_vhost_vars.configs}}"
+  loop: "{{corpusops_nginx_vhost_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_nginx_vhost_vars.configs is not none and
           corpusops_nginx_vhost_vars.configs|length > 0)"
 - name: install conf.d dir

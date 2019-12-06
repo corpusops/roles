@@ -12,5 +12,5 @@
     tags: [do_role]
   - shell:
       iptables -D INPUT -s {{item}} -j DROP || /bin/true
-    with_items: "{{antiddos_old_dropped|default([])}}"
+    loop: "{{antiddos_old_dropped|default([])|flatten(levels=1)}}"
     tags: [do_unban]

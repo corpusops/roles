@@ -16,7 +16,7 @@
         dropdb "{{item}}" || /bin/true
       become: true
       become_user: "postgres"
-      with_items:
+      loop:
         - mysql_db_ndb2
         - mysql_db_ndb3
     - include_role:

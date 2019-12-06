@@ -5,7 +5,7 @@
     state: restarted
     name: "{{hdockeritemd}}"
   loop_control: {loop_var: hdockeritemd}
-  with_items: "{{corpusops_services_virt_docker_vars.services}}"
+  loop: "{{corpusops_services_virt_docker_vars.services|flatten(levels=1)}}"
   when: "(corpusops_services_virt_docker_vars.activated and
           corpusops_services_virt_docker_services|default(True) and
           corpusops_vars.has_services_manager and
@@ -15,7 +15,7 @@
   cops_service:
     state: restarted
     name: "{{hdockeritemc}}"
-  with_items: "{{corpusops_services_virt_docker_vars.services}}"
+  loop: "{{corpusops_services_virt_docker_vars.services|flatten(levels=1)}}"
   loop_control: {loop_var: hdockeritemc}
   when: "(corpusops_services_virt_docker_vars.activated and
           corpusops_services_virt_docker_services|default(True) and

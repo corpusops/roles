@@ -5,7 +5,7 @@
   retries: "{{cops_async_retries|default(_cops_async_retries)}}"
   delay: "{{(cops_async_retry_delay
              |default(_cops_async_retry_delay))|int}}"
-  with_items: "{{cops_async_results.results}}"
+  loop: "{{cops_async_results.results|flatten(levels=1)}}"
   failed_when: false
   loop_control: {loop_var: cops_async_item}
 - debug:

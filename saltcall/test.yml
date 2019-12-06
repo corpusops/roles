@@ -15,7 +15,7 @@
         state: present
       when: "ansible_os_family.lower() in ['debian']"
       tags: corpusops_localsettings_jdk
-      with_items: [salt-common]
+      loop: [salt-common]
     - name: update & install prerequisites
       package:
         update_cache: yes
@@ -23,7 +23,7 @@
         state: present
       when: "ansible_os_family.lower() in ['redhat']"
       tags: corpusops_localsettings_jdk
-      with_items: [salt-minion]
+      loop: [salt-minion]
     - saltcall:
         function: cmd.run
         args: '"echo foo"'

@@ -8,7 +8,7 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_phantoms_vars.packages is not none and
           corpusops_localsettings_phantoms_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_phantoms_vars.packages}}"
+  loop: "{{corpusops_localsettings_phantoms_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -17,7 +17,7 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_phantoms_vars.packages is not none and
           corpusops_localsettings_phantoms_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_phantoms_vars.packages}}"
+  loop: "{{corpusops_localsettings_phantoms_vars.packages|flatten(levels=1)}}"
 - name: files
   file:
     path: "{{item.path}}"
@@ -25,7 +25,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_localsettings_phantoms_vars.files}}"
+  loop: "{{corpusops_localsettings_phantoms_vars.files|flatten(levels=1)}}"
   when: "(corpusops_localsettings_phantoms_vars.files is not none and
           corpusops_localsettings_phantoms_vars.files|length > 0)"
 - name: configs
@@ -36,7 +36,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_phantoms_vars.configs}}"
+  loop: "{{corpusops_localsettings_phantoms_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_phantoms_vars.configs is not none and
           corpusops_localsettings_phantoms_vars.configs|length > 0)"
 - debug:
@@ -59,7 +59,7 @@
     path: "{{item}}"
     state: "directory"
     mode: "755"
-  with_items: "{{[corpusops_localsettings_phantoms_casperjs_app_path]}}"
+  loop: "{{[corpusops_localsettings_phantoms_casperjs_app_path]|flatten(levels=1)}}"
 - shell: |
     cd {{corpusops_localsettings_phantoms_casperjs_app_path}}
     yarn add --non-interactive casperjs@{{corpusops_localsettings_phantoms_casperjs_version}}

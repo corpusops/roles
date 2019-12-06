@@ -1,7 +1,7 @@
 ---
 - name: project files existence test
   stat: {path: "{{item}}"}
-  with_items: "{{backup_paths}}"
+  loop: "{{backup_paths|flatten(levels=1)}}"
   register: _files_to_backup
 #- debug: {msg: "{{_files_to_backup}}"}
 - debug:
@@ -15,6 +15,6 @@
       {{ r | to_json }}
   register: __files_to_backup
 - include: rbackup.yml
-  with_items: "{{__files_to_backup.msg}}"
+  loop: "{{__files_to_backup.msg|flatten(levels=1)}}"
   loop_control: {loop_var: backup_path}
   when: ["__files_to_backup.msg|length>0"]
