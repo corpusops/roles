@@ -1,13 +1,16 @@
 ---
+- debug:
+    msg:
+    - path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{(
+             cops_aconfig_fl_item.name | default(cops_aconfig_fl_item.dest
+             | default(cops_aconfig_fl_item.path)))
+             | copsf_dirname}}"
+      mode: "{{cops_aconfig_fl_item.dir_mode|default(omit)}}"
+      owner: "{{cops_aconfig_fl_item.dir_owner|default(cops_aconfig_fl_item.owner|default(omit))}}"
+      group: "{{cops_aconfig_fl_item.dir_group|default(cops_aconfig_fl_item.group|default(omit))}}"
+  register: floopvar
 - when: ["not cops_configs_is_async_copys"]
   name: create parent wrapper [file]
   include: _create_parent.yml
   loop_control: {loop_var: subitem}
-  with_items:
-  - path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{(
-             cops_aconfig_fl_item.name | default(cops_aconfig_fl_item.dest
-             | default(cops_aconfig_fl_item.path)))
-             | copsf_dirname}}"
-    mode: "{{cops_aconfig_fl_item.dir_mode|default(omit)}}"
-    owner: "{{cops_aconfig_fl_item.dir_owner|default(cops_aconfig_fl_item.owner|default(omit))}}"
-    group: "{{cops_aconfig_fl_item.dir_group|default(cops_aconfig_fl_item.group|default(omit))}}"
+  loop: "{{floopvar.msg}}"
