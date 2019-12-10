@@ -131,6 +131,7 @@ corpusops_localsettings_certbot_mailto: ""
 corpusops_localsettings_certbot_has_cron: |
 corpusops_localsettings_certbot_cron: |
   MAILTO="{{vars['corpusops_localsettings_certbot_mailto']}}"
+  PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
   {{vars['corpusops_localsettings_certbot_periodicity']}} root {{vars['corpusops_localsettings_certbot_home']}}/le_renew.sh
 corpusops_localsettings_certbot_periodicity: "24 3 * * *"
 corpusops_localsettings_certbot_haproxy_certs_dir: "/etc/ssl/haproxy/certs"
