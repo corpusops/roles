@@ -18,10 +18,10 @@
 
     ```yaml
     ---
-    foo_var:
+    foo_bar:
       truc: muche
       other: goo
-    foo_var_truc: bar
+    foo_bar_truc: bar
     ```
 
 - And in a task you do:
@@ -37,7 +37,7 @@
 
     ```yaml
     ---
-    foo_var:
+    foo_bar_vars:
       truc: bar
       other: goo
     ```
@@ -47,22 +47,32 @@
 
     ```yaml
     ---
-    foo_var:
+    foo_bar_vars:
       truc: muche
       other: goo
-    _foo_var:
+    _foo_bar:
       truc: 2222
     ```
 
-- One other way is either to redefine the whole dict as usual in ``defaults/main.yml`` or somewhere in your variables:
+- One other way is either to define the whole default registry dict is
+  as usual in ``defaults/main.yml`` or somewhere in your variables:
 
     ```yaml
     ---
-    foo_var:
-      truc: other1
+    foo_bar_truc: other1
     ```
 
+- To define defaults values that won't interfer with any of thos ways, and then
+  let the user free to use any of the dict form or the flatten form to override particular values in
+  the registry, you can use the special ``___<prefix>`` form this way:
 
+    ```yaml
+    # this form that wont have any conflict with the overriding forms (flatten or dict) is this one:
+    # ___<prefiv>: {var: foo}
+    # so
+    ___foo_bar:
+      truc: other1
+    ```
 - You noticed that by default:
     - the extra var name is ``${you_var}_vars``
     - the prefix for variables is ``${you_var}_``

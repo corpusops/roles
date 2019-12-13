@@ -646,6 +646,14 @@ def copsf_reset_vars_from_registry(ansible_vars,
     overrides = ansible_vars.get(overrides_prefix, {})
     if not isinstance(overrides, dict):
         overrides = {}
+    # try to load the special ___<prefix> dict
+    # to load common defaults between flatten and dict mode
+    default_reg_vars_prefix = '___{0}'.format(prefix[:-1])
+    default_reg_vars = ansible_vars.get(default_reg_vars_prefix, {}) or {}
+    if isinstance(default_reg_vars, dict):
+        for i, val in six.iteritems(default_reg_vars):
+            ansible_vars['{0}{1}'.format(prefix, i)] = val
+            # get all registry knobs
     for var in [
         a for a in ansible_vars
         if (
@@ -1291,8 +1299,17 @@ def version_compare(value, version, operator='eq', strict=False):
         raise errors.AnsibleFilterError('Version comparison: %s' % e)
 
 
+def get_vars_under_prefix(avars, prefix):
+    res = {}
+    for i, val in avars.items():
+        if i.startswith(prefix):
+            res[i] = val
+    return res
+
+
 __funcs__ = {
     'copsf_small_name': copsf_small_name,
+    'copsf_get_vars_under_prefix': get_vars_under_prefix,
     'copsf_refilter': copsf_refilter,
     'copsf_registry_and_defaults': registry_and_defaults,
     'copsf_uniquify': uniquify,
