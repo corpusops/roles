@@ -308,7 +308,7 @@ def append_netmask(ip):
         netm = "{0}".format(netm)
         net = '.'.join(chunks) + '/' + netm
         return net
-         
+
 
 def live_settings(ansible_vars, prefix):
     '''
