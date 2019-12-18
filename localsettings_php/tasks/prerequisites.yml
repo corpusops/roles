@@ -4,7 +4,7 @@
     id: '{{item}}'
     keyserver: "{{corpusops_localsettings_php_vars.keyserver}}"
     state: present
-  with_items: '{{corpusops_localsettings_php_vars.repo_keys}}'
+  loop: '{{corpusops_localsettings_php_vars.repo_keys}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_php_vars.repo_keys is not none and
           corpusops_localsettings_php_vars.repo_keys|length > 0)"
@@ -30,7 +30,7 @@
     update_cache: yes
     name: "{{item}}"
     state: present
-  with_items: '{{corpusops_localsettings_php_vars.packages}}'
+  loop: '{{corpusops_localsettings_php_vars.packages}}'
   register: corpusops_localsettings_php_pkgstd
   when: corpusops_localsettings_php_repoda.changed
 - name: install prerequisites
@@ -39,7 +39,7 @@
     update_cache: yes
     name: "{{item}}"
     state: present
-  with_items: '{{corpusops_localsettings_php_vars.packages}}'
+  loop: '{{corpusops_localsettings_php_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_php_vars.packages is not none and
           corpusops_localsettings_php_vars.packages|length > 0)"
@@ -56,7 +56,7 @@
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{item}}"
-  with_items: ["{{corpusops_localsettings_php_vars.repo}}"]
+  loop: "{{[corpusops_localsettings_php_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_php_vars.packages is not none and
           corpusops_localsettings_php_vars.packages|length > 0)"
@@ -69,7 +69,7 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_php_vars.packages is not none and
           corpusops_localsettings_php_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_php_vars.packages}}"
+  loop: "{{corpusops_localsettings_php_vars.packages|flatten(levels=1)}}"
 
 - group:
     name: "{{corpusops_localsettings_php_vars.group}}"

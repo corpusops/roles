@@ -7,7 +7,7 @@
   - file:
       state: absent
       path: "/tmp/{{item}}"
-    with_items: ["{{cn}}", "{{cn2}}"]
+    loop: ["{{cn}}", "{{cn2}}"]
   - include_role: {public: false, name: corpusops.roles/ssl_selfsigned_cert}
     vars:
        _ssl_selfsigned_cert:

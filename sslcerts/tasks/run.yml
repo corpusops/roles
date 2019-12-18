@@ -4,14 +4,14 @@
   register:  cops_sslcerts_dirs
 # add configured certs
 - include_tasks: _manage.yml
-  with_dict: "{{cops_sslcerts_vars.added}}"
+  loop: "{{cops_sslcerts_vars.added|dict2items}}"
   vars: {state: present}
   loop_control: {loop_var: subitem}
   tags: [sslcerts, sslcerts_add]
   register:  cops_sslcerts_added_ret
 # remove configured to be deleted certs
 - include_tasks: _manage.yml
-  with_dict: "{{cops_sslcerts_vars.removed}}"
+  loop: "{{cops_sslcerts_vars.removed|dict2items}}"
   vars: {state: absent}
   loop_control: {loop_var: subitem}
   tags: [sslcerts, sslcerts_remove]

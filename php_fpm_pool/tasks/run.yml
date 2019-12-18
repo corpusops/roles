@@ -1,7 +1,7 @@
 ---
 - name: files
   include_tasks: _pool_file.yml
-  with_items: "{{corpusops_fpm_pool_vars.files}}"
+  loop: "{{corpusops_fpm_pool_vars.files|flatten(levels=1)}}"
   loop_control:
     loop_var: poolitem
   when: "(corpusops_fpm_pool_vars.files is not none and
@@ -12,7 +12,7 @@
     state: "directory"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_fpm_pool_vars.configs}}"
+  loop: "{{corpusops_fpm_pool_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_fpm_pool_vars.configs is not none and
           corpusops_fpm_pool_vars.install and
           corpusops_fpm_pool_vars.configs|length > 0)"
@@ -26,7 +26,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_fpm_pool_vars.configs}}"
+  loop: "{{corpusops_fpm_pool_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_fpm_pool_vars.configs is not none and
           corpusops_fpm_pool_vars.install and
           corpusops_fpm_pool_vars.configs|length > 0)"
@@ -34,7 +34,7 @@
   file:
     path: "{{item.name}}"
     state: "absent"
-  with_items: "{{corpusops_fpm_pool_vars.configs}}"
+  loop: "{{corpusops_fpm_pool_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_fpm_pool_vars.configs is not none and
           not corpusops_fpm_pool_vars.install and
           corpusops_fpm_pool_vars.configs|length > 0)"
@@ -47,7 +47,7 @@
     src: "{{item.src|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_fpm_pool_vars.logs}}"
+  loop: "{{corpusops_fpm_pool_vars.logs|flatten(levels=1)}}"
 - include_role:
     name: corpusops.roles/php_fpm_control
   vars:

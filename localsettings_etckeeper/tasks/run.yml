@@ -7,7 +7,7 @@
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  with_items: "{{corpusops_localsettings_etckeeper_vars.files}}"
+  loop: "{{corpusops_localsettings_etckeeper_vars.files|flatten(levels=1)}}"
 - name: configs
   template:
     src: "../templates/{{item.name}}"
@@ -16,7 +16,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_etckeeper_vars.configs}}"
+  loop: "{{corpusops_localsettings_etckeeper_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_localsettings_etckeeper_vars.configs is not none and
           corpusops_localsettings_etckeeper_vars.configs|length > 0)"
   tags: corpusops_localsettings_etckeeper
@@ -30,7 +30,7 @@
           corpusops_localsettings_etckeeper_vars.packages is not none and
           corpusops_localsettings_etckeeper_vars.packages|length > 0)"
   tags: corpusops_localsettings_etckeeper
-  with_items: "{{corpusops_localsettings_etckeeper_vars.packages}}"
+  loop: "{{corpusops_localsettings_etckeeper_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -40,7 +40,7 @@
           corpusops_localsettings_etckeeper_vars.packages is not none and
           corpusops_localsettings_etckeeper_vars.packages|length > 0)"
   tags: corpusops_localsettings_etckeeper
-  with_items: "{{corpusops_localsettings_etckeeper_vars.packages}}"
+  loop: "{{corpusops_localsettings_etckeeper_vars.packages|flatten(levels=1)}}"
 - shell: test -d /etc/.git && egrep -q "email.*=" /etc/.git/config
   register: corpusops_localsettings_etckeeper_do
   changed_when: False

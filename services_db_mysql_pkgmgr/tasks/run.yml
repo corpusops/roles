@@ -4,7 +4,7 @@
     id: '{{item}}'
     keyserver: "{{corpusops_services_db_mysql_vars.keyserver}}"
     state: present
-  with_items: '{{corpusops_services_db_mysql_vars.repo_keys}}'
+  loop: '{{corpusops_services_db_mysql_vars.repo_keys}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_db_mysql_vars.repo_keys is not none and
           corpusops_services_db_mysql_vars.repo_keys|length > 0)"
@@ -25,7 +25,7 @@
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{item}}"
-  with_items: ["{{corpusops_services_db_mysql_vars.repo}}"]
+  loop: "{{[corpusops_services_db_mysql_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_db_mysql_vars.client_packages is not none and
           corpusops_services_db_mysql_vars.client_packages|length > 0)"

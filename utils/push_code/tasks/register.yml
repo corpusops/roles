@@ -3,7 +3,7 @@
 - stat:
     path: "{{_cops_provision_push_code.path}}/{{d}}"
   loop_control: {loop_var: d}
-  with_items: "{{_cops_provision_push_code.file_tests | default([])}}"
+  loop: "{{_cops_provision_push_code.file_tests | default([])|flatten(levels=1)}}"
   register: cops_push_codes_already_done
 - register: __cops_provision_push_code
   debug:

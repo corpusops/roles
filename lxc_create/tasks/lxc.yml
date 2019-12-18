@@ -36,7 +36,7 @@
     mode: "0755"
     state: directory
   tags: corpusops_lxc_create,corpusops_lxc_create_dirs
-  with_items:
+  loop:
     - "{{lxc_path}}/{{lxc_container_name}}"
     - "{{lxc_path}}/{{lxc_container_name}}/bin"
     - "{{lxc_path}}/{{lxc_container_name}}/tmp"
@@ -50,7 +50,7 @@
     force: true
     trim_blocks: false
   tags: corpusops_lxc_create,corpusops_lxc_create_scripts
-  with_items:
+  loop:
     - tmp/01-netplan-corpusops.yaml
     - tmp/interfaces
 - name: lxc mgmt scripts
@@ -61,7 +61,7 @@
              }.get(item, '0755')}}"
     force: true
   tags: corpusops_lxc_create,corpusops_lxc_create_scripts
-  with_items:
+  loop:
     - bin/cops_reset-host.py
     - bin/cops_shell_common
     - bin/cops_pkgmgr_install.sh

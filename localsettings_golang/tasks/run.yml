@@ -27,7 +27,7 @@
           corpusops_localsettings_golang_vars.packages is not none and
           corpusops_localsettings_golang_vars.packages|length > 0)"
   tags: corpusops_localsettings_golang
-  with_items: "{{corpusops_localsettings_golang_vars.packages}}"
+  loop: "{{corpusops_localsettings_golang_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -37,13 +37,13 @@
           corpusops_localsettings_golang_vars.packages is not none and
           corpusops_localsettings_golang_vars.packages|length > 0)"
   tags: corpusops_localsettings_golang
-  with_items: "{{corpusops_localsettings_golang_vars.packages}}"
+  loop: "{{corpusops_localsettings_golang_vars.packages|flatten(levels=1)}}"
 - name: containers
   file:
     path: "{{item.value.d}}"
     mode: "0755"
     state: directory
-  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  loop: "{{corpusops_localsettings_golang_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_golang_vars.versions is not none and
           corpusops_localsettings_golang_vars.versions|length > 0)"
   tags: corpusops_localsettings_golang
@@ -55,14 +55,14 @@
     remote_src: true
     dest: "{{'{d}/{bn}'.format(**item.value)}}"
     mode: "0644"
-  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  loop: "{{corpusops_localsettings_golang_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_golang_vars.versions is not none and
           corpusops_localsettings_golang_vars.versions|length > 0)"
   tags: corpusops_localsettings_golang
 - name: "test if alreagy unpacked"
   stat: {path: "{{'{d}/bin/go'.format(**item.value)}}"}
   failed_when: false
-  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  loop: "{{corpusops_localsettings_golang_vars.urls|dict2items}}"
   register: corpusops_localsettings_golang_testbinsr
   tags: corpusops_localsettings_golang
 - debug: {msg: "{{corpusops_localsettings_golang_testbinsr }}"}
@@ -89,7 +89,7 @@
         {{ opts | to_json }}
     src: "{{'{d}/{bn}'.format(**item.value)}}"
     dest: "{{item.value.d}}"
-  with_dict: "{{corpusops_localsettings_golang_vars.urls}}"
+  loop: "{{corpusops_localsettings_golang_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_golang_vars.versions is not none and
           corpusops_localsettings_golang_vars.versions|length > 0 and
           not corpusops_localsettings_golang_testbins.msg.get(
@@ -104,7 +104,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_localsettings_golang_vars.configs}}"
+  loop: "{{corpusops_localsettings_golang_vars.configs|flatten(levels=1)}}"
   when: "(
     corpusops_localsettings_golang_vars.configs is not none and
     corpusops_localsettings_golang_vars.configs|length > 0)"
@@ -200,7 +200,7 @@
     dest: "{{item.value.d}}/golang.env"
     src: "../templates/golang.env"
     mode: "0644"
-  with_dict: "{{corpusops_localsettings_golang_vars.installs}}"
+  loop: "{{corpusops_localsettings_golang_vars.installs|dict2items}}"
   tags: corpusops_localsettings_golang
   when: "(corpusops_localsettings_golang_vars.version is not none and
           corpusops_localsettings_golang_vars.installs is not none and

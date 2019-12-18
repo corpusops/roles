@@ -4,7 +4,7 @@
     daemon_reload: yes
     state: restarted
     name: "{{item}}"
-  with_items: "{{corpusops_localsettings_autoupgrades_vars.services}}"
+  loop: "{{corpusops_localsettings_autoupgrades_vars.services|flatten(levels=1)}}"
   when: "(corpusops_localsettings_autoupgrades_vars.activated and
           corpusops_localsettings_autoupgrades_vars.services|length > 0 and
           corpusops_vars.has_services_manager and
@@ -14,7 +14,7 @@
   cops_service:
     state: restarted
     name: "{{item}}"
-  with_items: "{{corpusops_localsettings_autoupgrades_vars.services}}"
+  loop: "{{corpusops_localsettings_autoupgrades_vars.services|flatten(levels=1)}}"
   when: "(corpusops_localsettings_autoupgrades_vars.activated and
           corpusops_localsettings_autoupgrades_vars.services|length > 0 and
           corpusops_vars.has_services_manager and

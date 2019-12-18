@@ -14,7 +14,7 @@
         createdb "{{item}}" -l C.UTF-8 -E utf8 -T template0
       become: true
       become_user: "postgres"
-      with_items:
+      loop:
         - postgresql_dropreset_db_encoding_db1
         - postgresql_dropreset_db_encoding_db2
     - set_fact:

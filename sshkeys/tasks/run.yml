@@ -1,12 +1,12 @@
 ---
 - include_tasks: "./_manage.yml"
-  with_dict: "{{cops_sshkeys_vars.added}}"
+  loop: "{{cops_sshkeys_vars.added|dict2items}}"
   register:  cops_sshkeys_added_ret
   vars: {state: present}
   loop_control: {loop_var: subitem}
   tags: [sshkeys, sshkeys_add]
 - include_tasks: _manage.yml
-  with_dict: "{{cops_sshkeys_vars.removed}}"
+  loop: "{{cops_sshkeys_vars.removed|dict2items}}"
   register:  cops_sshkeys_removed_ret
   vars: {state: absent}
   loop_control: {loop_var: subitem}

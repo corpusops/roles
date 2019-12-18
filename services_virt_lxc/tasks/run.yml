@@ -26,7 +26,7 @@
           corpusops_services_virt_lxc_vars.packages is not none and
           corpusops_services_virt_lxc_vars.packages|length > 0)"
   tags: corpusops_services_virt_lxc
-  with_items: "{{corpusops_services_virt_lxc_vars.packages}}"
+  loop: "{{corpusops_services_virt_lxc_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
@@ -37,7 +37,7 @@
           corpusops_services_virt_lxc_vars.packages is not none and
           corpusops_services_virt_lxc_vars.packages|length > 0)"
   tags: corpusops_services_virt_lxc
-  with_items: "{{corpusops_services_virt_lxc_vars.packages}}"
+  loop: "{{corpusops_services_virt_lxc_vars.packages|flatten(levels=1)}}"
 - name: patch tmpfs
   shell: |
     {% set proc_mode=corpusops_services_virt_lxc_vars.proc_mode%}
@@ -60,7 +60,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_virt_lxc_vars.files}}"
+  loop: "{{corpusops_services_virt_lxc_vars.files|flatten(levels=1)}}"
   when: "(corpusops_services_virt_lxc_vars.files is not none and
           corpusops_services_virt_lxc_vars.files|length > 0)"
   tags: corpusops_services_virt_lxc
@@ -75,7 +75,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_virt_lxc_vars.filescopy}}"
+  loop: "{{corpusops_services_virt_lxc_vars.filescopy|flatten(levels=1)}}"
   when: "(corpusops_services_virt_lxc_vars.filescopy is not none and
           corpusops_services_virt_lxc_vars.filescopy|length > 0)"
   tags: corpusops_services_virt_lxc
@@ -89,7 +89,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_virt_lxc_vars.configs}}"
+  loop: "{{corpusops_services_virt_lxc_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_services_virt_lxc_vars.configs is not none and
           corpusops_services_virt_lxc_vars.configs|length > 0)"
   tags: corpusops_services_virt_lxc
@@ -101,7 +101,7 @@
     enabled: "{{corpusops_services_virt_lxc_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_virt_lxc_vars.services}}"
+  loop: "{{corpusops_services_virt_lxc_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_virt_lxc
 # ensure some kernel modules are loaded to facilitate docker integration
 # inside lxc containers
@@ -120,5 +120,5 @@
     name: "{{item}}"
     state: present
   when: "corpusops_services_virt_lxc_vars.docker_support"
-  with_items: " {{corpusops_services_virt_lxc_vars.docker_modules}}"
+  loop: " {{corpusops_services_virt_lxc_vars.docker_modules|flatten(levels=1)}}"
 - meta: flush_handlers

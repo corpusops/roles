@@ -32,7 +32,7 @@
       {{- data|to_json}}
   register: backup_slash_to_backup_backups
 - include_tasks: mount.yml
-  with_dict: "{{backup_slash_to_backup_backups.msg}}"
+  loop: "{{backup_slash_to_backup_backups.msg|dict2items}}"
 - name: files
   file:
     path: "{{item.path}}"
@@ -42,7 +42,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_backup_slash_vars.files}}"
+  loop: "{{corpusops_services_backup_slash_vars.files|flatten(levels=1)}}"
   when: "(corpusops_services_backup_slash_vars.files is not none and
           corpusops_services_backup_slash_vars.files|length > 0)"
   register: corpusops_services_backup_slash_filest
@@ -57,7 +57,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_backup_slash_vars.filescopy}}"
+  loop: "{{corpusops_services_backup_slash_vars.filescopy|flatten(levels=1)}}"
   when: "(corpusops_services_backup_slash_vars.filescopy is not none and
           corpusops_services_backup_slash_vars.filescopy|length > 0)"
   register: corpusops_services_backup_slash_filesct
@@ -72,7 +72,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_backup_slash_vars.configs}}"
+  loop: "{{corpusops_services_backup_slash_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_services_backup_slash_vars.configs is not none and
           corpusops_services_backup_slash_vars.configs|length > 0)"
   register: corpusops_services_backup_slash_configst

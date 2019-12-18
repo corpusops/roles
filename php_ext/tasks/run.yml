@@ -1,6 +1,6 @@
 ---
 - name: "PHP: install extension: {{ext}}"
   include_tasks: _activate_ext.yml
-  with_items: "{{corpusops_php_ext_vars.exts}}"
+  loop: "{{corpusops_php_ext_vars.exts|flatten(levels=1)}}"
   loop_control: {loop_var: ext}
 

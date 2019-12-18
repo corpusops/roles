@@ -4,7 +4,7 @@
     daemon_reload: yes
     state: restarted
     name: "{{item}}"
-  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  loop: "{{corpusops_services_http_nginx_vars.services|flatten(levels=1)}}"
   when: "(corpusops_nginx_control_vars.handle_nginx and
           corpusops_services_http_nginx_vars.activated and
           corpusops_vars.has_services_manager and
@@ -13,7 +13,7 @@
   service:
     state: restarted
     name: "{{item}}"
-  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  loop: "{{corpusops_services_http_nginx_vars.services|flatten(levels=1)}}"
   when: "(corpusops_nginx_control_vars.handle_nginx and
           corpusops_services_http_nginx_vars.activated and
           corpusops_vars.has_services_manager and
@@ -23,7 +23,7 @@
     daemon_reload: yes
     state: reloaded
     name: "{{item}}"
-  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  loop: "{{corpusops_services_http_nginx_vars.services|flatten(levels=1)}}"
   when: "(corpusops_nginx_control_vars.handle_nginx and
           corpusops_services_http_nginx_vars.activated and
           corpusops_vars.has_services_manager and
@@ -32,7 +32,7 @@
   service:
     state: reloaded
     name: "{{item}}"
-  with_items: "{{corpusops_services_http_nginx_vars.services}}"
+  loop: "{{corpusops_services_http_nginx_vars.services|flatten(levels=1)}}"
   when: "(corpusops_nginx_control_vars.handle_nginx and
           corpusops_services_http_nginx_vars.activated and
           corpusops_vars.has_services_manager and

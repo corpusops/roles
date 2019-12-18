@@ -39,7 +39,7 @@
     update_cache: yes
     name: "{{dockeriteml}}"
     state: present
-  with_items: '{{corpusops_localsettings_docker_vars.packages}}'
+  loop: '{{corpusops_localsettings_docker_vars.packages}}'
   loop_control: {loop_var: dockeriteml}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.packages is not none and
@@ -54,7 +54,7 @@
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
-  with_items: "{{corpusops_localsettings_docker_vars.packages}}"
+  loop: "{{corpusops_localsettings_docker_vars.packages|flatten(levels=1)}}"
   loop_control: {loop_var: dockeritemk}
 - name: update & install prerequisites (yum-utils)
   package:
@@ -68,7 +68,7 @@
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{dockeritemi}}"
-  with_items: ["{{corpusops_localsettings_docker_vars.repo}}"]
+  loop: "{{[corpusops_localsettings_docker_vars.repo]|flatten(levels=1)}}"
   loop_control: {loop_var: dockeritemi}
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_docker_vars.packages is not none and

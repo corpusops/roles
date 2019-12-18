@@ -49,7 +49,7 @@
   stat:
     path: "{{'/'.join([app_path, iiitem])}}"
   register: install_one_filet
-  with_items: "{{filetest}}"
+  loop: "{{filetest|flatten(levels=1)}}"
   loop_control: {loop_var: iiitem}
 - debug:
    msg: |-
@@ -75,7 +75,7 @@
   vars:
     keys: "{{corpusops_uo_tests.msg.verify_gpg}}"
   loop_control: {loop_var: keyitem}
-  with_items: "{{corpusops_uo_tests.msg.verify_gpg}}"
+  loop: "{{corpusops_uo_tests.msg.verify_gpg|flatten(levels=1)}}"
   when: "(corpusops_uo_tests.msg.verify_gpg is not none and
           corpusops_uo_tests.msg.verify_gpg|length > 0)"
 

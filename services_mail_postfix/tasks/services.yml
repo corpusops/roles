@@ -21,6 +21,6 @@
                 | ternary(True, False)}}"
     name: "{{item}}"
     daemon_reload: true
-  with_items: "{{corpusops_services_mail_postfix_vars.services}}"
+  loop: "{{corpusops_services_mail_postfix_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_mail_postfix
 - meta: flush_handlers

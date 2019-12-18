@@ -69,5 +69,5 @@
     fi
     echo "{{aname}} alternative set"
   register: corpusops_set_alternatives
-  with_dict: "{{alternatives}}"
+  loop: "{{alternatives|dict2items}}"
   changed_when: "'alternative changed' in corpusops_set_alternatives.stdout"

@@ -9,7 +9,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_db_postgresql_vars.wrapper_configs}}"
+  loop: "{{corpusops_services_db_postgresql_vars.wrapper_configs|flatten(levels=1)}}"
   when: "(corpusops_services_db_postgresql_vars.configs is not none and
           corpusops_services_db_postgresql_vars.configs|length > 0)"
   register: corpusops_services_db_postgresql_wconfigs1
@@ -22,7 +22,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_db_postgresql_vars.wrapped_binaries}}"
+  loop: "{{corpusops_services_db_postgresql_vars.wrapped_binaries|flatten(levels=1)}}"
   when: "(corpusops_services_db_postgresql_vars.configs is not none and
           corpusops_services_db_postgresql_vars.configs|length > 0)"
   register: corpusops_services_db_postgresql_wconfigs2

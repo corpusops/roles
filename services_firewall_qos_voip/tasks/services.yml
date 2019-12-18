@@ -18,6 +18,6 @@
     enabled: "{{corpusops_services_firewall_qos_voip_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_firewall_qos_voip_vars.services}}"
+  loop: "{{corpusops_services_firewall_qos_voip_vars.services|flatten(levels=1)}}"
   tags: [corpusops_services_firewall_qos_voip, corpusops_services_firewall_qos_voip_services]
 - meta: flush_handlers

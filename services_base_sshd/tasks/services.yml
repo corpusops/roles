@@ -18,6 +18,6 @@
                 | ternary(True, False)}}"
     name: "{{item}}"
     daemon_reload: true
-  with_items: "{{corpusops_services_base_sshd_vars.services}}"
+  loop: "{{corpusops_services_base_sshd_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_base_sshd
 - meta: flush_handlers

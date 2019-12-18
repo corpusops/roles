@@ -3,7 +3,7 @@
   tags: [mysql_crt, mysql_crt_main]
   block:
   - include_role: {name: corpusops.roles/ssl_ca_signed_cert}
-    with_items:
+    loop:
       - cn: "{{corpusops_services_db_mysql_vars.cert_domain}}"
         owner: root
         ca_name: mysql
@@ -46,7 +46,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_db_mysql_vars.files}}"
+  loop: "{{corpusops_services_db_mysql_vars.files|flatten(levels=1)}}"
   when: "(corpusops_services_db_mysql_vars.files is not none and
           corpusops_services_db_mysql_vars.files|length > 0)"
   register: corpusops_services_db_mysql_filest
@@ -61,7 +61,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     recurse: "{{item.recurse|default(omit)}}"
-  with_items: "{{corpusops_services_db_mysql_vars.filescopy}}"
+  loop: "{{corpusops_services_db_mysql_vars.filescopy|flatten(levels=1)}}"
   when: "(corpusops_services_db_mysql_vars.filescopy is not none and
           corpusops_services_db_mysql_vars.filescopy|length > 0)"
   register: corpusops_services_db_mysql_filesct
@@ -76,7 +76,7 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
-  with_items: "{{corpusops_services_db_mysql_vars.configs}}"
+  loop: "{{corpusops_services_db_mysql_vars.configs|flatten(levels=1)}}"
   when: "(corpusops_services_db_mysql_vars.configs is not none and
           corpusops_services_db_mysql_vars.configs|length > 0)"
   register: corpusops_services_db_mysql_configst

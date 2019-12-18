@@ -18,7 +18,7 @@
     enabled: "{{corpusops_services_db_postgresql_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_db_postgresql_vars.services}}"
+  loop: "{{corpusops_services_db_postgresql_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_db_postgresql
 # with debian cluster mgmnt, verify our pg is really up
 # and die otherwise
@@ -45,7 +45,7 @@
     enabled: "{{corpusops_services_db_postgresql_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{cops_pg_service}}"
+  loop: "{{cops_pg_service|flatten(levels=1)}}"
   tags: corpusops_services_db_postgresql
   when: |
     (cops_pg_service|copsf_asbool and

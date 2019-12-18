@@ -67,7 +67,7 @@
     {% set h = "{0}/{1}".format(d.prefix, item) %}
     postmap "hash://{{h}}"
     if [ -e "{{h}}.local" ];then postmap "hash://{{h}}.local";fi
-  with_items: "{{corpusops_services_mail_postfix_vars.hashtables}}"
+  loop: "{{corpusops_services_mail_postfix_vars.hashtables|flatten(levels=1)}}"
   changed_when: false
 - name:  fixperms
   shell: |-

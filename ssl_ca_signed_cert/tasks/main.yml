@@ -7,7 +7,7 @@
 - name: "Setup secrets"
   include_role: {name: corpusops.roles/utils/set_secret_variables}
   loop_control: {loop_var: secretvariables}
-  with_items:
+  loop:
   - variables:
     - "ca_password_{{ssl_ca_signed_cert_vars.ca_name}}"
     - "ica_password_{{ssl_ca_signed_cert_vars.ca_name}}"

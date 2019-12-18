@@ -21,6 +21,6 @@
     enabled: "{{corpusops_services_proxy_haproxy_vars.activated
                 | ternary(True, False)}}"
     name: "{{item}}"
-  with_items: "{{corpusops_services_proxy_haproxy_vars.services}}"
+  loop: "{{corpusops_services_proxy_haproxy_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_proxy_haproxy
 - meta: flush_handlers

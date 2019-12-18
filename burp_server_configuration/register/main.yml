@@ -28,7 +28,7 @@
     tags: [burp_server, configure_server, burp_configure_server]
   - block:
     - include_tasks: client_fw.yml
-      with_items: "{{hostvars.localhost.aburp_clients}}"
+      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
     - cops_service: {state: reloaded, service: ms_iptables}
     tags: [burp_server, fw, burp_fw]
   - block:
@@ -48,7 +48,7 @@
     block:
     - include_tasks: password.yml
     - include_tasks: backup_to_server.yml
-      with_items: "{{hostvars.localhost.aburp_clients}}"
+      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
 - hosts: "{{hostvars.localhost.aburp_clients}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]

@@ -40,7 +40,7 @@
   failed_when: false
   no_log: true
 - shell: cat "{{item}}"
-  with_items: "{{cops_homes.stdout.splitlines()}}"
+  loop: "{{cops_homes.stdout.splitlines()|flatten(levels=1)}}"
   changed_when: false
   register: cops_homesc
 - name: "Synchronise \

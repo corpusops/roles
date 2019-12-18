@@ -13,7 +13,7 @@
         dropdb "{{item}}" || /bin/true
       become: true
       become_user: "postgres"
-      with_items:
+      loop:
         - postgresql_role_udb2
         - postgresql_role_udb3
     - include_role:
