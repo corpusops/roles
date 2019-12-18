@@ -19,7 +19,10 @@ import tempfile
 import random
 import string
 import re
-from distutils.version import LooseVersion
+import operator as py_operator
+from distutils.version import LooseVersion, StrictVersion
+
+from ansible import errors
 
 
 try:
@@ -1257,6 +1260,35 @@ def copsf_small_name(res):
     return res
 
 
+
+def version_compare(value, version, operator='eq', strict=False):
+    ''' Perform a version comparison on a value '''
+    op_map = {
+        '==': 'eq', '=': 'eq', 'eq': 'eq',
+        '<': 'lt', 'lt': 'lt',
+        '<=': 'le', 'le': 'le',
+        '>': 'gt', 'gt': 'gt',
+        '>=': 'ge', 'ge': 'ge',
+        '!=': 'ne', '<>': 'ne', 'ne': 'ne'
+    }
+
+    if strict:
+        Version = StrictVersion
+    else:
+        Version = LooseVersion
+
+    if operator in op_map:
+        operator = op_map[operator]
+    else:
+        raise errors.AnsibleFilterError('Invalid operator type')
+
+    try:
+        method = getattr(py_operator, operator)
+        return method(Version(str(value)), Version(str(version)))
+    except Exception as e:
+        raise errors.AnsibleFilterError('Version comparison: %s' % e)
+
+
 __funcs__ = {
     'copsf_small_name': copsf_small_name,
     'copsf_refilter': copsf_refilter,
@@ -1308,6 +1340,10 @@ __funcs__ = {
     'copsf_secure_password': secure_password,
     'copsf_api_rand_value': rand_value,
     'copsf_rand_value': rand_value,
+
+    # pre ansible 29 retrocompat
+    'version_compare': version_compare,
+    'version': version_compare
 }
 
 
