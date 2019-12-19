@@ -1,3 +1,24 @@
 ---
 - hosts: all
-  roles: [corpusops.roles/services_backup_dbsmartbackup_vars]
+  tasks:
+  - block:
+    - include_role: {name: corpusops.roles/services_backup_dbsmartbackup_vars, public: true}
+    - debug: {msg: "{{corpusops_services_backup_dbsmartbackup_dir}}"}
+      when: cops_dbs_debug|default(false)
+  - block:
+    - include_role: {name: corpusops.roles/services_backup_dbsmartbackup_vars, public: true}
+    - {debug: {msg: "{{[corpusops_services_backup_dbsmartbackup_vars.dir,
+                        corpusops_services_backup_dbsmartbackup_dir]}}"}, name: dtest2}
+    vars:
+      _corpusops_services_backup_dbsmartbackup:
+        dir: dbsdir2
+      corpusops_services_backup_dbsmartbackup_dir: dbsdir2
+    when: cops_dbs_debug|default(false)
+  - block:
+    - include_role: {name: corpusops.roles/services_backup_dbsmartbackup_vars, public: true}
+    - {debug: {msg: "{{[corpusops_services_backup_dbsmartbackup_vars.dir,
+                        corpusops_services_backup_dbsmartbackup_dir]}}"}, name: dtest3}
+    vars:
+      _corpusops_services_backup_dbsmartbackup:
+        dir: dbsdir3
+    when: cops_dbs_debug|default(false)
