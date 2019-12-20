@@ -1,0 +1,4 @@
+- include_role: {name: corpusops.roles/vars_registry, public: true}
+  vars:
+    cops_vars_registry_global_scope: true
+    cops_vars_registry_format_resolve: false
