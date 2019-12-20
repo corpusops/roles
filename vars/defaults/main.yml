@@ -1,12 +1,11 @@
 ---
+# get external ip
+corpusops_network_get_ext_ip: true
+
+# corpusops_vars
+corpusops_core_systemd_check_target: basic.target
 # registry compute settings
-corpusops_core_mint_ubuntu_dist: "{% if vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint'%}Ubuntu{% else %}{{ansible_distribution}}{%endif%}"
-corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
-%}{% if (ansible_distribution_major_version|copsf_looseversion) < ('18'|copsf_looseversion)%}trusty{%
-elif (ansible_distribution_major_version|copsf_looseversion) < ('19'|copsf_looseversion)%}xenial{%
-else %}bionic{%endif %}{%
-else %}{{ansible_distribution_release}}{%endif%}"
-corpusops_core_facts_path: "/etc/copsfacts"
+corpusops_core_cops_no_reset: true
 corpusops_core_cops_do_format_resolve: false
 corpusops_core_cops_computed_defaults: []
 corpusops_core_cops_flavors: ['ubuntu', 'debian', 'redhat', 'default']
@@ -14,7 +13,14 @@ corpusops_core_cops_sub_os_append: {}
 corpusops_core_cops_lowered: ['repo']
 corpusops_core_cops_knobs: ['confdefault_dir']
 corpusops_core_cops_sub_namespaces: {}
-
+#
+corpusops_core_mint_ubuntu_dist: "{% if vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint'%}Ubuntu{% else %}{{ansible_distribution}}{%endif%}"
+corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
+  %}{% if (ansible_distribution_major_version|copsf_looseversion) < ('18'|copsf_looseversion)%}trusty{%
+  elif (ansible_distribution_major_version|copsf_looseversion) < ('19'|copsf_looseversion)%}xenial{%
+  else %}bionic{%endif %}{%
+  else %}{{ansible_distribution_release}}{%endif%}"
+corpusops_core_facts_path: "/etc/copsfacts"
 corpusops_core_ssh_args: >-
   {% set k = hostvars[inventory_hostname].get(
                 'ansible_ssh_private_key_file', '') %}
@@ -28,19 +34,14 @@ corpusops_core_ssh_args: >-
   {{ hostvars[inventory_hostname].ansible_ssh_extra_args | default('') }}
   {% endif %}
 
-# corpusops_vars
 # one of : default, kvm, lxccontainer, baremetal, dockercontainer, vagrant
 corpusops_core_server_type: null
 corpusops_core_roles: "{{role_path | copsf_dirname}}"
 corpusops_core_prefix: "{{role_path | copsf_dirname | copsf_dirname | copsf_dirname}}"
-cops_root: "{{corpusops_core_prefix}}"
-
 # try to determine which type of env we are (prod, etc)
 corpusops_core_env: null
-
 # configure to be secure
 corpusops_core_security: false
-
 # virtualization
 # vt: which vt tech: docker, lxc, etc (default: ansible_virtualization_type)
 corpusops_core_vt: null
@@ -52,44 +53,40 @@ corpusops_core_is_docker: null
 corpusops_core_is_container: null
 # has a service manager (sysv; docker, upstart) running
 corpusops_core_has_services_manager: null
-corpusops_core_systemd_check_target: basic.target
-
 # GPG servers
 corpusops_core_keyserver: keyserver.ubuntu.com
 corpusops_core_hkp_keyserver: "hkp://{{corpusops_core_keyserver}}:80"
-
 # path locations
 corpusops_core_var_dir: /var
-corpusops_core_var_spool_dir: "{{vars['corpusops_core_var_dir']}}/spool"
-corpusops_core_sbin_dir: "{{vars['corpusops_core_usr_dir']}}/sbin"
-corpusops_core_share_dir: "{{vars['corpusops_core_usr_dir']}}/share"
-corpusops_core_var_run_dir: "{{vars['corpusops_core_run_dir']}}"
-corpusops_core_var_lib_dir: "{{vars['corpusops_core_var_dir']}}/lib"
-corpusops_core_lib_dir: "{{vars['corpusops_core_usr_dir']}}/lib"
-corpusops_core_unit_dir: "{{vars['corpusops_core_config_dir']}}/systemd/system"
-corpusops_core_log_dir: "{{vars['corpusops_core_var_dir']}}/log"
+corpusops_core_var_spool_dir: "{{corpusops_core_var_dir}}/spool"
+corpusops_core_sbin_dir: "{{corpusops_core_usr_dir}}/sbin"
+corpusops_core_share_dir: "{{corpusops_core_usr_dir}}/share"
+corpusops_core_var_run_dir: "{{corpusops_core_run_dir}}"
+corpusops_core_var_lib_dir: "{{corpusops_core_var_dir}}/lib"
+corpusops_core_lib_dir: "{{corpusops_core_usr_dir}}/lib"
+corpusops_core_unit_dir: "{{corpusops_core_config_dir}}/systemd/system"
+corpusops_core_log_dir: "{{corpusops_core_var_dir}}/log"
 corpusops_core_tmp_dir: "/tmp"
 corpusops_core_usr_dir: "/usr"
 corpusops_core_confdefault_dir: null
-corpusops_core_confdefault_dir_debian: "{{vars['corpusops_core_config_dir']}}/default"
-corpusops_core_confdefault_dir_redhat: "{{vars['corpusops_core_config_dir']}}/sysconfig"
+corpusops_core_confdefault_dir_debian: "{{corpusops_core_config_dir}}/default"
+corpusops_core_confdefault_dir_redhat: "{{corpusops_core_config_dir}}/sysconfig"
 corpusops_core_run_dir: /run
 corpusops_core_srv_path: /srv
-corpusops_core_apps_path: "{{vars['corpusops_core_srv_path']}}/apps"
-corpusops_core_projects_path: "{{vars['corpusops_core_srv_path']}}/projects"
+corpusops_core_apps_path: "{{corpusops_core_srv_path}}/apps"
+corpusops_core_projects_path: "{{corpusops_core_srv_path}}/projects"
 corpusops_core_config_dir: /etc
-corpusops_core_secrets_dir: "{{vars['corpusops_core_config_dir']}}/secrets"
-corpusops_core_ssl_config_dir: "{{vars['corpusops_core_config_dir']}}/ssl"
-corpusops_core_ssl_dir: "{{vars['corpusops_core_ssl_config_dir']}}"
-corpusops_core_ssl_update_certs: "{{vars['corpusops_core_usr_dir']}}/local/share/ca-certificates"
-
+corpusops_core_secrets_dir: "{{corpusops_core_config_dir}}/secrets"
+corpusops_core_ssl_config_dir: "{{corpusops_core_config_dir}}/ssl"
+corpusops_core_ssl_dir: "{{corpusops_core_ssl_config_dir}}"
+corpusops_core_ssl_update_certs: "{{corpusops_core_usr_dir}}/local/share/ca-certificates"
 # log rotation opts
 corpusops_core_rotate_days: 365
 
+
 # network
-# get external ip
-corpusops_network_get_ext_ip: true
 # registry compute settings: corpuops_network_live_vars
+corpusops_network_live_cops_no_reset: true
 corpusops_network_live_cops_do_format_resolve: false
 corpusops_network_live_cops_computed_defaults: []
 corpusops_network_live_cops_flavors: []
@@ -113,11 +110,13 @@ corpusops_network_live_net: "{{vars|copsnetf_default_net}}"
 corpusops_network_live_ip: "{{vars|copsnetf_mainip}}"
 corpusops_network_live_ip6: "{{vars|copsnetf_mainip6}}"
 corpusops_network_live_have_ifs:
-  docker: "{{vars|copsnetf_have_docker_if}}"
-  lxc: "{{vars|copsnetf_have_lxc_if}}"
-  vpn: "{{vars|copsnetf_have_vpn_if}}"
-#
+    docker: "{{vars|copsnetf_have_docker_if}}"
+    lxc: "{{vars|copsnetf_have_lxc_if}}"
+    vpn: "{{vars|copsnetf_have_vpn_if}}"
+
+
 corpusops_network_settings_cops_do_format_resolve: false
+corpusops_network_settings_cops_no_reset: true
 corpusops_network_settings_cops_computed_defaults: []
 corpusops_network_settings_cops_flavors: []
 corpusops_network_settings_cops_sub_os_append: {}
@@ -126,6 +125,7 @@ corpusops_network_settings_cops_knobs: []
 corpusops_network_settings_cops_sub_namespaces:
   interfaces: {}
   reverse_proxy: {}
+#
 # network configuration settings to apply corpuops_network_settings_vars
 corpusops_network_settings_configuration_order: []
 corpusops_network_settings_reverse_proxy_is_proxified: null
