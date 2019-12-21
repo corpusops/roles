@@ -218,14 +218,15 @@ def secure_password(length=None, use_random=True, choices=None,
         choices = string.ascii_letters + string.digits
     while len(pw) < length:
         if HAS_RANDOM and use_random:
-            c = re.sub(r'\W', '', Crypto.Random.get_random_bytes(1))
+            c = re.sub(r'\W', '', 
+                       Crypto.Random.get_random_bytes(1).decode('utf-8', 'ignore'))
             try:
                 if c in choices:
                     pw += c
             except Exception:
                 pass
         else:
-            pw += random.SystemRandom().choice(choices)
+            pw += u"{0}".format(random.SystemRandom().choice(choices))
     return pw
 
 
