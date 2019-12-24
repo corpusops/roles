@@ -9,7 +9,7 @@ corpusops_localsettings_dockercompose_cops_knobs: ['mirror', 'repo', 'version',
 corpusops_localsettings_dockercompose_cops_sub_namespaces:
   settings: {}
 corpusops_localsettings_dockercompose_version: '1.24.0'
-corpusops_localsettings_dockercompose_crc: "{{corpusops_localsettings_dockercompose_crc_versions.get(vars['corpusops_localsettings_dockercompose_version'], null)}}"
+corpusops_localsettings_dockercompose_crc: "{{corpusops_localsettings_dockercompose_crc_versions.get(corpusops_localsettings_dockercompose_version, null)}}"
 corpusops_localsettings_dockercompose_crc_versions:
   '1.20.1': '11a6923c2a589b946598fe205c8f645e57f3f4ee153d3b7315b7e1993c1b2ad1'
   '1.16.1': '1804b0ce6596efe707b9cab05d74b161833ed503f0535a937dd5d17bea8fc50a'
