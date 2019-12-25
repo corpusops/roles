@@ -1,33 +1,31 @@
 ---
-- include_jinja_vars:
+- name: registry setter
+  vars: {cops_vars_registry_prefix: corpusops_localsettings_basepkgs_}
+  include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_localsettings_basepkgs_' %}
-      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-      {% set namespaced = snamespaced[prefix+'vars'] %}
-      {% if ansible_lsb.id.lower() == 'ubuntu' %}
-      {%  if ansible_lsb.release | version_compare('13.10', '>' ) %}
-      {%    set _ = namespaced['packages'].append('iproute2') %}
-      {%  endif %}
-      {%  if ansible_lsb.release | version_compare('15.04', '<' ) %}
-      {%    set _ = namespaced['packages'].append('ubuntu-extras-keyring') %}
-      {%  endif %}
-      {% endif %}
-      {% if ansible_virtualization_type in ['docker'] %}
-      {% for i in namespaced.packages_not_in_docker %}
-      {% if i in namespaced.packages %}
-      {% set _ = namespaced.packages.pop(
-        namespaced.packages.index(i)) %}
-      {% endif %}
-      {% endfor %}
-      {% endif %}
-      {% if ansible_virtualization_type not in ['docker'] %}
-      {%  set _ = namespaced['packages'].extend(
-          namespaced['packages_nonminimal'])%}
-      {% endif %}
-      {{ (snamespaced[prefix+'vars']
-           | copsf_registry_to_vars(
-               vars, prefix, global_scope=True)
-             )[0] | to_json}}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- if ansible_lsb.id.lower() == 'ubuntu' %}
+      {%-  if ansible_lsb.release | version_compare('13.10', '>' ) %}
+      {%-    set _ = namespaced['packages'].append('iproute2') %}
+      {%-  endif %}
+      {%-  if ansible_lsb.release | version_compare('15.04', '<' ) %}
+      {%-    set _ = namespaced['packages'].append('ubuntu-extras-keyring') %}
+      {%-  endif %}
+      {%- endif %}
+      {%- if ansible_virtualization_type in ['docker'] %}
+      {%- for i in namespaced.packages_not_in_docker %}
+      {%- if i in namespaced.packages %}
+      {%- set _ = namespaced.packages.pop(namespaced.packages.index(i)) %}
+      {%- endif %}
+      {%- endfor %}
+      {%- endif %}
+      {%- if ansible_virtualization_type not in ['docker'] %}
+      {%-  set _ = namespaced['packages'].extend(namespaced['packages_nonminimal'])%}
+      {%- endif %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
   tags: [corpusops_vars, corpusops_localsettings_basepkgs_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
