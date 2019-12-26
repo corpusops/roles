@@ -34,7 +34,8 @@ from ansible.module_utils.six import string_types
 from ansible.plugins.lookup import LookupBase
 import six
 
-from copsf_api import __funcs__
+from collections import OrderedDict
+from copsf_api import __funcs__, REGISTRY_DEFAULT_SUFFIX
 
 
 class LookupModule(LookupBase):
@@ -45,18 +46,25 @@ class LookupModule(LookupBase):
 
         self.set_options(direct=kwargs)
         default = self.get_option('default')
-        kwargs.setdefault('global_scope', False)
+        gs = kwargs.get('global_scope', True)
+        kwargs['global_scope'] = False
 
         ret = []
         for value in terms:
             try:
-                ret.append(
-                    self._templar.template(
-                    self._templar.template(
-                        __funcs__['copsf_registry'](
-                            self._templar.available_variables, value, **kwargs)[0],
-                    fail_on_undefined=True))
-                )
+                val = __funcs__['copsf_registry'](
+                    self._templar.available_variables, value, **kwargs)
+                registry = self._templar.template(self._templar.template(val[0], fail_on_undefined=True))
+                defaults_vals_reg ='__{0}{1}'.format(value, REGISTRY_DEFAULT_SUFFIX)
+                rval = OrderedDict()
+                if gs:
+                    rval[defaults_vals_reg] = val[1].get(defaults_vals_reg)
+                    for v, ival in six.iteritems(registry):
+                        rval['{0}{1}'.format(value, v)] = ival
+                    rval['{0}vars'.format(value)] = registry
+                else:
+                    rval = registry
+                ret.append(rval)
             except AnsibleUndefinedVariable:
                 if default is not None:
                     ret.append(default)
