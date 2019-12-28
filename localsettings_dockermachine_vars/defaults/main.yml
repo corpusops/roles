@@ -31,12 +31,12 @@ _corpusops_localsettings_dockermachine_bins:
 _corpusops_localsettings_dockermachine_app_path: "{{corpusops_core_apps_path}}/docker-machine-{{version}}"
 _corpusops_localsettings_dockermachine_archive: "{{corpusops_localsettings_dockermachine_bin}}"
 _corpusops_localsettings_dockermachine_sc_archive: "docker-machine-driver-scaleway_{{corpusops_localsettings_dockermachine_sc_version}}_{{corpusops_localsettings_dockermachine_sc_platform}}_{{corpusops_localsettings_dockermachine_sc_arch}}{%
-	if 'linux' in vars['corpusops_localsettings_dockermachine_sc_platform']%}.tar.gz{% else%}.zip{%endif%}"
+	if 'linux' in corpusops_localsettings_dockermachine_sc_platform%}.tar.gz{% else%}.zip{%endif%}"
 _corpusops_localsettings_dockermachine_urls:
-  archive: "{{vars['corpusops_localsettings_dockermachine_url']}}/v{{version}}/{{_corpusops_localsettings_dockermachine_archive}}"
-  crc: "{{vars['corpusops_localsettings_dockermachine_url']}}/v{{version}}/sha256sum.txt"
+  archive: "{{corpusops_localsettings_dockermachine_url}}/v{{version}}/{{_corpusops_localsettings_dockermachine_archive}}"
+  crc: "{{corpusops_localsettings_dockermachine_url}}/v{{version}}/sha256sum.txt"
 _corpusops_localsettings_dockermachine_sc_urls:
-  archive: "{{vars['corpusops_localsettings_dockermachine_sc_url']}}/v{{corpusops_localsettings_dockermachine_sc_version}}/{{_corpusops_localsettings_dockermachine_sc_archive}}"
+  archive: "{{corpusops_localsettings_dockermachine_sc_url}}/v{{corpusops_localsettings_dockermachine_sc_version}}/{{_corpusops_localsettings_dockermachine_sc_archive}}"
 corpusops_localsettings_dockermachine_sc_platform: "linux"
 corpusops_localsettings_dockermachine_sc_arch: 'amd64'
 corpusops_localsettings_dockermachine_sc_version: '1.6'
