@@ -28,7 +28,7 @@ _corpusops_localsettings_kubectl_alternatives:
     bins:
       - manualkubectl:
           target: "{{corpusops_core_apps_path}}/kubectl-{{version}}/kubectl"
-corpusops_localsettings_kubectl_version_getter: "https://storage.googleapis.com/kubernetes-release/release/{{vars['corpusops_localsettings_kubectl_version']}}.txt"
+corpusops_localsettings_kubectl_version_getter: "https://storage.googleapis.com/kubernetes-release/release/{{corpusops_localsettings_kubectl_version}}.txt"
 
 _corpusops_localsettings_kubectl_app_path: "{{corpusops_core_apps_path}}/kubectl-{{version}}"
 _corpusops_localsettings_kubectl_archive: "https://storage.googleapis.com/kubernetes-release/release/{{version}}/bin/{{platform}}/{{arch}}/kubectl"
