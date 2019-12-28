@@ -20,11 +20,11 @@ corpusops_localsettings_burp_keyserver: "{{corpusops_vars.hkp_keyserver}}"
 corpusops_localsettings_burp_repo: null
 corpusops_localsettings_burp_repo_debian: "deb http://ppa.launchpad.net/corpusops/burp/ubuntu {{ansible_distribution_release.lower()}} main"
 corpusops_localsettings_burp_packages: null
-corpusops_localsettings_burp_packages_default: ["{{vars['corpusops_localsettings_burp_name']}}"]
+corpusops_localsettings_burp_packages_default: ["{{corpusops_localsettings_burp_name}}"]
 corpusops_localsettings_burp_services: null
-corpusops_localsettings_burp_group: "{{vars['corpusops_localsettings_burp_user']}}"
-corpusops_localsettings_burp_user: "{{vars['corpusops_localsettings_burp_name']}}"
-corpusops_localsettings_burp_services_default: ["{{vars['corpusops_localsettings_burp_name']}}"]
+corpusops_localsettings_burp_group: "{{corpusops_localsettings_burp_user}}"
+corpusops_localsettings_burp_user: "{{corpusops_localsettings_burp_name}}"
+corpusops_localsettings_burp_services_default: ["{{corpusops_localsettings_burp_name}}"]
 corpusops_localsettings_burp_files: null
 corpusops_localsettings_burp_filescopy: null
 corpusops_localsettings_burp_filescopy_default: []
@@ -38,5 +38,5 @@ corpusops_localsettings_burp_files_default: []
 corpusops_localsettings_burp_configs: null
 corpusops_localsettings_burp_configs_default: []
 #  - {name: "{config_file}",
-#     template: "../templates/etc/{{vars['corpusops_localsettings_burp_name']}}/{{vars['corpusops_localsettings_burp_name']}}.cfg",
-#     owner: "{{vars['corpusops_localsettings_burp_user']}}", group: root, mode: "0640"}
+#     template: "../templates/etc/{{corpusops_localsettings_burp_name}}/{{corpusops_localsettings_burp_name}}.cfg",
+#     owner: "{{corpusops_localsettings_burp_user}}", group: root, mode: "0640"}
