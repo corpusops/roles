@@ -1,31 +1,31 @@
 ---
-- include_jinja_vars:
+- name: registry setter
+  vars: {cops_vars_registry_prefix: corpusops_localsettings_php_}
+  include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_localsettings_php_' %}
-      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-      {% set namespaced = snamespaced[prefix+'vars'] %}
-      {% if namespaced['opcache_install'] and namespaced['configure_opcache'] %}
-        {% set _ = namespaced['configs'].append({
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- if namespaced['opcache_install'] and namespaced['configure_opcache'] %}
+      {%- set _ = namespaced['configs'].append({
             'template': '../templates/etc/php/opcache.ini'.format(**vars),
             'name': '{corpusops_localsettings_php_confdir}/opcache.ini'.format(**vars),
             'owner': 'root',
             'group': 'root',
             'mode': '0644',
         }) %}
-      {% endif %}
-      {% if namespaced['apc_install'] and namespaced['configure_apc'] %}
-        {% set _ = namespaced['configs'].append({
+      {%- endif %}
+      {%- if namespaced['apc_install'] and namespaced['configure_apc'] %}
+      {%- set _ = namespaced['configs'].append({
             'template': '../templates/etc/php/apcu.ini'.format(**vars),
             'name': '{corpusops_localsettings_php_confdir}/apcu.ini'.format(**vars),
             'owner': 'root',
             'group': 'root',
             'mode': '0644',
         }) %}
-      {% endif %}
-      {{ (snamespaced[prefix+'vars']
-           | copsf_registry_to_vars(
-               vars, prefix, global_scope=True)
-             )[0] | to_json}}
+      {%- endif %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
   tags: [corpusops_vars, corpusops_localsettings_php_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
