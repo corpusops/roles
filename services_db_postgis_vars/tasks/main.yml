@@ -1,30 +1,28 @@
 ---
-- include_jinja_vars:
+- name: registry setter
+  vars: {cops_vars_registry_prefix: corpusops_services_db_postgis_}
+  include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_services_db_postgis_' %}
-      {% set pgprefix = 'corpusops_services_db_postgresql_' %}
-      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-      {% set namespaced = snamespaced[prefix+'vars'] %}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
       {% if vars['ansible_distribution'] in ['Ubuntu'] and  (vars['ansible_distribution_version'] | copsf_looseversion >= '16.04') %}
-      {% set _ = namespaced['packages'].append('liblwgeom-dev') %}
-      {% endif %}
+      {%- set _ = namespaced['packages'].append('liblwgeom-dev') %}
+      {%- endif %}
 
-      {% if not namespaced['version'] %}
-      {% if   (vars[pgprefix+'version'] | copsf_looseversion) >= ('10'|copsf_looseversion)  %}
-      {% set _ = namespaced.update({'version': '2.4'}) %}
-      {% elif   (vars[pgprefix+'version'] | copsf_looseversion) >= ('9.6'|copsf_looseversion)  %}
-      {% set _ = namespaced.update({'version': '2.3'}) %}
-      {% elif (vars[pgprefix+'version'] | copsf_looseversion) >= ('9.4|copsf_looseversion')  %}
-      {% set _ = namespaced.update({'version': '2.2'}) %}
-      {% else %}
-      {% set _ = namespaced.update({'version': '2.3'}) %}
-      {% endif %}
-      {% endif %}
-      {{ (snamespaced[prefix+'vars']
-           | copsf_registry_to_vars(
-               vars, prefix,
-               global_scope=True)
-             )[0] | to_json}}
+      {%- if not namespaced['version'] %}
+      {%- if   (corpusops_services_db_postgresql_vars.version | copsf_looseversion) >= ('10'|copsf_looseversion)  %}
+      {%- set _ = namespaced.update({'version': '2.4'}) %}
+      {%- elif   (corpusops_services_db_postgresql_vars.version | copsf_looseversion) >= ('9.6'|copsf_looseversion)  %}
+      {%- set _ = namespaced.update({'version': '2.3'}) %}
+      {%- elif (corpusops_services_db_postgresql_vars.version | copsf_looseversion) >= ('9.4|copsf_looseversion')  %}
+      {%- set _ = namespaced.update({'version': '2.2'}) %}
+      {%- else %}
+      {%- set _ = namespaced.update({'version': '2.3'}) %}
+      {%- endif %}
+      {%- endif %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
   tags: [corpusops_vars, corpusops_services_db_postgis_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"

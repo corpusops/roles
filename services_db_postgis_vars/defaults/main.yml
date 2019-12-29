@@ -10,9 +10,9 @@ corpusops_services_db_postgis_cops_sub_namespaces:
   settings: {}
   pg_conf: {}
 corpusops_services_db_postgis_packages_default:
-  - "postgresql-{{vars['corpusops_services_db_postgresql_version']}}-postgis-{{vars['corpusops_services_db_postgis_version']}}"
-  - "postgresql-{{vars['corpusops_services_db_postgresql_version']}}-postgis-{{vars['corpusops_services_db_postgis_version']}}-scripts"
-  - "postgresql-contrib-{{vars['corpusops_services_db_postgresql_version']}}"
+  - "postgresql-{{corpusops_services_db_postgresql_version}}-postgis-{{corpusops_services_db_postgis_version}}"
+  - "postgresql-{{corpusops_services_db_postgresql_version}}-postgis-{{corpusops_services_db_postgis_version}}-scripts"
+  - "postgresql-contrib-{{corpusops_services_db_postgresql_version}}"
 corpusops_services_db_postgis_db: 'postgis'
 corpusops_services_db_postgis_activated: True
 corpusops_services_db_postgis_repo_keys_url: null
