@@ -1,25 +1,32 @@
 ---
 - tags: [cops_burpclientserver_vars]
-  block:
-  - include_jinja_vars:
-      content: |-
-        ---
-        {%- set prefix = 'cops_burpclientserver_' %}
+  name: registry setter
+  vars: {cops_vars_registry_prefix: cops_burpclientserver_}
+  include_jinja_vars:
+    content: |-
+        {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+        {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
         {%- set client = inventory_hostname %}
         {%- set hvars = hostvars[client] %}
-        {%- set snamespaced, vars = vars|copsf_registry(prefix) %}
-        {%- set data = snamespaced[prefix+'vars'] %}
         {%- set r = [] %}
-        {%- if not data.use_profile %}
-        {%- elif data.profile %}
-        {%-   set _ = r.append(data.get('profiles_'+data.profile)) %}
+        {%- if not namespaced.use_profile %}
+        {%- elif namespaced.profile %}
+        {%-   if 'profiles_'+namespaced.profile in namespaced %}
+        {%-     set _ = r.append(namespaced['profiles_'+namespaced.profile]) %}
+        {%-   else %}
+        {%-     set _ = r.append('# using client side profile') %}
+        {%-     set _ = r.append(namespaced.profile) %}
+        {%-   endif %}
         {%- endif %}
-        {%- set _ = r.extend(data.custom_lines) %}
-        {%- set _ = data.update({'custom_lines_computed': r})%}
-        {{- (snamespaced[prefix+'vars']
-            |copsf_registry_to_vars(vars, prefix, global_scope=True)
-           )[0] | to_yaml}}
-    no_log: "{{not (cops_vars_debug|default(false))}}"
+        {%- set _ = r.extend(namespaced.custom_lines) %}
+        {%- set _ = namespaced.update({'custom_lines_computed': r})%}
+        {%- for name, val in namespaced.items() %}
+        {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+        {%- endfor %}
+        {{- registry|to_json }}
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- pause: {}
+  when: cops_burp_debug|default(false)
 - include_tasks: run.yml
   tags: [cops_burpclientserver_server]
   no_log: "{{not (cops_vars_debug|default(false))}}"
