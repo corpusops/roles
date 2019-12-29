@@ -24,7 +24,7 @@
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
   tasks:
   - block:
-    - include_role: {name: corpusops.roles/burp_server_configuration}
+    - include_role: {name: corpusops.roles/burp_server_configuration, public: false}
     tags: [burp_server, configure_server, burp_configure_server]
   - block:
     - include_tasks: client_fw.yml
@@ -42,7 +42,7 @@
             {% if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
             {% endfor %}
             {{ res | to_json }}
-    - include_role: {name: corpusops.roles/burp_sign}
+    - include_role: {name: corpusops.roles/burp_sign, public: false}
     tags: [burp_server, sign, burp_sign]
   - tags: [burp_server, register_to_server, burp_register_to_server]
     block:
