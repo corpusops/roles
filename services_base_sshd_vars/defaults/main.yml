@@ -28,9 +28,9 @@ corpusops_services_base_sshd_settings_AuthorizedKeysFile: >-
 corpusops_services_base_sshd_settings_AllowUsers: []
 corpusops_services_base_sshd_settings_AllowGroups: null
 corpusops_services_base_sshd_settings_AllowGroups_default: [
- 'sftponly', 'root', 'sudo', 'wheel', 'admin', "{{vars['corpusops_services_base_sshd_group']}}"]
+ 'sftponly', 'root', 'sudo', 'wheel', 'admin', "{{corpusops_services_base_sshd_group}}"]
 corpusops_services_base_sshd_settings_AllowGroups_ubuntu: [
- 'sftponly', 'root', 'sudo', 'wheel', 'admin', 'ubuntu', "{{vars['corpusops_services_base_sshd_group']}}"]
+ 'sftponly', 'root', 'sudo', 'wheel', 'admin', 'ubuntu', "{{corpusops_services_base_sshd_group}}"]
 corpusops_services_base_sshd_settings_ChallengeResponseAuthentication: 'no'
 corpusops_services_base_sshd_settings_X11Forwarding: 'yes'
 corpusops_services_base_sshd_settings_PrintMotd: 'no'
