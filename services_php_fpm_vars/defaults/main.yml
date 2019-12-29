@@ -34,8 +34,8 @@ corpusops_services_php_fpm_configs_default:
      owner: 'root',
      group: 'root',
      mode: '0644'}
-  - {template: "{{vars['corpusops_services_php_fpm_default_pool_template']}}",
-     name: "{{vars['corpusops_services_php_fpm_poold']}}/{{vars['corpusops_services_php_fpm_default_pool_name']}}.conf",
+  - {template: "{{corpusops_services_php_fpm_default_pool_template}}",
+     name: "{{corpusops_services_php_fpm_poold}}/{{corpusops_services_php_fpm_default_pool_name}}.conf",
      owner: 'root',
      group: 'root',
      mode: '0644'}
