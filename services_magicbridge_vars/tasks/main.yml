@@ -1,10 +1,6 @@
 ---
-- include_jinja_vars:
-    content: |-
-      ---
-      {% set prefix = 'corpusops_services_magicbridge_' %}
-      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-      {{ snamespaced | to_json}}
+- include_role: {name: corpusops.roles/registry, public: true}
+  vars: {cops_vars_registry_target: corpusops_services_magicbridge}
   tags: [corpusops_vars, corpusops_services_magicbridge_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
 
