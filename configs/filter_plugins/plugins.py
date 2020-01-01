@@ -17,7 +17,6 @@ import six
 import contextlib
 import socket
 import re
-import urllib2
 import six
 
 from distutils.version import LooseVersion
