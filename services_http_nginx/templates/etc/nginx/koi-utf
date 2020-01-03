@@ -106,4 +106,4 @@ charset_map  koi8-r  utf-8 {
     FD  D0A9 ;   # capital SHCH
     FE  D0A7 ;   # capital CH
     FF  D0AA ;   # capital hard sign
-} 
+}

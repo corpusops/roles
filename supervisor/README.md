@@ -1,7 +1,7 @@
 # corpusops.roles/supervisor ansible role
 
 ## Documentation
-Managment of secured supervisor instances 
+Managment of secured supervisor instances
 through systemd and/or sys-v support.
 
 

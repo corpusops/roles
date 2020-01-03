@@ -50,6 +50,6 @@
        corpusops_services_firewall_ms_iptables_configst.changed)}}"
   tags: [ms_iptables_configs]
 - include_tasks: "./_sysctls.yml"
-  loop: "{{corpusops_services_firewall_ms_iptables_vars.sysctls|flatten(levels=1)}}" 
+  loop: "{{corpusops_services_firewall_ms_iptables_vars.sysctls|flatten(levels=1)}}"
 
   tags: [ms_iptables_sysctls]

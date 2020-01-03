@@ -3,7 +3,7 @@ _var_f_vars: |-
       {% set prefix = 'var_f_' %}
       {% set snamespaced, vars = vars | copsf_registry(prefix) %}
       {{ snamespaced | to_json}}
-var_f_vars: "{{_var_f_vars}}" 
+var_f_vars: "{{_var_f_vars}}"
 var_f_1: "{{var_f_vars.f1}}"
 var_f_2: "{{var_f_vars.f2}}"
 var_f_3: "{{var_f_vars.f3}}"

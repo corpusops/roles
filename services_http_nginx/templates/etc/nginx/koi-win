@@ -100,4 +100,4 @@ charset_map  koi8-r  windows-1251 {
     FD  D9 ; # capital SHCH
     FE  D7 ; # capital CH
     FF  DA ; # capital hard sign
-} 
+}

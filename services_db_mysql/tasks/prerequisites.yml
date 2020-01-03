@@ -1,12 +1,12 @@
 ---
-- include_role: 
+- include_role:
     name: corpusops.roles/services_db_mysql_pkgmgr
     allow_duplicates: false
   tags: [corpusops_mysql_pkgmgrd_role]
-- include_role: 
+- include_role:
     name: corpusops.roles/services_db_mysql_client
     allow_duplicates: false
-  tags: [corpusops_mysql_clientd_role] 
+  tags: [corpusops_mysql_clientd_role]
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'

@@ -4,7 +4,7 @@
   when: "(corpusops_services_virt_lxc_vars.activated and
           corpusops_vars.has_services_manager and
           (ansible_service_mgr == 'systemd'))"
-  tags: corpusops_services_virt_lxc 
+  tags: corpusops_services_virt_lxc
 - listen: restart_corpusops_services_virt_lxc
   systemd:
     daemon_reload: yes
