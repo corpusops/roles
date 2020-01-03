@@ -302,7 +302,7 @@
     remote_src: true
     force: true
     src: "{{certlnk}}"
-    dest: "{{(certlnk.split('.')[:-1]+[vars['ssl_ca_signed_cert_lnk_ext']])|join('.')}}"
+    dest: "{{(certlnk.split('.')[:-1]+[ssl_ca_signed_cert_lnk_ext])|join('.')}}"
   loop_control: {loop_var: certlnk}
   when: "ssl_ca_signed_cert_vars.do_links and not (certlnk.endswith(vars['ssl_ca_signed_cert_lnk_ext']) or certlnk.endswith('.key'))"
   loop:
