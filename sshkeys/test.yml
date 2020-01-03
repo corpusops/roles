@@ -1,12 +1,11 @@
 ---
 - hosts: all
   tasks:
-    - include_role:
-        name: corpusops.roles/sshkeys
+    - include_role: {name: corpusops.roles/sshkeys}
       vars:
         cops_sshkeys_removed:
           root:
-          ssh_keys:
+            ssh_keys:
             - key: "ssh-rsa xxxx"
             - key: "ssh-rsa xxxx"
               comment: foobar
