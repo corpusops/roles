@@ -1,6 +1,6 @@
 ---
 # load default variables, first pass, load not resolved values
-- include_role: {name: corpusops.roles/vars_registry}
+- include_role: {name: corpusops.roles/vars_registry, public: true}
   vars: {cops_vars_registry_target: corpusops_nginx_control}
   tags: [corpusops_vars, corpusops_nginx_control, corpusops_nginx_control_vars]
 # do the real stuff
