@@ -4,23 +4,26 @@
     cacheable: false
     cops_supervisor_name: "{{cops_supervisor_name}}"
 - name: "Setup secrets"
-  include_role: {name: corpusops.roles/get_secret_variable}
+  include_role: {name: corpusops.roles/get_secret_variable, public: true}
   loop_control: {loop_var: _cops_get_secret_variable}
   loop:
     - name: "cops_supervisor_passwords_{{cops_supervisor_name}}"
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_jinja_vars:
+- name: registry setter
+  vars: {cops_vars_registry_prefix: cops_supervisor_}
+  include_jinja_vars:
     content: |-
-      ---
-      {% set n = cops_supervisor_name %}
-      {% set prefix = 'cops_supervisor_' %}
-      {% set p = vars[prefix+'passwords_'+n] %}
-      {% set _ = vars.update({prefix+'password':p}) %}
-      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
-      {{ (snamespaced[prefix+'vars']
-          |copsf_registry_to_vars(vars, prefix, global_scope=True)
-         )[0]
-         | to_json}}
+      {%- set registry = lookup('cops_registry',
+            cops_vars_registry_prefix,
+            do_format_resolve=True) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- set v = 'passwords_'+cops_supervisor_name %}
+      {%- set p = vars[cops_vars_registry_prefix+v] %}
+      {%- set _ = namespaced.update({v: p}) %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
   tags: [corpusops_vars, corpusops_localsettings_supervisor_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_role: {name: corpusops.roles/configs, public: false}
