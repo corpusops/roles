@@ -1,0 +1,32 @@
+---
+- hosts: all
+  roles:
+    - role: corpusops.roles/services_http_nginx_vars
+      tags: setup_nginx
+    - role: corpusops.roles/services_http_nginx
+      tags: setup_nginx
+- hosts: all
+  tasks:
+    - file: {path: "{{item}}", state: absent}
+      loop:
+        - "/etc/nginx/conf.d/default.conf"
+        - "/etc/nginx/sites-available/default.conf"
+        - "/etc/nginx/includes/default.conf"
+    - include_role: {name: corpusops.roles/nginx_default_vhost}
+    - stat: "path={{item}}"
+      register: nginx_test_files
+      loop:
+        - "/etc/nginx/conf.d/default.conf"
+        - "/etc/nginx/sites-available/default.conf"
+        - "/etc/nginx/includes/default.conf"
+    - debug:
+        msg: |
+             {% set ret = {"r": True} %}
+             {% for a in nginx_test_files.results %}
+             {% if not a.stat.exists %}
+             {% set _ = ret.update({"r": False}) %}
+             {% endif %}
+             {% endfor %}
+             {{ ret | to_json }}
+      register: tnginx_test_files
+      failed_when: "not tnginx_test_files.msg.r"
