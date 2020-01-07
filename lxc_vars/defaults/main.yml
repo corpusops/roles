@@ -15,7 +15,7 @@ corpusops_lxc_cops_sub_sub_namespaces:
 corpusops_lxc_ssh_keys_paths: ["~/.ssh/id_rsa.pub"]
 corpusops_lxc_ssh_keys: []
 corpusops_lxc_ssh_user: root
-corpusops_lxc_included_config: "/usr/share/lxc/config/{{vars['corpusops_lxc_template']}}.common.conf"
+corpusops_lxc_included_config: "/usr/share/lxc/config/{{corpusops_lxc_template}}.common.conf"
 corpusops_lxc_path: /var/lib/lxc
 corpusops_lxc_container_name: "{{lxc_container_name|default(container_name)|default(None)}}"
 corpusops_lxc_from_container: "{{lxc_from_container|default(from_container)|default(None)}}"
@@ -26,7 +26,7 @@ corpusops_lxc_clone_snapshot: null
 corpusops_lxc_template: ubuntu
 corpusops_lxc_ubuntu_release: xenial
 corpusops_lxc_ubuntu_mirror: "http://archive.ubuntu.com/ubuntu/"
-corpusops_lxc_template_options: "-r {{vars['corpusops_lxc_ubuntu_release']}} --mirror \"{{vars['corpusops_lxc_ubuntu_mirror']}}\""
+corpusops_lxc_template_options: "-r {{corpusops_lxc_ubuntu_release}} --mirror \"{{corpusops_lxc_ubuntu_mirror}}\""
 
 corpusops_lxc_auto_start: '1'
 # make docker works inside lxc (make it unconfined and unsecure
