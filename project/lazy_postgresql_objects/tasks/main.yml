@@ -7,6 +7,7 @@
   - include_role:
       name: corpusops.roles/project/vagrant_load_vars
       allow_duplicates: false
+      public: true
   - include_role:
       name: corpusops.roles/project/_postgresql_objects
       allow_duplicates: false

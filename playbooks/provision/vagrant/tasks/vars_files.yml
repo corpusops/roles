@@ -3,4 +3,5 @@
 - include_role:
     name: corpusops.roles/project/vagrant_vars_files
     allow_duplicates: false
+    public: true
 

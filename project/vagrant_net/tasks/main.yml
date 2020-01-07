@@ -4,6 +4,7 @@
   - include_role:
       name: corpusops.roles/project/vagrant_load_vars
       allow_duplicates: false
+      public: true
   - changed_when: false
     shell: |
         {% set HOSTNAME = vbox_cops.HOSTNAME %}
