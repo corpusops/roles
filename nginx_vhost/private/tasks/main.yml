@@ -1,9 +1,9 @@
 ---
 # load default variables, first pass, load not resolved values
-- include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: corpusops_nginx_vhost
+- include_role: {name: corpusops.roles/vars_registry, public: true}
+  vars: {cops_vars_registry_target: corpusops_nginx_vhost}
   tags: [corpusops_vars, corpusops_nginx_vhost, corpusops_nginx_vhost_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
 # do the real stuff
 - name: gen vhost
   include_tasks: run.yml

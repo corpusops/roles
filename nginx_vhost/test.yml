@@ -1,5 +1,11 @@
 ---
 - hosts: all
+  roles:
+    - role: corpusops.roles/services_http_nginx_vars
+      tags: setup_nginx
+    - role: corpusops.roles/services_http_nginx
+      tags: setup_nginx
+- hosts: all
   vars:
     corpusops_services_http_nginx_default_vhost_is_default_server: false
   tasks:
@@ -27,7 +33,7 @@
         _corpusops_nginx_vhost:
           domain: foomuche
           basename: foomuche
-          is_default_server: true
+          is_default_server: false
           check_config: false
     - include_role: {name: corpusops.roles/nginx_control}
       vars: {corpusops_nginx_control_state: restarted}
