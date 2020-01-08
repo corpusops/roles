@@ -14,8 +14,7 @@
           v: "{{v}}"
           r: "{{'a'|copsf_where}}"
           w: "{{e}}"
-    - include_role:
-        name: corpusops.roles/php_fpm_pool
+    - include_role: {name: corpusops.roles/php_fpm_pool}
       vars:
         _corpusops_fpm_pool:
           install: true
@@ -33,8 +32,7 @@
             - xdebug.trace_output_dir: "1"
           php_admin_values:
             - xdebug.remote_enable: "1"
-    - include_role:
-        name: corpusops.roles/php_fpm_pool
+    - include_role: {name: corpusops.roles/php_fpm_pool}
       vars:
         _corpusops_fpm_pool:
           name: truc
@@ -43,20 +41,18 @@
           # append  include path & obd
           include_path: ["bar"]
           open_basedir: ["bar"]
-    - include_role:
-        name: corpusops.roles/php_fpm_pool
+    - include_role: {name: corpusops.roles/php_fpm_pool}
       vars:
         _corpusops_fpm_pool:
           name: other
           listen: "127.0.0.1:9003"
     # nested form
-    - include_role:
-        name: corpusops.roles/php_fpm_pool
+    - include_role: {name: corpusops.roles/php_fpm_pool}
       vars:
         _corpusops_fpm_pool:
           name: mybar
           listen: "127.0.0.1:9004"
-          doc_root: "/srv/mybar/public"
+          doc_root: "/srv/mybar2/public"
           include_path: ["foo"]
           open_basedir: ["foo"]
           php_values:
@@ -73,11 +69,10 @@
         egrep -q "xdebug.remote_enable.*1" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
         egrep -q "include_path.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
         egrep -q "basedir.*foo" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
-        egrep -q "srv/mybar/public" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
+        egrep -q "srv/mybar2/public" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
         egrep -q "9004" /etc/php/{{corpusops_localsettings_php_vars.version}}/fpm/pool.d/mybar.conf
     # disabling a fpm pool
-    - include_role:
-        name: corpusops.roles/php_fpm_pool
+    - include_role: {name: corpusops.roles/php_fpm_pool}
       vars:
         _corpusops_fpm_pool:
           name: other
