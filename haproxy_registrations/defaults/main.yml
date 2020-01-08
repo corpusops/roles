@@ -29,9 +29,9 @@ corpusops_haproxy_registrations_file: "{{corpusops_services_proxy_haproxy_vars.p
 corpusops_haproxy_registrations_filescopy: []
 corpusops_haproxy_registrations_files: []
 corpusops_haproxy_registrations_configs:
-  - {name: "{{vars['corpusops_haproxy_registrations_file']}}",
+  - {name: "{{corpusops_haproxy_registrations_file}}",
      template: "../templates/cfg.cfg",
-     owner: "{{vars['corpusops_haproxy_registrations_user']}}", group: root, mode: "0640"}
+     owner: "{{corpusops_haproxy_registrations_user}}", group: root, mode: "0640"}
 corpusops_haproxy_registrations_check_config: true
 corpusops_haproxy_registrations_backend_opts_http_strict:
 - 'balance roundrobin'
@@ -89,7 +89,7 @@ corpusops_haproxy_registrations_backend_opts_redis:
 corpusops_haproxy_registrations_backend_opts_redis_auth:
 - 'option tcp-check'
 - 'tcp-check connect'
-- "tcp-check send auth\ {{vars['corpusops_haproxy_registrations_redis_password']}}\r\n"
+- "tcp-check send auth\ {{corpusops_haproxy_registrations_redis_password}}\r\n"
 - 'tcp-check send PING\r\n'
 - 'tcp-check expect string +PONG'
 - 'tcp-check send info\ replication\r\n'
