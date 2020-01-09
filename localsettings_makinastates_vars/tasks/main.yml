@@ -1,9 +1,5 @@
 ---
-- include_jinja_vars:
-    content: |-
-      ---
-      {% set prefix = 'corpusops_localsettings_makinastates_' %}
-      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
-      {{ snamespaced | to_json}}
+- include_role: {name: corpusops.roles/registry, public: true}
+  vars: {cops_vars_registry_prefix: corpusops_localsettings_makinastates_%}
   tags: [corpusops_vars, corpusops_localsettings_makinastates_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
