@@ -55,6 +55,7 @@ corpusops_localsettings_php_modules_xdebug_enabled: False
 corpusops_localsettings_php_spackages_pear: "php-pear"
 corpusops_localsettings_php_spackages_soap: "php-soap"
 corpusops_localsettings_php_spackages_apc: "php-apc"
+corpusops_localsettings_php_spackages_apcu: "php-apcu"
 corpusops_localsettings_php_ppa_version: "{% if corpusops_localsettings_php_use_ppa%}{{corpusops_localsettings_php_version}}{%endif%}"
 corpusops_localsettings_php_spackages_main: "php{{corpusops_localsettings_php_version}}"
 corpusops_localsettings_php_spackages_mbstring: "php{{corpusops_localsettings_php_ppa_version}}-mbstring"
@@ -97,7 +98,7 @@ corpusops_localsettings_php_packages: |-
   {% set _  = v.ret.append(corpusops_localsettings_php_spackages_main) %}
   {% set _  = v.ret.append(corpusops_localsettings_php_spackages_cli) %}
   {% if corpusops_localsettings_php_apc_install %}
-  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_apc) %}
+  {% set _  = v.ret.append(corpusops_localsettings_php_spackages_apcu) %}
   {% endif %}
   {% if corpusops_localsettings_php_xdebug_install %}
   {% set _  = v.ret.append(corpusops_localsettings_php_spackages_xdebug) %}
