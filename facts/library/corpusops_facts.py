@@ -6,7 +6,8 @@ from __future__ import print_function
 
 import contextlib
 import socket
-import urllib2
+from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import URLError, HTTPError
 import traceback
 import os
 
@@ -38,7 +39,7 @@ def is_valid_v4(ip_or_name):
     familly = socket.AF_INET
     if not valid:
         try:
-            if socket.inet_pton(familly, ip_or_name):
+            if socket.inet_pton(familly, str(ip_or_name)):
                 return True
         except Exception:
             pass
@@ -49,22 +50,23 @@ def ext_ip():
     '''
     Return the external IP address
     '''
-    if os.environ.get('CORPUSOPS_SKIP_EXTIP', None):
-        return None
     check_ips = (
         'http://v4.ident.me',
         'http://ipecho.net/plain',
     )
     for url in check_ips:
         try:
-            with contextlib.closing(urllib2.urlopen(url, timeout=3)) as req:
+            with contextlib.closing(urlopen(url, timeout=3)) as req:
                 ip_ = req.read().strip()
                 if not is_valid_v4(ip_):
                     continue
             return ip_
-        except (urllib2.HTTPError, urllib2.URLError, socket.timeout):
+        except (HTTPError, URLError, socket.timeout):
             continue
-    return ext_ip
+    if os.environ.get('CORPUSOPS_SKIP_EXTIP', None):
+        return None
+    else:
+        raise Exception('NO Ext ip found')
 
 
 def main():

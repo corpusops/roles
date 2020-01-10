@@ -26,13 +26,13 @@ def magicstring(thestr):
     """
     seek = False
     if (
-        isinstance(thestr, (int, float, long,
+        isinstance(thestr, six.integer_types + (float,
                             datetime.date,
                             datetime.time,
                             datetime.datetime))
     ):
         thestr = "{0}".format(thestr)
-    if isinstance(thestr, unicode):
+    if isinstance(thestr, six.text_type):
         try:
             thestr = thestr.encode('utf-8')
         except Exception:
@@ -55,20 +55,20 @@ def magicstring(thestr):
         ]
         if sdetectedenc not in ('utf-8', 'ascii'):
             try:
-                if not isinstance(thestr, unicode):
+                if not isinstance(thestr, six.text_type):
                     thestr = thestr.decode(detectedenc)
                 thestr = thestr.encode(detectedenc)
             except Exception:
                 for idx, i in enumerate(found_encodings):
                     try:
-                        if not isinstance(thestr, unicode) and detectedenc:
+                        if not isinstance(thestr, six.text_type) and detectedenc:
                             thestr = thestr.decode(detectedenc)
                         thestr = thestr.encode(i)
                         break
                     except Exception:
                         if idx == (len(found_encodings) - 1):
                             raise
-    if isinstance(thestr, unicode):
+    if isinstance(thestr, six.text_type):
         thestr = thestr.encode('utf-8')
     thestr = thestr.decode('utf-8').encode('utf-8')
     return thestr
