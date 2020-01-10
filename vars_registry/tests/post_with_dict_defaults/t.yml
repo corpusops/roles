@@ -1,0 +1,9 @@
+- hosts: localhost
+  tasks:
+  - include_role: {name: corpusops.roles/ansible_plugins}
+  - include_role: {name: a, public: true}
+  - include_role: {name: b, public: true}
+  - include_role: {name: c, public: true}
+  - include_role: {name: d, public: true}
+  - include_role: {name: e, public: true}
+  - include_role: {name: f, public: true}

@@ -10,7 +10,8 @@ import six
 import contextlib
 import socket
 import re
-import urllib2
+from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import URLError, HTTPError
 
 from distutils.version import LooseVersion
 
@@ -78,12 +79,12 @@ def ext_ip(ansible_vars):
 
     for url in check_ips:
         try:
-            with contextlib.closing(urllib2.urlopen(url, timeout=3)) as req:
+            with contextlib.closing(urlopen(url, timeout=3)) as req:
                 ip_ = req.read().strip()
                 if not is_valid_v4(ip_):
                     continue
             return ip_
-        except (urllib2.HTTPError, urllib2.URLError, socket.timeout):
+        except (HTTPError, URLError, socket.timeout):
             continue
     return ext_ip
 
@@ -308,7 +309,7 @@ def append_netmask(ip):
         netm = "{0}".format(netm)
         net = '.'.join(chunks) + '/' + netm
         return net
-         
+
 
 def live_settings(ansible_vars, prefix):
     '''

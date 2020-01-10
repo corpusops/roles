@@ -19,7 +19,10 @@ import tempfile
 import random
 import string
 import re
-from distutils.version import LooseVersion
+import operator as py_operator
+from distutils.version import LooseVersion, StrictVersion
+
+from ansible import errors
 
 
 try:
@@ -215,14 +218,15 @@ def secure_password(length=None, use_random=True, choices=None,
         choices = string.ascii_letters + string.digits
     while len(pw) < length:
         if HAS_RANDOM and use_random:
-            c = re.sub(r'\W', '', Crypto.Random.get_random_bytes(1))
+            c = re.sub(r'\W', '', 
+                       Crypto.Random.get_random_bytes(1).decode('utf-8', 'ignore'))
             try:
                 if c in choices:
                     pw += c
             except Exception:
                 pass
         else:
-            pw += random.SystemRandom().choice(choices)
+            pw += u"{0}".format(random.SystemRandom().choice(choices))
     return pw
 
 
@@ -635,12 +639,22 @@ def copsf_reset_vars_from_registry(ansible_vars,
                                   prefix,
                                   registryvars_suffix)
     old_vars = ansible_vars.pop(name_prefix, {})
+    if not isinstance(old_vars, dict):
+        old_vars = {}
     sprefixes = (prefix, prefix+prefix)
     prefixes = [name_prefix, prefix[:-1]]
     overrides_prefix = '_{0}'.format(prefixes[1])
     overrides = ansible_vars.get(overrides_prefix, {})
     if not isinstance(overrides, dict):
         overrides = {}
+    # try to load the special ___<prefix> dict
+    # to load common defaults between flatten and dict mode
+    default_reg_vars_prefix = '___{0}'.format(prefix[:-1])
+    default_reg_vars = ansible_vars.get(default_reg_vars_prefix, {}) or {}
+    if isinstance(default_reg_vars, dict):
+        for i, val in six.iteritems(default_reg_vars):
+            ansible_vars['{0}{1}'.format(prefix, i)] = val
+            # get all registry knobs
     for var in [
         a for a in ansible_vars
         if (
@@ -1257,8 +1271,46 @@ def copsf_small_name(res):
     return res
 
 
+
+def version_compare(value, version, operator='eq', strict=False):
+    ''' Perform a version comparison on a value '''
+    op_map = {
+        '==': 'eq', '=': 'eq', 'eq': 'eq',
+        '<': 'lt', 'lt': 'lt',
+        '<=': 'le', 'le': 'le',
+        '>': 'gt', 'gt': 'gt',
+        '>=': 'ge', 'ge': 'ge',
+        '!=': 'ne', '<>': 'ne', 'ne': 'ne'
+    }
+
+    if strict:
+        Version = StrictVersion
+    else:
+        Version = LooseVersion
+
+    if operator in op_map:
+        operator = op_map[operator]
+    else:
+        raise errors.AnsibleFilterError('Invalid operator type')
+
+    try:
+        method = getattr(py_operator, operator)
+        return method(Version(str(value)), Version(str(version)))
+    except Exception as e:
+        raise errors.AnsibleFilterError('Version comparison: %s' % e)
+
+
+def get_vars_under_prefix(avars, prefix):
+    res = {}
+    for i, val in avars.items():
+        if i.startswith(prefix):
+            res[i] = val
+    return res
+
+
 __funcs__ = {
     'copsf_small_name': copsf_small_name,
+    'copsf_get_vars_under_prefix': get_vars_under_prefix,
     'copsf_refilter': copsf_refilter,
     'copsf_registry_and_defaults': registry_and_defaults,
     'copsf_uniquify': uniquify,
@@ -1308,6 +1360,10 @@ __funcs__ = {
     'copsf_secure_password': secure_password,
     'copsf_api_rand_value': rand_value,
     'copsf_rand_value': rand_value,
+
+    # pre ansible 29 retrocompat
+    'version_compare': version_compare,
+    'version': version_compare
 }
 
 
