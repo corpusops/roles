@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import six
+from ansible.module_utils import six
 import logging
 
 __fn = os.path.abspath(__file__)

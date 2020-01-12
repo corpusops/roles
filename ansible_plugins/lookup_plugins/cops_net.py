@@ -30,7 +30,7 @@ _value:
 from ansible.errors import AnsibleError, AnsibleUndefinedVariable
 from ansible.module_utils.six import string_types
 from ansible.plugins.lookup import LookupBase
-import six
+from ansible.module_utils import six
 
 from copsf_net import __funcs__
 from copsf_api import REGISTRY_DEFAULT_SUFFIX

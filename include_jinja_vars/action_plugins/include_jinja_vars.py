@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-import six
+from ansible.module_utils import six
 from os import path, walk
 import traceback
 import re
