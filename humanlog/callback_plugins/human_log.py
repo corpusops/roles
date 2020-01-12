@@ -7,7 +7,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import six
+from ansible.module_utils import six
 import datetime
 import pprint
 from ansible.plugins.callback import CallbackBase

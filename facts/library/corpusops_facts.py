@@ -6,8 +6,8 @@ from __future__ import print_function
 
 import contextlib
 import socket
-from six.moves.urllib.request import urlopen
-from six.moves.urllib.error import URLError, HTTPError
+from ansible.module_utils.six.moves.urllib.request import urlopen
+from ansible.module_utils.six.moves.urllib.error import URLError, HTTPError
 import traceback
 import os
 

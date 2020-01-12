@@ -13,11 +13,11 @@ from __future__ import print_function
 
 import copy
 import ipaddr
-import six
+from ansible.module_utils import six
 import contextlib
 import socket
 import re
-import six
+from ansible.module_utils import six
 
 from distutils.version import LooseVersion
 
