@@ -24,7 +24,7 @@ import os
 import pipes
 import subprocess
 import sys
-import six
+from ansible.module_utils import six
 import time
 import traceback
 import logging
