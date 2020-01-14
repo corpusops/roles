@@ -21,6 +21,7 @@ corpusops_localsettings_pkgmgr_configs_ubuntu:
   - {'name': '/etc/apt/apt.conf.d/99notrad', 'mode': '644'}
   - {'name': '/etc/apt/preferences.d/00_proposed.pref', 'mode': '644'}
   - {'name': '/etc/apt/apt.conf.d/99netfamily', 'mode': '644'}
+corpusops_localsettings_pkgmgr_configs_redhat: {}
 corpusops_localsettings_pkgmgr_configs_debian:
   - {'name': '/etc/apt/sources.list', 'mode': '644'}
   - {'name': '/etc/apt/apt.conf.d/99confhold', 'mode': '644'}
