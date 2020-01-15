@@ -43,7 +43,6 @@ corpusops_localsettings_basepkgs_packages_not_in_docker_redhat:
 corpusops_localsettings_basepkgs_packages: null
 corpusops_localsettings_basepkgs_packages_debian:
       - acl
-      - gpg-agent
       - adduser
       - apt
       - apt-transport-https
