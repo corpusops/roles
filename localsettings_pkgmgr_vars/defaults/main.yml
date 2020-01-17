@@ -32,7 +32,7 @@ corpusops_localsettings_pkgmgr_apt_clean: false
 corpusops_localsettings_pkgmgr_apt_clean_configs:
   - {'name': '/etc/apt/apt.conf.d/99clean', 'mode': '644'}
 corpusops_localsettings_pkgmgr_files: []
-corpusops_localsettings_pkgmgr_dist: "{{vars['corpusops_localsettings_pkgmgr_ldist']}}"
+corpusops_localsettings_pkgmgr_dist: "{{corpusops_localsettings_pkgmgr_ldist}}"
 corpusops_localsettings_pkgmgr_ldist: "{{'{0}'.format(ansible_lsb.codename).lower()}}"
 corpusops_localsettings_pkgmgr_odist: "{{'{0}'.format(ansible_lsb.codename)}}"
 corpusops_localsettings_pkgmgr_force_apt_ipv4: true
@@ -46,28 +46,28 @@ corpusops_localsettings_pkgmgr_mirror: null
 # corpusops_localsettings_pkgmgr_mirror_ubuntu: 'http://mirror.ovh.net/ftp.ubuntu.com/ubuntu/'
 corpusops_localsettings_pkgmgr_mirror_fr_ubuntu: 'http://fr.archive.ubuntu.com/ubuntu/'
 corpusops_localsettings_pkgmgr_mirror_dist_ubuntu: 'http://archive.ubuntu.com/ubuntu/'
-corpusops_localsettings_pkgmgr_mirror_ubuntu: "{{vars['corpusops_localsettings_pkgmgr_mirror_fr_ubuntu']}}"
+corpusops_localsettings_pkgmgr_mirror_ubuntu: "{{corpusops_localsettings_pkgmgr_mirror_fr_ubuntu}}"
 corpusops_localsettings_pkgmgr_mirror_debian_archive: 'http://archive.debian.org/debian/'
 corpusops_localsettings_pkgmgr_mirror_debian: 'http://ftp.fr.debian.org/debian/'
 corpusops_localsettings_pkgmgr_sources_lists: null
 corpusops_localsettings_pkgmgr_sources_lists_ubuntu:
- - "deb {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}} {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb-src {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}} {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-proposed {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb-src {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-proposed {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-updates {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb-src {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-updates {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-security {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb-src {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-security {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb {{vars['corpusops_localsettings_pkgmgr_partner_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}} partner"
- - "deb-src {{vars['corpusops_localsettings_pkgmgr_partner_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}} partner"
- #- "deb {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-backport {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- #- "deb-src {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}}-backport {{vars['corpusops_localsettings_pkgmgr_comps']}}"
+ - "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}} {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}} {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-proposed {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-proposed {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-updates {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-updates {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-security {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-security {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb {{corpusops_localsettings_pkgmgr_partner_mirror}} {{corpusops_localsettings_pkgmgr_dist}} partner"
+ - "deb-src {{corpusops_localsettings_pkgmgr_partner_mirror}} {{corpusops_localsettings_pkgmgr_dist}} partner"
+ #- "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-backport {{corpusops_localsettings_pkgmgr_comps}}"
+ #- "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}}-backport {{corpusops_localsettings_pkgmgr_comps}}"
 corpusops_localsettings_pkgmgr_sources_lists_debian:
- - "deb {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}} {{vars['corpusops_localsettings_pkgmgr_comps']}}"
- - "deb-src {{vars['corpusops_localsettings_pkgmgr_mirror']}} {{vars['corpusops_localsettings_pkgmgr_dist']}} {{vars['corpusops_localsettings_pkgmgr_comps']}}"
+ - "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}} {{corpusops_localsettings_pkgmgr_comps}}"
+ - "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}} {{corpusops_localsettings_pkgmgr_comps}}"
 corpusops_localsettings_pkgmgr_partner_mirror: 'http://archive.canonical.com/ubuntu'
-corpusops_localsettings_pkgmgr_lsb_release_major: "{{vars['ansible_lsb'].release[0]}}"
+corpusops_localsettings_pkgmgr_lsb_release_major: "{{ansible_lsb.release[0]}}"
 corpusops_localsettings_pkgmgr_rpm_mirrors: null
 corpusops_localsettings_pkgmgr_rpm_mirrors_default: []
 corpusops_localsettings_pkgmgr_rpm_mirrors_centos:
@@ -78,25 +78,25 @@ corpusops_localsettings_pkgmgr_rpm_repos_centos:
   repo: os
   desc: Base
   gpgcheck: true
-  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{vars['corpusops_localsettings_pkgmgr_lsb_release_major']}}"
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{corpusops_localsettings_pkgmgr_lsb_release_major}}"
   mirrorlist: "file:///etc/corpusops_rpms_mirrors.base"
   file: 'CentOS-Base'
 - name: updates
   gpgcheck: true
   desc: Updates
-  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{vars['corpusops_localsettings_pkgmgr_lsb_release_major']}}"
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{corpusops_localsettings_pkgmgr_lsb_release_major}}"
   mirrorlist: "file:///etc/corpusops_rpms_mirrors.updates"
   file: 'CentOS-Base'
 - name: extras
   desc: Extras
   gpgcheck: true
-  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{vars['corpusops_localsettings_pkgmgr_lsb_release_major']}}"
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{corpusops_localsettings_pkgmgr_lsb_release_major}}"
   mirrorlist: "file:///etc/corpusops_rpms_mirrors.extras"
   file: 'CentOS-Base'
 - name: centosplus
   desc: Plus
   gpgcheck: true
-  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{vars['corpusops_localsettings_pkgmgr_lsb_release_major']}}"
+  gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{corpusops_localsettings_pkgmgr_lsb_release_major}}"
   mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
   file: 'CentOS-Base'
 corpusops_localsettings_pkgmgr_base_rpm_repos: null
@@ -105,7 +105,7 @@ corpusops_localsettings_pkgmgr_epel:
   - name: epel
     desc: epel
     gpgcheck: true
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{vars['corpusops_localsettings_pkgmgr_lsb_release_major']}}"
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-{{corpusops_localsettings_pkgmgr_lsb_release_major}}"
     mirrorlist: "file:///etc/corpusops_rpms_mirrors.centosplus"
     file: 'CentOS-Base'
 _repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version|default('7') }}.noarch.rpm"
