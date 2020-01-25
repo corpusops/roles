@@ -29,8 +29,8 @@ letsencryptconsumer:
   vars:
     domainops_localsettings_certbot_domains: |-
       {%- set r = [ansible_fqdn] %}
-      {%- for i in vars['groups'].get(inventory_hostname+'_lxcs', []) %}
-      {%-   set idata = vars['hostvars'][i] %}
+      {%- for i in groups.get(inventory_hostname+'_lxcs', []) %}
+      {%-   set idata = hostvars[i] %}
       {%-   set _ = r.extend(
               idata.get('certbot_domains',
                 idata.get('haproxy_hosts', [])))%}
@@ -69,8 +69,8 @@ letsencryptconsumer:
   vars:
     domainops_localsettings_certbot_domains: |-
       {%- set r = [ansible_fqdn] %}
-      {%- for i in vars['groups'].get(inventory_hostname+'_lxcs', []) %}
-      {%-   set idata = vars['hostvars'][i] %}
+      {%- for i in groups.get(inventory_hostname+'_lxcs', []) %}
+      {%-   set idata = hostvars[i] %}
       {%-   set _ = r.extend(
               idata.get('certbot_domains',
                 idata.get('haproxy_hosts', [])))%}
