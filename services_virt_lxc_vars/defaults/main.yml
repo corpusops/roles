@@ -20,7 +20,7 @@ corpusops_services_virt_lxc_packages_default: |
   {% set d = [
     "lxc-templates", "lxc", "python3-lxc", "liblxc1",
     "lxcfs", "dnsmasq", "cgmanager"] %}
-  {% if ansible_distribution in ['Ubuntu'] and  (ansible_distribution_version | copsf_looseversion >= '17.10') %}
+  {% if ansible_distribution in ['Ubuntu'] and  (corpusops_core_distribution_version | copsf_looseversion >= '17.10') %}
   {% set _ = d.pop(d.index('cgmanager')) %}
   {% endif %}
   {{ d | to_json }}
