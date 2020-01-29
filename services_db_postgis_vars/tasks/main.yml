@@ -6,7 +6,7 @@
       {% set pgprefix = 'corpusops_services_db_postgresql_' %}
       {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
-      {% if vars['ansible_distribution'] in ['Ubuntu'] and  (vars['ansible_distribution_version'] | copsf_looseversion >= '16.04') %}
+      {% if vars['ansible_distribution'] in ['Ubuntu'] and  (vars['corpusops_core_distribution_version'] | copsf_looseversion >= '16.04') %}
       {% set _ = namespaced['packages'].append('liblwgeom-dev') %}
       {% endif %}
 
