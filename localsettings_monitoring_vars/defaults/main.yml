@@ -31,12 +31,12 @@ corpusops_localsettings_monitoring_packages_default: |-
                   'libxml-xpath-perl',
                   'libsys-statistics-linux-perl',] %}
   {%- if not (ansible_distribution.lower() in ['ubuntu', 'mint'] and
-          ansible_distribution_version|copsf_looseversion >=
+          corpusops_core_distribution_version|copsf_looseversion >=
               '17.10'|copsf_looseversion) %}
   {%-  set _ = pkgs.append('sysstat') %}
   {%- endif %}
   {%- if ansible_distribution.lower() in ['ubuntu', 'mint'] and
-         ansible_distribution_version|copsf_looseversion >= '20.04'|copsf_looseversion %}
+         corpusops_core_distribution_version|copsf_looseversion >= '20.04'|copsf_looseversion %}
   {%-   set _ = pkgs.append('libsensors5') %}
   {%-  else %}
   {%-   set _ = pkgs.append('libsensors4') %}
@@ -45,7 +45,7 @@ corpusops_localsettings_monitoring_packages_default: |-
   {%-  set _ = pkgs.append('sysstat') %}
   {%- endif %}
   {%- if ansible_distribution.lower() in ['ubuntu', 'mint'] %}
-  {%-  if ansible_distribution_version|copsf_looseversion < '16.04'|copsf_looseversion %}
+  {%-  if corpusops_core_distribution_version|copsf_looseversion < '16.04'|copsf_looseversion %}
   {%-   set _ = pkgs.append('nagios-plugins-openstack') %}
   {%-  endif %}
   {%- endif %}
