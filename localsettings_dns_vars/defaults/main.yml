@@ -9,7 +9,7 @@ corpusops_localsettings_dns_systemd_configs:
 corpusops_localsettings_dns_use_systemd_resolved: |-
   {% set res = {'r': false} %}
   {%- if ansible_distribution.lower() in ['ubuntu', 'mint'] %}
-  {%-  if ansible_distribution_version|copsf_looseversion >= '18.04'|copsf_looseversion %}
+  {%-  if corpusops_core_distribution_version|copsf_looseversion >= '18.04'|copsf_looseversion %}
   {%     set _ = res.update({'r': true}) %}
   {%-  endif %}
   {%- endif %}
