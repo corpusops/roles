@@ -22,7 +22,7 @@ corpusops_services_backup_dbsmartbackup_filescopy_default: []
 corpusops_services_backup_dbsmartbackup_files_apt: []
 corpusops_services_backup_dbsmartbackup_files_default:
   - {path: "/usr/bin/db_smart_backup.sh",
-     src: "{{vars['corpusops_services_backup_dbsmartbackup_dir']}}/db_smart_backup.sh",
+     src: "{{corpusops_services_backup_dbsmartbackup_dir}}/db_smart_backup.sh",
      owner: root, group: root, state: link}
 corpusops_services_backup_dbsmartbackup_configs: null
 corpusops_services_backup_dbsmartbackup_configs_default: []
