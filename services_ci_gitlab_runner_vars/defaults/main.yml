@@ -32,13 +32,13 @@ corpusops_services_ci_gitlab_runner_config: "/etc/gitlab-runner/config.toml"
 corpusops_services_ci_gitlab_runner_working_directory: "/srv/nobackup/gitlabrunner"
 corpusops_services_ci_gitlab_runner_start: >
   /usr/lib/gitlab-runner/gitlab-runner "run"
-  "--working-directory" "{{vars['corpusops_services_ci_gitlab_runner_working_directory']}}"
-  "--config" "{{vars['corpusops_services_ci_gitlab_runner_config']}}"
-  "--service" "{{vars['corpusops_services_ci_gitlab_runner_name']}}"
+  "--working-directory" "{{corpusops_services_ci_gitlab_runner_working_directory}}"
+  "--config" "{{corpusops_services_ci_gitlab_runner_config}}"
+  "--service" "{{corpusops_services_ci_gitlab_runner_name}}"
   "--syslog"
-  "--user" "{{vars['corpusops_services_ci_gitlab_runner_user']}}"
+  "--user" "{{corpusops_services_ci_gitlab_runner_user}}"
 corpusops_services_ci_gitlab_runner_files_apt: []
 corpusops_services_ci_gitlab_runner_configs:
-- {name: "/etc/systemd/system/{{vars['corpusops_services_ci_gitlab_runner_name']}}.service.d/override.conf",
+- {name: "/etc/systemd/system/{{corpusops_services_ci_gitlab_runner_name}}.service.d/override.conf",
    template: "service.systemd",
    user: "root", group: "root", mode: "0756"}
