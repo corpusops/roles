@@ -6,19 +6,17 @@
       name: "corpusops_services_db_mysql_{{item}}"
       path: /etc/secrets
   loop: "{{corpusops_services_db_mysql_secret_variables|flatten(levels=1)}}"
-- include_jinja_vars:
+- name: registry setter
+  vars: {cops_vars_registry_prefix: corpusops_services_db_mysql_}
+  include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_services_db_mysql_' %}
-      {% set snamespaced, vars = vars
-          | copsf_registry(prefix) %}
-      {% set data, vars = snamespaced[prefix+'vars']
-          | copsf_mysql(vars, prefix)%}
-      {{ (data
-         | copsf_registry_to_vars(
-             vars, prefix, global_scope=True)
-         )[0]
-         | to_json}}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- set namespaced, _ = lookup('cops_mysql', registry_prefix, data=namespaced) %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
   tags: [corpusops_vars, corpusops_services_db_mysql_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: version.yml

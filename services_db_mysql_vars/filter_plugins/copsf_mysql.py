@@ -14,7 +14,9 @@ def setupdefault(data, var, value):
     return value
 
 
-def copsf_mysql(data, ansible_vars, prefix):
+def copsf_mysql(data, ansible_vars, prefix, namespaced=None):
+    if namespaced is not None:
+        data = namespaced
     # update defaults from the selected mode (default|prod)
     # only if any value is not explicitly set by the user
     defaults = data['modes'].get(data['mode'],
