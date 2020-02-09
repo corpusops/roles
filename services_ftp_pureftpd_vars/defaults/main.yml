@@ -34,13 +34,13 @@ corpusops_services_ftp_pureftpd_force_ssl_regen: false
 corpusops_services_ftp_pureftpd_dhparam: "{{corpusops_vars.config_dir}}/ssl/private/pure-ftpd-dhparams.pem"
 corpusops_services_ftp_pureftpd_files: null
 corpusops_services_ftp_pureftpd_files_default:
-  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}",
+  - {path: "{{corpusops_services_ftp_pureftpd_prefix}}",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/conf",
+  - {path: "{{corpusops_services_ftp_pureftpd_prefix}}/conf",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/auth",
+  - {path: "{{corpusops_services_ftp_pureftpd_prefix}}/auth",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/pureftpd.passwd",
+  - {path: "{{corpusops_services_ftp_pureftpd_prefix}}/pureftpd.passwd",
      owner: "root", group: "root", state: touch, mode: "0644"}
 corpusops_services_ftp_pureftpd_use_ppa: "{% if ansible_os_family.lower() in ['debian']%}True{%else%}False{%endif%}"
 corpusops_services_ftp_pureftpd_repo_debian: "ppa:corpusops/pure-ftpd"
@@ -52,7 +52,7 @@ corpusops_services_ftp_pureftpd_key: "{{corpusops_vars.config_dir}}/ssl/private/
 corpusops_services_ftp_pureftpd_prefix: "{{corpusops_vars.config_dir}}/pure-ftpd"
 corpusops_services_ftp_pureftpd_initd: "{{corpusops_vars.config_dir}}/init.d/pure-ftpd"
 corpusops_services_ftp_pureftpd_configs_default:
-  - {name: "{{vars['corpusops_services_ftp_pureftpd_initd']}}",         mode: "0755"}
+  - {name: "{{corpusops_services_ftp_pureftpd_initd}}",         mode: "0755"}
   - {name: "{{corpusops_vars.config_dir}}/default/pure-ftpd-common", mode: "0644"}
   - {name: "{{corpusops_vars.config_dir}}/systemd/system/pure-ftpd.service", mode: "0644"}
 corpusops_services_ftp_pureftpd_Virtualchroot: 'false'
@@ -107,10 +107,10 @@ corpusops_services_ftp_pureftpd_conf_ForcePassiveIP: ""
 corpusops_services_ftp_pureftpd_conf_PassivePortRange: ""
 corpusops_services_ftp_pureftpd_conf_PAMAuthentication: 'yes'
 corpusops_services_ftp_pureftpd_conf_UnixAuthentication: 'no'
-corpusops_services_ftp_pureftpd_conf_PureDB: "{{vars['corpusops_services_ftp_pureftpd_prefix']}}/pureftpd.pdb"
+corpusops_services_ftp_pureftpd_conf_PureDB: "{{corpusops_services_ftp_pureftpd_prefix}}/pureftpd.pdb"
 corpusops_services_ftp_pureftpd_conf_MySQLConfigFile: ""
 corpusops_services_ftp_pureftpd_conf_ExtAuth: ""
 corpusops_services_ftp_pureftpd_conf_LDAPConfigFile: ""
 corpusops_services_ftp_pureftpd_conf_PGSQLConfigFile: ""
 corpusops_services_ftp_pureftpd_cert_cn: "{{ansible_fqdn}}"
-corpusops_services_ftp_pureftpd_cert_subj: "/C=CC/ST=ST/L=Ll/O=OO/CN={{vars['corpusops_services_ftp_pureftpd_cert_cn']}}/"
+corpusops_services_ftp_pureftpd_cert_subj: "/C=CC/ST=ST/L=Ll/O=OO/CN={{corpusops_services_ftp_pureftpd_cert_cn}}/"
