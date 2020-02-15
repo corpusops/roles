@@ -29,13 +29,13 @@ corpusops_services_proxy_haproxy_repo_keys: null
 corpusops_services_proxy_haproxy_repo_keys_default: []
 corpusops_services_proxy_haproxy_keyserver: "{{corpusops_vars.hkp_keyserver}}"
 corpusops_services_proxy_haproxy_repo: null
-corpusops_services_proxy_haproxy_repo_debian: "ppa:vbernat/{{vars['corpusops_services_proxy_haproxy_name']}}-{{vars['corpusops_services_proxy_haproxy_version']}}"
+corpusops_services_proxy_haproxy_repo_debian: "ppa:vbernat/{{corpusops_services_proxy_haproxy_name}}-{{corpusops_services_proxy_haproxy_version}}"
 corpusops_services_proxy_haproxy_packages: null
-corpusops_services_proxy_haproxy_packages_default: ["{{vars['corpusops_services_proxy_haproxy_name']}}"]
+corpusops_services_proxy_haproxy_packages_default: ["{{corpusops_services_proxy_haproxy_name}}"]
 corpusops_services_proxy_haproxy_services: null
-corpusops_services_proxy_haproxy_group: "{{vars['corpusops_services_proxy_haproxy_user']}}"
-corpusops_services_proxy_haproxy_user: "{{vars['corpusops_services_proxy_haproxy_name']}}"
-corpusops_services_proxy_haproxy_services_default: ["{{vars['corpusops_services_proxy_haproxy_name']}}"]
+corpusops_services_proxy_haproxy_group: "{{corpusops_services_proxy_haproxy_user}}"
+corpusops_services_proxy_haproxy_user: "{{corpusops_services_proxy_haproxy_name}}"
+corpusops_services_proxy_haproxy_services_default: ["{{corpusops_services_proxy_haproxy_name}}"]
 corpusops_services_proxy_haproxy_files: null
 corpusops_services_proxy_haproxy_filescopy: null
 corpusops_services_proxy_haproxy_filescopy_default: []
@@ -47,15 +47,15 @@ corpusops_services_proxy_haproxy_files_default:
      owner: root, group: root, state: directory, mode: "0755"}
   - {path: "{{corpusops_vars.config_dir}}/logrotate.d",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_proxy_haproxy_crt_dir']}}",
+  - {path: "{{corpusops_services_proxy_haproxy_crt_dir}}",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_proxy_haproxy_prefix']}}",
+  - {path: "{{corpusops_services_proxy_haproxy_prefix}}",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/cfg.d",
+  - {path: "{{corpusops_services_proxy_haproxy_prefix}}/cfg.d",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors",
+  - {path: "{{corpusops_services_proxy_haproxy_prefix}}/errors",
      owner: root, group: root, state: directory, mode: "0755"} 
-  - {path: "{{vars['corpusops_services_proxy_haproxy_selfsignedcert_dir']}}",
+  - {path: "{{corpusops_services_proxy_haproxy_selfsignedcert_dir}}",
      owner: root, group: root, state: directory, mode: "0755"} 
   - {path: "{{corpusops_vars.usr_dir}}/bin",
      owner: root, group: root, state: directory, mode: "0755"}
@@ -63,44 +63,44 @@ corpusops_services_proxy_haproxy_files_default:
      owner: root, group: root, state: directory, mode: "0755"}
 corpusops_services_proxy_haproxy_configs: null
 corpusops_services_proxy_haproxy_configs_default:
-  - {name: "{{vars['corpusops_services_proxy_haproxy_config_file']}}",
+  - {name: "{{corpusops_services_proxy_haproxy_config_file}}",
      template: "../templates/etc/haproxy/haproxy.cfg",
-     owner: "{{vars['corpusops_services_proxy_haproxy_user']}}", group: root, mode: "0640"}
-  - {name: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors/403.http",
+     owner: "{{corpusops_services_proxy_haproxy_user}}", group: root, mode: "0640"}
+  - {name: "{{corpusops_services_proxy_haproxy_prefix}}/errors/403.http",
      template: "../templates/etc/haproxy/errors/403.http",
      owner: root, group: root, mode: "0644"}
-  - {name: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors/408.http",
+  - {name: "{{corpusops_services_proxy_haproxy_prefix}}/errors/408.http",
      template: "../templates/etc/haproxy/errors/408.http",
      owner: root, group: root, mode: "0644"}
-  - {name: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors/500.http",
+  - {name: "{{corpusops_services_proxy_haproxy_prefix}}/errors/500.http",
      template: "../templates/etc/haproxy/errors/500.http",
      owner: root, group: root, mode: "0644"}
-  - {name: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors/502.http",
+  - {name: "{{corpusops_services_proxy_haproxy_prefix}}/errors/502.http",
      template: "../templates/etc/haproxy/errors/502.http",
      owner: root, group: root, mode: "0644"}
-  - {name: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors/503.http",
+  - {name: "{{corpusops_services_proxy_haproxy_prefix}}/errors/503.http",
      template: "../templates/etc/haproxy/errors/503.http",
      owner: root, group: root, mode: "0644"}
-  - {name: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/errors/504.http",
+  - {name: "{{corpusops_services_proxy_haproxy_prefix}}/errors/504.http",
      template: "../templates/etc/haproxy/errors/504.http",
      owner: root, group: root, mode: "0644"}
   - {name: "{{corpusops_vars.usr_dir}}/bin/cops_haproxy_wrapper.sh",
      template: "../templates/usr/bin/cops_haproxy_wrapper.sh",
      owner: root, group: root, mode: "0755"}
-  - {name: "{{corpusops_vars.config_dir}}/logrotate.d/{{vars['corpusops_services_proxy_haproxy_name']}}",
+  - {name: "{{corpusops_vars.config_dir}}/logrotate.d/{{corpusops_services_proxy_haproxy_name}}",
      template: "../templates/etc/logrotate.d/haproxy",
      owner: root, group: root, mode: "0755"}
-  - {name: "{{corpusops_vars.config_dir}}/init.d/{{vars['corpusops_services_proxy_haproxy_name']}}",
+  - {name: "{{corpusops_vars.config_dir}}/init.d/{{corpusops_services_proxy_haproxy_name}}",
      template: "../templates/etc/init.d/haproxy",
      owner: root, group: root, mode: "0755"}
-  - {name: "{{corpusops_vars.config_dir}}/systemd/system/{{vars['corpusops_services_proxy_haproxy_name']}}.service",
+  - {name: "{{corpusops_vars.config_dir}}/systemd/system/{{corpusops_services_proxy_haproxy_name}}.service",
      template: "../templates/etc/systemd/system/haproxy.service",
      owner: root, group: root, mode: "0755"}
-  - {name: "{{corpusops_vars.confdefault_dir}}/{{vars['corpusops_services_proxy_haproxy_name']}}",
+  - {name: "{{corpusops_vars.confdefault_dir}}/{{corpusops_services_proxy_haproxy_name}}",
      template: "../templates/etc/default/haproxy",
      owner: root, group: root, mode: "0755"}
 corpusops_services_proxy_haproxy_stats_user: "admin"
-corpusops_services_proxy_haproxy_prefix: "{{corpusops_vars.config_dir}}/{{vars['corpusops_services_proxy_haproxy_name']}}"
+corpusops_services_proxy_haproxy_prefix: "{{corpusops_vars.config_dir}}/{{corpusops_services_proxy_haproxy_name}}"
 corpusops_services_proxy_haproxy_rotate: "{{corpusops_vars.rotate_days}}"
 corpusops_services_proxy_haproxy_config_global_logfacility: 'local0'
 # upgrade to info to debug,  activation of keepalive in cloud confs
@@ -110,7 +110,7 @@ corpusops_services_proxy_haproxy_config_global_nbproc: ''
 corpusops_services_proxy_haproxy_config_global_node: "{{ansible_fqdn}}"
 corpusops_services_proxy_haproxy_config_global_ulimit: '65536'
 corpusops_services_proxy_haproxy_config_global_maxconn: '4096'
-corpusops_services_proxy_haproxy_config_global_stats_sock: "{{corpusops_vars.var_run_dir}}/{{vars['corpusops_services_proxy_haproxy_name']}}.sock"
+corpusops_services_proxy_haproxy_config_global_stats_sock: "{{corpusops_vars.var_run_dir}}/{{corpusops_services_proxy_haproxy_name}}.sock"
 corpusops_services_proxy_haproxy_config_global_stats_sock_lvl: 'admin'
 corpusops_services_proxy_haproxy_config_global_daemon: True
 corpusops_services_proxy_haproxy_config_global_debug: False
@@ -132,12 +132,12 @@ corpusops_services_proxy_haproxy_stats_raw_opts:
   - "stats hide-version"
   - "stats uri /"
   - "stats refresh 5s"
-  - "stats realm haproxy\ statistics stats auth {{vars['corpusops_services_proxy_haproxy_stats_user']}}:{{vars['corpusops_services_proxy_haproxy_stats_password']}}"
-corpusops_services_proxy_haproxy_ssl_frontend_bind_options: "crt {{vars['corpusops_services_proxy_haproxy_crt_dir']}}"
+  - "stats realm haproxy\ statistics stats auth {{corpusops_services_proxy_haproxy_stats_user}}:{{corpusops_services_proxy_haproxy_stats_password}}"
+corpusops_services_proxy_haproxy_ssl_frontend_bind_options: "crt {{corpusops_services_proxy_haproxy_crt_dir}}"
 corpusops_services_proxy_haproxy_ssl_bind_options: "no-sslv3 no-tls-tickets"
 corpusops_services_proxy_haproxy_ssl_server_bind_options: "no-sslv3 no-tls-tickets"
-corpusops_services_proxy_haproxy_ssl_bind_ciphers: "{{vars['corpusops_services_proxy_haproxy_ciphers']}}"
-corpusops_services_proxy_haproxy_ssl_server_bind_ciphers: "{{vars['corpusops_services_proxy_haproxy_ciphers']}}"
+corpusops_services_proxy_haproxy_ssl_bind_ciphers: "{{corpusops_services_proxy_haproxy_ciphers}}"
+corpusops_services_proxy_haproxy_ssl_server_bind_ciphers: "{{corpusops_services_proxy_haproxy_ciphers}}"
 corpusops_services_proxy_haproxy_ciphers: "{{(
   'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:'
   'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:'
@@ -151,12 +151,12 @@ corpusops_services_proxy_haproxy_ciphers: "{{(
   'AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:'
   '!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:'
   '!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA')}}"
-corpusops_services_proxy_haproxy_main_cert: "{{vars['corpusops_services_proxy_haproxy_crt_dir']}}/main.crt"
-corpusops_services_proxy_haproxy_bind_ciphers: "{{vars['corpusops_services_proxy_haproxy_ciphers']}}"
-corpusops_services_proxy_haproxy_server_bind_ciphers: "{{vars['corpusops_services_proxy_haproxy_ciphers']}}"
-corpusops_services_proxy_haproxy_config_file: "{{vars['corpusops_services_proxy_haproxy_prefix']}}/haproxy.cfg"
+corpusops_services_proxy_haproxy_main_cert: "{{corpusops_services_proxy_haproxy_crt_dir}}/main.crt"
+corpusops_services_proxy_haproxy_bind_ciphers: "{{corpusops_services_proxy_haproxy_ciphers}}"
+corpusops_services_proxy_haproxy_server_bind_ciphers: "{{corpusops_services_proxy_haproxy_ciphers}}"
+corpusops_services_proxy_haproxy_config_file: "{{corpusops_services_proxy_haproxy_prefix}}/haproxy.cfg"
 corpusops_services_proxy_haproxy_maincert_crt: ""
-corpusops_services_proxy_haproxy_maincert_path: "{{vars['corpusops_services_proxy_haproxy_crt_dir']}}/maincert.pem"
+corpusops_services_proxy_haproxy_maincert_path: "{{corpusops_services_proxy_haproxy_crt_dir}}/maincert.pem"
 corpusops_services_proxy_haproxy_selfsignedcert_dir: "{{corpusops_vars.ssl_config_dir}}/haproxy/selfsigned"
 corpusops_services_proxy_haproxy_selfsignedcert_s: "/C=US/ST=Oregon/L=Portland/O=IT/"
 corpusops_services_proxy_haproxy_selfsignedcert_d: "365000"
@@ -167,7 +167,7 @@ corpusops_services_proxy_haproxy_defaults_enabled: 1
 corpusops_services_proxy_haproxy_crt_dir: "{{corpusops_vars.ssl_config_dir}}/haproxy/certs"
 #
 corpusops_services_proxy_haproxy_default_stats_password: null
-corpusops_services_proxy_haproxy_stats_password: "{{vars['corpusops_services_proxy_haproxy_default_stats_password']}}"
+corpusops_services_proxy_haproxy_stats_password: "{{corpusops_services_proxy_haproxy_default_stats_password}}"
 corpusops_services_proxy_haproxy_stats_enabled: true
 corpusops_services_proxy_haproxy_reverse_proxy_addresses: "{{corpusops_network_settings_vars.reverse_proxy.addresses}}"
 corpusops_services_proxy_haproxy_service_state: loaded
