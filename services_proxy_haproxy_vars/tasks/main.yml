@@ -4,11 +4,7 @@
     _cops_get_secret_variable:
       name: corpusops_services_proxy_haproxy_default_stats_password
       path: /etc/secrets
-- include_jinja_vars:
-    content: |-
-      ---
-      {% set prefix = 'corpusops_services_proxy_haproxy_' %}
-      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
-      {{ snamespaced | to_json}}
+- include_role: {name: corpusops.roles/registry, public: true}
+  vars: {cops_vars_registry_target: corpusops_services_proxy_haproxy}
   tags: [corpusops_vars, corpusops_services_proxy_haproxy_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
