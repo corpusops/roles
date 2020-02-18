@@ -5,22 +5,38 @@ from __future__ import division
 from __future__ import print_function
 
 
-def copsfburp_get_cname_and_profile(avars, hvars):
-    cname = hvars.get('burp_cname', '') or hvars['inventory_hostname']
-    profile = avars.get('ansible_virtualization_type', None) in [
-        'docker', 'lxc'] and 'vm' or 'baremetal'
+def copsfburp_get_cname(avars, hvars, *args,  **kwargs):
+    return hvars.get('burp_cname', '') or hvars['inventory_hostname']
+
+
+def copsfburp_get_cname_and_profile(avars, hvars, profile_key=None,
+                                    *args,  **kwargs):
+    cname = copsfburp_get_cname(avars, hvars, *args,  **kwargs)
+    if profile_key is None:
+        profile_key = 'burp_client_profile'
+    if profile_key in ['burp_clientside_profile']:
+        profile = None
+    else:
+        profile = avars.get('ansible_virtualization_type', None) in [
+            'docker', 'lxc'] and 'vm' or 'baremetal'
     try:
-        profile = hvars['burp_client_profile']
+        if profile_key is None:
+            raise KeyError('next')
+        profile = hvars[profile_key]
     except KeyError:
         try:
             hvars['cops_burpclientserver_profiles_{0}'.format(cname)]
             profile = cname
         except KeyError:
-            pass
+            try:
+                avars['cops_burpclientserver_profiles_{0}'.format(cname)]
+                profile = cname
+            except KeyError:
+                pass
     return cname, profile
 
 
-def copsfburp_finish_settings(data, prefixmode, hvars):
+def copsfburp_finish_settings(data, prefixmode, hvars, *args,  **kwargs):
     prefixes = {
         'client': 'burp_client_conf_',
         'server': 'burp_client_',
@@ -34,6 +50,7 @@ def copsfburp_finish_settings(data, prefixmode, hvars):
 
 
 __funcs__ = {
+    'copsfburp_get_cname': copsfburp_get_cname,
     'copsfburp_get_cname_and_profile': copsfburp_get_cname_and_profile,
     'copsfburp_finish_settings': copsfburp_finish_settings,
 }
