@@ -7,7 +7,7 @@ cops_burpfw_cops_knobs: ['files', 'filescopy', 'configs']
 cops_burpfw_cops_lowered: []
 cops_burpfw_cops_sub_namespaces: {conf: {}}
 cops_burpfw_activated: True
-cops_burpfw_services: ["burp-server-{{vars['cops_burpfw_name']}}", "burp-restore-{{vars['cops_burpfw_name']}}"]
+cops_burpfw_services: ["burp-server-{{cops_burpfw_name}}", "burp-restore-{{cops_burpfw_name}}"]
 cops_burpfw_files: null
 cops_burpfw_name: "corpusops"
 cops_burpfw_ms_iptables_priority: "98"
