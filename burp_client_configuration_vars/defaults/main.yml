@@ -1,0 +1,73 @@
+---
+cops_burpclient_cops_do_format_resolve: false
+cops_burpclient_cops_computed_defaults: []
+cops_burpclient_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+cops_burpclient_cops_sub_os_append: {}
+cops_burpclient_cops_knobs: ['files', 'filescopy', 'configs']
+cops_burpclient_cops_lowered: []
+cops_burpclient_cops_sub_namespaces: {conf: {}}
+cops_burpclient_activated: True
+cops_burpclient_services: []
+cops_burpclient_name: "corpusops"
+cops_burpclient_files_default:
+- {path: "{{cops_burpclient_prefix}}",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{{cops_burpclient_prefix}}/csrs",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{{cops_burpclient_prefix}}/clientconfdir",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{{corpusops_vars.config_dir}}/systemd/system",
+   owner: root, group: root, state: directory, mode: "0755"}
+- {path: "{{corpusops_vars.config_dir}}/default",
+   owner: root, group: root, state: directory, mode: "0755"}
+cops_burpclient_prefix: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}"
+cops_burpclient_configfile_client:  "{{cops_burpclient_prefix}}/burp-client.conf"
+cops_burpclient_configfile_restore: "{{cops_burpclient_prefix}}/burp-client-restore.conf"
+cops_burpclient_filescopy: null
+cops_burpclient_filescopy_default: []
+cops_burpclient_configs: null
+cops_burpclient_configs_default:
+- {name: "{{corpusops_vars.config_dir}}/logrotate.d/burp-client-{{cops_burpclient_name}}"  , mode: "0640", template: "../templates/etc/logrotate.d/burp-client"}
+- {name: "{{corpusops_vars.config_dir}}/cron.d/burp-client-{{cops_burpclient_name}}"  , mode: "0640", template: "../templates/etc/cron.d/burp"}
+- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cron.sh"  , mode: "0750", template: "../templates/etc/burp/cron.sh"}
+- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cleanup-burp-processes.sh" , mode: "0750", template: "../templates/etc/burp/cleanup-burp-processes.sh"}
+- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cron.py"  , mode: "0750", template: "../templates/etc/burp/cron.py"}
+- {name: "{{cops_burpclient_configfile_restore}}"            , mode: "0640", template: "../templates/etc/burp/burp-client-restore.conf"}
+- {name: "{{cops_burpclient_configfile_client}}"             , mode: "0640", template: "../templates/etc/burp/burp-client.conf"}
+cops_burpclient_port: '4971'
+cops_burpclient_mailto: ""
+cops_burpclient_status_port: "{{cops_burpclient_port|int+1}}"
+cops_burpclient_restore_port: "{{cops_burpclient_port|int+2}}"
+cops_burpclient_restore_status_port: "{{cops_burpclient_restore_port|int+1}}"
+cops_burpclient_cname: "{{ansible_fqdn}}"
+cops_burpclient_server: null
+cops_burpclient_password: null
+cops_burpclient_protocol: "1"
+cops_burpclient_use_common_lines: true
+cops_burpclient_custom_lines: []
+cops_burpclient_pidfile: "/var/run/burp.client-{{cops_burpclient_name}}.pid"
+cops_burpclient_ssl_peer_cn: "{{cops_burpclient_server}}"
+cops_burpclient_common_lines: |-
+  ca_csr_dir={{cops_burpclient_prefix}}/csrs
+  ssl_cert_ca = /etc/burp-{{cops_burpclient_name}}/ssl_cert_ca-client.pem
+  ssl_cert = /etc/burp-{{cops_burpclient_name}}/ssl_cert-client.pem
+  ssl_key = /etc/burp-{{cops_burpclient_name}}/ssl_cert-client.key
+  pidfile = {{cops_burpclient_pidfile}}
+  lockfile = /var/run/burp-client-{{cops_burpclient_name}}.pid
+  restore_pidfile = /var/run/burp.clientrestore-{{cops_burpclient_name}}.pid
+  restore_lockfile = /var/run/burp-client.restore-{{cops_burpclient_name}}.pid
+  syslog = 0
+  stdout = 1
+  progress_counter = 1
+  #ratelimit = 0
+  network_timeout = 7200
+  autoupgrade_dir = 0
+  autoupgrade_os = 0
+  server_can_restore = 1
+  read_fifo = 0
+  read_all_fifos = 0
+  read_blockdev = 0
+  read_all_blockdevs = 0
+cops_burpclient_crons: |-
+  * *   * * *  root {{cops_burpclient_prefix}}/cron.sh    1>/dev/null 2>&1
+  0 */3 * * *  root {{cops_burpclient_prefix}}/cleanup-burp-processes.sh
