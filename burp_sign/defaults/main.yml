@@ -9,19 +9,19 @@ cops_burpsign_cops_sub_namespaces: {conf: {}}
 cops_burpsign_name: "corpusops"
 cops_burpsign_files: null
 cops_burpsign_files_default:
-  - {path: "{{vars['cops_burpsign_ca']}}",
+  - {path: "{{cops_burpsign_ca}}",
      owner: root, group: root, state: directory, mode: "0755"}
-  - {path: "{{vars['cops_burpsign_prefix']}}",
+  - {path: "{{cops_burpsign_prefix}}",
      owner: root, group: root, state: directory, mode: "0755"}
 cops_burpsign_filescopy: null
 cops_burpsign_filescopy_default: []
-cops_burpsign_prefix: "{{corpusops_vars.config_dir}}/burp-{{vars['cops_burpsign_name']}}"
+cops_burpsign_prefix: "{{corpusops_vars.config_dir}}/burp-{{cops_burpsign_name}}"
 cops_burpsign_configs: null
 cops_burpsign_configs_default:
-- {name: "{{vars['cops_burpsign_prefix']}}/casign.sh",
+- {name: "{{cops_burpsign_prefix}}/casign.sh",
    mode: "0755", template: "../templates/etc/burp/casign.sh"}
-- {name: "{{vars['cops_burpsign_ca_conf']}}",
+- {name: "{{cops_burpsign_ca_conf}}",
    mode: "0644", template: "../templates/etc/burp/CA.cnf"}
 cops_burpsign_cnames: []
-cops_burpsign_ca: "{{vars['cops_burpsign_prefix']}}/CA"
-cops_burpsign_ca_conf: "{{vars['cops_burpsign_prefix']}}/CA.cnf"
+cops_burpsign_ca: "{{cops_burpsign_prefix}}/CA"
+cops_burpsign_ca_conf: "{{cops_burpsign_prefix}}/CA.cnf"
