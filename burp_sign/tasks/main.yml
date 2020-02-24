@@ -1,16 +1,8 @@
 ---
 - tags: [cops_burpsign_vars]
   block:
-  - include_jinja_vars:
-      content: |-
-        ---
-        {% set prefix = 'cops_burpsign_' %}
-        {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-        {% set data = snamespaced[prefix+'vars'] %}
-        {{ (snamespaced[prefix+'vars']
-            |copsf_registry_to_vars(vars, prefix, global_scope=True)
-           )[0]
-           | to_json}}
+  - include_role: {name: corpusops.roles/registry, public: true}
+    vars: {cops_vars_registry_target: cops_burpsign}
     no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: run.yml
   tags: [cops_burpsign_server]
