@@ -4,7 +4,7 @@
 - name: setup cops facts
   corpusops_facts:
     ext_ip: "{{corpusops_network_get_ext_ip}}"
-    ext_ip_value: "{{corpusops_network_live_ext_ip_value}}"
+    ext_ip_value: "{{corpusops_network_live_ext_ip_value|default(none)}}"
 - name: test service manager
   environment:
     PAGER: ""
@@ -23,21 +23,19 @@
   changed_when: False
   register: cops_test_services_mgr
   tags: [corpusops_vars, corpusops_vars_core]
-- name: core
+
+- name: registry setter
   include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_core_' %}
-      {% set rprefix = 'corpusops_' %}
-      {% set snamespaced, vars = vars
-         | copsf_registry(prefix, global_scope=False) %}
-      {# environment #}
-      {% set envs = {'env': snamespaced['env']} %}
-      {% for curtest in [
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set snamespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {#- environment #}
+      {%- set envs = {'env': snamespaced['env']} %}
+      {%- for curtest in [
           ansible_fqdn, ansible_hostname,
           inventory_hostname, inventory_hostname_short,
         ] %}
-      {%  if (
+      {%-  if (
           (curtest.lower()
            |regex_search('^(staging|qa|uat|prod)', ignorecase=true)
           ) or
@@ -52,15 +50,15 @@
                 , ignorecase=true)
           )
           ) and not envs.env %}
-      {%    set _ = envs.update({'env': 'prod'})%}
-      {%  endif %}
-      {% endfor %}
-      {% if envs.env != snamespaced['env']%}
-      {%  set _ = snamespaced.update({'env': envs.env}) %}
-      {% endif %}
-      {# vt #}
-      {% set vt = (ansible_virtualization_type|default(None) or '')|lower %}
-      {% set computed_defaults = [
+      {%-    set _ = envs.update({'env': 'prod'})%}
+      {%-  endif %}
+      {%- endfor %}
+      {%- if envs.env != snamespaced['env']%}
+      {%-  set _ = snamespaced.update({'env': envs.env}) %}
+      {%- endif %}
+      {#- vt #}
+      {%- set vt = (ansible_virtualization_type|default(None) or '')|lower %}
+      {%- set computed_defaults = [
           ('vt', vt),
           ('has_services_manager',
             cops_test_services_mgr.rc==0),
@@ -74,51 +72,50 @@
           ('server_type', (vt in ['docker', 'lxc'])
                           | ternary(vt, 'baremetal')),
       ] %}
-      {% for name, val in computed_defaults %}
-      {%  set _ = snamespaced.setdefault(name, none) %}
-      {%  if snamespaced[name] is none %}
-      {%    set _ = snamespaced.update({name: val}) %}
-      {%  endif %}
-      {% endfor %}
-      {# Trick to reexport vars under corpuops_ prefix
-         without having all corpusops_.* variables in reg #}
-      {% set ret = {} %}
-      {% set snamespaced2 = (
-            snamespaced
-            | copsf_registry_to_vars(
-                vars, prefix, global_scope=True))[0] %}
-      {% set snamespaced1 = (
-            snamespaced
-            | copsf_registry_to_vars(
-                vars, rprefix, global_scope=True))[0] %}
-      {% set _= ret.update(snamespaced1) %}
-      {% set _= ret.update(snamespaced2) %}
-      {{ ret | to_json }}
-  tags: [corpusops_vars, corpusops_vars_core]
+      {%- for name, val in computed_defaults %}
+      {%-  set _ = snamespaced.setdefault(name, none) %}
+      {%-  if snamespaced[name] is none %}
+      {%-    set _ = snamespaced.update({name: val}) %}
+      {%-  endif %}
+      {%- endfor %}
+      {%- for name, val in snamespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {%- set _ = registry.update({
+        'cops_root': registry['corpusops_core_vars'].prefix,
+        'corpusops_vars': registry['corpusops_core_vars']
+      }) %}
+      {{- registry|to_json }}
+  register: registry
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- name: network(setting)
+  vars: {cops_vars_registry_prefix: corpusops_core_}
+
+- name: registry setter
   include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_network_live_' %}
-      {% set snamespaced = ({
-           prefix+'vars': (vars|copsnetf_live_settings(prefix))
-         } | copsf_registry_to_vars(
-               vars, prefix, global_scope=False))[0] %}
-      {{ snamespaced | to_json }}
-  tags: [corpusops_vars, corpusops_network]
+      {%- set snamespaced = lookup('cops_net', cops_vars_registry_prefix, func='live_settings') %}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix, namespaced=snamespaced) %}
+      {%- set snamespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- for name, val in snamespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
+  register: registry
+  tags: [corpusops_vars, corpusops_network_live_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- name: network(live)
-  include_jinja_vars:
+  vars: {cops_vars_registry_prefix: corpusops_network_live_}
+
+- include_jinja_vars:
     content: |-
-      ---
-      {% set lprefix = 'corpusops_network_live_' %}
-      {% set prefix = 'corpusops_network_settings_' %}
-      {% set snamespaced = ({
-           prefix+'vars': (vars|copsnetf_settings(
-             lprefix, prefix))
-         } | copsf_registry_to_vars(
-               vars, prefix, global_scope=False))[0] %}
-      {{ snamespaced | to_json }}
-  tags: [corpusops_vars, corpusops_network]
+      {%- set lprefix = 'corpusops_network_live_' %}
+      {%- set snamespaced = lookup('cops_net', lprefix, func='settings', prefix=cops_vars_registry_prefix) %}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix, namespaced=snamespaced) %}
+      {%- set snamespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- for name, val in snamespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
+  register: registry
+  tags: [corpusops_vars, corpusops_network_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
+  vars: {cops_vars_registry_prefix: corpusops_network_settings_}
