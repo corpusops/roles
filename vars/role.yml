@@ -1,5 +1,9 @@
 ---
 # To see variables for this role, call it directly via ansible-playbook -vvv roles/corpusops_vars/role.yml
 - hosts: all
-  roles: [corpusops.roles/vars]
+  tasks:
+  - include_role: {name: corpusops.roles/vars, public: true}
+  - block:
+    - include_role: {name: corpusops.roles/vars, public: true}
+    when: cops_vars_dev_debug|default(false)
 
