@@ -11,6 +11,7 @@
 - name: "construct registry {{cops_vars_registry_target}}"
   include_jinja_vars:
     content: |-
+      {#- -#}
       {% set target = cops_vars_registry_target %}
       {% set defaults = cops_vars_registry_defaults %}
       {% set knobs = cops_vars_registry_knobs %}
@@ -26,7 +27,7 @@
       {% set gs = cops_vars_registry_global_scope %}
       {% set lo = cops_vars_registry_load_overrides %}
       {% set _ = vars.update({o: cops_reg_overrides1.get(o, {})}) %}
-      {% set res, vars = vars | copsf_registry(
+      {% set res = lookup('cops_registry',
           prefix, do_load_overrides=lo,
           do_format_resolve=fr,
           do_update_namespaces=un,
