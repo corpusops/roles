@@ -1,22 +1,22 @@
 ---
 # name of the systemd service to install, default to directory basename
-docker_compose_service_default_project: "{{vars['docker_compose_service_vars'].path|copsf_basename}}"
-docker_compose_service_project: "{{(vars['docker_compose_service_vars'].working_directory or vars['docker_compose_service_vars'].default_path)|copsf_basename}}"
+docker_compose_service_default_project: "{{docker_compose_service_path|copsf_basename}}"
+docker_compose_service_project: "{{(docker_compose_service_working_directory or docker_compose_service_default_path)|copsf_basename}}"
 # working directory for compose file
-docker_compose_service_path:    "{{ vars['docker_compose_service_vars'].working_directory or vars['docker_compose_service_vars'].default_path}}"
+docker_compose_service_path:    "{{ docker_compose_service_working_directory or docker_compose_service_default_path}}"
 docker_compose_service_files: []
 # files to use in compose command line
-docker_compose_service_service_activated: "{{vars['docker_compose_service_vars'].state not in ['stopped']}}"
+docker_compose_service_service_activated: "{{docker_compose_service_state not in ['stopped']}}"
 # one of:
 #  no, on-success, on-failure, on-abnormal,
 #  on-watchdog, on-abort, or always.
 docker_compose_service_args: ""
 docker_compose_service_pull: false
-docker_compose_service_pull_args:   "{{vars['docker_compose_service_vars'].args}}"
-docker_compose_service_config_args: "{{vars['docker_compose_service_vars'].args}}"
-docker_compose_service_up_args:     "{{vars['docker_compose_service_vars'].args}}"
-docker_compose_service_stop_args:   "{{vars['docker_compose_service_vars'].args}}"
-docker_compose_service_down_args:   "{{vars['docker_compose_service_vars'].args}} {% if vars['docker_compose_service_vars'].down_volumes %}-v{%endif %}"
+docker_compose_service_pull_args:   "{{docker_compose_service_args}}"
+docker_compose_service_config_args: "{{docker_compose_service_args}}"
+docker_compose_service_up_args:     "{{docker_compose_service_args}}"
+docker_compose_service_stop_args:   "{{docker_compose_service_args}}"
+docker_compose_service_down_args:   "{{docker_compose_service_args}} {% if docker_compose_service_down_volumes %}-v{%endif %}"
 #
 docker_compose_service_restart: "no"
 docker_compose_service_restart_sec: "0"
@@ -33,17 +33,16 @@ docker_compose_service_default_before: ""
 docker_compose_service_default_after: "docker.service network.service"
 docker_compose_service_default_requires: "docker.service"
 #
-docker_compose_service__before:   "{{vars['docker_compose_service_vars'].default_before}}   {{vars['docker_compose_service_vars'].before}}"
-docker_compose_service__after:    "{{vars['docker_compose_service_vars'].default_after}}    {{vars['docker_compose_service_vars'].after}}"
-docker_compose_service__requires: "{{vars['docker_compose_service_vars'].default_requires}} {{vars['docker_compose_service_vars'].requires}}"
+docker_compose_service__before:   "{{docker_compose_service_default_before}}   {{docker_compose_service_before}}"
+docker_compose_service__after:    "{{docker_compose_service_default_after}}    {{docker_compose_service_after}}"
+docker_compose_service__requires: "{{docker_compose_service_default_requires}} {{docker_compose_service_requires}}"
 # for backward compat !
 docker_compose_service_working_directory: null
 docker_compose_service_default_path: /tmp
 docker_compose_service_docker_compose_file: null
 docker_compose_service__files: |-
   {%- set r = [] %}
-  {%- set v = vars['docker_compose_service_vars'] %}
-  {%- for i in [v.docker_compose_file] + v.files %}
+  {%- for i in [docker_compose_service_docker_compose_file] + docker_compose_service_files %}
   {%- if i %}{% set _ = r.append(i) %}{% endif%}
   {%- endfor%}
   {{- r|copsf_uniquify|to_json }}
