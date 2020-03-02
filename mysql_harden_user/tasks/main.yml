@@ -1,13 +1,13 @@
 ---
 - name: "Setup secrets"
-  include_role: {name: corpusops.roles/get_secret_variable}
+  include_role: {name: corpusops.roles/get_secret_variable, public: true}
   vars:
     _cops_get_secret_variable:
       name: "cops_mysql_harden_user_{{item}}"
       path: /etc/secrets
   loop: [password]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_role: {name: corpusops.roles/vars_registry}
+- include_role: {name: corpusops.roles/vars_registry, public: true}
   vars: {cops_vars_registry_target: cops_mysql_harden_user}
   tags: [mysql_harden_user]
   register: mysql_harden_user_test
