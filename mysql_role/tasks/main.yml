@@ -1,5 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/vars_registry}
+- include_role: {name: corpusops.roles/vars_registry, public: true}
   vars: {cops_vars_registry_target: cops_mysql_role}
   tags: [mysql_role]
   no_log: "{{not (cops_vars_debug|default(false))}}"
