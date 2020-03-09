@@ -3,8 +3,10 @@ cops_sslcerts_added: {}
 cops_sslcerts_removed: {}
 cops_sslcerts_install_haproxy: true
 cops_sslcerts_update_ca_certificates: true
-cops_sslcerts_crts_dirs:
+cops_sslcerts_full_crts_dirs:
 - "{{corpusops_vars.ssl_config_dir}}/cloud/certs"
+cops_sslcerts_crts_dirs:
+- "{{corpusops_vars.ssl_config_dir}}/cloud/separate"
 cops_sslcerts_keys_dirs:
 - "{{corpusops_vars.ssl_config_dir}}/cloud/private"
 cops_sslcerts_update_ca_certificates_dirs:
