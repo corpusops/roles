@@ -1,5 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/vars_registry}
+- include_role: {name: corpusops.roles/vars_registry, public: true}
   vars:
     cops_vars_registry_target: cops_postgresql_privs
   tags: [postgresql_privs]
