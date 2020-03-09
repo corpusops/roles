@@ -3,6 +3,15 @@
   debug:
     msg: |-
       {% set res = [] %}
+      {% for i in cops_sslcerts_full_crts_dirs %}
+      {%  set _ = res.append({
+        'name': (i+'/'+subitem.key+'.crt').replace('*', 'star'),
+        'mode': cops_sslcerts_vars.public_fmode,
+        'owner': 'root',
+        'group': 'root',
+        'template': '../templates/full.crt',
+         'state': state})%}
+      {% endfor %}
       {% for i in cops_sslcerts_crts_dirs %}
       {%  set _ = res.append({
         'name': (i+'/'+subitem.key+'.crt').replace('*', 'star'),
@@ -59,7 +68,7 @@
           'mode': cops_sslcerts_vars.private_fmode,
           'owner': cops_sslcerts_vars.haproxy_user,
           'group': cops_sslcerts_vars.haproxy_group,
-          'template': '../templates/haproxy.crt',
+          'template': '../templates/full.crt',
           'state': state}) %}
         {% endfor %}
         {{ res | to_json }}

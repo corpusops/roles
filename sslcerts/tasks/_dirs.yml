@@ -5,6 +5,7 @@
      msg: |-
       {% set res = [] %}
       {% for i in (cops_sslcerts_crts_dirs +
+                   cops_sslcerts_full_crts_dirs +
                    cops_sslcerts_update_ca_certificates_dirs) %}
       {%  set _ = res.append({
           'name': i,
