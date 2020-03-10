@@ -13,4 +13,4 @@ galaxy_info:
     - all
 dependencies:
 - role: corpusops.roles/vars
-  tags: [ms_iptables_vars_role]
+  tags: [corpusops_ms_iptables_role]

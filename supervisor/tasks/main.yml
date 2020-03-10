@@ -10,9 +10,10 @@
     - name: "cops_supervisor_passwords_{{cops_supervisor_name}}"
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - name: registry setter
-  vars: {cops_vars_registry_prefix: cops_supervisor_}
+  vars: {cops_vars_registry_target: cops_supervisor}
   include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
       {%- set registry = lookup('cops_registry',
             cops_vars_registry_prefix,
             do_format_resolve=True) %}

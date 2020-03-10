@@ -39,8 +39,7 @@
     src: /etc/yum/yum-cron.conf
     dest: /etc/sysconfig/yum-cron
     state: link
-  when: "(ansible_distribution_version < 7 and
-          ansible_os_family.lower() in ['redhat'])"
+  when: "(ansible_os_family.lower() in ['redhat'] and ansible_distribution_version|int < 7)"
 - cops_service:
     name: "{{item}}"
     daemon_reload: yes

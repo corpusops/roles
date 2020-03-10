@@ -40,21 +40,21 @@ corpusops_services_mail_postfix_files_default:
 corpusops_services_mail_postfix_filescopy: null
 corpusops_services_mail_postfix_filescopy_default:
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/virtual_alias_maps.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/networks.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/sasl_passwd.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/relay_domains.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/transport.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/destinations.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/main.cf.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 - {dest: "{{corpusops_services_mail_postfix_prefix}}/recipient_access.local",
-   user: "root", group: "postfix", mode: "640", force: false, content: "", src: "{{omit}}"}
+   user: "root", group: "postfix", mode: "640", force: false, content: "", src: null}
 corpusops_services_mail_postfix_files_apt: []
 corpusops_services_mail_postfix_configs: null
 corpusops_services_mail_postfix_key: "{{corpusops_vars.config_dir}}/ssl/private/pure-maild.pem"

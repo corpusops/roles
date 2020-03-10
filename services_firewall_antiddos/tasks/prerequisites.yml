@@ -14,7 +14,7 @@
     cache_valid_time: '{{60*60}}'
     update_cache: yes
     name: "{{item}}"
-    state: installed
+    state: present
   loop: '{{corpusops_services_firewall_antiddos_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_firewall_antiddos_vars.packages is not none and

@@ -1,9 +1,10 @@
 ---
 - tags: [cops_burpclient_vars]
   name: registry setter
-  vars: {cops_vars_registry_prefix: cops_burpclient_}
+  vars: {cops_vars_registry_target: cops_burpclient}
   include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
       {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
       {%- if namespaced.use_common_lines %}

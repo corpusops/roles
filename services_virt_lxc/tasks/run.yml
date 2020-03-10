@@ -120,5 +120,5 @@
     name: "{{item}}"
     state: present
   when: "corpusops_services_virt_lxc_vars.docker_support"
-  loop: " {{corpusops_services_virt_lxc_vars.docker_modules|flatten(levels=1)}}"
+  loop: "{{corpusops_services_virt_lxc_vars.docker_modules|flatten(levels=1)}}"
 - meta: flush_handlers

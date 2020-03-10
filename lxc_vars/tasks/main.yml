@@ -1,15 +1,13 @@
 ---
 - include_role: {name: corpusops.roles/registry, public: true}
-  vars: {cops_vars_registry_target: corpusops_lxc, cops_vars_registry_prefix: corpusops_lxc_}
+  vars: {cops_vars_registry_target: corpusops_lxc}
   tags: [corpusops_vars, corpusops_lxc_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_jinja_vars:
     content: |-
-      ---
       {%- set prefix = cops_vars_registry_prefix %}
-      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
-      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
-      {%- set namespaced = vars[prefix+'vars'] %}
+      {%- set registry = {} %}
+      {%- set namespaced = corpusops_lxc_vars %}
       {%- if namespaced['container_name'] %}
       {%-  set _ = namespaced['containers'].setdefault(namespaced['container_name'], {}) %}
       {%- endif %}

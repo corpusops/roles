@@ -1,5 +1,5 @@
 ---
 - include_role: {name: corpusops.roles/registry, public: true}
-  vars: {cops_vars_registry_prefix: corpusops_localsettings_hostname_}
+  vars: {cops_vars_registry_target: corpusops_localsettings_hostname}
   tags: [corpusops_vars, corpusops_localsettings_hostname_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"

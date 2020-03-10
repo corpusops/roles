@@ -29,7 +29,7 @@
   loop: |-
     {%- set d = [] %}
     {%- for i in  corpusops_localsettings_sysctls_vars.knobs
-      -    if i.name not in corpusops_localsettings_sysctls_vars.disabled_knobs%}
+           if i.name not in corpusops_localsettings_sysctls_vars.disabled_knobs%}
     {%-  set _ = d.append(i) %}
     {%- endfor %}
     {{- d | to_json }}
