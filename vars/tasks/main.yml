@@ -27,6 +27,7 @@
 - name: registry setter
   include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
       {%- set snamespaced = registry[cops_vars_registry_prefix+'vars'] %}
       {#- environment #}
@@ -88,11 +89,12 @@
       {{- registry|to_json }}
   register: registry
   no_log: "{{not (cops_vars_debug|default(false))}}"
-  vars: {cops_vars_registry_prefix: corpusops_core_}
+  vars: {cops_vars_registry_target: corpusops_core}
 
 - name: registry setter
   include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
       {%- set snamespaced = lookup('cops_net', cops_vars_registry_prefix, func='live_settings') %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix, namespaced=snamespaced) %}
       {%- set snamespaced = registry[cops_vars_registry_prefix+'vars'] %}
@@ -103,10 +105,11 @@
   register: registry
   tags: [corpusops_vars, corpusops_network_live_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-  vars: {cops_vars_registry_prefix: corpusops_network_live_}
+  vars: {cops_vars_registry_target: corpusops_network_live}
 
 - include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
       {%- set lprefix = 'corpusops_network_live_' %}
       {%- set snamespaced = lookup('cops_net', lprefix, func='settings', prefix=cops_vars_registry_prefix) %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix, namespaced=snamespaced) %}
@@ -118,4 +121,4 @@
   register: registry
   tags: [corpusops_vars, corpusops_network_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
-  vars: {cops_vars_registry_prefix: corpusops_network_settings_}
+  vars: {cops_vars_registry_target: corpusops_network_settings}

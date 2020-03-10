@@ -1,8 +1,9 @@
 ---
 - name: registry setter
-  vars: {cops_vars_registry_prefix: corpusops_localsettings_dockermachine_}
+  vars: {cops_vars_registry_target: corpusops_localsettings_dockermachine}
   include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target+"_" %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
       {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
       {%- set v = 'version' %}

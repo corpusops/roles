@@ -5,6 +5,7 @@
   tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
   include_jinja_vars:
     content: |
+      {% set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix,
                                 do_format_resolve=True) %}
       {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
@@ -25,7 +26,7 @@
       {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
       {%- endfor -%}
       {{ registry|to_json }}
-  vars: {cops_vars_registry_target: corpusops_fpm_pool, cops_vars_registry_prefix: corpusops_fpm_pool_}
+  vars: {cops_vars_registry_target: corpusops_fpm_pool}
   no_log: "{{not (cops_vars_debug|default(false))}}"
 # do the real stuff
 - name: gen pool

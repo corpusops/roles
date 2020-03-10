@@ -1,8 +1,9 @@
 ---
 - name: registry setter
-  vars: {cops_vars_registry_prefix: corpusops_services_db_postgis_}
+  vars: {cops_vars_registry_target: corpusops_services_db_postgis}
   include_jinja_vars:
     content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target+"_" %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
       {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
       {% if vars['ansible_distribution'] in ['Ubuntu'] and  (vars['ansible_distribution_version'] | copsf_looseversion >= '16.04') %}
