@@ -203,7 +203,8 @@
   name: sync file copy
   copy:
     dest: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_tpl_item.dest|default(omit)}}"
-    src: "{%if cops_aconfig_tpl_item.src is none or not (cops_aconfig_tpl_item.content|default(false))%}{{omit}}{% else
+    src: "{%if (cops_aconfig_tpl_item.content|default(False) != False and
+                cops_aconfig_tpl_item.src|default(False) in [None, False])%}{{omit}}{% else
           %}{{(cops_aconfig_tpl_item.src | default(
             cops_aconfig_tpl_item.template | default(cops_aconfig_tpl_item.dest)
           ))}}{%endif%}"
