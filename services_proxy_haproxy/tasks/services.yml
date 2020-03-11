@@ -16,7 +16,7 @@
 - name: service
   cops_service:
     state: "{{corpusops_services_proxy_haproxy_vars.activated
-     | ternary(corpusops_services_proxy_haproxy_service_state,
+     | ternary(corpusops_services_proxy_haproxy_service_state.replace('rere', 're'),
                'stopped')}}"
     enabled: "{{corpusops_services_proxy_haproxy_vars.activated
                 | ternary(True, False)}}"
