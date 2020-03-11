@@ -1,4 +1,4 @@
-  ---
+---
 # actions
 corpusops_localsettings_certbot_http: false
 corpusops_localsettings_certbot_dns: false
