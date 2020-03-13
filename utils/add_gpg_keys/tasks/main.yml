@@ -2,14 +2,14 @@
 # Import by URL
 - uri: {url: "{{ukeyitem}}", return_content: yes}
   loop_control: {loop_var: ukeyitem}
-  with_items: |-
-    {% set skeys = [] %}
-    {% for i in keys %}
-    {% if i.startswith('http') %}
-    {%  set _ = skeys.append(i) %}
-    {% endif %}
-    {% endfor %}
-    {{skeys|to_json}}
+  loop: |-
+    {%- set skeys = [] %}
+    {%- for i in keys %}
+    {%- if i.startswith('http') %}
+    {%-  set _ = skeys.append(i) %}
+    {%- endif %}
+    {%- endfor %}
+    {{-skeys}}
   register: corpusops_install_gpg_keys_urls
   changed_when: False
 - debug: msg="{{corpusops_install_gpg_keys_urls}}"
