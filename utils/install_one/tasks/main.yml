@@ -44,7 +44,7 @@
     state: "directory"
     mode: "0755"
   loop_control: {loop_var: iitem}
-  with_items: [ "{{app_path}}"]
+  loop:  "{{[app_path]}}"
 - name: "existing archive test"
   stat:
     path: "{{'/'.join([app_path, iiitem])}}"
@@ -203,5 +203,5 @@
     src: "{{'{d}/{bn}'.format(**liitem)}}"
     dest: "{{liitem.d}}"
   loop_control: {loop_var: liitem}
-  with_items: [{d: "{{app_path}}", bn: "{{archive}}"}]
+  loop: "{{[{d: "{{app_path}}", bn: "{{archive}}"}]}}"
 
