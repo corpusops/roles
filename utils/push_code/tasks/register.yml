@@ -77,6 +77,6 @@
       {% set _ = __cops_provision_push_codes.append(__cops_provision_push_code.msg) %}
       {{ __cops_provision_push_codes | to_json }}
 - include_tasks: register_sub.yml
-  with_items: ["{{__cops_provision_push_subs}}"]
+  loop: "{{[__cops_provision_push_subs]}}"
   loop_control: {loop_var: sub_module}
 
