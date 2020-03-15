@@ -7,7 +7,7 @@
     group: "{{__cops_provision_push_code_vars.group}}"
   changed_when: False
   loop_control: {loop_var: d}
-  with_items: ["{{__cops_provision_push_code_vars.dest}}"]
+  loop: "{{[__cops_provision_push_code_vars.dest]}}"
   when: __cops_provision_push_code_vars.force_sync
 - name: synchronise files inside the environment (deleguation)
   delegate_to: "{{__cops_provision_push_code_vars.origin}}"
