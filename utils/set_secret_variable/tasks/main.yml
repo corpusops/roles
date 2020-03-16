@@ -18,7 +18,7 @@
     cacheable: false
     __cops_get_secret_variable_registry_prefix: "{{cops_get_secret_variable_registry_prefix}}"
 - when: "corpusops_vars is not defined"
-  include_role: {name: corpusops.roles/vars}
+  include_role: {name: corpusops.roles/vars, public: true}
 - set_fact:
     cacheable: false
     __cops_get_secret_variable_name: "{{__cops_get_secret_variable_registry_prefix
@@ -36,7 +36,7 @@
 - block:
   - name: "{{__cops_get_secret_variable_registry_prefix[:-1]
            }} Secret generation: {{__cops_get_secret_variable_name}}"
-    include_role: {name: corpusops.roles/get_secret_variable}
+    include_role: {name: corpusops.roles/get_secret_variable, public: true}
     no_log: "not (cops_vars_debug|default(false))}}"
     when: "vars.get(__cops_get_secret_variable_name, none) is none"
   - name: "{{__cops_get_secret_variable_registry_prefix[:-1]
