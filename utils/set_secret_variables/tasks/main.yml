@@ -17,9 +17,9 @@
   loop: "{{secretvariablesldata.msg.variables|flatten(levels=1)}}"
 - include_role: {name: corpusops.roles/utils/set_secret_variable}
   loop_control: {loop_var: secretvariable}
-  with_items: |-
-              {% set ret = [] %}
-              {% for i in secretvariablesdata.results %}
-              {% set _ = ret.append(i.msg) %}
-              {% endfor %}
-              {{ ret | to_json }}
+  loop: |-
+        {%- set ret = [] %}
+        {%- for i in secretvariablesdata.results %}
+        {%- set _ = ret.append(i.msg) %}
+        {%- endfor %}
+        {{- ret }}
