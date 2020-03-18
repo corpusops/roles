@@ -21,60 +21,60 @@ cops_supervisor_filescopy: null
 cops_supervisor_filescopy_default: []
 cops_supervisor_files: null
 cops_supervisor_files_default:
-  - {path: "{{vars['cops_supervisor_prefix']}}",
-     owner: "{{vars['cops_supervisor_user']}}", group: "{{vars['cops_supervisor_group']}}", state: directory, mode: "0755"}
-  - {path: "{{vars['cops_supervisor_conf']}}",
-     owner: "{{vars['cops_supervisor_user']}}", group: "{{vars['cops_supervisor_group']}}", state: directory, mode: "0755"}
-  - {path: "{{vars['cops_supervisor_includes_dir']}}",
-     owner: "{{vars['cops_supervisor_user']}}", group: "{{vars['cops_supervisor_group']}}", state: directory, mode: "0755"}
-  - {path: "{{vars['cops_supervisor_includes_dir']}}",
-     owner: "{{vars['cops_supervisor_user']}}", group: "{{vars['cops_supervisor_group']}}", state: directory, mode: "0755"}
-  - {path: "{{vars['cops_supervisor_logdir']}}",
-     owner: "{{vars['cops_supervisor_user']}}", group: "{{vars['cops_supervisor_group']}}", state: directory, mode: "0755"}
+  - {path: "{{cops_supervisor_prefix}}",
+     owner: "{{cops_supervisor_user}}", group: "{{cops_supervisor_group}}", state: directory, mode: "0755"}
+  - {path: "{{cops_supervisor_conf}}",
+     owner: "{{cops_supervisor_user}}", group: "{{cops_supervisor_group}}", state: directory, mode: "0755"}
+  - {path: "{{cops_supervisor_includes_dir}}",
+     owner: "{{cops_supervisor_user}}", group: "{{cops_supervisor_group}}", state: directory, mode: "0755"}
+  - {path: "{{cops_supervisor_includes_dir}}",
+     owner: "{{cops_supervisor_user}}", group: "{{cops_supervisor_group}}", state: directory, mode: "0755"}
+  - {path: "{{cops_supervisor_logdir}}",
+     owner: "{{cops_supervisor_user}}", group: "{{cops_supervisor_group}}", state: directory, mode: "0755"}
 cops_supervisor_control_user: root
 cops_supervisor_control_group: root
 cops_supervisor_configs: null
 cops_supervisor_configs_default:
-  - {name: "{{vars['cops_supervisor_config']}}",
-     template: "{{vars['cops_supervisor_config_template']}}",
+  - {name: "{{cops_supervisor_config}}",
+     template: "{{cops_supervisor_config_template}}",
      owner: root, group: root, state: directory, mode: "0644"}
-  - {name: "{{vars['cops_supervisor_ctl']}}",
-     template: "{{vars['cops_supervisor_ctl_template']}}",
-     owner: "{{vars['cops_supervisor_control_user']}}", group: "{{vars['cops_supervisor_control_group']}}", state: directory, mode: "750"}
-  - {name: "{{vars['cops_supervisor_initd']}}",
+  - {name: "{{cops_supervisor_ctl}}",
+     template: "{{cops_supervisor_ctl_template}}",
+     owner: "{{cops_supervisor_control_user}}", group: "{{cops_supervisor_control_group}}", state: directory, mode: "750"}
+  - {name: "{{cops_supervisor_initd}}",
      template: "etc/init.d/supervisord",
      owner: root, group: root, state: directory, mode: "755"}
-  - {name: "/etc/systemd/system/{{vars['cops_supervisor_service']}}.service",
-     template: "{{vars['cops_supervisor_unit_template']}}",
+  - {name: "/etc/systemd/system/{{cops_supervisor_service}}.service",
+     template: "{{cops_supervisor_unit_template}}",
      owner: root, group: root, state: directory, mode: "0644"}
-  - {name: "/etc/logrotate.d/{{vars['cops_supervisor_service']}}.conf",
-     template: "{{vars['cops_supervisor_logrotate_template']}}",
+  - {name: "/etc/logrotate.d/{{cops_supervisor_service}}.conf",
+     template: "{{cops_supervisor_logrotate_template}}",
      owner: root, group: root, state: directory, mode: "0644"}
-cops_supervisor_config: "{{vars['cops_supervisor_conf']}}/supervisord-{{vars['cops_supervisor_name']}}.conf"
+cops_supervisor_config: "{{cops_supervisor_conf}}/supervisord-{{cops_supervisor_name}}.conf"
 cops_supervisor_config_template: "etc/supervisord.conf"
 cops_supervisor_logrotate_template: "etc/logrotate.d/supervisord.conf"
 cops_supervisor_unit_template: "etc/systemd/system/supervisord.service"
 cops_supervisor_ctl_template: "usr/bin/supervisorctl"
 cops_supervisor_rotate: "{{corpusops_vars.rotate_days}}"
-cops_supervisor_includes_dir: "{{vars['cops_supervisor_conf']}}/includes-{{vars['cops_supervisor_name']}}"
+cops_supervisor_includes_dir: "{{cops_supervisor_conf}}/includes-{{cops_supervisor_name}}"
 cops_supervisor_includes: >
- {{vars['cops_supervisor_includes_dir']}}/*.conf
- {{vars['cops_supervisor_includes_dir']}}/*.ini
+ {{cops_supervisor_includes_dir}}/*.conf
+ {{cops_supervisor_includes_dir}}/*.ini
 # parameters to set in supervisor configuration section
 cops_supervisor_username: 'admin'
 cops_supervisor_passwords: {}
 cops_supervisor_password:                  null
-cops_supervisor_inet_http_server_password: "{{vars['cops_supervisor_password']}}"
-cops_supervisor_unix_http_server_password: "{{vars['cops_supervisor_password']}}"
-cops_supervisor_supervisorctl_password:    "{{vars['cops_supervisor_password']}}"
-cops_supervisor_pidfile: "{{corpusops_vars.var_run_dir}}/supervisord-{{vars['cops_supervisor_name']}}.pid"
+cops_supervisor_inet_http_server_password: "{{cops_supervisor_password}}"
+cops_supervisor_unix_http_server_password: "{{cops_supervisor_password}}"
+cops_supervisor_supervisorctl_password:    "{{cops_supervisor_password}}"
+cops_supervisor_pidfile: "{{corpusops_vars.var_run_dir}}/supervisord-{{cops_supervisor_name}}.pid"
 cops_supervisor_killmode: control-group
 cops_supervisor_restartsec: 50s
 cops_supervisor_timeoutstopsec: 10s
 cops_supervisor_restart: on-failure
 cops_supervisor_restart_target: all
-cops_supervisor_logdir: "{{corpusops_vars.log_dir}}/supervisord-{{vars['cops_supervisor_name']}}"
-cops_supervisor_sock: "/tmp/cops_supervisor_{{vars['cops_supervisor_name']}}.sock"
+cops_supervisor_logdir: "{{corpusops_vars.log_dir}}/supervisord-{{cops_supervisor_name}}"
+cops_supervisor_sock: "/tmp/cops_supervisor_{{cops_supervisor_name}}.sock"
 cops_supervisor_program_autostart: 'true'
 cops_supervisor_program_autorestart: 'true'
 cops_supervisor_program_stopwaitsecs: '10'
@@ -82,12 +82,12 @@ cops_supervisor_program_startsecs: '10'
 cops_supervisor_program_umask: '022'
 cops_supervisor_inet_http_server_enabled: false
 cops_supervisor_inet_http_server_port: 9001
-cops_supervisor_inet_http_server_username: "{{vars['cops_supervisor_username']}}"
+cops_supervisor_inet_http_server_username: "{{cops_supervisor_username}}"
 cops_supervisor_unix_http_server_enabled: true
-cops_supervisor_unix_http_server_file: "{{vars['cops_supervisor_sock']}}"
+cops_supervisor_unix_http_server_file: "{{cops_supervisor_sock}}"
 cops_supervisor_unix_http_server_chmod: '0777'
 cops_supervisor_unix_http_server_chown: 'nobody:nogroup'
-cops_supervisor_unix_http_server_username: "{{vars['cops_supervisor_username']}}"
+cops_supervisor_unix_http_server_username: "{{cops_supervisor_username}}"
 cops_supervisor_extra_conf: {}
 cops_supervisor_programs_defaults:
   stdout_logfile: AUTO
@@ -97,10 +97,10 @@ cops_supervisor_programs_defaults:
   loglevel: "{{cops_supervisor_supervisord_loglevel}}"
   stdout_logfile_backups: "{{cops_supervisor_supervisord_logfile_backups}}"
   stderr_logfile_backups: "{{cops_supervisor_supervisord_logfile_backups}}"
-cops_supervisor_supervisord_identifier: "supervisor-{{vars['cops_supervisor_name']}}"
-cops_supervisor_supervisord_logdir: "{{vars['cops_supervisor_logdir']}}"
-cops_supervisor_supervisord_logfile: "{{vars['cops_supervisor_logdir']}}/supervisord.log"
-cops_supervisor_supervisord_pidfile: "{{vars['cops_supervisor_pidfile']}}"
+cops_supervisor_supervisord_identifier: "supervisor-{{cops_supervisor_name}}"
+cops_supervisor_supervisord_logdir: "{{cops_supervisor_logdir}}"
+cops_supervisor_supervisord_logfile: "{{cops_supervisor_logdir}}/supervisord.log"
+cops_supervisor_supervisord_pidfile: "{{cops_supervisor_pidfile}}"
 cops_supervisor_supervisord_logfile_maxbytes: '50MB'
 cops_supervisor_supervisord_logfile_backups: '10'
 cops_supervisor_supervisord_loglevel: 'info'
@@ -112,18 +112,18 @@ cops_supervisor_supervisord_user: 'root'
 cops_supervisor_supervisord_directory: '/'
 cops_supervisor_supervisord_tmpdir: '/tmp'
 cops_supervisor_supervisord_nocleanup: 'true'
-cops_supervisor_supervisord_childlogdir: "{{vars['cops_supervisor_logdir']}}"
+cops_supervisor_supervisord_childlogdir: "{{cops_supervisor_logdir}}"
 cops_supervisor_supervisord_strip_ansi: 'false'
 cops_supervisor_supervisord_environment: ''
-cops_supervisor_supervisorctl_serverurl: "unix://{{vars['cops_supervisor_sock']}}"
-cops_supervisor_supervisorctl_username: "{{vars['cops_supervisor_username']}}"
-cops_supervisor_supervisorctl_history_file: "{{vars['cops_supervisor_conf']}}/history-{{vars['cops_supervisor_name']}}"
-cops_supervisor_supervisorctl_prompt: "supervisorctl-{{vars['cops_supervisor_name']}}"
+cops_supervisor_supervisorctl_serverurl: "unix://{{cops_supervisor_sock}}"
+cops_supervisor_supervisorctl_username: "{{cops_supervisor_username}}"
+cops_supervisor_supervisorctl_history_file: "{{cops_supervisor_conf}}/history-{{cops_supervisor_name}}"
+cops_supervisor_supervisorctl_prompt: "supervisorctl-{{cops_supervisor_name}}"
 cops_supervisor_venv: "{{corpusops_localsettings_supervisor_vars.venv}}"
 cops_supervisor_prefix: "{{corpusops_localsettings_supervisor_vars.prefix}}"
-cops_supervisor_initd: "/etc/init.d/{{vars['cops_supervisor_service']}}"
-cops_supervisor_ctl: "/usr/bin/{{vars['cops_supervisor_service']}}_ctl"
-cops_supervisor_conf: "{{vars['cops_supervisor_prefix']}}/etc"
-cops_supervisor_service: "cops_supervisor.{{vars['cops_supervisor_name']}}"
+cops_supervisor_initd: "/etc/init.d/{{cops_supervisor_service}}"
+cops_supervisor_ctl: "/usr/bin/{{cops_supervisor_service}}_ctl"
+cops_supervisor_conf: "{{cops_supervisor_prefix}}/etc"
+cops_supervisor_service: "cops_supervisor.{{cops_supervisor_name}}"
 cops_supervisor_user: "{{corpusops_localsettings_supervisor_vars.user}}"
 cops_supervisor_group: "{{corpusops_localsettings_supervisor_vars.group}}"
