@@ -26,7 +26,7 @@
       {% endif %}
       f=$(mktemp)\
       && for i in "{{k}}" "{{c}}";do if [ -e "$i" ];then rm -fv "$i";fi;done \
-      && cat "{{vars['ssl_selfsigned_openssl_config']}}">"$f"\
+      && cat "{{ssl_selfsigned_openssl_config}}">"$f"\
       && printf "\n[SAN]\nsubjectAltName={{scns|join(',')}}\n">>"$f"\
       && openssl req -x509 -config "$f" \
         {{ssl_selfsigned_cert_vars.openssl_args}} \
@@ -59,7 +59,7 @@
       owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
       group: "{{ssl_selfsigned_cert_vars.group or omit}}"
     when:
-    - "vars['ssl_selfsigned_cert_gen_cert_path'] != vars['ssl_selfsigned_cert_dest_cert_path']"
+    - "ssl_selfsigned_cert_gen_cert_path != ssl_selfsigned_cert_dest_cert_path"
   - copy:
       mode: "0640"
       dest: "{{ssl_selfsigned_cert_vars.dest_key_path}}"
@@ -68,7 +68,7 @@
       owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
       group: "{{ssl_selfsigned_cert_vars.group or omit}}"
     when:
-    - "vars['ssl_selfsigned_cert_gen_key_path'] != vars['ssl_selfsigned_cert_gen_key_path']"
+    - "ssl_selfsigned_cert_gen_key_path != ssl_selfsigned_cert_gen_key_path"
   - copy:
       mode: "0640"
       dest: "{{ssl_selfsigned_cert_vars.dest_cert_full_path}}"
@@ -77,4 +77,4 @@
       owner: "{{ssl_selfsigned_cert_vars.owner or omit}}"
       group: "{{ssl_selfsigned_cert_vars.group or omit}}"
     when:
-    - "vars['ssl_selfsigned_cert_has_full_cert']"
+    - "ssl_selfsigned_cert_has_full_cert"
