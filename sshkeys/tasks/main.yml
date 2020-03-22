@@ -7,7 +7,7 @@
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - debug: {msg: {"{{_cops_sshkeys}}"}}
   no_log: "{{not (cops_vars_debug|default(false))}}"
-- include_role: {name: corpusops.roles/vars_registry}
+- include_role: {name: corpusops.roles/vars_registry, public: true}
   vars: {cops_vars_registry_target: cops_sshkeys}
   tags: [sshkeys, vars]
   when: "corpusops_sshkeys_can_run.msg == True"
