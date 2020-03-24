@@ -1,11 +1,7 @@
 ---
 # map computation from lxcvar role back to clean variables
-- include_jinja_vars:
-    content: |-
-      ---
-      {% set prefix = 'cops_lxc_sshauth_' %}
-      {% set snamespaced, vars = vars | copsf_registry(prefix) %}
-      {{ snamespaced | to_json}}
+- include_role: {name: corpusops.roles/registry, public: true}
+  vars: {cops_vars_registry_target: cops_lxc_sshauth}
   tags: [corpusops_vars, cops_lxc_sshauth_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
 - include_tasks: run.yml
