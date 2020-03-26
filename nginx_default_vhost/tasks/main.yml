@@ -1,7 +1,6 @@
 ---
 - name: "corpusops_nginx_default_vhost preflight check - SKIPTEST"
-  debug:
-    msg: "{{corpusops_nginx_default_vhost | default(True) }}"
+  debug: {msg: "{{corpusops_nginx_default_vhost | default(True) }}"}
   register: corpusops_nginx_default_vhost_can_run
   tags: [corpusops_nginx_default_vhost]
 - include_tasks: run.yml
