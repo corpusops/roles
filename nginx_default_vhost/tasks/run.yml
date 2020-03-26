@@ -1,12 +1,10 @@
 ---
-- include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: corpusops_nginx_default_vhost
-- include_jinja_vars:
-    content:
-      corpusops_nginx_default_vhost_rp: "{{role_path}}"
-- include_role:
-    name: "corpusops.roles/nginx_vhost"
+- include_role: {name: corpusops.roles/vars_registry, public: true}
+  vars: {cops_vars_registry_target: corpusops_nginx_default_vhost}
+  tags: [corpusops_vars, corpusops_corpusops_nginx_default_vhost_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_jinja_vars: {content: {corpusops_nginx_default_vhost_rp: "{{role_path}}"}}
+- include_role: {name: "corpusops.roles/nginx_vhost"}
   vars:
     _corpusops_nginx_vhost:
       content_template: "{{(
