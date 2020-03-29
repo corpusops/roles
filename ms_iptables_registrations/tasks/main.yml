@@ -1,32 +1,19 @@
 ---
 # load default variables, first pass, load not resolved values
-- include_jinja_vars:
-    profile: true
-    #debug_stack: true
+- name: registry setter
+  include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_ms_iptables_registrations_' %}
-      {% set snamespaced1 = vars|copsf_registry(prefix, global_scope=False) %}
-      {{ {prefix+'vars': snamespaced1[0]}| to_json }}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set namespaced = lookup('cops_ms_iptables', registry[cops_vars_registry_prefix+'vars']) %}
+      {%- set _ = registry.update({cops_vars_registry_prefix+'vars': namespaced}) %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry|to_json }}
   no_log: "{{not (cops_vars_debug|default(false))}}"
-  tags: [corpusops_vars, corpusops_ms_iptables_registrations, corpusops_ms_iptables_registrations_vars]
-- include_jinja_vars:
-    content: |-
-      ---
-      {% set prefix = 'corpusops_ms_iptables_registrations_' %}
-      {% set snamespaced2 = (vars[prefix+'vars']
-         |copsmsiptablesf_make_registrations(ansible_vars=vars)) %}
-      {{ {prefix+'vars': snamespaced2} | to_json }}
-  no_log: "{{not (cops_vars_debug|default(false))}}"
+  vars: {cops_vars_registry_target: corpusops_ms_iptables_registrations,
+         cops_vars_registry_prefix: corpusops_ms_iptables_registrations_}
   tags: [corpusops_vars, corpusops_ms_iptables_registrations, corpusops_ms_iptables_registrations_vars]
 - name: Manage ms_iptables registrations
   include_tasks: run.yml
   tags: [corpusops_ms_iptables_registrations, corpusops_ms_iptables_registrations_gen]
-- name: reset ms_iptables registrations
-  include_jinja_vars:
-    content: |-
-      ---
-      {{{'corpusops_ms_iptables_registrations_registrations': {},
-         'corpusops_ms_iptables_registrations_vars': {}}|to_json}}
-  no_log: "{{not (cops_vars_debug|default(false))}}"
-  tags: [corpusops_vars, corpusops_ms_iptables_registrations, corpusops_ms_iptables_registrations_vars]
