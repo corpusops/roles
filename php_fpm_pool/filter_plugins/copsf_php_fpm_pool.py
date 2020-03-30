@@ -35,4 +35,3 @@ class FilterModule(object):
     def filters(self):
         return __funcs__
 # vim:set et sts=4 ts=4 tw=80:
-# vim:set et sts=4 ts=4 tw=80:

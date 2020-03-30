@@ -1,33 +1,31 @@
 ---
 # load default variables, first pass, load not resolved values
-- include_role: {name: corpusops.roles/vars_registry}
-  vars:
-    cops_vars_registry_target: corpusops_fpm_pool
-  tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
-  no_log: "{{not (cops_vars_debug|default(false))}}"
 # make some stuff to DRY templates
 - name: "fpm_pool - compute - 1"
   tags: [corpusops_vars, corpusops_fpm_pool, corpusops_fpm_pool_vars]
   include_jinja_vars:
     content: |
-      ---
-      {% set n = 'corpusops_fpm_pool_vars' %}
-      {% set data = vars[n] %}
-      {% for denvs in data.base_env, data.env %}
-      {%   set _ = data.setdefault('computed_env', []).extend(denvs) %}
-      {% endfor %}
-      {% set _ = data.update({'computed_chroot': data.chroot}) %}
-      {% if data.chroot and not data.doc_root.startswith(data.project_root) %}
-      {%   set _ = data.update({'chroot': False}) %}
-      {% endif %}
-      {% for dobd in data.base_open_basedir, data.open_basedir %}
-      {%   set _ = data.setdefault('computed_open_basedir', []).extend(dobd) %}
-      {% endfor %}
-      {% for dip in data.base_include_path, data.include_path %}
-      {%   set _ = data.setdefault('computed_include_path', []).extend(dip)%}
-      {% endfor %}
-      {% set res = {n: data} %}
-      {{ (res | copsf_registry_to_vars(vars, n))[0] | to_json }}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix,
+                                do_format_resolve=True) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- for denvs in namespaced.base_env, namespaced.env %}
+      {%-   set _ = namespaced.setdefault('computed_env', []).extend(denvs) %}
+      {%- endfor %}
+      {%- set _ = namespaced.update({'computed_chroot': namespaced.chroot}) %}
+      {%- if namespaced.chroot and not namespaced.doc_root.startswith(namespaced.project_root) %}
+      {%-   set _ = namespaced.update({'chroot': False}) %}
+      {%- endif %}
+      {%- for dobd in namespaced.base_open_basedir, namespaced.open_basedir %}
+      {%-   set _ = namespaced.setdefault('computed_open_basedir', []).extend(dobd) %}
+      {%- endfor %}
+      {%- for dip in namespaced.base_include_path, namespaced.include_path %}
+      {%-   set _ = namespaced.setdefault('computed_include_path', []).extend(dip)%}
+      {%- endfor %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor -%}
+      {{ registry|to_json }}
+  vars: {cops_vars_registry_target: corpusops_fpm_pool, cops_vars_registry_prefix: corpusops_fpm_pool_}
   no_log: "{{not (cops_vars_debug|default(false))}}"
 # do the real stuff
 - name: gen pool
