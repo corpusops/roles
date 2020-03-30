@@ -1,18 +1,12 @@
 ---
-- name: files
-  include_tasks: _pool_file.yml
-  loop: "{{corpusops_fpm_pool_vars.files|flatten(levels=1)}}"
-  loop_control:
-    loop_var: poolitem
-  when: "(corpusops_fpm_pool_vars.files is not none and
-          corpusops_fpm_pool_vars.files|length > 0)"
 - name: configs containers
   file:
     path: "{{item.name|copsf_dirname}}"
     state: "directory"
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
-  loop: "{{corpusops_fpm_pool_vars.configs|flatten(levels=1)}}"
+  loop: "{{(corpusops_fpm_pool_vars.configs+
+            corpusops_fpm_pool_vars.logs)|flatten(levels=1)}}"
   when: "(corpusops_fpm_pool_vars.configs is not none and
           corpusops_fpm_pool_vars.install and
           corpusops_fpm_pool_vars.configs|length > 0)"
@@ -30,14 +24,6 @@
   when: "(corpusops_fpm_pool_vars.configs is not none and
           corpusops_fpm_pool_vars.install and
           corpusops_fpm_pool_vars.configs|length > 0)"
-- name: configs removed if pool is disabled
-  file:
-    path: "{{item.name}}"
-    state: "absent"
-  loop: "{{corpusops_fpm_pool_vars.configs|flatten(levels=1)}}"
-  when: "(corpusops_fpm_pool_vars.configs is not none and
-          not corpusops_fpm_pool_vars.install and
-          corpusops_fpm_pool_vars.configs|length > 0)"
 - name: Create log files (for perms)
   copy:
     dest: "{{item.name}}"
@@ -48,10 +34,22 @@
     owner: "{{item.owner|default(omit)}}"
     group: "{{item.group|default(omit)}}"
   loop: "{{corpusops_fpm_pool_vars.logs|flatten(levels=1)}}"
-- include_role:
-    name: corpusops.roles/php_fpm_control
+- name: files
+  include_tasks: _pool_file.yml
+  loop: "{{corpusops_fpm_pool_vars.files|flatten(levels=1)}}"
+  loop_control: {loop_var: poolitem}
+  when: "(corpusops_fpm_pool_vars.files is not none and
+          corpusops_fpm_pool_vars.files|length > 0)"
+- name: configs removed if pool is disabled
+  file:
+    path: "{{item.name}}"
+    state: "absent"
+  loop: "{{corpusops_fpm_pool_vars.configs|flatten(levels=1)}}"
+  when: "(corpusops_fpm_pool_vars.configs is not none and
+          not corpusops_fpm_pool_vars.install and
+          corpusops_fpm_pool_vars.configs|length > 0)"
+- include_role: {name: corpusops.roles/php_fpm_control}
   vars:
     corpusops_php_fpm_control_state: "{{corpusops_fpm_pool_vars.reload_action}}"
     corpusops_php_fpm_control_check_config: "{{corpusops_fpm_pool_vars.check_config}}"
-  changed_when: false
   when: "corpusops_fpm_pool_vars.reload_action"
