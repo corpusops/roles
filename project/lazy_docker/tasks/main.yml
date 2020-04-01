@@ -4,6 +4,7 @@
   - include_role:
       name: corpusops.roles/project/lazy_load_vars
       allow_duplicates: false
+      public: true
   - shell: docker ps
     failed_when: false
     changed_when: false

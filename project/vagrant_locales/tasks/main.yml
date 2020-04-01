@@ -4,6 +4,8 @@
   - include_role:
       name: corpusops.roles/project/vagrant_load_vars
       allow_duplicates: false
+      public: true
   - include_role:
       name: corpusops.roles/project/lazy_locales
       allow_duplicates: false
+      public: true

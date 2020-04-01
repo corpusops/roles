@@ -4,6 +4,7 @@
   - include_role:
       name: corpusops.roles/project/_load_vars
       allow_duplicates: false
+      public: true
   - shell: |
       rm -vf /var/cache/apt/archives/*deb
       rm -rf  /var/lib/apt/lists/*
