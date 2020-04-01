@@ -27,6 +27,7 @@
 - include_role:
     name: corpusops.roles/project/lazy_load_vars
     allow_duplicates: false
+    public: true
 - include_role:
     name: corpusops.roles/project/_current_user_is_supereditor
     allow_duplicates: false
