@@ -12,6 +12,6 @@ galaxy_info:
   - name: Debian
     versions:
     - all
-allow_duplicates: yes  
+allow_duplicates: yes
 dependencies:
-- role: corpusops.roles/lxc_vars 
+- role: corpusops.roles/lxc_vars

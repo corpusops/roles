@@ -4,7 +4,7 @@
   when: "(corpusops_services_base_ntp_vars.activated and
           corpusops_vars.has_services_manager and
           (ansible_service_mgr == 'systemd'))"
-  tags: corpusops_services_base_ntp 
+  tags: corpusops_services_base_ntp
 - listen: restart_corpusops_services_base_ntp
   systemd:
     daemon_reload: yes

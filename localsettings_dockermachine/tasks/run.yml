@@ -49,7 +49,7 @@
 - include_role: {name: corpusops.roles/install_archive}
   vars: {_archive: "{{item.msg._archive}}"}
   loop: "{{corpusops_localsettings_dockermachine_sc_archives.results|flatten(levels=1)}}"
-# 
+#
 - file:
     force: true
     state: link
