@@ -2,7 +2,7 @@
 ## Documentation
 Managment of ms_iptables objects
 
-Search all ``corpusops_ms_iptables_registrations_registrations_<foo>`` vars in variables to merged 
+Search all ``corpusops_ms_iptables_registrations_registrations_<foo>`` vars in variables to merged
 them to construct the final configuration
 
 - see [filter plugin](../ansible_plugins/filter_plugins/copsf_ms_iptables.py)
@@ -17,7 +17,7 @@ them to construct the final configuration
     ```yaml
     - include_role: {name: corpusops.roles/ms_iptables_registrations}
       vars:
-        _corpusops_ms_iptables_registrations:   
+        _corpusops_ms_iptables_registrations:
             load_default_rules: bool
             load_default_flush_rules: bool
             load_default_hard_policies: bool

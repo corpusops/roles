@@ -3,7 +3,7 @@
 
 Needs to be applied before:
 
-  - corpusops.roles/localsettings_profile 
+  - corpusops.roles/localsettings_profile
 
 ## Role variables
 To see variables for this role, call it directly via

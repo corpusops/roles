@@ -26,8 +26,8 @@
       {% endif %}
       DROP DATABASE IF EXISTS {{db}};
       CREATE DATABASE {{db}} WITH {% if template %}template = {{template}}{%endif%}
-        encoding = '{{encoding}}' 
-        LC_CTYPE = '{{locale}}' 
+        encoding = '{{encoding}}'
+        LC_CTYPE = '{{locale}}'
         LC_COLLATE = '{{locale}}';
 
       \c {{db}}

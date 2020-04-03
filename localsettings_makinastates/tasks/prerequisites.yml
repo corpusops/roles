@@ -51,4 +51,4 @@
     cacheable: false
     corpusops_localsettings_makinastates_prequisites_changed: "{{(
          corpusops_localsettings_makinastates_pkgst
-       )}}" 
+       )}}"

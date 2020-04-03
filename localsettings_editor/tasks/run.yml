@@ -18,7 +18,7 @@
     group: "{{item.group|default(omit)}}"
     trim_blocks: "{{item.trim_blocks|default(False)}}"
   loop: "{{corpusops_localsettings_editor_vars.configs|flatten(levels=1)}}"
-  when: "(corpusops_localsettings_editor_vars.configs is not none and 
+  when: "(corpusops_localsettings_editor_vars.configs is not none and
           corpusops_localsettings_editor_vars.configs|length > 0)"
   tags: corpusops_localsettings_editor
 - name: 'install alternatives'

@@ -38,14 +38,14 @@
 - name: localtime
   file:
     state: absent
-    path: "/etc/localtime" 
+    path: "/etc/localtime"
   failed_when: "not corpusops_localsettings_timezone_ltd.stat.exists"
   changed_when: False
 - name: localtime
   copy:
     remote_src: true
     src: "/usr/share/zoneinfo/{{tz}}"
-    dest: "/etc/localtime" 
+    dest: "/etc/localtime"
 - name: configs
   template:
     src: "../templates/{{item.name}}"

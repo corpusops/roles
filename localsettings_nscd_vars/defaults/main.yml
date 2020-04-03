@@ -5,9 +5,9 @@ corpusops_localsettings_nscd_cops_flavors: ['ubuntu', 'debian', 'centos', 'redha
 corpusops_localsettings_nscd_cops_sub_os_append: {}
 corpusops_localsettings_nscd_cops_lowered: []
 corpusops_localsettings_nscd_cops_knobs: ['mirror', 'comps', 'repo',
-                      'configs', 'sources_lists', 'packages'] 
+                      'configs', 'sources_lists', 'packages']
 corpusops_localsettings_nscd_cops_sub_namespaces:
-  settings: {} 
+  settings: {}
 corpusops_localsettings_nscd_activated: true
 corpusops_localsettings_nscd_packages: [nscd]
 corpusops_localsettings_nscd_configs: []

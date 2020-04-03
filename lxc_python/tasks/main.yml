@@ -1,12 +1,12 @@
 ---
-- package: 
+- package:
     state: present
     name: [python-pip, libclxclient-dev, lxc-dev]
 - git:
     repo: "{{lxc_python2_url}}"
     dest: "{{lxc_python2_path}}"
     version: "{{lxc_python2_ver}}"
-- pip: 
+- pip:
     state: present
     editable: true
     name: "{{lxc_python2_path}}"

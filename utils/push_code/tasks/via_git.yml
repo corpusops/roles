@@ -1,7 +1,7 @@
 ---
 - block:
   - name: "git repo: test origin git repo exists: {{__cops_provision_push_code_vars.src}}/{{__cops_provision_push_code_vars.git_folder}}"
-    
+
     delegate_to: "{{__cops_provision_push_code_vars.origin}}"
     become: "{{__cops_provision_push_code_vars.origin_become}}"
     stat:

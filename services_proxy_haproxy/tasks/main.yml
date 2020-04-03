@@ -5,7 +5,7 @@
   register: corpusops_services_proxy_haproxy_can_run
   tags: [corpusops_services_proxy_haproxy]
 - include_tasks: prerequisites.yml
-  when: 
+  when:
   - 'corpusops_services_proxy_haproxy_can_run.msg == True'
   - "corpusops_services_proxy_haproxy_do_prerequisites|default(true)"
   tags: [corpusops_services_proxy_haproxy,
