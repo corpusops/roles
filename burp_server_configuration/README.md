@@ -170,7 +170,7 @@ Or a new
     burp_client_use_profile: true
     burp_client_profile: myprofile
     burp_client_profiles_myprofile:
-        {{vars['cops_burpclientserver_common_lines']}}
+        {{cops_burpclientserver_common_lines}}
         include=/Foo
 ```
 
@@ -179,6 +179,6 @@ Or a new
     burp_client_use_profile: false
     burp_client_profile: null
     burp_client_conf_custom_lines: |
-        {{vars['cops_burpclientserver_common_lines']}}
+        {{cops_burpclientserver_common_lines}}
         include=/Foo
 ```

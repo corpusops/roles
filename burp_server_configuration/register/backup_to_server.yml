@@ -1,22 +1,21 @@
 ---
-
+- name: load default burp_client_server_vars
+  include_role: {name: corpusops.roles/burp_client_server_vars, public: true}
 - name: "Getting backup vars for {{item}}"
   include_jinja_vars:
-   name: _cops_burpclientserver
-   content: |-
-      {%- set hvars = hostvars[item] %}
-      {%- set cname, profile = vars|copsfburp_get_cname_and_profile(hvars) %}
-      {%- set data = {'cname': cname,
-                      'password': vars['cops_burpclient_password_'+item],
-                      'profile': profile,
-                      'use_profile': hvars.get('burp_client_use_profile',
-                                               profile is not none)}
-      %}
-      {%- set data = data|copsfburp_finish_settings('client', hvars) %}
-      {{- data|to_json }}
+    content:
+      _cops_burpclientserver: |-
+        {%- set hvars = hostvars[item] %}
+        {%- set cname, profile = lookup(
+            'cops_burp', 'get_cname_and_profile', hvars=hvars) %}
+        {%- set data = {'cname': cname,
+                        'password': vars['cops_burpclient_password_'+item],
+                        'profile': profile,
+                        'use_profile': hvars.get('burp_client_use_profile',
+                                                 profile is not none)}%}
+        {%- set data = lookup('cops_burp', 'finish_settings', prefixmode='client', hvars=hvars, data=data) %}
+        {{- data|to_json }}
 - name: "Registering backup server conf for {{item}}"
-  include_role: {name: corpusops.roles/burp_client_server}
-- name: "Reset backup vars for {{item}}"
-  include_jinja_vars:
-   name: _cops_burpclientserver
-   content: "{}"
+  include_role: {name: corpusops.roles/burp_client_server, public: true}
+# - name: "Reset backup vars for {{item}}"
+#   set_fact: {_cops_burpclientserver: {}}
