@@ -5,7 +5,7 @@
   include_jinja_vars:
     content: |-
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
-      {%- set namespaced = registry[registry_prefix+'vars'] %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
       {%- if namespaced.use_common_lines %}
       {%-   set _ = namespaced.custom_lines.append(namespaced.common_lines) %}
       {%- endif %}
