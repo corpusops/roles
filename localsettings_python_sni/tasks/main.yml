@@ -49,12 +49,17 @@
         #   nb=""
         # fi
         nb=""
+        if ( $py -V 2>&1|grep -iq "python 2");then
+          sreq="setuptools<45"
+        else
+          sreq="setuptools"
+        fi
         if ( $py -m pip install -U ${nb} \
             backports.ssl_match_hostname \
             pyopenssl ndg-httpsclient pyasn1 );then
             echo "changed=yes" >&2
         else
-               $py -m pip install -U setuptools \
+               $py -m pip install -U $sreq \
             && $py -m pip install -U pip \
             && if ( $py -c "import six" );then
                $py -m pip install -U --ignore-installed six

@@ -98,7 +98,12 @@
     # else
     #   nb=""
     # fi
-    $py -c 'import setuptools' || $py -m pip install setuptools
+    if ( $py -V 2>&1|grep -iq "python 2");then
+      sreq="setuptools<45"
+    else
+      sreq="setuptools"
+    fi
+    $py -c 'import setuptools' || $py -m pip install $sreq
     $py -m pip install \
     {{corpusops_localsettings_docker_vars.pip_args}} ${nb}\
     {{corpusops_localsettings_docker_vars.py_packages
