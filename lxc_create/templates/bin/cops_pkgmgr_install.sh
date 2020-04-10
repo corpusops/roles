@@ -1,14 +1,28 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # BEGIN: corpusops common glue
+readlinkf() {
+    if ( uname | egrep -iq "darwin|bsd" );then
+        if ( which greadlink 2>&1 >/dev/null );then
+            greadlink -f "$@"
+        elif ( which perl 2>&1 >/dev/null );then
+            perl -MCwd -le 'print Cwd::abs_path shift' "$@"
+        elif ( which python 2>&1 >/dev/null );then
+            python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' "$@"
+        fi
+    else
+        val="$(readlink -f "$@")"
+        if [[ -z "$val" ]];then
+            val=$(readlink "$@")
+        fi
+        echo "$val"
+    fi
+}
 # scripts vars
 SCRIPT=$0
 LOGGER_NAME=${LOGGER_NAME-$(basename $0)}
 SCRIPT_NAME=$(basename "${SCRIPT}")
 SCRIPT_DIR=$(cd "$(dirname $0)" && pwd)
 SCRIPT_ROOT=${SCRIPT_ROOT:-$(dirname $SCRIPT_DIR)}
-COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES-}"
-SECONDROUND_EXTRA="${SECONDROUND_EXTRA-}"
-SECONDROUND="${SECONDROUND-}"
 # OW: from where script was called (must be defined from callee)
 OW="${OW:-$(pwd)}"
 # W is script_dir/..
@@ -22,6 +36,7 @@ SYSTEM_COPS_ROOT=${SYSTEM_COPS_ROOT-$DEFAULT_COPS_ROOT}
 DOCKER_COPS_ROOT=${DOCKER_COPS_ROOT-$SYSTEM_COPS_ROOT}
 COPS_URL=${COPS_URL-$DEFAULT_COPS_URL}
 BASE_PREPROVISION_IMAGES="ubuntu:latest_preprovision"
+BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:20.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:18.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:16.04_preprovision"
 BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/ubuntu:14.04_preprovision"
@@ -29,6 +44,7 @@ BASE_PREPROVISION_IMAGES="$BASE_PREPROVISION_IMAGES corpusops/centos:7_preprovis
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
 
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:latest"
+BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:20.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:18.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:16.04"
 BASE_CORE_IMAGES="$BASE_CORE_IMAGES corpusops/ubuntu:14.04"
@@ -45,6 +61,8 @@ EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:latest"
 EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:stretch"
 EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:jessie"
 EXP_IMAGES="$EXP_PREPROVISION_IMAGES $EXP_CORE_IMAGES"
+# ansible related
+export DISABLE_MITOGEN=${DISABLE_MITOGEN-1}
 #
 # colors
 RED="\\e[0;31m"
@@ -65,23 +83,21 @@ uniquify_string() {
 }
 do_trap_() { rc=$?;func=$1;sig=$2;${func};if [ "x${sig}" != "xEXIT" ];then kill -${sig} $$;fi;exit $rc; }
 do_trap() { rc=${?};func=${1};shift;sigs=${@};for sig in ${sigs};do trap "do_trap_ ${func} ${sig}" "${sig}";done; }
-is_ci() {
-    return $( ( [[ -n ${TRAVIS-} ]] || [[ -n ${GITLAB_CI} ]] );echo $?;)
-}
+is_ci() { return $( set +e;( [ "x${TRAVIS-}" != "x" ] || [ "x${GITLAB_CI}" != "x" ] );echo $?; ); }
 log_() {
     reset_colors;msg_color=${2:-${YELLOW}};
     logger_color=${1:-${RED}};
     logger_slug="${logger_color}[${LOGGER_NAME}]${NORMAL} ";
     shift;shift;
-    if [[ -n ${NO_LOGGER_SLUG} ]];then logger_slug="";fi
+    if [ "x${NO_LOGGER_SLUG}" != "x" ];then logger_slug="";fi
     printf "${logger_slug}${msg_color}$(echo "${@}")${NORMAL}\n" >&2;
     printf "" >&2;  # flush
 }
-reset_colors() { if [[ -n ${NO_COLOR} ]];then BLUE="";YELLOW="";RED="";CYAN="";fi; }
+reset_colors() { if [ "x${NO_COLOR}" != "x" ];then BLUE="";YELLOW="";RED="";CYAN="";fi; }
 log() { log_ "${RED}" "${CYAN}" "${@}"; }
 get_chrono() { date "+%F_%H-%M-%S"; }
 cronolog() { log_ "${RED}" "${CYAN}" "($(get_chrono)) ${@}"; }
-debug() { if [[ -n "${DEBUG// }" ]];then log_ "${YELLOW}" "${YELLOW}" "${@}"; fi; }
+debug() { if [ "x${DEBUG-}" != "x" ];then log_ "${YELLOW}" "${YELLOW}" "${@}"; fi; }
 warn() { log_ "${RED}" "${CYAN}" "${YELLOW}[WARN] ${@}${NORMAL}"; }
 bs_log(){ log_ "${RED}" "${YELLOW}" "${@}"; }
 bs_yellow_log(){ log_ "${YELLOW}" "${YELLOW}" "${@}"; }
@@ -92,7 +108,7 @@ may_die() {
     shift
     shift
     if [ "x${thetest}" != "x0" ]; then
-        if [[ -z "${NO_HEADER-}" ]]; then
+        if [ "x${NO_HEADER-}" = "x" ]; then
             NO_LOGGER_SLUG=y log_ "" "${CYAN}" "Problem detected:"
         fi
         NO_LOGGER_SLUG=y log_ "${RED}" "${RED}" "$@"
@@ -119,7 +135,7 @@ parse_cli_common() {
         esac
     done
     reset_colors
-    if [[ -n ${USAGE} ]]; then
+    if [ "x${USAGE}" != "x" ]; then
         usage
     fi
 }
@@ -147,12 +163,12 @@ pipe_return() {
 output_in_error() { ( do_trap output_in_error_post EXIT TERM QUIT INT;\
                       output_in_error_ "${@}" ; ); }
 output_in_error_() {
-    if [[ -n ${OUTPUT_IN_ERROR_DEBUG-} ]];then set -x;fi
-    if is_ci;then
+    if [ "x${OUTPUT_IN_ERROR_DEBUG-}" != "x" ];then set -x;fi
+    if ( is_ci );then
         DEFAULT_CI_BUILD=y
     fi
     CI_BUILD="${CI_BUILD-${DEFAULT_CI_BUILD-}}"
-    if [[ -n $CI_BUILD ]];then
+    if [ "x$CI_BUILD" != "x" ];then
         DEFAULT_NO_OUTPUT=y
         DEFAULT_DO_OUTPUT_TIMER=y
     fi
@@ -161,8 +177,8 @@ output_in_error_() {
     NO_OUTPUT="${NO_OUTPUT-${DEFAULT_NO_OUTPUT-1}}"
     DO_OUTPUT_TIMER="${DO_OUTPUT_TIMER-$DEFAULT_DO_OUTPUT_TIMER}"
     LOG=${LOG-}
-    if [[ -n $NO_OUTPUT ]];then
-        if [[ -z "${LOG}" ]];then
+    if [ "x$NO_OUTPUT" != "x" ];then
+        if [  "x${LOG}" = "x" ];then
             LOG=$(mktemp)
             DEFAULT_CLEANUP_LOG=y
         else
@@ -172,30 +188,30 @@ output_in_error_() {
         DEFAULT_CLEANUP_LOG=
     fi
     CLEANUP_LOG=${CLEANUP_LOG:-${DEFAULT_CLEANUP_LOG}}
-    if [[ -n $VERBOSE ]];then
-        log "Running$([[ -n $LOG ]] && echo "($LOG)"; ): $@";
+    if [ "x$VERBOSE" != "x" ];then
+        log "Running$([ "x$LOG" != "x" ] && echo "($LOG)"; ): $@";
     fi
     TMPTIMER=
-    if [[ -n ${DO_OUTPUT_TIMER} ]]; then
+    if [ "x${DO_OUTPUT_TIMER}" != "x" ]; then
         TMPTIMER=$(mktemp)
         ( i=0;\
           while test -f $TMPTIMER;do\
            i=$((++i));\
            if [ `expr $i % $TIMER_FREQUENCE` -eq 0 ];then \
-               log "BuildInProgress$([[ -n $LOG ]] && echo "($LOG)"; ): ${@}";\
+               log "BuildInProgress$( if [ "x$LOG" != "x" ];then echo "($LOG)";fi ): ${@}";\
              i=0;\
            fi;\
            sleep 1;\
           done;\
-          if [[ -n $VERBOSE ]];then log "done: ${@}";fi; ) &
+          if [ "x$VERBOSE" != "x" ];then log "done: ${@}";fi; ) &
     fi
     # unset NO_OUTPUT= LOG= to prevent output_in_error children to be silent
     # at first
     reset_env="NO_OUTPUT LOG"
-    if [[ -n $NO_OUTPUT ]];then
+    if [ "x$NO_OUTPUT" != "x" ];then
         ( unset $reset_env;"${@}" ) >>"$LOG" 2>&1;ret=$?
     else
-        if [[ -n $LOG ]] && has_command tee;then
+        if [ "x$LOG" != "x" ] && has_command tee;then
             ( unset $reset_env; pipe_return "tee -a $tlog" "${@}"; )
             ret=$?
         else
@@ -203,20 +219,20 @@ output_in_error_() {
             ret=$?
         fi
     fi
-    if [[ -e "$TMPTIMER" ]]; then rm -f "${TMPTIMER}";fi
-    if [[ -z ${OUTPUT_IN_ERROR_NO_WAIT-} ]];then wait;fi
-    if [ -e "$LOG" ] &&  [[ "${ret}" != "0" ]] && [[ -n $NO_OUTPUT ]];then
+    if [ -e "$TMPTIMER" ]; then rm -f "${TMPTIMER}";fi
+    if [ "x${OUTPUT_IN_ERROR_NO_WAIT-}" = "x" ];then wait;fi
+    if [ -e "$LOG" ] &&  [ "x${ret}" != "x0" ] && [ "x$NO_OUTPUT" != "x" ];then
         cat "$LOG" >&2
     fi
-    if [[ -n ${OUTPUT_IN_ERROR_DEBUG-} ]];then set +x;fi
+    if [ "x${OUTPUT_IN_ERROR_DEBUG-}" != "x" ];then set +x;fi
     return ${ret}
 }
 output_in_error_post() {
-    if [[ -e "$TMPTIMER" ]]; then rm -f "${TMPTIMER}";fi
-    if [[ -e "$LOG" ]] && [[ -n $CLEANUP_LOG ]];then rm -f "$LOG";fi
+    if [ -e "$TMPTIMER" ]; then rm -f "${TMPTIMER}";fi
+    if [ -e "$LOG" ] && [ "x$CLEANUP_LOG" != "x" ];then rm -f "$LOG";fi
 }
-test_silent_log() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT_LOG-} ]] || [[ -n "${SILENT_DEBUG}" ]] ) ); }
-test_silent() { ( [[ -z ${NO_SILENT-} ]] && ( [[ -n ${SILENT-} ]] || test_silent_log ) ); }
+test_silent_log() { ( [ "x${NO_SILENT-}" = "x" ] && ( [ "x${SILENT_LOG-}" != "x" ] || [ x"${SILENT_DEBUG}" != "x" ] ) ); }
+test_silent() { ( [ "x${NO_SILENT-}" = "x" ] && ( [ "x${SILENT-}" != "x" ] || test_silent_log ) ); }
 silent_run_() {
     (LOG=${SILENT_LOG:-${LOG}};
      NO_OUTPUT=${NO_OUTPUT-};\
@@ -226,20 +242,22 @@ silent_run() { ( silent_run_ "${@}" ; ); }
 run_silent() {
     (
     DEFAULT_RUN_SILENT=1;
-    if [[ -n ${NO_SILENT-} ]];then DEFAULT_RUN_SILENT=;fi;
+    if [ "x${NO_SILENT-}" != "x" ];then DEFAULT_RUN_SILENT=;fi;
     SILENT=${SILENT-DEFAULT_RUN_SILENT} silent_run "${@}";
     )
 }
 vvv() { debug "${@}";silent_run "${@}"; }
 vv() { log "${@}";silent_run "${@}"; }
 silent_vv() { SILENT=${SILENT-1} vv "${@}"; }
-quiet_vv() { if [[ -z ${QUIET-} ]];then log "${@}";fi;run_silent "${@}";}
+quiet_vv() { if [ "x${QUIET-}" = "x" ];then log "${@}";fi;run_silent "${@}";}
 version_lte() { [  "$1" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_lt() { [ "$1" = "$2" ] && return 1 || version_lte $1 $2; }
 version_gte() { [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_gt() { [ "$1" = "$2" ] && return 1 || version_gte $1 $2; }
 is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux|arch"; }
 is_debian_like() { echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"; }
+is_suse_like() { echo $DISTRIB_ID | egrep -iq "suse"; }
+is_alpine_like() { echo $DISTRIB_ID | egrep -iq "alpine" || test -e /etc/alpine-release; }
 is_redhat_like() { echo $DISTRIB_ID \
         | egrep -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)"; }
 set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
@@ -254,7 +272,7 @@ detect_os() {
     DISTRIB_CODENAME=""
     DISTRIB_ID=""
     DISTRIB_RELEASE=""
-    if hash -r lsb_release >/dev/null 2>&1; then
+    if ( lsb_release -h >/dev/null 2>&1 ); then
         DISTRIB_ID=$(lsb_release -si)
         DISTRIB_CODENAME=$(lsb_release -sc)
         DISTRIB_RELEASE=$(lsb_release -sr)
@@ -268,6 +286,27 @@ detect_os() {
         DISTRIB_CODENAME=$(. /etc/os-release;echo $VERSION)
         DISTRIB_CODENAME=$(echo $DISTRIB_CODENAME |sed -e "s/.*(\([^)]\+\))/\1/")
         DISTRIB_RELEASE=$(. /etc/os-release;echo $VERSION_ID)
+    elif [ -e /etc/alpine-release ];then
+        DISTRIB_ID="alpine"
+        DISTRIB_CODENAME="Alpine Linux"
+        DISTRIB_RELEASE="$(cat /etc/alpine-release)"
+    elif [ -e /etc/debian_version ];then
+        DISTRIB_ID="Debian"
+        DISTRIB_RELEASE="$(cat /etc/debian_version)"
+        DISTRIB_MAJOR=$(echo $DISTRIB_RELEASE |cut -d. -f 1)
+        if [ $DISTRIB_MAJOR  -eq 6 ];then DISTRIB_CODENAME="squeeze";fi
+        if [ $DISTRIB_MAJOR  -eq 7 ];then DISTRIB_CODENAME="wheezy";fi
+        if [ $DISTRIB_MAJOR  -eq 8 ];then DISTRIB_CODENAME="jessie";fi
+        if [ $DISTRIB_MAJOR  -eq 9 ];then DISTRIB_CODENAME="stretch";fi
+    elif [ -e /etc/SuSE-brand ] || [ -e /etc/SuSE-release ];then
+        for i in /etc/SuSE-brand /etc/SuSE-release;do
+            if [ -e $i ];then
+                DISTRIB_CODENAME="$(head -n 1 $i)"
+                DISTRIB_ID="openSUSE project"
+                DISTRIB_RELEASE="$(grep VERSION $i |awk '{print $3}')"
+                break
+            fi
+        done
     elif [ -e /etc/redhat-release ];then
         RHRELEASE=$(cat /etc/redhat-release)
         DISTRIB_CODENAME=${RHRELEASE}
@@ -291,16 +330,15 @@ get_command() {
         p=$(which "${cmd}" 2>/dev/null)
     fi
     if [ "x${p}" = "x" ];then
-        p=$(export IFS=:;
-            echo "${PATH-}" | while read -ra pathea;do
-                for pathe in "${pathea[@]}";do
-                    pc="${pathe}/${cmd}";
-                    if [ -x "${pc}" ]; then
-                        p="${pc}"
-                    fi
-                done
+        p=$(export IFS=":";
+            for pathe in $PATH;do
+                pc="${pathe}/${cmd}";
+                if [ -x "${pc}" ]; then
+                    p="${pc}"
+                fi
                 if [ "x${p}" != "x" ]; then echo "${p}";break;fi
-            done )
+            done
+         )
     fi
     if [ "x${p}" != "x" ];then
         echo "${p}"
@@ -316,11 +354,11 @@ save_container() {
     local n="${1}"
     local d="${2:-${n}}"
     local running=$(docker ps -q    --filter 'name='$n)
-    if [[ -n "${running}" ]];then
+    if [ x"${running}" != "x" ];then
         vv docker kill "${running}"
     fi
     local cid=$(get_container_id $n)
-    if [[ -n "${cid}" ]];then
+    if [ x"${cid}" != "x" ];then
         vv docker commit "$cid" "$d"
         vv docker rm "$cid"
     else
@@ -339,13 +377,13 @@ get_full_chrono() { date "+%F_%H-%M-%S-%N"; }
 get_random_slug() { len=${1:-32};strings=${2:-'a-zA-Z0-9'};echo "$(cat /dev/urandom|tr -dc "$strings"|fold -w ${len}|head -n 1)"; }
 may_sudo() {
     if [ "$(whoami)" != "root" ] && [ -z "${NO_SUDO-}" ];then
-        echo "sudo $([[ -z $DIRECT_SUDO ]] && echo "-HE")"
+        echo "sudo $([ "x$DIRECT_SUDO" = "x" ] && echo "-HE")"
     fi
 }
 get_ancestor_from_dockerfile() {
     local dockerfile=${1}
     local ancestor=
-    if [[ -e "${dockerfile}" ]] && egrep -q ^FROM "${dockerfile}"; then
+    if [ -e "${dockerfile}" ] && egrep -q ^FROM "${dockerfile}"; then
         ancestor=$(egrep ^FROM "${dockerfile}"\
             | head -n1 | awk '{print $2}' | xargs -n1| sort -u )
     fi
@@ -363,14 +401,14 @@ do_tmp_cleanup() {
     done
     for test_docker in ${tmp_dockers};do
         test_dockerid=$(vvv get_container_id ${test_docker})
-        if [[ "${test_dockerid}" != "" ]]; then
+        if [ "x${test_dockerid}" != "x" ]; then
             log "Removing produced test docker ${test_docker}"
             docker rm -f "${test_dockerid}"
         fi
     done
     for test_tag in ${tmp_imgs};do
         test_tagid=$(vvv get_image ${test_tag})
-        if [[ "${test_tagid}" != "" ]]; then
+        if [ "x${test_tagid}" != "x" ]; then
             log "Removing produced test image: ${test_tag}"
             docker rmi "${test_tagid}"
         fi
@@ -411,7 +449,7 @@ upgrade_wd_to_br() {
             fi
         fi
         update_wd_to_br "$up_branch" "$wd" &&\
-        while read subdir;do
+        echo "${existing_gitmodules}" | while read subdir;do
             subdir=$(echo $subdir|sed -e "s/^\.\///g")
             if [ -h "${subdir}/.git" ] || [ -f "${subdir}/.git" ];then
                 debug "Checking if ${subdir} is always a submodule"
@@ -422,23 +460,39 @@ upgrade_wd_to_br() {
                     vv rm -rf "${subdir}"
                 fi
             fi
-        done < <( echo "${existing_gitmodules}" )
+        done
         if [ -e .gitmodules ];then
             warn "Upgrading submodules in $wd"
             vv git submodule update --recursive
         fi
     )
 }
-get_python2() {
-    local py2=
-    for i in python2.7 python2.6 python-2.7 python-2.6 python-2;do
+get_python_() {
+    local py_ver=$1
+    shift
+    local selectedpy=""
+    local py_bins="$@"
+    for i in $py_bins;do
         local lpy=$(get_command $i 2>/dev/null)
-        if [[ -n $lpy ]] && ( ${lpy} -V 2>&1| egrep -qi 'python 2' );then
-            py2=${lpy}
+        if [ "x$lpy" != "x" ] && ( ${lpy} -V 2>&1| egrep -qi "python $py_ver" );then
+            selectedpy=${lpy}
             break
         fi
     done
-    echo $py2
+    echo $selectedpy
+}
+get_python2() {
+    local py_ver=2
+    get_python_ $py_ver \
+        python2.7 python2.6 python-2.7 python-2.6 \
+        python-${py_ver} python${py_ver} python
+}
+get_python3() {
+    local py_ver=3
+    get_python_ $py_ver \
+        python3.9  python3.8  python3.7  python3.6  python3.5  python3.4  \
+        python-3.9 python-3.8 python-3.7 python-3.6 python-3.5 python-3.4 \
+        python-${py_ver} python${py_ver} python
 }
 has_python_module() {
     local py="${py:-python}"
@@ -453,6 +507,12 @@ pymod_ver() {
     local py="${2:-${py:-python}}"
     "$py" -c "from __future__ import print_function;import $mod;print($mod.__version__)"
 }
+get_setuptools() {
+    local py=${1:-python}
+    local setuptoolsreq="setuptools"
+    if ( is_python2 );then setuptoolsreq="setuptools<=45";fi
+    echo "$setuptoolsreq"
+}
 install_pip() {
     local py="${1:-python}"
     local DEFAULT_PIP_URL="https://bootstrap.pypa.io/get-pip.py"
@@ -463,7 +523,14 @@ install_pip() {
         log "Error downloading pip installer"
         return 1
     fi
-    $(may_sudo) "$py" "$PIP_INST" -U pip setuptools six
+    $(may_sudo) "$py" "$PIP_INST" -U pip $(get_setuptools $py) six
+}
+is_python2() {
+    local py=${1:-python}
+    if ( $py -V 2>&1| grep -iq "python 2" );then
+        return 0
+    fi
+    return 1
 }
 uninstall_at_least_pymodule() {
     local py="${3:-${py-python}}"
@@ -472,14 +539,22 @@ uninstall_at_least_pymodule() {
     local import="${4:-${1}}"
     if ( ( has_python_module "$mod" ) && ( version_lt "$(pymod_ver "$mod" "$py")" "$ver" ) );then
         local modd=$($py -c "from __future__ import print_function;import $import,os;print(os.path.dirname($import.__file__.replace('/__init__.pyc', '')))")
+        submods=$(echo "$import"|grep -o "\."|wc -l)
+        if [ $submods -gt 0 ];then
+            for i in $(seq 1 $submods);do
+                modd=$modd/..
+            done
+            modd=$(cd "$modd" && pwd)
+        fi
         local modb="$HOME/.$mod.backup.$chrono.tar.bz2"
+        local importp=${import//.//}
         ( log "Backup mod install in $modb" \
-          && if [ -e "$modd/${import}.py" ];then
-            tar cjf "$modb" $modd/${import}.py* $modd/${mod}*egg-info &&\
-                $(may_sudo) rm -rf $modd/${import}.py* $modd/${mod}*egg-info; \
-            elif [ -e "$modd/${import}" ];then
-                tar cjf "$modb" $modd/${import} $modd/${mod}*egg-info &&\
-                    $(may_sudo) rm -rf $modd/${import} $modd/${mod}*egg-info; \
+          && if [ -e "$modd/${importp}.py" ];then
+            tar cjf "$modb" $modd/${importp}.py* $modd/${mod}*egg-info &&\
+                $(may_sudo) rm -rf $modd/${importp}.py* $modd/${mod}*egg-info; \
+            elif [ -e "$modd/${importp}" ];then
+                tar cjf "$modb" $modd/${importp} $modd/${mod}*egg-info &&\
+                    $(may_sudo) rm -rf $modd/${importp} $modd/${mod}*egg-info; \
             fi && log "Upgrading now from legacy pre $mod $ver" ) || \
         die_in_error "Removing legacy $mod failed"
     fi
@@ -496,6 +571,7 @@ upgrade_pip() {
         vv uninstall_at_least_pymodule pyasn1    0.4.2  "$py"
         vv uninstall_at_least_pymodule urllib3   1.20   "$py"
         vv uninstall_at_least_pymodule pyopenssl 18.0.0 "$py" OpenSSL
+        vv uninstall_at_least_pymodule backports.ssl_match_hostname 3.7.0 "$py" backports.ssl_match_hostname
     fi
     uninstall_at_least_pymodule six     1.11.0
     uninstall_at_least_pymodule chardet 2.3.0
@@ -513,8 +589,8 @@ upgrade_pip() {
     else
         local maysudo=$(may_sudo)
     fi
-    vv $maysudo "${py}" -m pip install -U setuptools \
-        && vv $maysudo "${py}" -m pip install -U pip six urllib3\
+    vv $maysudo "${py}" -m pip install -U "$(get_setuptools $py)"\
+        && vv $maysudo "${py}" -m pip install -U "$(get_setuptools $py)" pip six urllib3\
         && vv $maysudo "${py}" -m pip install chardet \
         && if ( version_lt "$($py -V 2>&1|awk '{print $2}')" "3.0" );then
             vv $maysudo "${py}" -m pip install -U backports.ssl_match_hostname ndg-httpsclient pyasn1 &&\
@@ -527,22 +603,8 @@ make_virtualenv() {
     local venv_path=${2-${VENV_PATH:-$DEFAULT_VENV_PATH}}
     local venv=$(get_command $(basename ${VIRTUALENV_BIN:-virtualenv}))
     local PIP_CACHE=${PIP_CACHE:-${venv_path}/cache}
-    if [ "x${DEFAULT_VENV_PATH}" != "${venv_path}" ];then
-        if [ ! -e "${venv_path}" ];then
-            mkdir -p "${venv_path}"
-        fi
-        if [ -e "${DEFAULT_VENV_PATH}" ] && \
-            [ "$DEFAULT_VENV_PATH" != "$venv_path" ] &&\
-            [ ! -h "${DEFAULT_VENV_PATH}" ];then
-            die "$DEFAULT_VENV_PATH is not a symlink but we want to create it"
-        fi
-        if [ -h $DEFAULT_VENV_PATH ] &&\
-            [ "x$(readlink $DEFAULT_VENV_PATH)" != "$venv_path" ];then
-            rm -f "${DEFAULT_VENV_PATH}"
-        fi
-        if [ ! -e $DEFAULT_VENV_PATH ];then
-            ln -s "${venv_path}" "${DEFAULT_VENV_PATH}"
-        fi
+    if [ ! -e "${venv_path}" ];then
+        mkdir -p "${venv_path}"
     fi
     if     [ ! -e "${venv_path}/bin/activate" ] \
         || [ ! -e "${venv_path}/lib" ] \
@@ -552,16 +614,27 @@ make_virtualenv() {
         if [ ! -e "${PIP_CACHE}" ]; then
             mkdir -p "${PIP_CACHE}"
         fi
-        if [ ! -e "${venv_path}" ]; then
-            mkdir -p "${venv_path}"
-        fi
     $venv \
-        $( [[ -n $py ]] && echo "--python=$py"; ) \
+        $( [ "x$py" != "x" ] && echo "--python=$py"; ) \
         --system-site-packages --unzip-setuptools \
         "${venv_path}" &&\
     ( . "${venv_path}/bin/activate" &&\
       upgrade_pip "${venv_path}/bin/python" &&\
       deactivate; )
+    fi
+    if [ "x${DEFAULT_VENV_PATH}" != "${venv_path}" ];then
+        if [ -h $DEFAULT_VENV_PATH ] &&\
+            [ "x$(readlink $DEFAULT_VENV_PATH)" != "$venv_path" ];then
+            rm -f "${DEFAULT_VENV_PATH}"
+        fi
+        if [ -e "${DEFAULT_VENV_PATH}" ] && \
+            [ "$DEFAULT_VENV_PATH" != "$venv_path" ] &&\
+            [ ! -h "${DEFAULT_VENV_PATH}" ];then
+            die "$DEFAULT_VENV_PATH is not a symlink but we want to create it"
+        fi
+        if [ ! -e $DEFAULT_VENV_PATH ];then
+            ln -s "${venv_path}" "${DEFAULT_VENV_PATH}"
+        fi
     fi
 }
 ensure_last_python_requirement() {
@@ -582,7 +655,7 @@ ensure_last_python_requirement() {
     else
         local maysudo=$(may_sudo)
     fi
-    if [[ -n "$copt" ]];then
+    if [ "x$copt" != "x" ];then
         vvv $maysudo "$COPS_PYTHON" -m pip install \
             --src "$(get_eggs_src_dir)" $COPS_UPGRADE $copt "${PIP_CACHE}" $@
     else
@@ -596,15 +669,16 @@ usage() { die 128 "No usage found"; }
 usage() {
     echo '
 Universal shell wrapper to manage OS package manager
-OS SUPPORT: debian(& ubuntu) / archlinux / red-hat (centos/rh/fedora)
+OS SUPPORT: debian(& ubuntu) / archlinux / red-hat (centos/rh/fedora) / alpine
 
-[NONINTERACTIVE="y"] \
+[NONINTERACTIVE="y"] [FORCE_INSTALL=""]\
 [WANTED_EXTRA_PACKAGES="vim"] \
 [WANTED_EXTRA_PACKAGES="nano"] \
 [DO_SETUP=y] [SKIP_SETUP=y] \
 [DO_UPDATE=y] [SKIP_UPDATE=y] \
 [DO_UPGRADE=y] [SKIP_UPGRADE=y] \
 [DO_INSTALL=y] [SKIP_INSTALL=y] \
+[NO_LATEST=y] \
 [DEBUG=y"] \
     '"${0}"' [--check-os] [--help] [packagea] [packageb]'
 }
@@ -620,13 +694,14 @@ DO_SETUP=${DO_SETUP-default}
 DO_UPGRADE=${DO_UPGRADE-}
 DO_UPDATE=${DO_UPDATE-default}
 DO_INSTALL=${DO_INSTALL-default}
+NO_LATEST="${NO_LATEST-}"
 CHECK_OS=${CHECK_OS-}
 container=${container-}
 WHOAMI=$(whoami)
 
 ###
 i_y() {
-    if [[ -n ${NONINTERACTIVE} ]]; then
+    if [ "x${NONINTERACTIVE}" != "x" ]; then
         if is_archlinux_like;then
             echo "--noconfirm"
         else
@@ -635,7 +710,17 @@ i_y() {
     fi
 }
 
-###
+ensure_command() {
+    local cmd=${1}
+    shift
+    local pkgs=${@}
+    if ! has_command ${cmd}; then
+        ${INSTALLER}_install ${pkgs}
+    fi
+}
+
+
+### archlinux (pacman)
 is_pacman_available() {
     for i in $@;do
         if ! ( pacman -Si $(i_y) "$i" >/devnull 2>&1 ||\
@@ -667,15 +752,6 @@ pacman_install() {
     vvv pacman -S $(i_y) $@
 }
 
-ensure_command() {
-    local cmd=${1}
-    shift
-    local pkgs=${@}
-    if ! has_command ${cmd}; then
-        ${INSTALLER}_install ${pkgs}
-    fi
-}
-
 pacman_setup() {
     ensure_command awk core/gawk
     ensure_command sort core/coreutils
@@ -683,7 +759,8 @@ pacman_setup() {
     ensure_command which core/which
 }
 
-###
+### redhat alike (dnf & yum)
+### DNF
 dnf_repoquery() {
     vvv dnf repoquery -q "${@}"
 }
@@ -714,11 +791,12 @@ dnf_update() {
 }
 
 dnf_upgrade() {
-    vvv dnf upgrade $(i_y)
+    vvv dnf upgrade $(i_y) $@
 }
 
 dnf_install() {
-    vvv dnf install $(i_y) $@
+    vvv dnf install $(i_y) $@ &&\
+        if [ "x$NO_LATEST" = "x" ];then vvv dnf_upgrade $@;fi
 }
 
 dnf_ensure_repoquery() {
@@ -731,7 +809,7 @@ dnf_setup() {
     rh_setup
 }
 
-###
+### YUM
 yum_repoquery() {
     repoquery -q "${@}"
 }
@@ -787,7 +865,7 @@ rh_is_available_but_maybe_provided_by_others() {
 }
 
 rh_is_available_but_maybe_provided_by_other() {
-    if [[ -z "$(rh_is_available_but_maybe_provided_by_others $@)" ]];then
+    if [ "x$(rh_is_available_but_maybe_provided_by_others $@)" = "x" ];then
         return 1
     fi
     return 0
@@ -798,13 +876,23 @@ rh_is_installed_but_maybe_provided_by_others() {
 }
 
 rh_is_installed_but_maybe_provided_by_other() {
-    if [[ -z "$(rh_is_installed_but_maybe_provided_by_others $@)" ]];then
+    if [ "x$(rh_is_installed_but_maybe_provided_by_others $@)" = "x" ];then
         return 1
     fi
     return 0
 }
 
-###
+rh_setup() {
+    ${INSTALLER}_ensure_repoquery
+    ensure_command xargs findutils
+    ensure_command awk gawk
+    ensure_command sort coreutils
+    ensure_command egrep grep
+    ensure_command which which
+}
+
+
+### Ubuntu
 is_aptget_available() {
     if ! apt-cache show ${@} >/dev/null 2>&1; then
         return 1
@@ -824,7 +912,7 @@ is_aptget_installed() {
 }
 
 aptget_add_conf() {
-    if [[ -n "$2" ]] && grep -q "$2" $APT_CONF_FILE 2>/dev/null;then
+    if [ x"$2" != "x" ] && grep -q "$2" $APT_CONF_FILE 2>/dev/null;then
         log "test $2 success, skip adding slug $1"
     else
         echo "${1}" >> $APT_CONF_FILE
@@ -844,7 +932,7 @@ aptget_install() {
 }
 
 aptget_setup() {
-    if [[ -n "${NONINTERACTIVE}" ]];then
+    if [ x"${NONINTERACTIVE}" != "x" ];then
         export DEBIAN_FRONTEND=noninteractive
         aptget_add_conf "APT::Install-Recommends "0";" "APT::Install-Recommends"
         aptget_add_conf "APT::Get::Assume-Yes "true";" "APT::Get::Assume-Yes"
@@ -853,13 +941,84 @@ aptget_setup() {
     fi
 }
 
-rh_setup() {
-    ${INSTALLER}_ensure_repoquery
-    ensure_command xargs findutils
-    ensure_command awk gawk
-    ensure_command sort coreutils
-    ensure_command egrep grep
-    ensure_command which which
+### Alpine
+is_apk_available() {
+    for i in $@;do
+        if ! ( apk info $i >/dev/null 2>&1 );then
+            return 1
+        fi
+        if ! ( apk add -u --simulate $i >/dev/null 2>&1 );then
+            return 1
+        fi
+    done
+    return 0
+}
+
+is_apk_installed() {
+    for i in $@;do
+        if ! ( apk info -e $i >/dev/null 2>&1 ); then
+            return 1
+        fi
+    done
+    return 0
+}
+
+apk_update() {
+    vvv apk update
+}
+
+apk_upgrade() {
+    vvv apk upgrade --available
+}
+
+apk_install() {
+    nocache="--no-cache"
+    if ! ( apk add --help|grep -q -- --no-cache );then
+        nocache=""
+    fi
+    vvv apk add $nocache -u ${@}
+}
+
+apk_setup() {
+    :
+}
+
+### opensuse (zypeer)
+zyppern() {
+    cmd="zypper"
+    if [ "x${NONINTERACTIVE}" != "x" ];then cmd="$cmd --non-interactive";fi
+    echo "$cmd"
+}
+
+zypperl() { echo "--auto-agree-with-licenses"; }
+
+is_zypper_available() {
+    if ! ( $(zyppern) install -D $(zypperl) $@ >/dev/null 2>&1 );then
+        return 1
+    fi
+    return 0
+}
+
+is_zypper_installed() {
+    if ( $(zyppern) info $@|egrep -iq "installed:?\s.*no" ); then
+        return 1
+    fi
+    return 0
+}
+zypper_update() {
+    vvv $(zyppern) refresh
+}
+
+zypper_upgrade() {
+    vv $(zyppern) update $(zypperl)
+}
+
+zypper_install() {
+    vvv $(zyppern) install $(zypperl) ${@}
+}
+
+zypper_setup() {
+    :
 }
 
 ###
@@ -880,6 +1039,10 @@ parse_cli() {
     done
     if ( is_debian_like; );then
         INSTALLER=aptget
+    elif ( is_suse_like; );then
+        INSTALLER=zypper
+    elif ( is_alpine_like; );then
+        INSTALLER=apk
     elif ( is_archlinux_like; );then
         INSTALLER=pacman
     elif ( is_redhat_like; );then
@@ -891,14 +1054,14 @@ parse_cli() {
         sdie "Not supported os: ${DISTRIB_ID}"
     fi
     debug "INSTALLER: ${INSTALLER}"
-    if [[ -n $CHECK_OS ]];then
+    if [ "x$CHECK_OS" != "x" ];then
         warn "OS is supported"
         exit 0
     fi
 }
 
 update() {
-    if [[ -z "${SKIP_UPDATE}" ]] && [[ -n "${DO_UPDATE}" ]];then
+    if [ x"${SKIP_UPDATE}" = "x" ] && [ x"${DO_UPDATE}" != "x" ];then
         log ${INSTALLER}_update
         ${INSTALLER}_update
         may_die $? $? "Update failed"
@@ -910,7 +1073,7 @@ update() {
 secondround_pkgscan() {
     # after update, check for packages that werent found at first
     # if we can now resolve them
-    if [[ -n "${SECONDROUND}" ]]; then
+    if [ x"${SECONDROUND}" != "x" ]; then
         for i in ${SECONDROUND};do
             if ! is_${INSTALLER}_installed $i;then
                 if is_${INSTALLER}_available ${i}; then
@@ -924,7 +1087,7 @@ secondround_pkgscan() {
             fi
         done
     fi
-    if [[ -n "${SECONDROUND_EXTRA}" ]]; then
+    if [ x"${SECONDROUND_EXTRA}" != "x" ]; then
         for i in ${SECONDROUND_EXTRA};do
             if ! is_${INSTALLER}_installed ${i}; then
                 if is_${INSTALLER}_available ${i};then
@@ -944,11 +1107,11 @@ prepare_install() {
     already_installed=""
     SECONDROUND=""
     SECONDROUND_EXTRA=""
-    if [[ -z "${SKIP_INSTALL}" ]];then
+    if [ x"${SKIP_INSTALL}" = "x" ];then
         # test if all packages are there
-        if [[ -n "${WANTED_PACKAGES}" ]]; then
+        if [ x"${WANTED_PACKAGES}" != "x" ]; then
             for i in $WANTED_PACKAGES;do
-                if ! is_${INSTALLER}_installed $i;then
+                if [ "x$FORCE_INSTALL" != "x" ] || ! ( is_${INSTALLER}_installed $i );then
                     if is_${INSTALLER}_available ${i}; then
                         COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES} ${i}"
                     else
@@ -960,9 +1123,9 @@ prepare_install() {
                 fi
             done
         fi
-        if [[ -n "${WANTED_EXTRA_PACKAGES}" ]]; then
+        if [ x"${WANTED_EXTRA_PACKAGES}" != "x" ]; then
             for i in $WANTED_EXTRA_PACKAGES;do
-                if ! is_${INSTALLER}_installed ${i}; then
+                if [ "x$FORCE_INSTALL" != "x" ] || ! ( is_${INSTALLER}_installed $i );then
                     if is_${INSTALLER}_available ${i};then
                         COPS_PKGMGR_PKGCANDIDATES="${COPS_PKGMGR_PKGCANDIDATES} ${i}"
                     else
@@ -975,21 +1138,23 @@ prepare_install() {
             done
         fi
         # skip update & rest if everything is there
-        if [[ -z "${COPS_PKGMGR_PKGCANDIDATES}" ]];then
+        if [ x"${COPS_PKGMGR_PKGCANDIDATES}" = "x" ];then
             if [ "x${DO_UPDATE}" = "xdefault" ];then
                 DO_UPDATE=""
             fi
         fi
-        if [[ -n $SECONDROUND ]];then
+        if [ "x$SECONDROUND" != "x" ];then
             warn "Packages $(echo ${SECONDROUND}) not found before update"
         fi
-        if [[ -n $SECONDROUND_EXTRA ]];then
+        if [ "x$SECONDROUND_EXTRA" != "x" ];then
             warn "EXTRA Packages $(echo ${SECONDROUND_EXTRA}) not found before update"
         fi
         if [ "x$WHOAMI" = "xroot" ];then
-            if [[ -n $SECONDROUND ]] || [[ -n $SECONDROUND_EXTRA ]];then
+            if [ "x$SECONDROUND" != "x" ] || [ "x$SECONDROUND_EXTRA" != "x" ];then
                 ( DO_UPDATE=1 update )
                 secondround_pkgscan
+            elif [ "x$DO_UPDATE" != "x" ];then
+                update && DO_UPDATE=""
             fi
         fi
     else
@@ -997,16 +1162,18 @@ prepare_install() {
     fi
     COPS_PKGMGR_PKGCANDIDATES=$( echo "${COPS_PKGMGR_PKGCANDIDATES}" | xargs -n1 | sort -u )
     already_installed=$( echo "${already_installed}" | xargs -n1 | sort -u )
-    if [[ -n "${COPS_PKGMGR_PKGCANDIDATES}" ]]; then
+    if [ x"${COPS_PKGMGR_PKGCANDIDATES}" != "x" ]; then
         log "Will install: $(echo ${COPS_PKGMGR_PKGCANDIDATES})"
     fi
-    if [[ -n "${already_installed}" ]]; then
+    if [ x"${already_installed}" != "x" ]; then
         log "Already installed: $(echo ${already_installed})"
+        ret=0
     fi
 }
 
+###
 setup() {
-    if [[ -z "${SKIP_SETUP}" ]] && [[ -n "${DO_SETUP}" ]];then
+    if [ x"${SKIP_SETUP}" = "x" ] && [ x"${DO_SETUP}" != "x" ];then
         debug ${INSTALLER}_setup
         ${INSTALLER}_setup
         may_die $? $? "setup failed"
@@ -1032,20 +1199,22 @@ install() {
     if ( todo_install );then
         upgrade
         log ${INSTALLER}_install ${COPS_PKGMGR_PKGCANDIDATES}
-        ${INSTALLER}_install ${COPS_PKGMGR_PKGCANDIDATES}
-        may_die $? $? "install failed"
+        if [ "x${COPS_PKGMGR_PKGCANDIDATES}" != "x" ];then
+            ${INSTALLER}_install ${COPS_PKGMGR_PKGCANDIDATES}
+            may_die $? $? "install failed"
+        fi
     else
         debug "Skip install"
     fi
 }
 
-todo_upgrade() { [[ -z "${SKIP_UPGRADE}" ]] && [[ -n "${DO_UPGRADE}" ]]; }
+todo_upgrade() { [ x"${SKIP_UPGRADE}" = "x" ] && [ x"${DO_UPGRADE}" != "x" ]; }
 todo_install() {
-    if [[ -z "${SKIP_INSTALL}" ]] && [[ -n "${DO_INSTALL}" ]];then
-        if [[ -n "${COPS_PKGMGR_PKGCANDIDATES}" ]];then
+    if [ x"${SKIP_INSTALL}" = "x" ] && [ x"${DO_INSTALL}" != "x" ];then
+        if [ x"${COPS_PKGMGR_PKGCANDIDATES}" != "x" ];then
             return 0
         fi
-        if [[ -n "$SECONDROUND_EXTRA" ]] || [[ -n "$SECONDROUND" ]];then
+        if [ x"$SECONDROUND_EXTRA" != "x" ] || [ x"$SECONDROUND" != "x" ];then
             return 0
         fi
     fi
@@ -1060,20 +1229,21 @@ fi
 prepare_install  # calls: update
 if ( todo_upgrade );then todo=1;else debug "Skip upgrade";fi
 if ( todo_install );then todo=1;else debug "Skip install";fi
-if [[ -z $todo ]] && [[ -z ${FORCE_RUN} ]];then
+if [ "x$todo" = "x" ] && [ "x${FORCE_RUN}" = "x" ];then
     log "Nothing to do"
+    ret=0
 else
     if [ "x$WHOAMI" = "xroot" ];then
-        upgrade
-        install
+        upgrade && install
         ret=$?
     else
-        export WANTED_PACKAGES=$COPS_PKGMGR_PKGCANDIDATES $SECONDROUND
-        export WANTED_EXTRA_PACKAGES=$SECONDROUND_EXTRA
+        export WANTED_PACKAGES="$( echo $COPS_PKGMGR_PKGCANDIDATES $SECONDROUND )"
+        export WANTED_EXTRA_PACKAGES="$( echo $SECONDROUND_EXTRA )"
         log "Escalating privileges (root) for installing: $WANTED_PACKAGES $WANTED_EXTRA_PACKAGES"
         $(may_sudo) "$0" "$@"
         ret=$?
     fi
 fi
 exit $ret
+
 # vim:set et sts=4 ts=4 tw=80:
