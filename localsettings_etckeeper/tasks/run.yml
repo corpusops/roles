@@ -1,6 +1,6 @@
 ---
 - name: files
-  changed_when: False
+  changed_when: false
   file:
     path: "{{item.path}}"
     state: "{{item.state|default(omit)}}"
@@ -24,37 +24,35 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_etckeeper_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_etckeeper_vars.packages is not none and
           corpusops_localsettings_etckeeper_vars.packages|length > 0)"
   tags: corpusops_localsettings_etckeeper
-  loop: "{{corpusops_localsettings_etckeeper_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_etckeeper_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_etckeeper_vars.packages is not none and
           corpusops_localsettings_etckeeper_vars.packages|length > 0)"
   tags: corpusops_localsettings_etckeeper
-  loop: "{{corpusops_localsettings_etckeeper_vars.packages|flatten(levels=1)}}"
 - shell: test -d /etc/.git && egrep -q "email.*=" /etc/.git/config
   register: corpusops_localsettings_etckeeper_do
-  changed_when: False
-  failed_when: False
+  changed_when: false
+  failed_when: false
   tags: corpusops_localsettings_etckeeper
 - shell: |
-      set -ex
-      if [ ! -e /etc/.git ];then
-        /usr/bin/etckeeper init
-      fi
-      cd /etc
-      git config user.email 'makinastates@paas.tld'
-      git config user.name 'Makina-States'
-      /usr/bin/etckeeper commit "Initial commit"
-      chmod -Rf 2700 /etc/.git
+    set -ex
+    if [ ! -e /etc/.git ];then
+      /usr/bin/etckeeper init
+    fi
+    cd /etc
+    git config user.email 'makinastates@paas.tld'
+    git config user.name 'Makina-States'
+    /usr/bin/etckeeper commit "Initial commit"
+    chmod -Rf 2700 /etc/.git
   when: "corpusops_localsettings_etckeeper_do.rc != 0"
   tags: corpusops_localsettings_etckeeper

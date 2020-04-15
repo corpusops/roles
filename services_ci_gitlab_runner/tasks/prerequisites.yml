@@ -27,9 +27,8 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_services_ci_gitlab_runner_vars.packages}}'
     state: present
-  loop: '{{corpusops_services_ci_gitlab_runner_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_ci_gitlab_runner_vars.packages is not none and
           corpusops_services_ci_gitlab_runner_vars.packages|length > 0)"
@@ -38,12 +37,11 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_services_ci_gitlab_runner_vars.packages|flatten(levels=1)}}"
     state: latest
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_ci_gitlab_runner_vars.packages is not none and
           corpusops_services_ci_gitlab_runner_vars.packages|length > 0)"
-  loop: "{{corpusops_services_ci_gitlab_runner_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -56,7 +54,7 @@
   loop: "{{corpusops_services_ci_gitlab_runner_vars.packages|flatten(levels=1)}}"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{item}}"
+    yum-config-manager --add-repo "{{item}}"
   loop: "{{[corpusops_services_ci_gitlab_runner_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_ci_gitlab_runner_vars.packages is not none and
@@ -65,12 +63,11 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{item}}'
+    name: "{{corpusops_services_ci_gitlab_runner_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_ci_gitlab_runner_vars.packages is not none and
           corpusops_services_ci_gitlab_runner_vars.packages|length > 0)"
-  loop: "{{corpusops_services_ci_gitlab_runner_vars.packages|flatten(levels=1)}}"
 - group:
     name: "{{corpusops_services_ci_gitlab_runner_vars.group}}"
     system: yes
@@ -84,16 +81,13 @@
   when: "corpusops_services_ci_gitlab_runner_vars.user|default(none)"
 - set_fact:
     cacheable: false
-    corpusops_gitlab_runner_prequisites_changed: "{{(
-         corpusops_gitlab_runner_pkgstdebconf.changed or
-         corpusops_gitlab_runner_pkgst.changed
-       )}}"
+    corpusops_gitlab_runner_prequisites_changed: "{{( corpusops_gitlab_runner_pkgstdebconf.changed or corpusops_gitlab_runner_pkgst.changed )}}"
 - name: sudo
   copy:
     dest: /etc/sudoers.d/gitlabrunner
     content: |
       {{corpusops_services_ci_gitlab_runner_vars.user}} ALL=(ALL:ALL) NOPASSWD:ALL
-    mode : 600
+    mode: 600
     owner: root
     group: root
     force: true

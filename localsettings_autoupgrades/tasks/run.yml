@@ -3,9 +3,8 @@
   package:
     cache_valid_time: "{{60*60}}"
     update_cache: yes
-    name: "{{item}}"
+    name: "{{corpusops_localsettings_autoupgrades_vars.packages|flatten(levels=1)}}"
     state: latest
-  loop: "{{corpusops_localsettings_autoupgrades_vars.packages|flatten(levels=1)}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and
           ansible_os_family.lower() in ['debian'] and
@@ -14,9 +13,8 @@
 - name: install prerequisites
   package:
     update_cache: yes
-    name: "{{item}}"
+    name: "{{corpusops_localsettings_autoupgrades_vars.packages|flatten(levels=1)}}"
     state: present
-  loop: "{{corpusops_localsettings_autoupgrades_vars.packages|flatten(levels=1)}}"
   notify: restart_corpusops_localsettings_autoupgrades
   when: "(corpusops_localsettings_autoupgrades_vars.packages is not none and
           ansible_os_family.lower() in ['redhat'] and
@@ -39,7 +37,8 @@
     src: /etc/yum/yum-cron.conf
     dest: /etc/sysconfig/yum-cron
     state: link
-  when: "(ansible_os_family.lower() in ['redhat'] and ansible_distribution_version|int < 7)"
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          ansible_distribution_version|int < 7)"
 - cops_service:
     name: "{{item}}"
     daemon_reload: yes

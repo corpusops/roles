@@ -17,7 +17,7 @@
     register: corpusops_localsettings_docker_key
 - name: remove docker setup
   file:
-    path:  /etc/apt/sources.list.d/docker.list
+    path: /etc/apt/sources.list.d/docker.list
     state: absent
   when: "(ansible_os_family.lower() in ['debian'] and
           ansible_env.get('TRAVIS', '') | copsf_bool)"
@@ -37,9 +37,8 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{dockeriteml}}"
+    name: '{{corpusops_localsettings_docker_vars.packages}}'
     state: present
-  loop: '{{corpusops_localsettings_docker_vars.packages}}'
   loop_control: {loop_var: dockeriteml}
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.packages is not none and
@@ -49,12 +48,11 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{dockeritemk}}'
+    name: "{{corpusops_localsettings_docker_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_docker_vars.packages is not none and
           corpusops_localsettings_docker_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_docker_vars.packages|flatten(levels=1)}}"
   loop_control: {loop_var: dockeritemk}
 - name: update & install prerequisites (yum-utils)
   package:
@@ -67,7 +65,7 @@
           corpusops_localsettings_docker_vars.packages|length > 0)"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{dockeritemi}}"
+    yum-config-manager --add-repo "{{dockeritemi}}"
   loop: "{{[corpusops_localsettings_docker_vars.repo]|flatten(levels=1)}}"
   loop_control: {loop_var: dockeritemi}
   when: "(ansible_os_family.lower() in ['redhat'] and

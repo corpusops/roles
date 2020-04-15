@@ -1,9 +1,8 @@
 ---
 - name: update & install prerequisites
-  loop: '{{corpusops_localsettings_ovh_rtm_vars.packages}}'
   package:
     update_cache: yes
-    name: '{{item}}'
+    name: '{{corpusops_localsettings_ovh_rtm_vars.packages}}'
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_ovh_rtm_vars.packages is not none and
@@ -21,7 +20,7 @@
   tags: corpusops_localsettings_ovh_rtm
 # do not trigger here changes
 - name: files
-  changed_when: False
+  changed_when: false
   file:
     path: "{{item.path}}"
     state: "{{item.state|default(omit)}}"
@@ -47,4 +46,3 @@
     u=https://last-public-ovh-infra-yak.snap.mirrors.ovh.net/yak/archives/apply.sh
     ( curl -s $u || wget -qO - $u ) \
       | OVH_PUPPET_MANIFEST=distribyak/catalog/master/puppet/manifests/common/rtmv2.pp bash
-
