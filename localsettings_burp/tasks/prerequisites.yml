@@ -15,7 +15,7 @@
     filename: localsettings_burp
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
-           corpusops_localsettings_burp_vars.repo is not none)"
+          corpusops_localsettings_burp_vars.repo is not none)"
   register: corpusops_localsettings_burp_repoa
 - apt: {update_cache: yes}
   when: "(ansible_os_family.lower() in ['debian'] and
@@ -25,9 +25,8 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_localsettings_burp_vars.packages}}'
     state: present
-  loop: '{{corpusops_localsettings_burp_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_burp_vars.packages is not none and
           corpusops_localsettings_burp_vars.packages|length > 0)"
@@ -36,12 +35,11 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_burp_vars.packages|flatten(levels=1)}}"
     state: latest
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_burp_vars.packages is not none and
           corpusops_localsettings_burp_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_burp_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -54,7 +52,7 @@
   loop: "{{corpusops_localsettings_burp_vars.packages|flatten(levels=1)}}"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{item}}"
+    yum-config-manager --add-repo "{{item}}"
   loop: "{{[corpusops_localsettings_burp_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_burp_vars.packages is not none and
@@ -63,14 +61,11 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_burp_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_burp_vars.packages is not none and
           corpusops_localsettings_burp_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_burp_vars.packages|flatten(levels=1)}}"
 - set_fact:
     cacheable: false
-    corpusops_localsettings_burp_prequisites_changed: "{{(
-         corpusops_localsettings_burp_pkgst.changed
-       )}}"
+    corpusops_localsettings_burp_prequisites_changed: "{{( corpusops_localsettings_burp_pkgst.changed )}}"

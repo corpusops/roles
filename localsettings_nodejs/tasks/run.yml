@@ -3,21 +3,19 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_nodejs_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_nodejs_vars.packages is not none and
           corpusops_localsettings_nodejs_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_nodejs_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites
   package:
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_nodejs_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_nodejs_vars.packages is not none and
           corpusops_localsettings_nodejs_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_nodejs_vars.packages|flatten(levels=1)}}"
 - name: files
   file:
     path: "{{item.path}}"
@@ -61,13 +59,13 @@
 - debug:
     msg:
       _archive:
-       filetest: "{{corpusops_localsettings_nodejs_vars.yarn_filetest}}"
-       archive: "{{corpusops_localsettings_nodejs_yarn_archive}}"
-       app_path: "{{corpusops_localsettings_nodejs_yarn_app_path}}"
-       urls:
-         archive: "{{corpusops_localsettings_nodejs_yarn_urls.archive}}"
-         archive_crc: "{{corpusops_localsettings_nodejs_yarn_urls.archive_crc}}"
-         verify_gpg: "{{corpusops_localsettings_nodejs_yarn_urls.verify_gpg}}"
+        filetest: "{{corpusops_localsettings_nodejs_vars.yarn_filetest}}"
+        archive: "{{corpusops_localsettings_nodejs_yarn_archive}}"
+        app_path: "{{corpusops_localsettings_nodejs_yarn_app_path}}"
+        urls:
+          archive: "{{corpusops_localsettings_nodejs_yarn_urls.archive}}"
+          archive_crc: "{{corpusops_localsettings_nodejs_yarn_urls.archive_crc}}"
+          verify_gpg: "{{corpusops_localsettings_nodejs_yarn_urls.verify_gpg}}"
   vars:
     version: "{{item}}"
   loop: "{{corpusops_localsettings_nodejs_vars.versions|flatten(levels=1)}}"

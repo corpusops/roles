@@ -7,8 +7,8 @@
            "java{{ item }}-installer.*accepted.*license.*true" ); then
       echo oracle-java{{ item }}-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
     fi
-  failed_when: False
-  changed_when: False
+  failed_when: false
+  changed_when: false
   when: "ansible_os_family.lower() in ['debian']"
   loop: "{{corpusops_localsettings_jdk_versions|flatten(levels=1)}}"
 - name: install jdk ppa
@@ -28,21 +28,19 @@
   package:
     cache_valid_time: "{{60*60}}"
     update_cache: yes
-    name: "{{item}}"
+    name: "{{corpusops_localsettings_jdk_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_jdk_vars.packages is not none and
           corpusops_localsettings_jdk_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_jdk_vars.packages|flatten(levels=1)}}"
 - name: "update & install prerequisites"
   package:
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_jdk_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_jdk_vars.packages is not none and
           corpusops_localsettings_jdk_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_jdk_vars.packages|flatten(levels=1)}}"
 - name: containers
   file:
     path: "{{item.value.d}}"
@@ -57,7 +55,7 @@
     mode: "0755"
     state: directory
   loop:
-    - /usr/lib/mozilla/plugins
+  - /usr/lib/mozilla/plugins
   when: "(corpusops_localsettings_jdk_vars.versions is not none and
           corpusops_localsettings_jdk_vars.versions|length > 0)"
 - name: archives
@@ -90,22 +88,20 @@
     remote_src: true
     keep_newer: true
     extra_opts: |
-        {% set opts = [] %}
-        {% set src = '{d}/{bn}'.format(**item.value) %}
-        {% if ('tgz' in src or
-          '.tbz2' in src  or
-          '.txz' in src  or
-          '.tar' in src
-        ) %}{% set opts = ['--strip-components=1'] %}{% endif %}
-        {{ opts | to_json }}
+      {% set opts = [] %}
+      {% set src = '{d}/{bn}'.format(**item.value) %}
+      {% if ('tgz' in src or
+        '.tbz2' in src  or
+        '.txz' in src  or
+        '.tar' in src
+      ) %}{% set opts = ['--strip-components=1'] %}{% endif %}
+      {{ opts | to_json }}
     src: "{{'{d}/{bn}'.format(**item.value)}}"
     dest: "{{item.value.d}}"
   loop: "{{corpusops_localsettings_jdk_vars.urls|dict2items}}"
   when: "(corpusops_localsettings_jdk_vars.versions is not none and
           corpusops_localsettings_jdk_vars.versions|length > 0 and
-          not corpusops_localsettings_jdk_testbins.msg.get(
-            '{d}/bin/java'.format(**item.value), {}
-          ).get('exists', False))"
+          not corpusops_localsettings_jdk_testbins.msg.get( '{d}/bin/java'.format(**item.value), {} ).get('exists', False))"
 - name: configs
   template:
     src: "../templates/{{item.name}}"
@@ -118,7 +114,7 @@
   when: "(corpusops_localsettings_jdk_vars.configs is not none and
           corpusops_localsettings_jdk_vars.configs|length > 0)"
 - name: 'install jdk versions'
-  changed_when: False
+  changed_when: false
   when: "(corpusops_localsettings_jdk_vars.versions is not none  and
           corpusops_localsettings_jdk_vars.versions|length > 0 and
           corpusops_localsettings_jdk_vars.bins is not none and
@@ -179,7 +175,7 @@
     {%  endfor %}
     {% endfor %}
 - name: 'set wanted jdk targets'
-  changed_when: False
+  changed_when: false
   when: "(corpusops_localsettings_jdk_vars.version is not none and
           corpusops_localsettings_jdk_vars.bins is not none and
           corpusops_localsettings_jdk_vars.bins|length > 0 and

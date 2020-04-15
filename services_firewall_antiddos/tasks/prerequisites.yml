@@ -13,9 +13,8 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_services_firewall_antiddos_vars.packages}}'
     state: present
-  loop: '{{corpusops_services_firewall_antiddos_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_firewall_antiddos_vars.packages is not none and
           corpusops_services_firewall_antiddos_vars.packages|length > 0)"
@@ -24,12 +23,11 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: '{{item}}'
+    name: "{{corpusops_services_firewall_antiddos_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_firewall_antiddos_vars.packages is not none and
           corpusops_services_firewall_antiddos_vars.packages|length > 0)"
-  loop: "{{corpusops_services_firewall_antiddos_vars.packages|flatten(levels=1)}}"
 - name: update & install prerequisites (yum-utils)
   package:
     update_cache: yes
@@ -42,7 +40,7 @@
   loop: "{{corpusops_services_firewall_antiddos_vars.packages|flatten(levels=1)}}"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{item}}"
+    yum-config-manager --add-repo "{{item}}"
   loop: "{{[corpusops_services_firewall_antiddos_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_firewall_antiddos_vars.packages is not none and
@@ -51,12 +49,11 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{item}}'
+    name: "{{corpusops_services_firewall_antiddos_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_firewall_antiddos_vars.packages is not none and
           corpusops_services_firewall_antiddos_vars.packages|length > 0)"
-  loop: "{{corpusops_services_firewall_antiddos_vars.packages|flatten(levels=1)}}"
 - group:
     name: "{{corpusops_services_firewall_antiddos_vars.group}}"
     system: yes
@@ -70,7 +67,4 @@
   when: "corpusops_services_firewall_antiddos_vars.user|default(none)"
 - set_fact:
     cacheable: false
-    corpusops_antiddos_prequisites_changed: "{{(
-         corpusops_antiddos_pkgstdebconf.changed or
-         corpusops_antiddos_pkgst.changed
-       )}}"
+    corpusops_antiddos_prequisites_changed: "{{( corpusops_antiddos_pkgstdebconf.changed or corpusops_antiddos_pkgst.changed )}}"

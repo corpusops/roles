@@ -3,9 +3,8 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_services_misc_robotframework_vars.packages}}'
     state: present
-  loop: '{{corpusops_services_misc_robotframework_vars.packages}}'
   when: "(corpusops_services_misc_robotframework_vars.packages is not none and
           corpusops_services_misc_robotframework_vars.packages|length > 0)"
   tags: corpusops_services_misc_robotframework
@@ -27,8 +26,7 @@
 - name: files copy
   copy:
     dest: "{{item.dest|default(omit)}}"
-    src: "{{item.template
-            | default('../templates/'+item.dest)}}"
+    src: "{{item.template | default('../templates/'+item.dest)}}"
     force: "{{item.get('force', True)}}"
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
@@ -41,8 +39,7 @@
   notify: [restart_corpusops_services_misc_robotframework]
 - name: configs
   template:
-    src: "{{item.template
-            | default('../templates/'+item.name)}}"
+    src: "{{item.template | default('../templates/'+item.name)}}"
     dest: "{{item.name}}"
     mode: "{{item.mode|default(omit)}}"
     owner: "{{item.owner|default(omit)}}"
@@ -55,10 +52,8 @@
   notify: [restart_corpusops_services_misc_robotframework]
 - name: service
   cops_service:
-    state: "{{corpusops_services_misc_robotframework_vars.activated
-              | ternary('started', 'stopped')}}"
-    enabled: "{{corpusops_services_misc_robotframework_vars.activated
-                | ternary(True, False)}}"
+    state: "{{corpusops_services_misc_robotframework_vars.activated | ternary('started', 'stopped')}}"
+    enabled: "{{corpusops_services_misc_robotframework_vars.activated | ternary(True, False)}}"
     name: "{{item}}"
   loop: "{{corpusops_services_misc_robotframework_vars.services|flatten(levels=1)}}"
   tags: corpusops_services_misc_robotframework

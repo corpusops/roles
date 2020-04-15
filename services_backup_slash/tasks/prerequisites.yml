@@ -3,9 +3,8 @@
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_services_backup_slash_vars.packages}}'
     state: present
-  loop: '{{corpusops_services_backup_slash_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_backup_slash_vars.packages is not none and
           corpusops_services_backup_slash_vars.packages|length > 0)"
@@ -22,7 +21,7 @@
           corpusops_services_backup_slash_vars.packages|length > 0)"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{item}}"
+    yum-config-manager --add-repo "{{item}}"
   loop: "{{[corpusops_services_backup_slash_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_backup_slash_vars.packages is not none and
@@ -31,25 +30,11 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{item}}'
+    name: "{{corpusops_services_backup_slash_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_backup_slash_vars.packages is not none and
           corpusops_services_backup_slash_vars.packages|length > 0)"
-  loop: "{{corpusops_services_backup_slash_vars.packages|flatten(levels=1)}}"
-#- group:
-#    name: "{{corpusops_services_backup_slash_vars.group}}"
-#    system: yes
-#    state: present
-#  when: "corpusops_services_backup_slash_vars.group"
-#- user:
-#    name: "{{corpusops_services_backup_slash_vars.user}}"
-#    system: yes
-#    groups: "{{corpusops_services_backup_slash_vars.group}}"
-#    append: true
-#  when: "corpusops_services_backup_slash_vars.user"
 - set_fact:
     cacheable: false
-    corpusops_services_backup_slash_prequisites_changed: "{{(
-         corpusops_services_backup_slash_pkgst.changed
-       )}}"
+    corpusops_services_backup_slash_prequisites_changed: "{{( corpusops_services_backup_slash_pkgst.changed )}}"

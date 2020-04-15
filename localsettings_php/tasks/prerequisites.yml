@@ -15,8 +15,8 @@
     filename: localsettings_php
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
-           corpusops_localsettings_php_vars.use_ppa and
-           corpusops_localsettings_php_vars.repo is not none)"
+          corpusops_localsettings_php_vars.use_ppa and
+          corpusops_localsettings_php_vars.repo is not none)"
   register: corpusops_localsettings_php_repoa
 - name: deinstall localsettings_php repo
   file:
@@ -28,18 +28,16 @@
   package:
     cache_valid_time: '1'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_localsettings_php_vars.packages}}'
     state: present
-  loop: '{{corpusops_localsettings_php_vars.packages}}'
   register: corpusops_localsettings_php_pkgstd
   when: corpusops_localsettings_php_repoda.changed
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
     update_cache: yes
-    name: "{{item}}"
+    name: '{{corpusops_localsettings_php_vars.packages}}'
     state: present
-  loop: '{{corpusops_localsettings_php_vars.packages}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_localsettings_php_vars.packages is not none and
           corpusops_localsettings_php_vars.packages|length > 0)"
@@ -55,7 +53,7 @@
           corpusops_localsettings_php_vars.packages|length > 0)"
 - name: repo
   shell: |
-         yum-config-manager --add-repo "{{item}}"
+    yum-config-manager --add-repo "{{item}}"
   loop: "{{[corpusops_localsettings_php_vars.repo]|flatten(levels=1)}}"
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_php_vars.packages is not none and
@@ -64,13 +62,11 @@
   package:
     update_cache: yes
     enablerepo: epel-testing
-    name: '{{item}}'
+    name: "{{corpusops_localsettings_php_vars.packages|flatten(levels=1)}}"
     state: present
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_localsettings_php_vars.packages is not none and
           corpusops_localsettings_php_vars.packages|length > 0)"
-  loop: "{{corpusops_localsettings_php_vars.packages|flatten(levels=1)}}"
-
 - group:
     name: "{{corpusops_localsettings_php_vars.group}}"
     system: yes
@@ -85,8 +81,7 @@
 - set_fact:
     cacheable: false
     corpusops_localsettings_php_prequisites_changed: "{{(
-         corpusops_localsettings_php_key.changed or
-         corpusops_localsettings_php_repoa.changed or
-         corpusops_localsettings_php_pkgstd.changed or
-         corpusops_localsettings_php_pkgst.changed
-       )}}"
+      corpusops_localsettings_php_key.changed or
+      corpusops_localsettings_php_repoa.changed or
+      corpusops_localsettings_php_pkgstd.changed or
+      corpusops_localsettings_php_pkgst.changed )}}"
