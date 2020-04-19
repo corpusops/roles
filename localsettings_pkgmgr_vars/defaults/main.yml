@@ -11,8 +11,8 @@ corpusops_localsettings_pkgmgr_cops_lowered: []
 corpusops_localsettings_pkgmgr_cops_sub_namespaces:
   settings: {}
 corpusops_localsettings_pkgmgr_packages: null
-corpusops_localsettings_pkgmgr_packages_debian: [software-properties-common]
-corpusops_localsettings_pkgmgr_packages_ubuntu: [software-properties-common]
+corpusops_localsettings_pkgmgr_packages_debian: [software-properties-common, gpg-agent]
+corpusops_localsettings_pkgmgr_packages_ubuntu: [software-properties-common, gpg-agent]
 corpusops_localsettings_pkgmgr_configs: null
 corpusops_localsettings_pkgmgr_configs_ubuntu:
   - {'name': '/etc/apt/sources.list', 'mode': '644'}
