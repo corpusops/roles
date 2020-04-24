@@ -106,9 +106,9 @@ corpusops_localsettings_basepkgs_packages_nonminimal_debian:
       - bridge-utils
       - iptables
       - vlan
-      - resolvconf
       - lvm2
       - mlocate
+#      - resolvconf
 corpusops_localsettings_basepkgs_configs: []
 corpusops_localsettings_basepkgs_files: []
 corpusops_localsettings_basepkgs_packages_redhat:
