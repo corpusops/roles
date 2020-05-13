@@ -46,7 +46,7 @@
           {%  endfor %}
           {% endfor %}
           {{ s | to_json }}
-- hosts: "{{hostvars.localhost._c_removesshkeys.keys()}}"
+- hosts: "{{hostvars.localhost._c_removesshkeys.keys()|list}}"
   tasks:
   - include_role: {name: corpusops.roles/sshkeys}
     vars:

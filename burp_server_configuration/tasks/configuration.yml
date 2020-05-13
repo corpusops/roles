@@ -42,12 +42,12 @@
     remote_src: true
     force: true
   loop:
-  - [["{{cops_burpsign_vars.ca}}/CA_burpCA.crt",
-      "{{cops_burp_vars.ssl_cert_ca}}"]]
-  - [["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt",
-      "{{cops_burp_vars.ssl_cert}}"]]
-  - [["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.key",
-      "{{cops_burp_vars.ssl_key}}"]]
+  - ["{{cops_burpsign_vars.ca}}/CA_burpCA.crt",
+     "{{cops_burp_vars.ssl_cert_ca}}"]
+  - ["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt",
+     "{{cops_burp_vars.ssl_cert}}"]
+  - ["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.key",
+      "{{cops_burp_vars.ssl_key}}"]
   register: burp_server_configuration_configst4
 - set_fact:
     cacheable: false
