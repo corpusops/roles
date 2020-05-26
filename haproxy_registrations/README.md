@@ -180,6 +180,17 @@ corpusops_haproxy_registrations_registrations_haredis:
       # http_fallback: false
       # if backend is SSL, also try http on this port
       # http_fallback_port: 80
+# terminate https but forward trafic again using HTTPS
+- hosts: ["foobar"]
+  ip: "1.2.2.4"
+  frontends:
+    443:
+      to_port: "8443"
+      host_serviceA:
+        local_ip: 1.2.3.4
+        to_port: 1104
+        ssl_check: 'ssl verify none'
+        haproxy_hosts: [foo.bar.net]
 
 # other exmaple with regex
 corpusops_haproxy_registrations_registrations_haredis:
