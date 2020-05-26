@@ -405,6 +405,7 @@ def register_servers_to_backends(data,
         raw_backend = [raw_backend]
     if raw_srv is None:
         raw_srv = ''
+    ssl_check_forced = isinstance(ssl_check, six.string_types)
     if ssl_check is None:
         ssl_check = 'ssl verify none'
     if inter_check is None:
@@ -434,11 +435,12 @@ def register_servers_to_backends(data,
                          inter_check, ssl_check, raw_srv,
                          bracket='{', ebracket='}')})
             else:
+                ssl_check_s = ssl_check_forced and ssl_check or ''
                 servers.append(
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
                      'bind': '{0}:{1}'.format(ip, to_port),
-                     'opts': 'check weight 100 {0} {2}'.format(
-                         inter_check, ssl_check, raw_srv)})
+                     'opts': 'check weight 100 {0} {1} {2}'.format(
+                         inter_check, ssl_check_s, raw_srv)})
             if http_fallback:
                 servers.insert(0, {'name': 'srv_{0}_clear'.format(sane_ip),
                                    'bind': '{0}:{1}'.format(
