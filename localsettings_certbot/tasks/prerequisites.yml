@@ -5,8 +5,13 @@
     filename: localsettings_certbot
     state: present
   when: "(ansible_os_family.lower() in ['debian'] and
-          corpusops_localsettings_certbot_vars.repo is not none)"
+          corpusops_localsettings_certbot_vars.repo)"
   register: localsettings_certbot_repoa
+- file:
+    state: absent
+    path: /etc/apt/sources.list.d/localsettings_certbot.list
+  when: "not (ansible_os_family.lower() in ['debian'] and
+          corpusops_localsettings_certbot_vars.repo)"
 - name: install prerequisites
   package:
     cache_valid_time: '{{60*60}}'
