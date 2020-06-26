@@ -68,7 +68,7 @@
         group: "{{__cops_provision_push_code_vars.group}}"
       changed_when: False
       loop_control: {loop_var: d}
-      loop: "{{[__cops_provision_push_code_vars.dest}}/{{__cops_provision_push_code_vars.git_folder]}}"
+      loop: "{{['{0}/{1}'.format(__cops_provision_push_code_vars.dest, __cops_provision_push_code_vars.git_folder)]}}"
     - name: "git file sync: synchronise files inside the environment (deleguation)"
       delegate_to: "{{__cops_provision_push_code_vars.origin}}"
       become: "{{__cops_provision_push_code_vars.origin_become}}"
