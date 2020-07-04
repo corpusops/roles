@@ -7,14 +7,14 @@
   loop: "{{cops_deploy_ssh_key_paths|dict2items}}"
 - copy:
     dest: "{{akey_path.value.path}}"
-    content: "{{akey_path.value.private}}"
+    content: "{% set k = akey_path.value.private[-1] == '\n' and akey_path.value.private or akey_path.value.private+'\n'%}{{k}}"
     mode: "0600"
     force: true
   loop_control: {loop_var: akey_path}
   loop: "{{cops_deploy_ssh_key_paths|dict2items}}"
 - copy:
     dest: "{{ckey_path.value.path}}.pub"
-    content: "{{ckey_path.value.pub}}"
+    content: "{% set k = ckey_path.value.pub[-1] == '\n' and ckey_path.value.pub or ckey_path.value.pub+'\n'%}{{k}}"
     mode: "0600"
     force: true
   loop_control: {loop_var: ckey_path}
