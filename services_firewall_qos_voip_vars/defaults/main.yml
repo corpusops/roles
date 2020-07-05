@@ -15,7 +15,7 @@ corpusops_services_firewall_qos_voip_disabled: "{{not corpusops_services_firewal
 corpusops_services_firewall_qos_voip_repo_keys_url: null
 corpusops_services_firewall_qos_voip_repo_keys: null
 corpusops_services_firewall_qos_voip_repo_keys_default: []
-corpusops_services_firewall_qos_voip_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_firewall_qos_voip_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
 corpusops_services_firewall_qos_voip_repo: null
 corpusops_services_firewall_qos_voip_packages: null
 corpusops_services_firewall_qos_voip_packages_default:
