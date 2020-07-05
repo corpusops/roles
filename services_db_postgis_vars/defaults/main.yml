@@ -17,7 +17,7 @@ corpusops_services_db_postgis_db: 'postgis'
 corpusops_services_db_postgis_activated: True
 corpusops_services_db_postgis_repo_keys_url: null
 corpusops_services_db_postgis_repo_keys: null
-corpusops_services_db_postgis_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_db_postgis_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
 corpusops_services_db_postgis_repo: null
 corpusops_services_db_postgis_packages: null
 corpusops_services_db_postgis_services: null

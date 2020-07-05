@@ -15,7 +15,7 @@ corpusops_services_db_postgresql_activated: True
 corpusops_services_db_postgresql_repo_keys_url: null
 corpusops_services_db_postgresql_repo_keys: null
 corpusops_services_db_postgresql_repo_keys_default: [ACCC4CF8]
-corpusops_services_db_postgresql_keyserver: "hkp://keyserver.ubuntu.com:80"
+corpusops_services_db_postgresql_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
 corpusops_services_db_postgresql_repo: null
 corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
 corpusops_services_db_postgresql_repo_redhat: "https://download.postgresql.com/linux/centos/postgresql-ce.repo"
