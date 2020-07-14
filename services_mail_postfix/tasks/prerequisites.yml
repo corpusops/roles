@@ -39,7 +39,6 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_mail_postfix_vars.packages is not none and
           corpusops_services_mail_postfix_vars.packages|length > 0)"
-  with_items: "{{corpusops_services_mail_postfix_vars.packages}}"
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{item}}"
