@@ -12,6 +12,7 @@ galaxy_info:
     versions:
     - all
 dependencies:
+- role: corpusops.roles/localsettings_pip
 - role: corpusops.roles/localsettings_python_sni
 - role: corpusops.roles/localsettings_docker_vars
 - role: corpusops.roles/localsettings_dockercompose
