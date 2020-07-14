@@ -29,7 +29,6 @@
   when: "(ansible_os_family.lower() in ['redhat'] and
           corpusops_services_firewall_ms_iptables_vars.packages is not none and
           corpusops_services_firewall_ms_iptables_vars.packages|length > 0)"
-  with_items: "{{corpusops_services_firewall_ms_iptables_vars.packages}}"
 - name: repo
   shell: |
          yum-config-manager --add-repo "{{item}}"

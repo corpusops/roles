@@ -18,4 +18,3 @@
         enablerepo: epel-testing
         name: 'yum-utils'
         state: present
-    with_items: [sshfs]
