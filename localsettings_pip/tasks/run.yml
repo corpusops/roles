@@ -1,0 +1,19 @@
+- name: install pip & setuptools
+  shell: |
+    set -e
+    py="{{corpusops_localsettings_pip_py}}"
+    if ( $py -V 2>&1|grep -iq "python 2");then
+      sreq="setuptools<45"
+    else
+      sreq="setuptools"
+    fi
+    if ! ( $py -m pip --version 2>&1 >/dev/null );then
+      f=$(mktemp)
+      curl "{{corpusops_localsettings_pip_url}}" > "$f"
+      if ! ( $py "$f" );then
+        rm -f "$f"
+        exit 1
+      fi
+      rm -f "$f"
+    fi
+    $py -c 'import setuptools' || $py -m pip install $sreq

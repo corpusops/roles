@@ -1,0 +1,9 @@
+---
+- name: "corpusops_localsettings_pip preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_pip | default(True) }}"
+  register: corpusops_localsettings_pip_can_run
+  tags: corpusops_localsettings_pip
+- include_tasks: run.yml
+  when: 'corpusops_localsettings_pip_can_run.msg == True'
+  tags: corpusops_localsettings_pip
