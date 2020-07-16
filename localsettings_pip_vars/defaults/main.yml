@@ -1,0 +1,3 @@
+---
+corpusops_localsettings_pip_py: "{{ansible_python.executable}}"
+corpusops_localsettings_pip_url: "https://bootstrap.pypa.io/get-pip.py"
