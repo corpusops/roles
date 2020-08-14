@@ -27,7 +27,6 @@ corpusops_localsettings_monitoring_packages_default: |-
                   'libsnmp-perl',
                   'nagios-plugins-basic',
                   'libsnmp-dev',
-                  'libsensors4',
                   'libcrypt-des-perl',
                   'libxml-xpath-perl',
                   'libsys-statistics-linux-perl',] %}
@@ -35,6 +34,12 @@ corpusops_localsettings_monitoring_packages_default: |-
           ansible_distribution_version|copsf_looseversion >=
               '17.10'|copsf_looseversion) %}
   {%-  set _ = pkgs.append('sysstat') %}
+  {%- endif %}
+  {%- if ansible_distribution.lower() in ['ubuntu', 'mint'] and
+         ansible_distribution_version|copsf_looseversion >= '20.04'|copsf_looseversion %}
+  {%-   set _ = pkgs.append('libsensors5') %}
+  {%-  else %}
+  {%-   set _ = pkgs.append('libsensors4') %}
   {%- endif %}
   {%- if corpusops_localsettings_monitoring_has_sysstat %}
   {%-  set _ = pkgs.append('sysstat') %}
