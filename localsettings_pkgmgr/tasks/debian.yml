@@ -7,3 +7,19 @@
   when: "(corpusops_localsettings_pkgmgr_vars.packages is not none and
           corpusops_localsettings_pkgmgr_vars.packages|length > 0)"
   tags: corpusops_localsettings_pkgmgr
+  register: aptup
+  retries: 0
+  ignore_errors: true
+- when: aptup.failed|default(False) and ('command-not-found' in aptup.msg)
+  block:
+  - file: {state: absent, path: "{{item}}"}
+    loop: [/etc/apt/apt.conf.d/50command-not-found]
+  - name: update & install prerequisites
+    apt:
+      update_cache: yes
+      name: '{{corpusops_localsettings_pkgmgr_vars.packages}}'
+      state: present
+    when: "(corpusops_localsettings_pkgmgr_vars.packages is not none and
+            corpusops_localsettings_pkgmgr_vars.packages|length > 0)"
+    tags: corpusops_localsettings_pkgmgr
+    register: aptup
