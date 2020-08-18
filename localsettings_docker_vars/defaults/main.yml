@@ -30,14 +30,20 @@ corpusops_localsettings_docker_py_packages: ["docker[tls]>=3.3.0"]
 corpusops_localsettings_docker_packages: null
 corpusops_localsettings_docker_packages_redhat: [
   gnupg2, python-pip, docker-ce]
-corpusops_localsettings_docker_packages_default: [
-  gnupg2, pass, python-pip, docker-ce]
+corpusops_localsettings_docker_packages_default: >
+  {%- set pkgs = ['gnupg2', 'pass', 'docker-ce'] -%}
+  {%- if ansible_distribution in ['Ubuntu'] and  (ansible_distribution_version | copsf_looseversion >= '20.04') -%}
+  {%- set _ = pkgs.append('python3-pip')%}
+  {%- else %}
+  {%- set _ = pkgs.append('python-pip') %}
+  {%- endif -%}
+  {{- pkgs|to_json-}}
 corpusops_localsettings_docker_files: null
 corpusops_localsettings_docker_files_default: []
 corpusops_localsettings_docker_filescopy: null
 corpusops_localsettings_docker_filescopy_default: []
 corpusops_localsettings_docker_configs: null
 corpusops_localsettings_docker_configs_default: []
-corpusops_localsettings_docker_pip: "$(which pip)"
+corpusops_localsettings_docker_pip: "$(which pip||which pip3)"
 corpusops_localsettings_docker_pip_args: "-U"
 corpusops_localsettings_docker_has_docker_py: false
