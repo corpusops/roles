@@ -15,3 +15,16 @@
   tags: [cops_burp,
          burp_services,
          cops_burpclient_services]
+- block:
+  - shell: |-
+      set -ex
+      burp -c "{{cops_burpclient_vars.configfile_client}}" -a l 2>&1
+    failed_when: false
+    register: burpssltest
+  - include_tasks: opensslpatch.yml
+    when:
+    - 'cops_burpclient_can_run.msg == True'
+    - "'use_certificate:ca md too weak' in burpssltest.stdout"
+  tags: [cops_burp,
+         burp_services,
+         cops_burpclient_opensslfix]
