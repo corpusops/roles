@@ -71,3 +71,4 @@ cops_burpclient_common_lines: |-
 cops_burpclient_crons: |-
   * *   * * *  root {{cops_burpclient_prefix}}/cron.sh    1>/dev/null 2>&1
   0 */3 * * *  root {{cops_burpclient_prefix}}/cleanup-burp-processes.sh
+cops_burpclient_sslconf: /etc/ssl/openssl.cnf
