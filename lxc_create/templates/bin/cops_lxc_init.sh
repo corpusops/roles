@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 export DEBIAN_FRONTEND noninteractive
 export NONINTERACTIVE=1
 if [ ! -d /root/.ssh ];then mkdir -p /root/.ssh;fi
@@ -73,8 +74,17 @@ if [ -e "$rh" ] && [ ! -e $marker ];then
             --reset-sshd_keys \
             --reset-ssh \
             --reset-files \
-            --reset-postfix &&\
-        touch $marker &&\
-        service ssh restart
+            --reset-postfix
+        ret=1
+        for i in $(seq 5);do
+            if ! ( service ssh restart );then
+                sleep 1
+            else
+                ret=0
+                break
+            fi
+        done
+        if [ "x$ret" != "x0" ];then echo "sshrestart failed">&2;exit 1;fi
+        touch $marker
 fi
 # vim:set et sts=4 ts=4 tw=80:
