@@ -57,17 +57,24 @@
   copy:
     src: '../templates/{{item}}'
     dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
-    mode: "{{{
-             }.get(item, '0755')}}"
+    mode: "{{{}.get(item, '0755')}}"
     force: true
   tags: corpusops_lxc_create,corpusops_lxc_create_scripts
   loop:
     - bin/cops_reset-host.py
     - bin/cops_shell_common
     - bin/cops_pkgmgr_install.sh
-    - bin/cops_lxc_init.sh
     - cops_lxc_prereqs.sh
     - cops_lxc_manage.sh
+- name: lxc mgmt scripts templates
+  copy:
+    src: '../templates/{{item}}'
+    dest: "{{lxc_path}}/{{lxc_container_name}}/{{item}}"
+    mode: "{{{}.get(item, '0755')}}"
+    force: true
+  tags: corpusops_lxc_create,corpusops_lxc_create_scripts
+  loop:
+    - bin/cops_lxc_init.sh
 - include_tasks: config.yml
 - name: "RestartContainer{{lxc_container_name}}"
   shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_manage.sh restart"
