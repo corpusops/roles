@@ -23,15 +23,6 @@ retry() {
     done
     return $ret
 }
-retry 15 1 ping -q -W 4 -c 1 8.8.8.8
-if ! which python >/dev/null 2>/dev/null;then
-  retry 15 1 /bin/cops_pkgmgr_install.sh python \
-    || DO_UPDATE=y retry 15 1 /bin/cops_pkgmgr_install.sh python
-  if [ "x${?}" != "x0" ];then
-      echo "cant install prerequisites" >&2
-      exit 1
-  fi
-fi
 rh="/bin/cops_reset-host.py"
 
 marker=/etc/lxc_reset_done
@@ -65,6 +56,16 @@ elif [ -e /etc/network/interfaces ] && [ -e /tmp/interfaces ];then
     fi
     # can fail on upstart
     ( /etc/init.d/networking restart || /bin/true )
+fi
+
+retry 15 1 ping -q -W 4 -c 1 8.8.8.8
+if ! which python >/dev/null 2>/dev/null;then
+  retry 15 1 /bin/cops_pkgmgr_install.sh python \
+    || DO_UPDATE=y retry 15 1 /bin/cops_pkgmgr_install.sh python
+  if [ "x${?}" != "x0" ];then
+      echo "cant install prerequisites" >&2
+      exit 1
+  fi
 fi
 
 if [ -e "$rh" ] && [ ! -e $marker ];then
