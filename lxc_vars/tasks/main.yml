@@ -60,11 +60,23 @@
       {%-      set _ = netconfigured.append("eth{0}".format(ifc)) %}
       {%-      for conf, knob in {
                 'mac': 'macaddress',
-                'gateway': 'gateway4',
+                'gateway': 'routes',
                 'ip': 'addresses'}.items() %}
       {%-        set confval = lxcdata['eth{0}_{1}'.format(ifc, conf)] %}
-      {%-        if confval%}
-      {%-          if knob in ['addresses'] %}
+      {%-        if confval %}
+      {%-          if knob in ['routes'] %}
+      {%-             set _ = ethernet.setdefault(
+                      'routes', []).extend([
+                          {'to': '{0}/32'.format(confval),
+                           'via':  lxcdata['eth{0}_ip'.format(ifc)],
+                           'on-link': true,
+                           'metric': 100},
+                          {'to': '0.0.0.0/0',
+                           'via': confval,
+                           'on-link': true,
+                           'metric': 100}]) %}
+      {%-             set confval = ethernet['routes'] %}
+      {%-          elif knob in ['addresses'] %}
       {%-            if '/' not in confval %}
       {%-              set confval = "{0}/{1}".format(confval, confval|copsf_lxc_subnet) %}
       {%-            endif %}
