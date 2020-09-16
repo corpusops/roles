@@ -24,6 +24,8 @@ docker_compose_service_timeout_sec: "300"
 # restart_sec: "10"
 docker_compose_service_state: started
 docker_compose_service_down_volumes: false
+docker_compose_service_stdout: "journal"
+docker_compose_service_stderr: "journal"
 docker_compose_service_before: ""
 docker_compose_service_after: ""
 docker_compose_service_requires: ""
