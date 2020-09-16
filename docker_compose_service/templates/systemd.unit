@@ -8,6 +8,8 @@ Before={{v._before}}
 After={{v._after}}
 Requires={{v._requires}}
 [Service]
+StandardOutput={{v.stdout}}
+StandardError={{v.stderr}}
 Environment="PATH=/bin:/usr/sbin:/usr/bin:/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/sbin:/usr/local/bin:/snap/bin"
 {% if v.restart %}
 Restart={{v.restart}}
