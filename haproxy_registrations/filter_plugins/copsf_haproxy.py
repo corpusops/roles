@@ -364,6 +364,7 @@ def register_servers_to_backends(data,
                                  raw_srv=None,
                                  raw_backend=None,
                                  ssl_terminated=None,
+                                 http_check=None,
                                  http_fallback_port=None,
                                  http_fallback=None,
                                  letsencrypt=None,
@@ -378,6 +379,8 @@ def register_servers_to_backends(data,
     where haproxy will forward requests to
     '''
     proxied_port = port
+    if http_check is None:
+        http_check = "OPTIONS /"
     if ssh_proxy:
         proxied_port = port + 1
     if letsencrypt_host is None:
@@ -510,7 +513,9 @@ def register_servers_to_backends(data,
                 bck_name = get_backend_name(mode, proxied_port, **{aclmode: match})
                 backend = backends.setdefault(bck_name, {})
                 backend.setdefault('mode', hmode)
-                bopts = backend.setdefault('raw_opts', raw_backend)
+                bopts = backend.setdefault('raw_opts', copy.deepcopy(raw_backend))
+                if (bopts or opts) and http_check:
+                    bopts.append("option httpchk {0}".format(http_check))
                 for o in opts:
                     o = o.format(user=user, password=password, bracket='{', ebracket='}')
                     if o not in bopts:
@@ -548,6 +553,7 @@ def make_registrations(data, ansible_vars=None):
                 sport = "{0}".format(port)
                 hosts = payload.get('hosts', [])
                 wildcards = payload.get('wildcards', [])
+                http_check = fdata.get('http_check', payload.get('http_check', None))
                 regexes = payload.get('regexes', [])
                 to_port = int(fdata.get('to_port', port))
                 user = fdata.get('user', None)
@@ -599,6 +605,7 @@ def make_registrations(data, ansible_vars=None):
                         inter_check=inter_check,
                         raw_srv=raw_srv,
                         ssl_check=ssl_check,
+                        http_check=http_check,
                         http_fallback_port=http_fallback_port,
                         http_fallback=http_fallback,
                         frontends=frontends,
