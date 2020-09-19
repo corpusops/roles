@@ -180,11 +180,17 @@ corpusops_haproxy_registrations_registrations_haredis:
       # http_fallback: false
       # if backend is SSL, also try http on this port
       # http_fallback_port: 80
+
 # terminate https but forward trafic again using HTTPS
 - hosts: ["foobar"]
   ip: "1.2.2.4"
+  # use another check URI & Method
+  # http_check_uri: "GET /-/health"
+  # to disable http check
+  # http_check_uri: false
   frontends:
     443:
+      # http_check: foo  # can also be set at frontend level
       to_port: "8443"
       host_serviceA:
         local_ip: 1.2.3.4
