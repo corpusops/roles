@@ -58,12 +58,15 @@
       {%-    if hasnetconf %}
       {%-      set ethernet = netplanether.setdefault("eth{0}".format(ifc), {}) %}
       {%-      set _ = netconfigured.append("eth{0}".format(ifc)) %}
+      {%-      set ip = lxcdata['eth{0}_ip'.format(ifc)] %}
       {%-      for conf, knob in {
                 'mac': 'macaddress',
                 'gateway': 'routes',
                 'ip': 'addresses'}.items() %}
       {%-        set confval = lxcdata['eth{0}_{1}'.format(ifc, conf)] %}
       {%-        if confval %}
+      {#-          only configure gateway route if we are not on dhcp #}
+      {%           if not ip %}{% set knob = None %}{% endif %}
       {%-          if knob in ['routes'] %}
       {%-             set _ = ethernet.setdefault(
                       'routes', []).extend([
@@ -82,7 +85,9 @@
       {%-            endif %}
       {%-            set confval = [confval] %}
       {%-          endif %}
-      {%-          set _ = ethernet.update({knob: confval}) %}
+      {%-          if knob %}
+      {%-           set _ = ethernet.update({knob: confval}) %}
+      {%-          endif %}
       {%-        endif %}
       {%-      endfor %}
       {%-      if not ethernet.get('addresses', []) %}
