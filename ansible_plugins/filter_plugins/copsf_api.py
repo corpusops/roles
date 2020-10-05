@@ -768,6 +768,24 @@ def copsf_registry_to_vars(namespaced,
     return scope, ansible_vars
 
 
+def get_os_vars(ansible_vars):
+    try:
+        osfamily = ansible_vars['ansible_os_family'].lower()
+        osid = ansible_vars['ansible_lsb']['id'].lower()
+        osversion = ansible_vars['ansible_lsb']['version']
+    except KeyError:
+        uname = os.uname()
+        if uname.sysname.lower() == 'darwin':
+            osfamily = uname.sysname
+            osid = 'MacOSX'
+            osversion = uname.release
+    return {
+        'family': osfamily,
+        'id': osid,
+        'version': osversion,
+    }
+
+
 def copsf_knobs(ansible_vars, namespaced, knobs, flavors=None):
     """
     Per os knobs to filter variables and prepare registry adapting to
@@ -780,10 +798,11 @@ def copsf_knobs(ansible_vars, namespaced, knobs, flavors=None):
             if namespaced.get(v, None) is not None:
                 continue
             for flav in flavors:
+                osvars = get_os_vars(ansible_vars)
                 if (
                     flav == 'default' or
-                    ansible_vars['ansible_os_family'].lower() == flav or
-                    ansible_vars['ansible_lsb']['id'].lower() == flav
+                    osvars['family'] == flav or
+                    osvars['id'].lower() == flav
                 ):
                     os_vpref = v + '_' + flav
                     if os_vpref in namespaced:
@@ -841,8 +860,9 @@ def copsf_subos_append(ansible_vars,
                        namespaced,
                        sub_namespaced,
                        subos_append):
+    osvars = get_os_vars(ansible_vars)
     for _os in subos_append:
-        if ansible_vars['ansible_lsb']['id'].lower() == _os:
+        if osvars['id'].lower() == _os:
             for v in subos_append[_os]['vars']:
                 vn = '{0}_{1}'.format(v, subos_append[_os]['os'])
                 if v in namespaced and vn in namespaced:
