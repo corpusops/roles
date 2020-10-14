@@ -1,0 +1,1 @@
+../../plugins/lookup/cops_haproxy.py

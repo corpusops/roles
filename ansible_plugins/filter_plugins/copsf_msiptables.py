@@ -1,1 +1,0 @@
-../../ms_iptables_registrations/filter_plugins/copsf_msiptables.py
