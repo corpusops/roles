@@ -50,7 +50,6 @@
     url: "{{item.value.url}}"
     checksum: "{{item.value.sha|default(omit)}}"
     headers: "{{item.value.headers|default(omit)}}"
-    remote_src: true
     dest: "{{'{d}/{bn}'.format(**item.value)}}"
     mode: "0644"
   loop: "{{corpusops_localsettings_golang_vars.urls|dict2items}}"

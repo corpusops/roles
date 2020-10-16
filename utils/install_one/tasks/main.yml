@@ -83,7 +83,6 @@
 - name: get CRCs file
   get_url:
     url: "{{urls.archive_crc}}"
-    remote_src: true
     dest: "{{app_path}}/crcs"
     mode: "0644"
     force: true
@@ -147,7 +146,6 @@
   register: install_one_archivetr
 - name: get archive - SHA CRC
   get_url:
-    remote_src: true
     url: "{{urls.archive}}"
     dest: "{{app_path}}"
     mode: "0644"
@@ -156,7 +154,6 @@
   changed_when: false
 - name: get archive - NOCHECK included
   get_url:
-    remote_src: true
     url: "{{urls.archive}}"
     dest: "{{app_path}}"
     mode: "0644"
