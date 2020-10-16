@@ -42,6 +42,11 @@ get_command() {
 class ActionModule(ActionBase):
 
     TRANSFERS_FILES = True
+    _forwarded_task_vars = None
+
+    def set_forwarded_task_vars(self, v):
+        self._forwarded_task_vars = v
+        return v
 
     def run(self, *args, **kw):
         '''.'''
@@ -51,7 +56,10 @@ class ActionModule(ActionBase):
             kwargs = {}
         kwargs.setdefault('delete_remote_tmp',
                           kwargs.get('tmp', None))
+        if self._forwarded_task_vars:
+            kwargs.setdefault('task_vars', self._forwarded_task_vars)
         ret = self._execute_module(module_name, *args, **kwargs)
+
         return ret
 
     def exec_command(self, cmd):
