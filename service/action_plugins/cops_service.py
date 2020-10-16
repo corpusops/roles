@@ -95,6 +95,7 @@ class ActionModule(ActionBase):
                          self._shared_loader_obj)
                 self._ah = self._shared_loader_obj.action_loader.get(
                     'cops_actionhelper', *margs)
+                self._ah.set_forwarded_task_vars(task_vars)
                 # if connection to dbus is possible, systemd is running somehow
                 ret1 = self._ah.exec_command(
                     'systemctl --no-pager is-system-running')
