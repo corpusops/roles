@@ -26,4 +26,6 @@ set sts=4 ts=4 sw=4 tw=0
 set ai
 set et
 set nu
+set ttymouse=
+set noswapfile nobackup nowritebackup
 autocmd! BufRead,BufNewFile *.sls,*.yml,*.yaml set sts=2 ts=2 sw=2 tw=0
