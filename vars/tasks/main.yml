@@ -106,6 +106,7 @@
   tags: [corpusops_vars, corpusops_network_live_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
   vars: {cops_vars_registry_target: corpusops_network_live}
+  when: ansible_system not in ['Darwin']
 
 - include_jinja_vars:
     content: |-
@@ -122,3 +123,4 @@
   tags: [corpusops_vars, corpusops_network_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
   vars: {cops_vars_registry_target: corpusops_network_settings}
+  when: ansible_system not in ['Darwin']
