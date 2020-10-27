@@ -15,6 +15,18 @@ from ansible.plugins.action import ActionBase
 __metaclass__ = type
 
 
+def get_darwin_vars():
+    uname = os.uname()
+    osfamily = uname.sysname
+    osversion = uname.release
+    osrelease = 'MacOSX'
+    return {'family': osfamily,
+            'release': osversion,
+            'codename': osrelease,
+            'version': osversion,
+            'id': osrelease}
+
+
 class ActionModule(ActionBase):
 
     lsb_keys = ['description', 'id', 'codename', 'release']
@@ -23,22 +35,25 @@ class ActionModule(ActionBase):
 
     def get_lsb(self, task_vars):
         '''.'''
-        ret = dict([(a, None) for a in self.lsb_keys])
-        distribution = task_vars.get('ansible_distribution', None)
-        mv = task_vars.get(
-            'ansible_distribution_major_version', None)
-        v = task_vars.get(
-            'ansible_distribution_version', None)
-        if mv and not v:
-            v = mv
-        codename = task_vars.get(
-            'ansible_distribution_release', None)
-        if distribution:
-            ret['id'] = distribution
-        if codename:
-            ret['codename'] = codename
-        if mv:
-            ret['release'] = v
+        if os.uname().sysname.lower() == 'darwin':
+            ret = get_darwin_vars()
+        else:
+            ret = dict([(a, None) for a in self.lsb_keys])
+            distribution = task_vars.get('ansible_distribution', None)
+            mv = task_vars.get(
+                'ansible_distribution_major_version', None)
+            v = task_vars.get(
+                'ansible_distribution_version', None)
+            if mv and not v:
+                v = mv
+            codename = task_vars.get(
+                'ansible_distribution_release', None)
+            if distribution:
+                ret['id'] = distribution
+            if codename:
+                ret['codename'] = codename
+            if mv:
+                ret['release'] = v
         ret['description'] = (
             '{id} {release} ({codename})'.format(**ret))
         return ret
@@ -56,7 +71,7 @@ class ActionModule(ActionBase):
             ansible_lsb = {}
         redefine = False
         lsb = {}
-        if task_vars['ansible_system'] == 'Linux':
+        if task_vars['ansible_system'] in ['Darwin', 'Linux']:
             for k in self.lsb_keys:
                 val = ansible_lsb.get(k, None)
                 if not val:
