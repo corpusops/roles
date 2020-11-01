@@ -180,3 +180,4 @@ corpusops_localsettings_certbot_ssh_config: |-
   User {{corpusops_localsettings_certbot_ssh_user}}
   IdentityFile {{corpusops_localsettings_certbot_private_ssh_key_file}}
   IdentitiesOnly yes
+  StrictHostKeyChecking no
