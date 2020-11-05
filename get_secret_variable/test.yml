@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  roles: [corpusops.roles/plugins]
   tasks:
     - file:
         path: /tmp/muche/foobar
