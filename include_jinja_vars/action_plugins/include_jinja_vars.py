@@ -471,6 +471,10 @@ class ActionModule(ActionBase):
                 fdata = data
             else:
                 pdata = magicstring(data)
+                if self.unsafe_resolve and isinstance(
+                    data, AnsibleUnsafeText
+                ):
+                    pdata = six.text_type(pdata.decode('utf-8'))
                 match = is_jinja(pdata)
                 try:
                     fdata = self._loader.load(pdata, show_content)
