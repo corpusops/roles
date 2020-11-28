@@ -32,7 +32,8 @@ corpusops_localsettings_docker_packages_redhat: [
   gnupg2, python-pip, docker-ce]
 corpusops_localsettings_docker_packages_default: >
   {%- set pkgs = ['gnupg2', 'pass', 'docker-ce'] -%}
-  {%- if ansible_distribution in ['Ubuntu'] and  (ansible_distribution_version | copsf_looseversion >= '20.04') -%}
+  {%- if (ansible_distribution in ['Ubuntu'] and (ansible_distribution_version | copsf_looseversion >= '20.04')) or
+         (ansible_distribution in ['Debian'] and (ansible_distribution_version | copsf_looseversion >= '9')) -%}
   {%- set _ = pkgs.append('python3-pip')%}
   {%- else %}
   {%- set _ = pkgs.append('python-pip') %}
