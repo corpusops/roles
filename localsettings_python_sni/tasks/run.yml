@@ -64,7 +64,7 @@
             && if ( $py -c "import six" );then
                $py -m pip install -U --ignore-installed six
             fi \
-            && if ( $py -c "from OpenSSL._util import lib;lib.SSL_OP_NO_TLSv1_3" );then
+            && if !( $py -c "from OpenSSL._util import lib;lib.SSL_OP_NO_TLSv1_3" );then
                $py -m pip install -U --ignore-installed pyopenssl
             fi \
             && $py -m pip install -U ${nb} \
@@ -72,7 +72,7 @@
             pyopenssl ndg-httpsclient pyasn1 && echo "changed=yes" >&2
         fi
       fi
-    with_items: ["{{ansible_python.executable}}"]
+    loop: "{{[ansible_python.executable]|flatten(levels=1)}}"
     register: cops_oldubuntu_backport_sni
     changed_when: '"changed=yes" in cops_oldubuntu_backport_sni.stderr'
 - when: "not (
