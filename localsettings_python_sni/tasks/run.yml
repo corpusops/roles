@@ -65,7 +65,7 @@
                $py -m pip install -U --ignore-installed six
             fi \
             && if ( $py -c "import OpenSSL" );then
-               $py -m pip install -U --ignore-installe pyopenssl
+               $py -m pip install -U --ignore-installed pyopenssl
             fi \
             && $py -m pip install -U ${nb} \
             backports.ssl_match_hostname \
