@@ -8,7 +8,7 @@ from __future__ import print_function
 def copsfburp_get_cname_and_profile(avars, hvars):
     cname = hvars.get('burp_cname', '') or hvars['inventory_hostname']
     profile = avars.get('ansible_virtualization_type', None) in [
-        'docker', 'lxc'] and 'vm' or 'baremetal'
+        'docker', 'lxc', 'container'] and 'vm' or 'baremetal'
     try:
         profile = hvars['burp_client_profile']
     except KeyError:

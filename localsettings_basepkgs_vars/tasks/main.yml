@@ -16,7 +16,7 @@
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
       {% endif %}
-      {% if ansible_virtualization_type in ['docker'] %}
+      {% if ansible_virtualization_type in ['docker', 'container'] %}
       {% for i in namespaced.packages_not_in_docker %}
       {% if i in namespaced.packages %}
       {% set _ = namespaced.packages.pop(

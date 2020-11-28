@@ -82,7 +82,7 @@
     dest: "{{corpusops_vars.config_dir}}/shells"
     marker: "# {mark} pureftpd cops shell"
     insertafter: EOF
-    unsafe_writes: "{% if ansible_virtualization_type in ['docker']%}True{%else%}{{omit}}{%endif%}"
+    unsafe_writes: "{% if ansible_virtualization_type in ['docker', 'container']%}True{%else%}{{omit}}{%endif%}"
     block: |
            /bin/ftponly
 - shell: |
