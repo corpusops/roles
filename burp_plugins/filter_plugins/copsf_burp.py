@@ -18,7 +18,7 @@ def copsfburp_get_cname_and_profile(avars, hvars, profile_key=None,
         profile = None
     else:
         profile = avars.get('ansible_virtualization_type', None) in [
-            'docker', 'lxc'] and 'vm' or 'baremetal'
+            'docker', 'lxc', 'container'] and 'vm' or 'baremetal'
     try:
         if profile_key is None:
             raise KeyError('next')

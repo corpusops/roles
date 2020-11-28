@@ -20,7 +20,7 @@
       {%- for sysctldata in namespaced['knobs'] %}
       {%-  set sysctl = sysctldata.name %}
       {%-  set value  = sysctldata.value %}
-      {%-  if ansible_virtualization_type in ['docker', 'lxc'] %}
+      {%-  if ansible_virtualization_type in ['docker', 'lxc', 'container'] %}
       {%-    set _ = namespaced['disabled_knobs'].append(sysctl) %}
       {%-  else %}
       {#-    Optim depending on available RAM #}

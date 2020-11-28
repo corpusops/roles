@@ -138,7 +138,7 @@ corpusops_services_http_nginx_cache_folder: "/var/lib/nginx/cache"
 corpusops_services_http_nginx_confdir: "{{corpusops_services_http_nginx_basedir}}/conf.d"
 corpusops_services_http_nginx_wwwdir: "/srv/www"
 corpusops_services_http_nginx_epoll: "{{ansible_system == 'Linux' and True or False }}"
-corpusops_services_http_nginx_is_reverse_proxied: "{{  ansible_virtualization_type.startswith(('lxc', 'docker')) and True or False}}"
+corpusops_services_http_nginx_is_reverse_proxied: "{{  ansible_virtualization_type.startswith(('lxc', 'docker', 'container')) and True or False}}"
 corpusops_services_http_nginx_sendfile: "{{ not ansible_virtualization_type.startswith(('virtualbox',)) and True or False}}"
 corpusops_services_http_nginx_reverse_proxy_addresses: |-
   {%- set reverse_proxy_addresses = ["127.0.0.1"] %}
