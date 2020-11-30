@@ -6,13 +6,16 @@
       {% set snamespaced, vars = vars|copsf_registry(prefix) %}
       {% set namespaced = snamespaced[prefix+'vars'] %}
       {% if ansible_lsb.id.lower() == 'ubuntu' %}
-      {%  if ansible_lsb.release | version_compare('13.10', '>' ) %}
-      {%    set _ = namespaced['packages'].append('iproute2') %}
-      {%  endif %}
-      {%  if ansible_lsb.release | version_compare('15.04', '<' ) %}
-      {%    set _ = namespaced['packages'].append('ubuntu-extras-keyring') %}
-      {%  endif %}
-      {%-  if ansible_lsb.release | version_compare('18.04', '>=' ) %}
+      {%- if aid in ['debian', 'ubuntu'] %}
+      {%-  if (aid in ['debian']) or (aid in ['ubuntu'] and corpusops_core_os_release|string|version_compare('13.10', '>' )) %}
+      {%-    set _ = namespaced['packages'].append('iproute2') %}
+      {%-  endif %}
+      {%-  if aid in ['ubuntu'] and corpusops_core_os_release|version_compare('15.04', '<' ) %}
+      {%-    set _ = namespaced['packages'].append('ubuntu-extras-keyring') %}
+      {%-  endif %}
+      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|copsf_looseversion >= '18.04'|copsf_looseversion))
+           or ((aid in ['debian']) and (corpusops_core_os_release|copsf_looseversion >=     '9'|copsf_looseversion))
+      %}
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
       {% endif %}

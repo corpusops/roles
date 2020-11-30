@@ -8,7 +8,7 @@
     filename: git
     state: present
   when: "(ansible_lsb.id == 'Ubuntu' and
-          ansible_lsb.release | version_compare('12.04', '<=') and
+          corpusops_core_os_release | version_compare('12.04', '<=') and
           corpusops_localsettings_git_vars.packages is not none and
           corpusops_localsettings_git_vars.packages|length > 0)"
   register: corpusops_localsettings_git_ppa
