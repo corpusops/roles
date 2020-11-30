@@ -14,7 +14,7 @@ corpusops_services_http_nginx_repo_keys: null
 corpusops_services_http_nginx_repo_keys_default: [4420973F]
 corpusops_services_http_nginx_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
 corpusops_services_http_nginx_repo: null
-corpusops_services_http_nginx_repo_debian: "deb http://ppa.launchpad.net/corpusops/nginx/ubuntu {{ansible_distribution_release.lower()}} main"
+corpusops_services_http_nginx_repo_debian: "deb http://ppa.launchpad.net/corpusops/nginx/ubuntu {{corpusops_core_distribution_release.lower()}} main"
 corpusops_services_http_nginx_repo_redhat: "https://download.nginx.com/linux/centos/nginx-ce.repo"
 corpusops_services_http_nginx_repo_fedora: "https://download.nginx.com/linux/fedora/nginx-ce.repo"
 corpusops_services_http_nginx_packages: null
