@@ -17,13 +17,13 @@ corpusops_localsettings_php_composer_version: ''
 corpusops_localsettings_php_composer_installer: "https://getcomposer.org/installer"
 corpusops_localsettings_php_version: |-
   {% set v = {'ret': '7.1'} %}
-  {% if ansible_lsb.release|copsf_looseversion  < '16.04' | copsf_looseversion %}
+  {% if corpusops_core_os_release|copsf_looseversion  < '16.04' | copsf_looseversion %}
   {%  set _ = v.update({'ret': '5.6'}) %}
   {% endif %}
   {{v.ret}}
 corpusops_localsettings_php_use_ppa: |-
   {% set v = {'ret': False} %}
-  {% if ansible_lsb.release|copsf_looseversion  <= '18.04' | copsf_looseversion %}
+  {% if corpusops_core_os_release|copsf_looseversion  <= '18.04' | copsf_looseversion %}
   {%  set _ = v.update({'ret': True}) %}
   {% endif %}
   {{v.ret}}

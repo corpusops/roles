@@ -68,7 +68,7 @@ corpusops_localsettings_pkgmgr_sources_lists_debian:
  - "deb {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}} {{corpusops_localsettings_pkgmgr_comps}}"
  - "deb-src {{corpusops_localsettings_pkgmgr_mirror}} {{corpusops_localsettings_pkgmgr_dist}} {{corpusops_localsettings_pkgmgr_comps}}"
 corpusops_localsettings_pkgmgr_partner_mirror: 'http://archive.canonical.com/ubuntu'
-corpusops_localsettings_pkgmgr_lsb_release_major: "{{ansible_lsb.release[0]}}"
+corpusops_localsettings_pkgmgr_lsb_release_major: "{{corpusops_core_os_release[0]}}"
 corpusops_localsettings_pkgmgr_rpm_mirrors: null
 corpusops_localsettings_pkgmgr_rpm_mirrors_default: []
 corpusops_localsettings_pkgmgr_rpm_mirrors_centos:
