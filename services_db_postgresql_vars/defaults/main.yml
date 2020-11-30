@@ -17,7 +17,7 @@ corpusops_services_db_postgresql_repo_keys: null
 corpusops_services_db_postgresql_repo_keys_default: [ACCC4CF8]
 corpusops_services_db_postgresql_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
 corpusops_services_db_postgresql_repo: null
-corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {{ansible_distribution_release}}-pgdg main"
+corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {{corpusops_core_distribution_release}}-pgdg main"
 corpusops_services_db_postgresql_repo_redhat: "https://download.postgresql.com/linux/centos/postgresql-ce.repo"
 corpusops_services_db_postgresql_repo_fedora: "https://download.postgresql.com/linux/fedora/postgresql-ce.repo"
 corpusops_services_db_postgresql_client_packages: null
@@ -66,7 +66,7 @@ corpusops_services_db_postgresql_wrapped_binaries: [
   vacuumdb, dropdb, clusterdb, reindexdb, pg_dump, pg_basebackup,
   pg_receivexlog, psql, createdb, dropuser, pg_dumpall, createuser,
   pg_restore, pg_isready, createlang, droplang]
-corpusops_services_db_postgresql_dist: "{{ansible_distribution_release}}"
+corpusops_services_db_postgresql_dist: "{{corpusops_core_distribution_release}}"
 corpusops_services_db_postgresql_user: 'postgres'
 corpusops_services_db_postgresql_version: '10'
 corpusops_services_db_postgresql_encoding: 'utf8'

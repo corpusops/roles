@@ -17,11 +17,13 @@ corpusops_core_cops_sub_namespaces: {}
 corpusops_core_mint_ubuntu_dist: "{% if vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint'%}Ubuntu{% else %}{{ansible_distribution}}{%endif%}"
 corpusops_core_os_release: "{{{'unstable': '100000'}.get(ansible_lsb.release, ansible_lsb.release)}}"
 corpusops_core_distribution_version: "{{{'unstable': '100000'}.get(ansible_distribution_version, ansible_distribution_version)}}"
+corpusops_core_debian_sid_release: buster
+corpusops_core_distribution_release: "{{{'sid': corpusops_core_debian_sid_release}.get(ansible_distribution_release, ansible_distribution_release)}}"
 corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
   %}{% if (ansible_distribution_major_version|copsf_looseversion) < ('18'|copsf_looseversion)%}trusty{%
   elif (ansible_distribution_major_version|copsf_looseversion) < ('19'|copsf_looseversion)%}xenial{%
   else %}bionic{%endif %}{%
-  else %}{{ansible_distribution_release}}{%endif%}"
+  else %}{{corpusops_core_distribution_release}}{%endif%}"
 corpusops_core_facts_path: "/etc/copsfacts"
 corpusops_core_ssh_args: >-
   {% set k = hostvars[inventory_hostname].get(
