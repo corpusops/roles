@@ -15,6 +15,7 @@ corpusops_core_cops_knobs: ['confdefault_dir']
 corpusops_core_cops_sub_namespaces: {}
 #
 corpusops_core_mint_ubuntu_dist: "{% if vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint'%}Ubuntu{% else %}{{ansible_distribution}}{%endif%}"
+corpusops_core_os_release: "{{{'unstable': '100000'}.get( ansible_lsb.release, ansible_lsb.release)}}"
 corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
   %}{% if (ansible_distribution_major_version|copsf_looseversion) < ('18'|copsf_looseversion)%}trusty{%
   elif (ansible_distribution_major_version|copsf_looseversion) < ('19'|copsf_looseversion)%}xenial{%
