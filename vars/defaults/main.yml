@@ -1,11 +1,5 @@
 ---
 # registry compute settings
-corpusops_core_mint_ubuntu_dist: "{% if vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint'%}Ubuntu{% else %}{{ansible_distribution}}{%endif%}"
-corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
-%}{% if (ansible_distribution_major_version|copsf_looseversion) < ('18'|copsf_looseversion)%}trusty{%
-elif (ansible_distribution_major_version|copsf_looseversion) < ('19'|copsf_looseversion)%}xenial{%
-else %}bionic{%endif %}{%
-else %}{{ansible_distribution_release}}{%endif%}"
 corpusops_core_facts_path: "/etc/copsfacts"
 corpusops_core_cops_do_format_resolve: false
 corpusops_core_cops_computed_defaults: []
@@ -14,7 +8,15 @@ corpusops_core_cops_sub_os_append: {}
 corpusops_core_cops_lowered: ['repo']
 corpusops_core_cops_knobs: ['confdefault_dir']
 corpusops_core_cops_sub_namespaces: {}
-
+#
+corpusops_core_mint_ubuntu_dist: "{% if vars.get('ansible_lsb', {}).get('id', '').lower() == 'linuxmint'%}Ubuntu{% else %}{{ansible_distribution}}{%endif%}"
+corpusops_core_os_release: "{{{'unstable': '100000'}.get( ansible_lsb.release, ansible_lsb.release)}}"
+corpusops_core_mint_ubuntu_release: "{% if ansible_lsb.id.lower() == 'linuxmint'
+  %}{% if (ansible_distribution_major_version|copsf_looseversion) < ('18'|copsf_looseversion)%}trusty{%
+  elif (ansible_distribution_major_version|copsf_looseversion) < ('19'|copsf_looseversion)%}xenial{%
+  else %}bionic{%endif %}{%
+  else %}{{ansible_distribution_release}}{%endif%}"
+corpusops_core_facts_path: "/etc/copsfacts"
 corpusops_core_ssh_args: >-
   {% set k = hostvars[inventory_hostname].get(
                 'ansible_ssh_private_key_file', '') %}

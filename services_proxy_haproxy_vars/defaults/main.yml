@@ -19,7 +19,7 @@ corpusops_services_proxy_haproxy_cops_sub_namespaces:
 #
 corpusops_services_proxy_haproxy_use_ppa: "{% if ansible_os_family.lower() in ['debian']%}True{%else%}False{%endif%}"
 corpusops_services_proxy_haproxy_no_ipv6: false
-corpusops_services_proxy_haproxy__version: "1.8"
+corpusops_services_proxy_haproxy__version: "{% if ansible_distribution.lower() in ['ubuntu', 'mint'] and (corpusops_core_os_release | version_compare('18.04', '>=' ))%}2.1{%else%}1.8{%endif%}"
 corpusops_services_proxy_haproxy_version: "{% if corpusops_services_proxy_haproxy_use_ppa%}{{corpusops_services_proxy_haproxy__version}}{%else%}{%endif%}"
 corpusops_services_proxy_haproxy_name: haproxy
 corpusops_services_proxy_haproxy_activated: True
