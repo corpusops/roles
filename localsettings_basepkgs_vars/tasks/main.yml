@@ -1,11 +1,10 @@
 ---
 - include_jinja_vars:
     content: |-
-      ---
-      {% set prefix = 'corpusops_localsettings_basepkgs_' %}
-      {% set snamespaced, vars = vars|copsf_registry(prefix) %}
-      {% set namespaced = snamespaced[prefix+'vars'] %}
-      {% if ansible_lsb.id.lower() == 'ubuntu' %}
+      {%- set prefix = 'corpusops_localsettings_basepkgs_' %}
+      {%- set snamespaced, vars = vars|copsf_registry(prefix) %}
+      {%- set namespaced = snamespaced[prefix+'vars'] %}
+      {%- set aid = ansible_lsb.id.lower() %}
       {%- if aid in ['debian', 'ubuntu'] %}
       {%-  if (aid in ['debian']) or (aid in ['ubuntu'] and corpusops_core_os_release|string|version_compare('13.10', '>' )) %}
       {%-    set _ = namespaced['packages'].append('iproute2') %}
@@ -18,22 +17,17 @@
       %}
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
-      {% endif %}
-      {% if ansible_virtualization_type in ['docker', 'container'] %}
-      {% for i in namespaced.packages_not_in_docker %}
-      {% if i in namespaced.packages %}
-      {% set _ = namespaced.packages.pop(
-        namespaced.packages.index(i)) %}
-      {% endif %}
-      {% endfor %}
-      {% endif %}
-      {% if ansible_virtualization_type not in ['docker'] %}
-      {%  set _ = namespaced['packages'].extend(
-          namespaced['packages_nonminimal'])%}
-      {% endif %}
-      {{ (snamespaced[prefix+'vars']
-           | copsf_registry_to_vars(
-               vars, prefix, global_scope=True)
-             )[0] | to_json}}
+      {%- endif %}
+      {%- if ansible_virtualization_type|lower in ['docker', 'container', 'virtualpc'] %}
+      {%-  for i in namespaced.packages_not_in_docker %}
+      {%-    if i in namespaced.packages %}
+      {%-      set _ = namespaced.packages.pop(namespaced.packages.index(i)) %}
+      {%-    endif %}
+      {%-  endfor %}
+      {%- endif %}
+      {%- if ansible_virtualization_type.lower() not in ['docker', 'container', 'virtualpc'] %}
+      {%-  set _ = namespaced['packages'].extend(namespaced['packages_nonminimal'])%}
+      {%- endif %}
+      {{- (snamespaced[prefix+'vars']|copsf_registry_to_vars(vars, prefix, global_scope=True))[0] | to_json}}
   tags: [corpusops_vars, corpusops_localsettings_basepkgs_vars]
   no_log: "{{not (cops_vars_debug|default(false))}}"
