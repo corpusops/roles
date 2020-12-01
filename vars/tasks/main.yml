@@ -68,10 +68,10 @@
           ('is_virtualbox', vt == 'virtualbox'),
           ('is_vbox', vt == 'virtualbox'),
           ('is_lxc', vt == 'lxc'),
-          ('is_docker', vt in ['docker', 'container']),
-          ('is_container', vt in ['lxc', 'docker', 'container']),
-          ('security', vt not in ['docker', 'container']),
-          ('server_type', (vt in ['docker', 'lxc', 'container'])
+          ('is_docker', vt in ['docker', 'container', 'virtualpc']),
+          ('is_container', vt in ['lxc', 'docker', 'container', 'virtualpc']),
+          ('security', vt not in ['docker', 'container', 'virtualpc']),
+          ('server_type', (vt in ['docker', 'lxc', 'container', 'virtualpc'])
                           | ternary(vt, 'baremetal')),
       ] %}
       {% for name, val in computed_defaults %}
