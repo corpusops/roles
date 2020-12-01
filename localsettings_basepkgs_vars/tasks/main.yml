@@ -20,14 +20,14 @@
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
       {%- endif %}
-      {%- if ansible_virtualization_type in ['docker', 'container'] %}
+      {%- if ansible_virtualization_type in ['docker', 'container', 'virtualpc'] %}
       {%- for i in namespaced.packages_not_in_docker %}
       {%- if i in namespaced.packages %}
       {%- set _ = namespaced.packages.pop(namespaced.packages.index(i)) %}
       {%- endif %}
       {%- endfor %}
       {%- endif %}
-      {%- if ansible_virtualization_type not in ['docker', 'container'] %}
+      {%- if ansible_virtualization_type not in ['docker', 'container', 'virtualpc'] %}
       {%-  set _ = namespaced['packages'].extend(namespaced['packages_nonminimal'])%}
       {%- endif %}
       {%- for name, val in namespaced.items() %}
