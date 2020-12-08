@@ -20,3 +20,5 @@ RemainAfterExit=yes
 ExecStart={{cops_burp_vars.initd_server}} start
 ExecStop={{cops_burp_vars.initd_server}} stop
 ExecReload={{cops_burp_vars.initd_server}} reload
+[Install]
+WantedBy=multi-user.target
