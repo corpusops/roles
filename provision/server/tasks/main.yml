@@ -74,7 +74,7 @@
       {% set corpusops_do_ms_iptables_registrations  = corpusops_do_ms_iptables_registrations   | default(False) %}
       {% set corpusops_do_compute_node               = corpusops_do_compute_node                | default(False) %}
       {% set corpusops_do_lxc_compute_node           = corpusops_do_lxc_compute_node            | default(False) %}
-      {% set corpusops_switch_to_systemd_resolved    = corpusops_switch_to_systemd_resolved     | default(bionic_and_later) %}
+      {% set corpusops_switch_to_systemd_resolved    = corpusops_switch_to_systemd_resolved     | default(bionic_and_later and not is_docker) %}
       {% set corpusops_sslcerts                      = corpusops_sslcerts                       | default(True) %}
       {% set corpusops_sshkeys                       = corpusops_sshkeys                        | default(True) %}
       {% set corpusops_localsettings_dns_servers     = corpusops_localsettings_dns_servers      | default([]) %}
