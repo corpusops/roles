@@ -64,7 +64,7 @@
             && if ( $py -c "import six" );then
                $py -m pip install -U --ignore-installed six
             fi \
-            && if ( $py -c "import OpenSSL" );then
+            && if ( $py -c "from OpenSSL._util import lib;lib.SSL_OP_NO_TLSv1_3" );then
                $py -m pip install -U --ignore-installed pyopenssl
             fi \
             && $py -m pip install -U ${nb} \
