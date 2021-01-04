@@ -44,18 +44,15 @@
       imports="$imports;import urllib3;import cryptography"
       if ! ( $py -c "$imports" );then
         nb=""
-        sreq="setuptools<45"
         if ( $py -m pip install -U ${nb} \
             backports.ssl_match_hostname \
             pyopenssl ndg-httpsclient pyasn1 );then
             echo "changed=yes" >&2
         else
-               $py -m pip install -U $sreq \
-            && $py -m pip install -U pip \
-            && if ( $py -c "import six" );then
+            if ( $py -c "import six" );then
                $py -m pip install -U --ignore-installed six
             fi \
-            && if !( $py -c "from OpenSSL._util import lib;lib.SSL_OP_NO_TLSv1_3" );then
+            && if !( $py -c "import OpenSSL" );then
                $py -m pip install -U --ignore-installed pyopenssl
             fi \
             && if !( $py -c "from OpenSSL._util import lib;lib.SSL_OP_NO_TLSv1_3" );then
