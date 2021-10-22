@@ -54,12 +54,14 @@ EXP_PREPROVISION_IMAGES=""
 EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES archlinux:latest_preprovision"
 EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:latest_preprovision"
 EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:stretch_preprovision"
-EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:jessie_preprovision"
+EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:buster_preprovision"
+EXP_PREPROVISION_IMAGES="$EXP_PREPROVISION_IMAGES debian:sid_preprovision"
 EXP_CORE_IMAGES=""
 EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/archlinux:latest"
 EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:latest"
 EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:stretch"
-EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:jessie"
+EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:buster"
+EXP_CORE_IMAGES="$EXP_CORE_IMAGES corpusops/debian:sid"
 EXP_IMAGES="$EXP_PREPROVISION_IMAGES $EXP_CORE_IMAGES"
 # ansible related
 export DISABLE_MITOGEN=${DISABLE_MITOGEN-1}
@@ -76,7 +78,7 @@ uniquify_string() {
     local pattern=$1
     shift
     echo "$@" \
-        | sed -e "s/${pattern}/\n/g" \
+        | awk '{gsub(/'"$pattern"'/, RS) ; print;}' \
         | awk '!seen[$0]++' \
         | tr "\n" "${pattern}" \
         | sed -e "s/^${pattern}\|${pattern}$//g"
@@ -169,8 +171,8 @@ output_in_error_() {
     fi
     CI_BUILD="${CI_BUILD-${DEFAULT_CI_BUILD-}}"
     if [ "x$CI_BUILD" != "x" ];then
-        DEFAULT_NO_OUTPUT=y
-        DEFAULT_DO_OUTPUT_TIMER=y
+        DEFAULT_NO_OUTPUT=${FORCE_NO_OUTPUT-y}
+        DEFAULT_DO_OUTPUT_TIMER=${FORCE_OUTPUT_TIMER:-y}
     fi
     VERBOSE="${VERBOSE-}"
     TIMER_FREQUENCE="${TIMER_FREQUENCE:-120}"
@@ -243,7 +245,7 @@ run_silent() {
     (
     DEFAULT_RUN_SILENT=1;
     if [ "x${NO_SILENT-}" != "x" ];then DEFAULT_RUN_SILENT=;fi;
-    SILENT=${SILENT-DEFAULT_RUN_SILENT} silent_run "${@}";
+    SILENT=${SILENT-${DEFAULT_RUN_SILENT}} silent_run "${@}";
     )
 }
 vvv() { debug "${@}";silent_run "${@}"; }
@@ -254,6 +256,7 @@ version_lte() { [  "$1" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_lt() { [ "$1" = "$2" ] && return 1 || version_lte $1 $2; }
 version_gte() { [  "$2" = "$(printf "$1\n$2" | sort -V | head -n1)" ]; }
 version_gt() { [ "$1" = "$2" ] && return 1 || version_gte $1 $2; }
+lowcase_distribid() { echo $DISTRIB_ID| awk '{print tolower($0)}'; }
 is_archlinux_like() { echo $DISTRIB_ID | egrep -iq "archlinux|arch"; }
 is_debian_like() { echo $DISTRIB_ID | egrep -iq "debian|ubuntu|mint"; }
 is_suse_like() { echo $DISTRIB_ID | egrep -iq "suse"; }
@@ -261,6 +264,12 @@ is_alpine_like() { echo $DISTRIB_ID | egrep -iq "alpine" || test -e /etc/alpine-
 is_redhat_like() { echo $DISTRIB_ID \
         | egrep -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)"; }
 set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
+is_darwin () {
+    if [ "x${FORCE_DARWIN-}" != "x" ];then return 0;fi
+    if [ "x${FORCE_NO_DARWIN-}" != "x" ];then return 1;fi
+    if ( uname | grep -iq darwin );then return 0;fi
+    return 1
+}
 detect_os() {
     # this function should be copiable in other scripts, dont use adjacent functions
     UNAME="${UNAME:-"$(uname | awk '{print tolower($1)}')"}"
@@ -272,7 +281,11 @@ detect_os() {
     DISTRIB_CODENAME=""
     DISTRIB_ID=""
     DISTRIB_RELEASE=""
-    if ( lsb_release -h >/dev/null 2>&1 ); then
+    if ( is_darwin ); then
+        DISTRIB_ID=Darwin
+        DISTRIB_CODENAME=Darwin
+        DISTRIB_RELEASE=$(uname -a|awk '{print $7}'|cut -d : -f1)
+    elif ( lsb_release -h >/dev/null 2>&1 ); then
         DISTRIB_ID=$(lsb_release -si)
         DISTRIB_CODENAME=$(lsb_release -sc)
         DISTRIB_RELEASE=$(lsb_release -sr)
@@ -510,7 +523,7 @@ pymod_ver() {
 get_setuptools() {
     local py=${1:-python}
     local setuptoolsreq="setuptools"
-    if ( is_python2 );then setuptoolsreq="setuptools<=45";fi
+    if ( is_python2 $py );then setuptoolsreq="setuptools<=45"; else setuptoolsreq="setuptools<50"; fi
     echo "$setuptoolsreq"
 }
 install_pip() {
@@ -608,15 +621,24 @@ make_virtualenv() {
     fi
     if     [ ! -e "${venv_path}/bin/activate" ] \
         || [ ! -e "${venv_path}/lib" ] \
-        || [ ! -e "${venv_path}/include" ] \
         ; then
         bs_log "Creating virtualenv in ${venv_path}"
         if [ ! -e "${PIP_CACHE}" ]; then
             mkdir -p "${PIP_CACHE}"
         fi
+    ust="--unzip-setuptools"
+    if ! ( $venv --help 2>&1 | grep -q -- $ust );then
+        ust=""
+    fi
+    sp="--system-site-packages"
+    if ( is_darwin ); then
+        sp=""
+    else
+        sp="--system-site-packages"
+    fi
     $venv \
         $( [ "x$py" != "x" ] && echo "--python=$py"; ) \
-        --system-site-packages --unzip-setuptools \
+        $sp $ust \
         "${venv_path}" &&\
     ( . "${venv_path}/bin/activate" &&\
       upgrade_pip "${venv_path}/bin/python" &&\
@@ -759,7 +781,56 @@ pacman_setup() {
     ensure_command which core/which
 }
 
-### redhat alike (dnf & yum)
+### redhat alike (microdnf, dnf & yum)
+### MICRODNF
+microdnf_repoquery() {
+    vvv microdnf repoquery "${@}"
+}
+
+is_microdnf_available() {
+    pkgs="$(microdnf repoquery --available)"
+    for i in $@;do
+        if ! ( echo "$pkgs" | egrep -iq "^${i}" ; ); then
+            return 1
+        fi
+    done
+}
+
+is_microdnf_installed() {
+    pkgs="$(microdnf repoquery --installed)"
+    for i in $@;do
+        if ! ( echo "$pkgs" | egrep -iq "^${i}" ; ); then
+            return 1
+        fi
+    done
+}
+
+microdnf_update() {
+    vvv microdnf repoquery $(i_y) --refresh --available --installed >/dev/null
+    ret=$?
+    if echo ${ret} | egrep -q '^(0|100)$'; then
+        return 0
+    fi
+    return 1
+}
+
+microdnf_upgrade() {
+    vvv microdnf update $(i_y) $@
+}
+
+microdnf_install() {
+    vvv microdnf install $(i_y) $@ &&\
+        if [ "x$NO_LATEST" = "x" ];then vvv microdnf_update $@;fi
+}
+
+microdnf_ensure_repoquery() {
+    return 0
+}
+
+microdnf_setup() {
+    rh_setup
+}
+
 ### DNF
 dnf_repoquery() {
     vvv dnf repoquery -q "${@}"
@@ -1047,7 +1118,9 @@ parse_cli() {
         INSTALLER=pacman
     elif ( is_redhat_like; );then
         INSTALLER=yum
-        if has_command dnf;then
+        if has_command microdnf;then
+            INSTALLER=microdnf
+        elif has_command dnf;then
             INSTALLER=dnf
         fi
     else
