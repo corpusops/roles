@@ -1,3 +1,6 @@
 ---
 - hosts: all
-  roles: [corpusops.roles/services_virt_docker]
+  tasks:
+  - include_role: {name: corpusops.roles/localsettings_docker}
+    tags: [install_dockerrtre]
+  - include_role: {name: corpusops.roles/services_virt_docker}

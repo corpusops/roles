@@ -16,11 +16,14 @@ corpusops_services_virt_docker_repo: null
 corpusops_services_virt_docker_services_default: [docker]
 corpusops_services_virt_docker_files: null
 corpusops_services_virt_docker_filescopy: null
+corpusops_services_virt_docker_daemonjon: /etc/docker/daemon.json
 corpusops_services_virt_docker_filescopy_default:
   - {template: "usr/local/bin/cops_docker_cleanup.sh",
      dest: "{{corpusops_services_virt_docker_cleanup_script}}",
      mode: "755"}
 corpusops_services_virt_docker_files_default:
+  - {path: "{{corpusops_services_virt_docker_daemonjon|copsf_dirname}}",
+     state: directory, mode: "755"}
   - {path: "/etc/cron.d",
      state: directory, mode: "755"}
   - {path: "/etc/systemd/system/docker.service.d",
@@ -41,17 +44,36 @@ corpusops_services_virt_docker_configs_redhat:
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
      mode: "644"}
 corpusops_services_virt_docker_userland_proxy: 'true'
+corpusops_services_virt_docker_experimental: 'true'
 corpusops_services_virt_docker_storage_driver: overlay2
+corpusops_services_virt_docker_logsmaxfile: "10"
+corpusops_services_virt_docker_logsmaxsize: 10m
 corpusops_services_virt_docker_settings_DOCKERD: "/usr/bin/dockerd"
-corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
-corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: "--log-opt max-file=10 --log-opt max-size=10m --experimental"
-corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: "--storage-driver={{corpusops_services_virt_docker_storage_driver}}"
-corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: "--userland-proxy={{corpusops_services_virt_docker_userland_proxy}}"
-corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
-corpusops_services_virt_docker_settings_INSECURE_REGISTRY: ""
+corpusops_services_virt_docker_settings_hosts: ["fd://"]
+corpusops_services_virt_docker_settings_containerd: "/run/containerd/containerd.sock"
+corpusops_services_virt_docker_daemonjon_values: "{{corpusops_services_virt_docker_daemonjon_values_default}}"
+corpusops_services_virt_docker_daemonjon_values_default: |-
+  {%- set ret = {
+    "containerd": corpusops_services_virt_docker_settings_containerd,
+    "host": corpusops_services_virt_docker_settings_hosts,
+    "experimental": corpusops_services_virt_docker_experimental|copsf_asbool,
+    "storage-driver": corpusops_services_virt_docker_storage_driver,
+    "userland-proxy": corpusops_services_virt_docker_userland_proxy|copsf_asbool,
+    "log-opts": {"max-file": corpusops_services_virt_docker_logsmaxfile,
+                 "max-size": corpusops_services_virt_docker_logsmaxsize},
+    } %}
+  {{- ret | to_json }}
 corpusops_services_virt_docker_settings_http_proxy: ""
 corpusops_services_virt_docker_settings_TMPDIR: ""
 corpusops_services_virt_docker_cleanup_script: /usr/local/bin/cops_docker_cleanup.sh
 # set periodicity to null to deactivate
 corpusops_services_virt_docker_cleanup_cron: |
   0 3 * * * root sh -c 'if [ -f {{corpusops_services_virt_docker_cleanup_script}} ] && [ ! -e /etc/docker_no_cleanup ];then {{corpusops_services_virt_docker_cleanup_script}} >/dev/null 2>&1;fi'
+corpusops_services_virt_docker_settings_DOCKERD_OPTS: ""
+# left over for retrocompat
+corpusops_services_virt_docker_settings_DOCKER_OPTS: ""
+corpusops_services_virt_docker_settings_DOCKER_LOG_OPTIONS: ""
+corpusops_services_virt_docker_settings_DOCKER_STORAGE_OPTIONS: ""
+corpusops_services_virt_docker_settings_DOCKER_NETWORK_OPTIONS: ""
+corpusops_services_virt_docker_settings_BLOCK_REGISTRY: ""
+corpusops_services_virt_docker_settings_INSECURE_REGISTRY: ""

@@ -12,6 +12,17 @@
     cops_configs_copys: "{{corpusops_services_virt_docker_vars.filescopy}}"
     cops_configs_templates: "{{corpusops_services_virt_docker_vars.configs}}"
   tags: [docker_configs]
+- json_patch:
+    src: "{{corpusops_services_virt_docker_daemonjon}}"
+    operations:
+    - op: edit
+      path: "/{{item.key}}"
+      value: "{{item.value}}"
+    pretty: yes
+    create: true
+  register: corpusops_services_virt_docker_daemonjon_status
+  loop: "{{corpusops_services_virt_docker_daemonjon_values|dict2items}}"
+  tags: [docker_configs]
 - set_fact:
     cacheable: false
     corpusops_services_virt_docker_filest: "{{cops_configs_files_results}}"
@@ -22,6 +33,7 @@
     cacheable: false
     corpusops_services_virt_docker_configs_changed: "{{(
       corpusops_localsettings_docker_configs_changed|default(false) or
+      corpusops_services_virt_docker_daemonjon_status is changed or
       corpusops_services_virt_docker_filest is changed or
       corpusops_services_virt_docker_filesct is changed or
       corpusops_services_virt_docker_configst is changed)}}"
