@@ -20,11 +20,11 @@
           {%- for p in [
               s.port, s.status_port,
               s.restore_port, s.restore_status_port,
-          ] %}
+          ] %}{% if i.strip() %}
           {%- set _ = data.rules.append(
             'iptables -w -t filter -A INPUT -s {1} -p tcp -m tcp --dport {0} -j ACCEPT'.format(p, i),
           ) %}
-          {%- endfor %}
+          {%-endif%}{%- endfor %}
           {%- endfor %}
           {%- if s.final_block %}
           {%- for p in [
