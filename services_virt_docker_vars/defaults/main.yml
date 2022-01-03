@@ -30,15 +30,11 @@ corpusops_services_virt_docker_files_default:
      state: directory, mode: "755"}
 corpusops_services_virt_docker_configs: null
 corpusops_services_virt_docker_configs_debian:
-  - {name: "/etc/default/docker" , mode: "644"}
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
      mode: "644"}
   - {name: "/etc/cron.d/cops-docker-cleanup" ,
      mode: "644"}
 corpusops_services_virt_docker_configs_redhat:
-  - {name: "/etc/default/docker",
-     dest: "/etc/sysconfig/docker",
-     mode: "644"}
   - {name: "/etc/cron.d/cops-docker-cleanup" ,
      mode: "644"}
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
