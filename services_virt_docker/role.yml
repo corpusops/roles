@@ -2,5 +2,5 @@
 - hosts: all
   tasks:
   - include_role: {name: corpusops.roles/localsettings_docker}
-    tags: [install_dockerrtre]
+    tags: [install_docker]
   - include_role: {name: corpusops.roles/services_virt_docker}
