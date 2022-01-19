@@ -270,22 +270,24 @@ def is_typ_(val, typs_):
         return True
 
 
-def go_pdb(val=None, *args,  **kwargs):
+def go_pdb(val=None, *args, **kwargs):
     from pdb_clone import pdb as pdbc
     pdbc.set_trace_remote()
     return val
 
 
-def copsf_bool(value, asbool=True):
-    if isinstance(string, six.string_types):
+def copsf_bool(value, asbool=True, pdb=False):
+    if pdb:
+        go_pdb(value, asbool=asbool)
+    if isinstance(value, six.string_types):
         if value and asbool:
             low = value.lower().strip()
             if low in [
-                'true', 'non', 'no', 'n', 'off', '0', '',
+                'false', 'non', 'no', 'n', 'off', '0', '',
             ]:
                 return False
             if low in [
-                'false', 'oui', 'yes', 'y', 'on', '1',
+                'true', 'oui', 'yes', 'y', 'on', '1',
             ]:
                 return True
     return bool(value)
