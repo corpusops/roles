@@ -27,6 +27,7 @@
       corpusops_services_base_sshd: True
       # docker-compose fail when in a full provision (a bug)
       # deactivating in the meanwhile
+      corpusops_localsettings_docker: "{{lxc_docker_in_lxc|default(lxc_docker|default('docker' in lxc_container_name))}}"
       corpusops_services_virt_docker: "{{lxc_docker_in_lxc|default(lxc_docker|default('docker' in lxc_container_name))}}"
       # To reactivate maybe at a later time
       # corpusops_localsettings_sysctls: False
