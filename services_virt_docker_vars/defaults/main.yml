@@ -39,7 +39,7 @@ corpusops_services_virt_docker_configs_redhat:
      mode: "644"}
   - {name: "/etc/systemd/system/docker.service.d/ansible.conf" ,
      mode: "644"}
-corpusops_services_virt_docker_userland_proxy: 'true'
+corpusops_services_virt_docker_userland_proxy: "{{corpusops_vars.is_container and 'true' or 'false'}}"
 corpusops_services_virt_docker_experimental: 'true'
 corpusops_services_virt_docker_storage_driver: overlay2
 corpusops_services_virt_docker_logsmaxfile: "10"
