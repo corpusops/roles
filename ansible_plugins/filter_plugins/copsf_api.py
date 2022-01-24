@@ -9,6 +9,7 @@ import time
 import collections
 import cProfile
 import os
+import sys
 import contextlib
 import hashlib
 import logging
@@ -23,6 +24,10 @@ import operator as py_operator
 from distutils.version import LooseVersion, StrictVersion
 
 from ansible import errors
+
+if sys.version_info[0] >= 3:
+    unicode = str
+    long = int
 
 
 try:
@@ -85,7 +90,7 @@ def splitstrip(a):
     return res
 
 
-def dictupdate(dest, upd, recursive_update=True):
+def dictupdate(dest, upd, recursive_update=True):  # noqa
     '''
     Recursive version of the default dict.update
     Merges upd recursively into dest
@@ -99,10 +104,10 @@ def dictupdate(dest, upd, recursive_update=True):
             msg = "{0}\ndest: {1}\nupd: {2}".format(msg, dest, upd)
         except Exception:
             try:
-                msg = "{0}\ndest: {1}".format(msg, dest, upd)
+                msg = "{0}\ndest: {1}".format(msg, dest)
             except Exception:
                 try:
-                    msg = "{0}\nupd: {2}".format(msg, dest, upd)
+                    msg = "{0}\nupd: {1}".format(msg, upd)
                 except Exception:
                     pass
         raise TypeError(msg)
@@ -134,12 +139,12 @@ def dictupdate(dest, upd, recursive_update=True):
     return dest
 
 @contextlib.contextmanager  # noqa
-def wait_lock(
+def wait_lock(  # noqa
     lockp='lock',
     wait_timeout=60,
     logger=None,
     error_msg='Another instance is locking {lock}'
-):
+):  # noqa
     old_runt = runt = now = time.time()
     end = now + wait_timeout
     if logger is None:
@@ -305,17 +310,7 @@ def looseversion(v):
     return LooseVersion(v)
 
 
-def version_compare(a, b, operator):
-    if operator not in ('==', '>=', '<=', '>', '<'):
-        raise ValueError('operator invalid')
-    oa = LooseVersion(a)
-    ob = LooseVersion(b)
-    code = 'oa {0} ob'.format(operator)
-    ret = eval(code)
-    return ret
-
-
-def unresolved(data, jinja=None):
+def unresolved(data, jinja=None):  # noqa
     iddata = id(data)
     if jinja is None:
         jinja = True
@@ -338,7 +333,7 @@ def unresolved(data, jinja=None):
             if ret and jinja and ('{{' in data) and ('}}' in data):
                 jbraces_in = len(single_brance_in_re.findall(data))
                 jbraces_out = len(single_brance_out_re.findall(data))
-                ret = ((jbraces_in+jbraces_out) % 2 != 0)
+                ret = ((jbraces_in + jbraces_out) % 2 != 0)
                 # if we detected jinja markers {{foo}}
                 if not ret:
                     # we also check that we do not have still regular
@@ -363,12 +358,11 @@ def unresolved(data, jinja=None):
     return ret
 
 
-def _str_resolve(new,
+def _str_resolve(new,  # noqa
                  original_dict=None,
                  jinja=None,
                  this_call=0,
-                 topdb=False):
-
+                 topdb=False):  # noqa
     '''
     low level and optimized call to format_resolve
     '''
@@ -383,8 +377,8 @@ def _str_resolve(new,
             reprk = k
             if not isinstance(reprk, six.string_types):
                 reprk = '{0}'.format(k)
-            jsubst = '{{'+reprk+'}}'
-            subst = '{'+reprk+'}'
+            jsubst = '{{' + reprk + '}}'
+            subst = '{' + reprk + '}'
             if jsubst in new:
                 continue
             elif subst in new:
@@ -440,13 +434,13 @@ def str_resolve(new, original_dict=None, this_call=0, topdb=False, jinja=None):
         jinja=jinja)[0]
 
 
-def _format_resolve(value,
+def _format_resolve(value,  # noqa
                     original_dict=None,
                     this_call=0,
                     topdb=False,
                     retry=None,
                     jinja=True,
-                    **kwargs):
+                    **kwargs):  # noqa
     '''
     low level and optimized call to format_resolve
     '''
@@ -510,13 +504,13 @@ def _format_resolve(value,
     return new, changed, unresolved_state
 
 
-def format_resolve(value,
+def format_resolve(value,  # noqa
                    original_dict=None,
                    jinja=None,
                    this_call=0,
                    topdb=False,
                    additional_namespaces=None,
-                   **kwargs):
+                   **kwargs):  # noqa
     '''
     Resolve a dict of formatted strings, mappings & list to a valued dict
     Please also read the associated test::
@@ -563,7 +557,7 @@ def format_resolve(value,
                 if not ret[2]:
                     break
     except Exception as exc:
-        trace = traceback.format_exc()
+        trace = traceback.format_exc()  # noqa
         raise exc
     return ret[0]
 
@@ -629,7 +623,7 @@ def get_name_prefix(name_prefix,
     return name_prefix
 
 
-def copsf_reset_vars_from_registry(ansible_vars,
+def copsf_reset_vars_from_registry(ansible_vars,  # noqa
                                    prefix,
                                    name_prefix,
                                    registryvars_suffix=REGISTRYVARS_SUFFIX,
@@ -643,7 +637,7 @@ def copsf_reset_vars_from_registry(ansible_vars,
     old_vars = ansible_vars.pop(name_prefix, {})
     if not isinstance(old_vars, dict):
         old_vars = {}
-    sprefixes = (prefix, prefix+prefix)
+    sprefixes = (prefix, prefix + prefix)
     prefixes = [name_prefix, prefix[:-1]]
     overrides_prefix = '_{0}'.format(prefixes[1])
     overrides = ansible_vars.get(overrides_prefix, {})
@@ -723,7 +717,7 @@ def register_default_val(ansible_vars, variable, prefix,
 def inject_default_registry(ansible_vars,
                             prefix,
                             registry_suffix=REGISTRY_DEFAULT_SUFFIX):
-    sdvars = '__'+prefix+registry_suffix
+    sdvars = '__' + prefix + registry_suffix
     default_vars = ansible_vars.setdefault(sdvars, {})
     default_vars.setdefault('define', {})
     default_vars.setdefault('undefine', {})
@@ -755,7 +749,7 @@ def copsf_registry_to_vars(namespaced,
         svar = prefix + k
         scope[svar] = namespaced[k]
     if not no_defaults:
-        sdvars = '__'+prefix+registry_suffix
+        sdvars = '__' + prefix + registry_suffix
         default_vars = inject_default_registry(ansible_vars, prefix,
                                                registry_suffix=registry_suffix)
         scope[sdvars] = default_vars
@@ -872,7 +866,7 @@ def copsf_subos_append(ansible_vars,
     return namespaced
 
 
-def fill_sub_namespaces(origin,
+def fill_sub_namespaces(origin,  # noqa
                         element=None,
                         sub_namespaced=None,
                         sub_registries_key=SUBREGISTRIES_KEYS,
@@ -890,7 +884,7 @@ def fill_sub_namespaces(origin,
         ).get(cprefix[:-1], {'value': None})['value']
         if element is None and ansible_vars:
             element = ansible_vars.get(
-                oprefix+sub_registries_key, {})
+                oprefix + sub_registries_key, {})
 
     if isinstance(element, list):
         nsub_namespaced = {}
@@ -910,14 +904,14 @@ def fill_sub_namespaces(origin,
 
     origin[sub_registries_key] = sub_namespaced
     if ansible_vars:
-        ansible_vars[oprefix+sub_registries_key] = sub_namespaced
+        ansible_vars[oprefix + sub_registries_key] = sub_namespaced
 
     for item, ssub_namespaced in six.iteritems(todo):
-        k = cprefix+item
+        k = cprefix + item
         val = sub_namespaced.setdefault(k, {})
         val['l'] = level
         val['cops_is_complex'] = True
-        val['p'] = oprefix+cprefix + item + '_'
+        val['p'] = oprefix + cprefix + item + '_'
         val['k'] = k
         val.setdefault('children', [])
         val.setdefault('parents', [])
@@ -929,9 +923,9 @@ def fill_sub_namespaces(origin,
             fill_sub_namespaces(origin,
                                 element=ssub_namespaced,
                                 sub_namespaced=sub_namespaced,
-                                cprefix=cprefix+item+'_',
+                                cprefix=cprefix + item + '_',
                                 oprefix=oprefix,
-                                level=level+1,
+                                level=level + 1,
                                 parent=val,
                                 ansible_vars=ansible_vars)
     if not level:
@@ -939,7 +933,7 @@ def fill_sub_namespaces(origin,
     return sub_namespaced
 
 
-def copsf_to_namespace(ansible_vars,
+def copsf_to_namespace(ansible_vars,  # noqa
                        prefix,
                        do_load_registry_pre=None,
                        do_load_overrides=None,
@@ -1017,7 +1011,7 @@ def copsf_to_namespace(ansible_vars,
                              (var in prefixes) or
                              (var.endswith(
                                  (registry_suffix))) or
-                             (var.startswith(prefix+prefix)) or
+                             (var.startswith(prefix + prefix)) or
                              (not var.startswith(prefix)))]
     for svar in overrides:
         ansible_vars = register_default_val(
@@ -1206,7 +1200,7 @@ def copsf_registry(ansible_vars,
     return namespaced, ansible_vars
 
 
-def copsf_scoped_registry(*args,  **kw):
+def copsf_scoped_registry(*args, **kw):
     kw['global_scope'] = False
     return copsf_registry(*args, **kw)
 
@@ -1247,8 +1241,8 @@ def update_registry(registry, ansible_vars, prefix, *a, **kw):
         registry, ansible_vars, prefix, *a, **kw)
 
 
-def copsf_refilter(items, regex, flags=None,
-                   search=True, filtermode=True, whitelist=None):
+def copsf_refilter(items, regex, flags=None,  # noqa
+                   search=True, filtermode=True, whitelist=None):  # noqa
     flat = False
     reflags = None
     ret = []
@@ -1291,7 +1285,6 @@ def copsf_small_name(res):
                 '-', '_').replace(
                     '*', 'star')
     return res
-
 
 
 def version_compare(value, version, operator='eq', strict=False):
