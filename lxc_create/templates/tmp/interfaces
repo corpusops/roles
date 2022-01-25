@@ -17,12 +17,16 @@ iface {{ifc}} inet dhcp
 iface {{ifc}} inet static
   address {{ip}}
   netmask {{netm}}
-  {% if idata.get("gateway4", "") %}
+  {% set gw = idata.get("gateway", "")%}
+  {% if not gw and idata.get('routes', [])|length>1%}
+  {% set gw = idata.routes[1]['via'] %}
+  {% endif %}
+  {% if gw %}
    post-up   sh -c 'ip route del default || /bin/true'
-   post-up   ip route add             {{idata.gateway4}} dev {{ifc}}
-   post-up   ip route add default via {{idata.gateway4}} dev {{ifc}}
-   post-down ip route del             {{idata.gateway4}}
-   post-down ip route del default via {{idata.gateway4}}
+   post-up   ip route add             {{gw}} dev {{ifc}}
+   post-up   ip route add default via {{gw}} dev {{ifc}}
+   post-down ip route del             {{gw}}
+   post-down ip route del default via {{gw}}
   {%endif%}
   {% if "{0}".format(net)=="32" %}broadcast {{ip}}{%endif%}
   {% if data.get('ns_search', [])
