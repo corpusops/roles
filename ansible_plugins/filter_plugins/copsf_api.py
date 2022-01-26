@@ -1287,6 +1287,12 @@ def copsf_small_name(res):
     return res
 
 
+def copsf_to_ansible_var(res):
+    if isinstance(res, six.string_types):
+        return re.sub(r'[-.*]', '', res)
+    return res
+
+
 def version_compare(value, version, operator='eq', strict=False):
     ''' Perform a version comparison on a value '''
     op_map = {
@@ -1343,6 +1349,7 @@ __funcs__ = {
     'copsf_format_resolve': copsf_format_resolve,
     'copsf_splitstrip': splitstrip,
     'copsf_looseversion': looseversion,
+    'copsf_to_ansible_var': copsf_to_ansible_var,
     'copsf_version_compare': version_compare,
     'copsf_dictupdate': dictupdate,
     'copsf_deepcopy': cops_deepcopy,
