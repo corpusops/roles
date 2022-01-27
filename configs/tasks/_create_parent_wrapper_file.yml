@@ -8,6 +8,7 @@
       mode: "{{cops_aconfig_fl_item.dir_mode|default(omit)}}"
       owner: "{{cops_aconfig_fl_item.dir_owner|default(cops_aconfig_fl_item.owner|default(omit))}}"
       group: "{{cops_aconfig_fl_item.dir_group|default(cops_aconfig_fl_item.group|default(omit))}}"
+      force: "{{cops_aconfig_fl_item.force|default(cops_aconfig_fl_item.force|default(omit))}}"
   register: floopvar
 - when: ["not cops_configs_is_async_copys"]
   name: create parent wrapper [file]
