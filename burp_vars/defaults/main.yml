@@ -1,0 +1,19 @@
+cops_burp_name: corpusops
+cops_burp_prefix: "{{corpusops_vars.config_dir}}/burp-{{cops_burp_name}}"
+cops_burp_directory: "/data/burp2"
+cops_burp_sslconf: "{{cops_burp_prefix}}/openssl.cnf"
+cops_burp_sslconf_force_reinstall: ""
+#
+cops_burp_port: 4971
+cops_burp_status_port: "{{cops_burp_port|int+1}}"
+cops_burp_restore_port: "{{cops_burp_port+2}}"
+cops_burp_restore_status_port: "{{cops_burp_port|int+3}}"
+#
+cops_burp_client_port: "{{cops_burp_port|int}}"
+cops_burp_client_status_port: "{{cops_burp_status_port|int}}"
+cops_burp_restore_client_port: "{{cops_burp_restore_port|int}}"
+cops_burp_restore_client_status_port: '{{cops_burp_restore_status_port|int}}'
+#
+cops_burp_services: ["burp-server-{{cops_burp_name}}",
+                     "burp-restore-{{cops_burp_name}}"]
+cops_burp_service_activated: True

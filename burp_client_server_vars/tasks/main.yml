@@ -1,0 +1,10 @@
+---
+- tags: [cops_burpclientserver_vars]
+  name: registry setter
+  vars: {cops_vars_registry_target: cops_burpclientserver}
+  include_jinja_vars:
+    content: |-
+      {{- {'cops_burpclientserver_current_vars': lookup(
+            'cops_registry', cops_vars_registry_target+"_", global_scope=False)
+          }|to_json }}
+  no_log: "{{not (cops_vars_debug|default(false))}}"

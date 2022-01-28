@@ -1,0 +1,8 @@
+---
+- name: "Registering backup server conf for {{item}}"
+  block:
+  - include_role: {name: corpusops.roles/burp_client_server, public: false}
+  vars:
+    cops_burpclientserver_cname: "{{item}}"
+    cops_burpclientserver_password: "{{lookup('vars', 'cops_burpclient_password_'+item)}}"
+    cops_burpclientserver_service: false

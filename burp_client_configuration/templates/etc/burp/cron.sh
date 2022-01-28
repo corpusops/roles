@@ -2,6 +2,10 @@
 # {% set data = cops_burpclient_vars %}
 # small wrapper to switch over the rigth python
 W=$(cd "$(dirname $0)" && pwd)
+SSLCONF=$W/openssl.cnf
+if [ -e "$SSLCONF" ];then
+    export OPENSSL_CONF=$SSLCONF
+fi
 if [ -f /etc/profile ];then
     . /etc/profile
 fi

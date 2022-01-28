@@ -1,61 +1,25 @@
 ---
+- import_playbook: ../configure_server/vars.yml
 - hosts: localhost
   connection: local
   gather_facts: false
   tasks:
     - set_fact:
-        cacheable: false
-        burp_name: "corpusops"
-    - set_fact:
-        cacheable: false
         aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
             if not c|copsf_isstr %}{{c}}{%
             elif c in groups %}{{groups[c]}}{%
             else%}{{c}}{%endif%}"
-        aburp_server: "{{burp_server|default('burp_server')}}"
-        aburp_ca_path: "{{burp_ca_path|default('/etc/burp-{0}/CA'.format(burp_name))}}"
-        aburp_certs_dest: "{{burp_ca_path|default('/etc/burp-'+burp_name)}}"
-        aburp_debug: "{{burp_debug|default(True)}}"
 - hosts: "{{['localhost', hostvars.localhost.aburp_server]+hostvars.localhost.aburp_clients}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
-- hosts: "{{hostvars.localhost.aburp_server}}"
-  gather_facts: false
-  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
-  tasks:
-  - block:
-    - include_role: {name: corpusops.roles/burp_server_configuration, public: false}
-    tags: [burp_server, configure_server, burp_configure_server]
-  - block:
-    - include_tasks: client_fw.yml
-      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
-    - cops_service: {state: reloaded, service: ms_iptables}
-    tags: [burp_server, fw, burp_fw]
-  - block:
-    - include_jinja_vars:
-        content:
-          _cops_burpsign: |-
-            {% set res = {'cnames': []} %}
-            {% for c in hostvars.localhost.aburp_clients %}
-            {% set cdata = hostvars[c] %}
-            {% set cname = cdata.get('burp_cname', '') or cdata['inventory_hostname'] %}
-            {% if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
-            {% endfor %}
-            {{ res | to_json }}
-    - include_role: {name: corpusops.roles/burp_sign, public: false}
-    tags: [burp_server, sign, burp_sign]
-  - tags: [burp_server, register_to_server, burp_register_to_server]
-    block:
-    - include_tasks: password.yml
-    - include_tasks: backup_to_server.yml
-      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
+- import_playbook: ../configure_server/configure.yml
 - hosts: "{{hostvars.localhost.aburp_clients}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
   tasks:
   - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]
     block:
-    - include_tasks: transfert_certs.yml
+    - include_tasks: ../register/transfert_certs.yml
   - tags: [burp_clients, configure_clients, burp_configure_clients]
     block:
-    - include_tasks: configure_client.yml
+    - include_tasks: ../register/configure_client.yml

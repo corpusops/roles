@@ -1,7 +1,8 @@
+---
 - args: {executable: /bin/bash}
   shell: |-
     set -ex
-    c="{{cops_burpclient_vars.sslconf}}"
+    c="{{cops_burp_sslconf}}"
     if [ -e "$c" ];then
       if ! ( egrep -q "openssl_conf\s+=\s+default_conf" "$c" );then
         echo topatch1
@@ -10,9 +11,10 @@
         echo topatch2
       fi
     fi
+  changed_when: false
   register: burpclientsslpatched
 - blockinfile:
-    dest: "{{cops_burpclient_vars.sslconf}}"
+    dest: "{{cops_burp_sslconf}}"
     marker: "# {mark} burp firstsslline"
     insertbefore: BOF
     unsafe_writes: True
@@ -20,7 +22,7 @@
       openssl_conf = default_conf
   when: ["'topatch1' in burpclientsslpatched.stdout"]
 - blockinfile:
-    dest: "{{cops_burpclient_vars.sslconf}}"
+    dest: "{{cops_burp_sslconf}}"
     marker: "# {mark} burp EOF"
     insertafter: EOF
     unsafe_writes: True
@@ -33,4 +35,3 @@
       MinProtocol = TLSv1.2
       CipherString = DEFAULT:@SECLEVEL=1
   when: ["'topatch2' in burpclientsslpatched.stdout"]
-- shell: burp -c "{{cops_burpclient_vars.configfile_client}}" -a l

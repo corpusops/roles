@@ -8,7 +8,7 @@ cops_burpclient_cops_lowered: []
 cops_burpclient_cops_sub_namespaces: {conf: {}}
 cops_burpclient_activated: True
 cops_burpclient_services: []
-cops_burpclient_name: "corpusops"
+cops_burpclient_name: "{{cops_burp_name}}"
 cops_burpclient_files_default:
 - {path: "{{cops_burpclient_prefix}}",
    owner: root, group: root, state: directory, mode: "0755"}
@@ -20,7 +20,15 @@ cops_burpclient_files_default:
    owner: root, group: root, state: directory, mode: "0755"}
 - {path: "{{corpusops_vars.config_dir}}/default",
    owner: root, group: root, state: directory, mode: "0755"}
-cops_burpclient_prefix: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}"
+- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp-restore-{{cops_burpclient_name}}.sh",
+   force: true, owner: root, group: root, state: link}
+- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp-restore.sh",
+   force: true, owner: root, group: root, state: link}
+- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp-{{cops_burpclient_name}}.sh",
+   force: true, owner: root, group: root, state: link}
+- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp.sh",
+   force: true, owner: root, group: root, state: link}
+cops_burpclient_prefix: "{{cops_burp_prefix}}"
 cops_burpclient_configfile_client:  "{{cops_burpclient_prefix}}/burp-client.conf"
 cops_burpclient_configfile_restore: "{{cops_burpclient_prefix}}/burp-client-restore.conf"
 cops_burpclient_filescopy: null
@@ -34,12 +42,14 @@ cops_burpclient_configs_default:
 - {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cron.py"  , mode: "0750", template: "../templates/etc/burp/cron.py"}
 - {name: "{{cops_burpclient_configfile_restore}}"            , mode: "0640", template: "../templates/etc/burp/burp-client-restore.conf"}
 - {name: "{{cops_burpclient_configfile_client}}"             , mode: "0640", template: "../templates/etc/burp/burp-client.conf"}
-cops_burpclient_port: '4971'
+- {name: "{{cops_burpclient_prefix}}/burp.sh"                , mode: "0755", template: "../templates/etc/burp/burp.sh"}
+- {name: "{{cops_burpclient_prefix}}/burp-restore.sh"        , mode: "0755", template: "../templates/etc/burp/burp-restore.sh"}
+cops_burpclient_port: "{{cops_burp_port|int}}"
 cops_burpclient_mailto: ""
 cops_burpclient_status_port: "{{cops_burpclient_port|int+1}}"
 cops_burpclient_restore_port: "{{cops_burpclient_port|int+2}}"
 cops_burpclient_restore_status_port: "{{cops_burpclient_restore_port|int+1}}"
-cops_burpclient_cname: "{{ansible_fqdn}}"
+cops_burpclient_cname: "{{inventory_hostname}}"
 cops_burpclient_server: null
 cops_burpclient_password: null
 cops_burpclient_protocol: "1"
@@ -69,6 +79,7 @@ cops_burpclient_common_lines: |-
   read_blockdev = 0
   read_all_blockdevs = 0
 cops_burpclient_crons: |-
+  OPENSSL_CONF={{cops_burp_sslconf}}
   * *   * * *  root {{cops_burpclient_prefix}}/cron.sh    1>/dev/null 2>&1
   0 */3 * * *  root {{cops_burpclient_prefix}}/cleanup-burp-processes.sh
-cops_burpclient_sslconf: /etc/ssl/openssl.cnf
+cops_burpclient_sslconf: "{{cops_burp_sslconf}}"

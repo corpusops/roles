@@ -1,7 +1,7 @@
 ---
 - include_role: {name: corpusops.roles/localsettings_burp, public: false}
-  when: "burpclient_install|default(false) or burp_install|default(false)"
-  tags: [burpclient_install, burp_install]
+  tags: [burp_install, burp_client_install]
+  when: [burp_client_install|default(burp_install)|default(true)]
 - include_role: {name: corpusops.roles/configs, public: false}
   vars:
     cops_configs_files: "{{cops_burpclient_vars.files}}"
@@ -22,3 +22,5 @@
       burpclient_filest is changed or
       burpclient_filesct is changed or
       burpclient_configst is changed)}}"
+- include_role: {name: burp_openssl, public: false}
+  tags: [burpclient_openssl]

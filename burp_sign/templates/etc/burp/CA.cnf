@@ -1,4 +1,5 @@
 # {{ansible_managed}}
+openssl_conf = default_conf
 # simple config for burp_ca
 
 RANDFILE                = /dev/urandom
@@ -32,3 +33,11 @@ basicConstraints        = CA:FALSE
 
 [ policy_anything ]
 commonName              = supplied
+
+[ default_conf ]
+ssl_conf = ssl_sect
+[ssl_sect]
+system_default = ssl_default_sect
+[ssl_default_sect]
+MinProtocol = TLSv1.2
+CipherString = DEFAULT:@SECLEVEL=1

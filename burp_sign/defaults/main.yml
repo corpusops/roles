@@ -6,7 +6,7 @@ cops_burpsign_cops_sub_os_append: {}
 cops_burpsign_cops_knobs: ["files", 'filescopy', 'configs']
 cops_burpsign_cops_lowered: []
 cops_burpsign_cops_sub_namespaces: {conf: {}}
-cops_burpsign_name: "corpusops"
+cops_burpsign_name: "{{cops_burp_name}}"
 cops_burpsign_files: null
 cops_burpsign_files_default:
   - {path: "{{cops_burpsign_ca}}",
@@ -15,7 +15,7 @@ cops_burpsign_files_default:
      owner: root, group: root, state: directory, mode: "0755"}
 cops_burpsign_filescopy: null
 cops_burpsign_filescopy_default: []
-cops_burpsign_prefix: "{{corpusops_vars.config_dir}}/burp-{{cops_burpsign_name}}"
+cops_burpsign_prefix: "{{cops_burp_prefix}}"
 cops_burpsign_configs: null
 cops_burpsign_configs_default:
 - {name: "{{cops_burpsign_prefix}}/casign.sh",
