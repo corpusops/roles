@@ -5,16 +5,12 @@
   tags: [cops_burp]
 - include_tasks: configuration.yml
   when: 'cops_burp_can_run.msg == True'
-  tags: [cops_burp,
-         burp_configuration,
-         cops_burp_configuration]
+  tags: [cops_burp, burp_configuration, cops_burp_configuration]
+- include_role: {name: burp_openssl}
+  tags: [cops_burp, burp_ssl, cops_burp_ssl]
 - include_tasks: services.yml
   when: 'cops_burp_can_run.msg == True'
-  tags: [cops_burp,
-         burp_services,
-         cops_burp_services]
+  tags: [cops_burp, burp_services, cops_burp_services]
 - include_tasks: ms_iptables.yml
   when: 'cops_burp_can_run.msg == True'
-  tags: [cops_burp,
-         burp_ms_iptables,
-         cops_burp_ms_iptables]
+  tags: [cops_burp, burp_ms_iptables, cops_burp_ms_iptables]

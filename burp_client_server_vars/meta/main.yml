@@ -2,3 +2,4 @@ allow_duplicates: yes
 dependencies:
 - role: corpusops.roles/vars
 - role: corpusops.roles/burp_plugins
+- role: corpusops.roles/burp_vars

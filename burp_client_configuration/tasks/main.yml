@@ -19,5 +19,8 @@
     msg: "{{cops_burpclient_configfile_client}}{{cops_burpclient_vars.configfile_client}}"
 - pause: {}
   when: cops_burp_debug|default(false) or cops_burp_client_debug|default(false)
-- include_tasks: run.yml
+- block:
+  - include_tasks: run.yml
   tags: [cops_burpclient_server]
+  environment:
+    OPENSSL_CONF: "{{cops_burp_sslconf}}"

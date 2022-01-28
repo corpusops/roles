@@ -5,13 +5,13 @@ from __future__ import division
 from __future__ import print_function
 
 
-def copsfburp_get_cname(avars, hvars, *args,  **kwargs):
+def copsfburp_get_cname(avars, hvars, *args, **kwargs):
     return hvars.get('burp_cname', '') or hvars['inventory_hostname']
 
 
 def copsfburp_get_cname_and_profile(avars, hvars, profile_key=None,
-                                    *args,  **kwargs):
-    cname = copsfburp_get_cname(avars, hvars, *args,  **kwargs)
+                                    *args, **kwargs):
+    cname = copsfburp_get_cname(avars, hvars, *args, **kwargs)
     if profile_key is None:
         profile_key = 'burp_client_profile'
     if profile_key in ['burp_clientside_profile']:
@@ -36,16 +36,16 @@ def copsfburp_get_cname_and_profile(avars, hvars, profile_key=None,
     return cname, profile
 
 
-def copsfburp_finish_settings(data, prefixmode, hvars, *args,  **kwargs):
+def copsfburp_finish_settings(data, prefixmode, hvars, *args, **kwargs):
     prefixes = {
         'client': 'burp_client_conf_',
         'server': 'burp_client_',
     }
     for k in ['restore_clients', 'custom_lines']:
-        val = hvars.get(prefixes[prefixmode]+k, None)
+        val = hvars.get(prefixes[prefixmode] + k, None)
         if val is not None:
-            data.update({k: val})
-    data.update(hvars.get(prefixes['client']+'extras', {}))
+            data.update({k: val})              
+    data.update(hvars.get(prefixes['client'] + 'extras', {}))
     return data
 
 

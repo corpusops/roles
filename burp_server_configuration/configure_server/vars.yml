@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - set_fact:
+        cacheable: false
+        aburp_debug: "{{burp_debug|default(True)}}"
+        burp_name: "{{burp_name|default('corpusops')}}"
+        burp_reconf_limit: "{{(burp_reconf_limit|default(0) or 0)|int}}"
+        aburp_server: "{{burp_server|default('burp_server')}}"
+    - set_fact:
+        cacheable: false
+        aburp_ca_path: "{{burp_ca_path|default('/etc/burp-{0}/CA'.format(burp_name))}}"
+        aburp_certs_dest: "{{burp_ca_path|default('/etc/burp-'+burp_name)}}"
+        aburp_dest: "{{burp_ca_path|default('/etc/burp-'+burp_name)}}"
+        aburp_confdir: "{{burp_clientconfdir|default('/etc/burp-'+burp_name+'/clientconfdir')}}"

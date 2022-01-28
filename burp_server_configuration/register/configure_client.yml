@@ -1,28 +1,20 @@
 ---
-- include_tasks: password.yml
+- include_tasks: ../configure_server/password.yml
 - name: load burp_client_configuration_vars defaults
   include_role: {name: corpusops.roles/burp_client_configuration_vars, public: true}
 - name: "Getting client - backup vars for {{inventory_hostname}}"
   include_jinja_vars:
     content:
       _cops_burpclient: |-
-        {%- set client = inventory_hostname %}
-        {%- set hvars = hostvars[client] %}
-        {%- set cname, profile = lookup(
-            'cops_burp', 'get_cname_and_profile',
-            profile_key='burp_clientside_profile', hvars=hvars) %}
-        {%- set server = hvars.get('burp_client_server',
+        {%- set server = hostvars.get(inventory_hostname, {}).get(
+                'burp_client_server',
                 hostvars[hostvars.localhost.aburp_server]['ansible_fqdn']) %}
-        {%- set data = {'cname': cname,
-                        'server': server,
-                        'ssl_peer_cn': server,
-                        'password': vars['cops_burpclient_password_'+client],
-                        'profile': profile,
-                        'use_profile': hvars.get('burp_client_use_profile',
-                                                 profile is not none)} %}
-        {%- set data = lookup('cops_burp', 'finish_settings', prefixmode='server', hvars=hvars, data=data) %}
+        {%- set data = {
+          'cname': inventory_hostname,
+          'server': server,
+          'ssl_peer_cn': server,
+          'password': lookup('vars', 'cops_burpclient_password_'+inventory_hostname)
+        } %}
         {{- data|to_json }}
 - name: "Registering backup server conf for {{inventory_hostname}}"
-  include_role: {name: corpusops.roles/burp_client_configuration, public: true}
-# - name: "Reset client - backup vars for {{inventory_hostname}}"
-#   set_fact: {_cops_burpclient: {}}
+  include_role: {name: corpusops.roles/burp_client_configuration, public: false}

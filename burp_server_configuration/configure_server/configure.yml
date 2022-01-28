@@ -1,0 +1,48 @@
+---
+- hosts: "{{hostvars.localhost.aburp_server}}"
+  gather_facts: false
+  roles: 
+  - "corpusops.roles/vars"
+  - "corpusops.roles/burp_plugins"
+  - "corpusops.roles/burp_vars"
+  tasks:
+  - block:
+    - include_role: {name: corpusops.roles/burp_server_configuration, public: false}
+    tags: [burp_server, configure_server, burp_configure_server]
+  - block:
+    - include_tasks: ../configure_server/client_fw.yml
+      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
+    - cops_service: {state: reloaded, service: ms_iptables}
+    tags: [burp_server, fw, burp_fw]
+  - block:
+    - include_jinja_vars:
+        content:
+          _cops_burpsign: |-
+            {% set res = {'cnames': []} %}
+            {% for c in hostvars.localhost.aburp_clients %}
+            {%  set cdata = hostvars[c] %}
+            {%  set cname = cdata.get('burp_cname', '') or cdata['inventory_hostname'] %}
+            {%  if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
+            {% endfor %}
+            {{ res | to_json }}
+    - include_role: {name: corpusops.roles/burp_sign, public: false}
+    tags: [burp_server, sign, burp_sign]
+  - tags: [burp_server, register_to_server, burp_register_to_server]
+    block:
+    - include_tasks: ../configure_server/password.yml
+    - include_tasks: ../configure_server/backup_to_server.yml
+      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
+    - name: Reload service
+      cops_service:
+        state: "{{cops_burp_service_activated|ternary('reloaded', 'stopped')}}"
+        enabled: "{{cops_burp_service_activated|ternary(True, False)}}"
+        name: "{{item}}"
+        daemon_reload: true
+      loop: "{{cops_burp_services}}"
+      tags: cops_burpclientserver_service_reload
+      when: corpusops_vars.has_services_manager
+    - when: force_burp_backup|default(false)
+      file:
+        state: touch
+        path: "{{cops_burp_directory}}/{{item}}/backup"
+      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"

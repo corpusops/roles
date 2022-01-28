@@ -1,21 +1,22 @@
 ---
-- include_role: {name: corpusops.roles/configs, public: false}
-  vars:
-    cops_configs_files: "{{cops_burpclientserver_vars.files}}"
-    cops_configs_copys: "{{cops_burpclientserver_vars.filescopy}}"
-    cops_configs_templates: "{{cops_burpclientserver_vars.configs}}"
-  register: burp_clientserver_configst1
-  tags: [burp_configs]
-- set_fact:
-    cacheable: false
-    burp_clientserver_filest: "{{cops_configs_files_results}}"
-    burp_clientserver_filesct: "{{cops_configs_copys_results}}"
-    burp_clientserver_configst: "{{cops_configs_templates_results}}"
-  register: burp_clientserver_configst2
-  tags: [burp_configs]
+- file:
+    state: directory
+    path: "{{item}}"
+    mode: "0755"
+  loop:
+  - "{{cops_burpclientserver_directory}}"
+  - "{{cops_burpclientserver_prefix}}/clientconfdir"
+  register: burp_clientserver_filest
+- name: "sync {{cops_burpclientserver_cname}} config"
+  template:
+    dest: "{{cops_burpclientserver_configfile_server_client}}"
+    src: "../templates/etc/burp/clientconfdir/client.conf"
+    force: true
+    mode: "0640"
+    trim_blocks: true
+  register: burp_clientserver_configst
 - set_fact:
     cacheable: false
     burp_clientserver_configs_changed: "{{(
       burp_clientserver_filest is changed or
-      burp_clientserver_filesct is changed or
       burp_clientserver_configst is changed)}}"

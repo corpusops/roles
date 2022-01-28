@@ -1,0 +1,42 @@
+- block:
+  - shell: openssl version
+    failed_when: false
+    changed_when: false
+    register: openssl_version
+  - shell: |-
+      set -e
+      {% set v = (openssl_version.stdout|default('')).split()%}
+      {% if v and (v[1]|version_compare('1.1.0g', '>=')) %}
+      >&2 echo cversion
+      {% endif %}
+      if [ ! -e "{{cops_burp_sslconf}}" ];then >&2 echo cnotexists;fi
+    failed_when: false
+    changed_when: false
+    register: burpssltest
+  - name: copy original ssl conf if not existing (or force)
+    shell: |
+      set -e
+      dssl="{{cops_burp_sslconf}}"
+      ddssl=$(dirname "$dssl")
+      OPENSSL_CONF=$(readlink -f \
+        $(printf %s/openssl.cnf $(openssl version -d\
+          |awk '{print $2}'|sed -e 's/"//g')))
+      if [ ! -e "$OPENSSL_CONF" ];then
+        OPENSSL_CONF=/etc/ssl/openssl.cnf
+      fi
+      if [ ! -e "$OPENSSL_CONF" ];then
+        exit 1
+      else
+        if [ ! -e $ddssl ];then mkdir -p "$ddssl";fi
+        cp -fv "$OPENSSL_CONF" "$dssl"
+        echo "ansible_status_copied_$dssl">&2
+        echo OPENSSL_CONF=$dssl>&2
+      fi
+    register: burpcpssl
+    when: ('cnotexists' in burpssltest.stderr_lines) or
+          (cops_burp_sslconf_force_reinstall|copsf_asbool)
+    changed_when: "'ansible_status_copied' in burpcpssl.stderr"
+  - include_tasks: opensslpatch.yml
+    when: "'cversion' in burpssltest.stderr_lines"
+  environment: {OPENSSL_CONF: "{{cops_burp_sslconf}}"}
+  tags: [cops_burp, burp_services, cops_burpclient_opensslfix]

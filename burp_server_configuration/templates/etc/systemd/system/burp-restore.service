@@ -10,6 +10,7 @@ After=remote-fs.target
 Wants=network-online.target
 
 [Service]
+Environment=OPENSSL_CONF={{cops_burp_vars.sslconf}}
 Type=forking
 Restart=no
 TimeoutSec=5min

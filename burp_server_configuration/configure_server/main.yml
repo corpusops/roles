@@ -1,0 +1,43 @@
+---
+- import_playbook: ../configure_server/vars.yml
+# if reconfigure=true: base clients on what is found on server/clientconfdir
+- hosts: "{{hostvars.localhost.aburp_server}}"
+  gather_facts: false
+  tasks:
+  - shell: |
+      set -e
+      d="{{hostvars.localhost.aburp_confdir}}"
+      test -e "$d" &&  ( cd "$d" && find -L -type f -maxdepth 1|sed -e "s/.\///g" )
+    failed_when: false
+    changed_when: false
+    register: burpclientconfdircontents
+  - set_fact:
+      computed_burp_clients: |-
+        {%- set l = hostvars.localhost.burp_reconf_limit and hostvars.localhost.burp_reconf_limit|int or None %}
+        {%- set f = (burpclientconfdircontents.stdout.split()|sort) %}
+        {%- set c = (burp_clients|default([])|sort) %}
+        {%- if not c %}
+        {%-   for i in f %}{% if i in hostvars %}
+        {%-    set _ = c.append(i) %}
+        {%-   endif %}{% endfor %}
+        {%- endif %}
+        {%- if c|copsf_islist %}{% set c = c[:l]%}{% endif%}
+        {%- if not c|copsf_isstr %}{{-c|to_json}}{%
+          elif c in groups %}{{groups[c]}}{%
+          else%}{{-c}}{%endif%}
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - set_fact:
+      aburp_clients: "{{hostvars[aburp_server].computed_burp_clients}}"
+      aburp_clients_facts: |-
+         {%- set f =['localhost', hostvars.localhost.aburp_server]%}
+         {%- if get_burp_clients_facts | default(True) %}
+         {%- set _ = f.extend(hostvars[aburp_server].computed_burp_clients)%}
+         {%- endif %}
+         {{- f|to_json-}}
+- hosts: "{{hostvars.localhost.aburp_clients_facts}}"
+  gather_facts: true
+  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
+- import_playbook: ../configure_server/configure.yml

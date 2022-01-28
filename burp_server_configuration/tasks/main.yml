@@ -6,6 +6,7 @@
       _cops_get_secret_variable:
         name: cops_burp_ssl_key_password
         path: /etc/secrets
+  - include_role: {name: corpusops.roles/burp_vars, public: true}
   - include_role: {name: corpusops.roles/registry, public: true}
     vars: {cops_vars_registry_target: cops_burp}
     no_log: "{{not (cops_vars_debug|default(false))}}"

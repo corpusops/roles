@@ -1,6 +1,7 @@
 ---
 - include_role: {name: corpusops.roles/localsettings_burp, public: false}
-  tags: [burp_install]
+  tags: [burp_install, burp_server_install]
+  when: [burp_server_install|default(burp_install)|default(true)]
 - shell: "( burp -V || burp -v ) 2>/dev/null"
   register: ___cops_burp_ver
   changed_when: false
