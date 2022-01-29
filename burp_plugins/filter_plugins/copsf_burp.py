@@ -44,7 +44,7 @@ def copsfburp_finish_settings(data, prefixmode, hvars, *args, **kwargs):
     for k in ['restore_clients', 'custom_lines']:
         val = hvars.get(prefixes[prefixmode] + k, None)
         if val is not None:
-            data.update({k: val})              
+            data.update({k: val})
     data.update(hvars.get(prefixes['client'] + 'extras', {}))
     return data
 
