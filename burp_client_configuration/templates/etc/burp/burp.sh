@@ -4,7 +4,7 @@
 W=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)
 SSLCONF="$W/openssl.cnf"
 args=""
-BURP_CONFIG="${BURP_CONFIG-burp-client.conf}"
+BURP_CONFIG="${BURP_CONFIG-$W/burp-client.conf}"
 if [ -e $BURP_CONFIG ];then args="-c";fi
 if [ -e "$SSLCONF" ];then
     export OPENSSL_CONF="$SSLCONF"

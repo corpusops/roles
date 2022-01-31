@@ -20,13 +20,13 @@ cops_burpclient_files_default:
    owner: root, group: root, state: directory, mode: "0755"}
 - {path: "{{corpusops_vars.config_dir}}/default",
    owner: root, group: root, state: directory, mode: "0755"}
-- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp-restore-{{cops_burpclient_name}}.sh",
+- {path: "/usr/local/bin/burp-restore-{{cops_burpclient_name}}.sh", src: "{{cops_burpclient_prefix}}/burp-restore.sh",
    force: true, owner: root, group: root, state: link}
-- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp-restore.sh",
+- {path: "/usr/local/bin/burp-restore.sh",                          src: "{{cops_burpclient_prefix}}/burp-restore.sh",
    force: true, owner: root, group: root, state: link}
-- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp-{{cops_burpclient_name}}.sh",
+- {path: "/usr/local/bin/burp-{{cops_burp_name}}.sh", src: "{{cops_burpclient_prefix}}/burp.sh",
    force: true, owner: root, group: root, state: link}
-- {path: "/usr/local/bin/burp.sh", src: "{{cops_burpclient_prefix}}/burp.sh",
+- {path: "/usr/local/bin/burp.sh",                    src: "{{cops_burpclient_prefix}}/burp.sh",
    force: true, owner: root, group: root, state: link}
 cops_burpclient_prefix: "{{cops_burp_prefix}}"
 cops_burpclient_configfile_client:  "{{cops_burpclient_prefix}}/burp-client.conf"
