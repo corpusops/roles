@@ -53,16 +53,6 @@
     burp_password: null
     ```
 
-## Call
-- Reconfigure the burp server
-
-   ```sh
-   $COPS_ROOT/bin/ansible-playbook \
-   $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
-     -e "{burp_client: [my.client], burp_server: server_host}" \
-     # --skip-tags burp_server_install,burp_configure_server,burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients,burp_client_install
-   ```
-
 ## Exemple inventory
 
 ```yaml
@@ -92,7 +82,12 @@ all:
         backupserver.foo.net:
 ```
 
-## configure per client configuration
+## Setup, files & wrapper
+- We setup 2 daemons, one for backuping, one for restoring
+- Configurations are inside `/etc/burp-corpusops` (default)
+- There are two shell wrappers to set the good configuration to call : `burp.sh` & `burp-restore.sh` inside that directory and they are linked to `/usr/local/bin.`
+
+## Tune your clients configurations
  - You can use the following default variables that can be used as macros (profile and common conf that can be also reused).
         - ``cops_burpclientserver_backup_files``
         - ``cops_burpclientserver_profiles_baremetal``
@@ -103,9 +98,9 @@ all:
     - ``cops_burpclientserver_baremetal_exclude_re``
 
 ### Define using a profile
-You can use an existing profile, redefine only parts of a profile like dedup group or backup dirs  or the whole profile
+You can use an existing profile, redefine only parts of a profile like `dedup group` or `backup dirs`  or the whole profile
 
-By default variables are searched with a  name derived from ``inventory_hostname`` where `-*.` chars are replaced by `_` (`foo-bar.net` → `foobarnet`) and which fallback to default profiles.
+By default variables are searched with a  name derived from ``inventory_hostname`` where `-*.` chars are **remmoved** (`foo-bar.net` → `foobarnet`) and if we do not found, we fallback to default profiles.
 
 Main concerned variables are (client is `foo-bar.net` ansible host):
 
@@ -154,7 +149,23 @@ Main concerned variables are (client is `foo-bar.net` ansible host):
       cross_filesystem=/Foo
     ```
 
-## Reconfigure the server itself and regenerate client configurations
+## Reconfigure the server itself and regenerate all client configurations
 - degraded mode:
-    - you can add `get_burp_clients_facts: true` not to get clients ip to allow on firewall
+    - you can add `get_burp_clients_facts: true` not to get clients ip to allow on firewall, uUnless you also reconfigure firewall (`burp_fw` tag)
+
+```sh
+server=server_host
+$COPS_ROOT/bin/ansible-playbook --flush-cache -Dvvv -i $inv\
+    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/configure_server/main.yml \
+    -e "{burp_server: $server, cops_vars_debug: true, get_burp_clients_facts: false}" \
+    --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_servere,burp_install
+```
+## Register/reconfigure both the server, and deploy the configuration & setup a client
+
+```sh
+$COPS_ROOT/bin/ansible-playbook \
+$COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+  -e "{burp_client: [my.client], burp_server: server_host}" \
+  # --skip-tags burp_server_install,burp_configure_server,burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients,burp_client_install
+```
 
