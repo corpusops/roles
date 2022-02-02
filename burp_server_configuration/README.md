@@ -149,7 +149,17 @@ Main concerned variables are (client is `foo-bar.net` ansible host):
       cross_filesystem=/Foo
     ```
 
-## Reconfigure the server itself and regenerate all client configurations
+## Registering a new client on the server, configure it and it's firewall, then deploy the client confs
+
+```sh
+$COPS_ROOT/bin/ansible-playbook \
+$COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
+  -e "{burp_client: [my.client], burp_server: server_host}" \
+  # --skip-tags burp_server_install,burp_configure_server,burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients,burp_client_install
+```
+ 
+
+## Reconfigure the server itself and regenerate all client serverside configurations
 - degraded mode:
     - you can add `get_burp_clients_facts: true` not to get clients ip to allow on firewall, uUnless you also reconfigure firewall (`burp_fw` tag)
 
@@ -159,13 +169,5 @@ $COPS_ROOT/bin/ansible-playbook --flush-cache -Dvvv -i $inv\
     $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/configure_server/main.yml \
     -e "{burp_server: $server, cops_vars_debug: true, get_burp_clients_facts: false}" \
     --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_servere,burp_install
-```
-## Register/reconfigure both the server, and deploy the configuration & setup a client
-
-```sh
-$COPS_ROOT/bin/ansible-playbook \
-$COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
-  -e "{burp_client: [my.client], burp_server: server_host}" \
-  # --skip-tags burp_server_install,burp_configure_server,burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients,burp_client_install
 ```
 
