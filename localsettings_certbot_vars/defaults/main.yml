@@ -26,7 +26,7 @@ corpusops_localsettings_certbot_repo_keys_default: []
 corpusops_localsettings_certbot_keyserver: "{{corpusops_vars.hkp_keyserver}}"
 corpusops_localsettings_certbot_repo: "{% if ansible_distribution.lower() in ['ubuntu', 'mint'] and (corpusops_core_os_release | version_compare('18.04', '<=' ))%}ppa:certbot/certbot{%endif%}"
 corpusops_localsettings_certbot_packages: null
-corpusops_localsettings_certbot_packages_default: [certbot, dnsutils, iproute2]
+corpusops_localsettings_certbot_packages_default: [certbot, dnsutils, iproute2, bc]
 corpusops_localsettings_certbot_origin: localhost
 corpusops_localsettings_certbot_services: null
 corpusops_localsettings_certbot_group: 'certbot'
