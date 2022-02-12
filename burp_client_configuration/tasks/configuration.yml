@@ -22,5 +22,5 @@
       burpclient_filest is changed or
       burpclient_filesct is changed or
       burpclient_configst is changed)}}"
-- include_role: {name: burp_openssl, public: false}
+- include_role: {name: corpusops.roles/burp_openssl, public: false}
   tags: [burpclient_openssl]
