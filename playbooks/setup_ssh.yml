@@ -1,0 +1,7 @@
+---
+- hosts: "{{provision_host|default('all')}}"
+  gather_facts: false
+  tasks:
+  - include_role: {name: localsettings_ovhasroot, public: true}
+    when:
+    - inventory_hostname|regex_search('^(ovh|sys)')

@@ -1,0 +1,13 @@
+- environment: {DEBIAN_FRONTEND: noninteractive}
+  tags: [ssh]
+  block:
+  # test which user wh can use to setup direct root ssh access
+  - include_tasks: search_user.yml
+    loop_control: {loop_var: ansible_user}
+    loop: "{{cops_ovhasroot_logins}}"
+    when: not cops_ovhasroot_login|default("")
+- assert: {that: ["cops_ovhasroot_login|default('')|copsf_asbool"]}
+# disable any ovh key timeout
+- raw: "{{cops_ovhasroot_sudocmd}} '{{cops_ovhasroot_disabletimeout}}'"
+  vars: {ansible_user: "{{cops_ovhasroot_login}}"}
+  when: cops_ovhasroot_login != cops_ovhasroot_root_login

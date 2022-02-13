@@ -1,4 +1,7 @@
 ---
+- import_playbook: setup_ssh.yml
+  tags: [setup_rootssh]
+  when: [setup_rootssh|default(true)]
 - import_playbook: install_python.yml
   tags: [do_base]
   when: [do_base|default(true)]
