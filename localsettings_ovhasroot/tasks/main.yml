@@ -1,0 +1,10 @@
+---
+- name: "corpusops_ovhasroot preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_ovhasroot | default(True) }}"
+  register: corpusops_ovhasroot_can_run
+  tags: corpusops_ovhasroot
+- include_tasks: run.yml
+  when:
+  - 'corpusops_ovhasroot_can_run.msg == True'
+  tags: corpusops_ovhasroot

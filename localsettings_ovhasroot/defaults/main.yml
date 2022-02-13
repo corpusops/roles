@@ -1,0 +1,23 @@
+cops_ovhasroot_login: ""
+cops_ovhasroot_root_login: root
+cops_ovhasroot_logins: [debian, ubuntu, "{{cops_ovhasroot_root_login}}"]
+cops_ovhasroot_connect_timeout: 5
+cops_ovhasroot_sudoshell: sh -ec
+cops_ovhasroot_authorized_files: /root/.ssh/authorized_keys*
+cops_ovhasroot_sudocmd: |-
+  set -ex
+  {% set hvars = hostvars.get(inventory_hostname, {}) %}
+  {% set hpass = hvars.get('ansible_become_pass', '' ) %}
+  {% set pwslug='' %}
+  {% set pwflag='' %}
+  {% if hpass %}
+  {%  set pwslug='echo "{0}" | '.format(hpass) %}
+  {%  set pwflag='-S' %}
+  {% endif %}
+  {% set dryruns = (dry_run|default(false)) and 'echo' or '' %}
+  {{    pwslug }}{{dryruns}} sudo -u {{cops_ovhasroot_root_login}} {{pwflag}} \
+  {{cops_ovhasroot_sudoshell}}
+cops_ovhasroot_disabletimeout: >
+  if (egrep -q "sleep " {{cops_ovhasroot_authorized_files}} );then
+  sed -i -re "s/.*;exit 142\" ssh-/ssh-/g" {{cops_ovhasroot_authorized_files}};
+  fi
