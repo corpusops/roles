@@ -19,5 +19,7 @@
         {% set dryruns = (dry_run|default(false)) and 'echo' or '' %}
         {{    pwslug }}{{dryruns}} sudo {{pwflag}} \
               sh -c 'if ( egrep -q debian /etc/*release; );then \
-                apt install -y python||apt install -y python-is-python3;fi'
+              if ! (apt install -y python);then \
+                if !(apt install -y python-is-python3);then \
+                  apt install -y python3;fi;fi;fi'
       args: {executable: /bin/bash}
