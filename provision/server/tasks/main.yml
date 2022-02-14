@@ -278,7 +278,7 @@
   when: [provision_corpusops_localsettings_sudo]
 - include_role: {public: false, name: corpusops.roles/localsettings_grub_bootdegraded_raid}
   tags: [sudo]
-  when: [provision_localsettings_grub_bootdegraded_raid]
+  when: [provision_corpusops_localsettings_grub_bootdegraded_raid]
 - include_role: {public: false, name: corpusops.roles/services_base_ntp}
   tags: [ntp]
   when: [provision_corpusops_services_base_ntp]
