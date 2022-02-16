@@ -15,7 +15,7 @@
 - json_patch:
     src: "{{corpusops_services_virt_docker_daemonjon}}"
     operations:
-    - op: edit
+    - op: add
       path: "/{{item.key}}"
       value: "{{item.value}}"
     pretty: yes
