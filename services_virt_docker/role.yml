@@ -3,4 +3,5 @@
   tasks:
   - include_role: {name: corpusops.roles/localsettings_docker}
     tags: [install_docker]
+    when: [install_docker|default(True)]
   - include_role: {name: corpusops.roles/services_virt_docker}
