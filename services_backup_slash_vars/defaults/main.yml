@@ -27,15 +27,30 @@ corpusops_services_backup_slash_configs_default:
   mode: "0755"
 - name: "/etc/cron.d/backup-slash"
   mode: "0600"
-corpusops_services_backup_slash_dir: "/mnt/nobackup/BACKUP_REMOUNTS"
+corpusops_services_backup_slash_remount_dir_prefix: "/mnt/nobackup/BACKUP_REMOUNTS"
 corpusops_services_backup_slash_options_filter: "bind"
 corpusops_services_backup_slash_filter: "/srv|/mnt"
-corpusops_services_backup_slash_dest_dir: "/srv/nobabackup/backup_slash"
+corpusops_services_backup_slash_dest_dir_prefix: "/srv/nobackup/backup_slash"
+corpusops_services_backup_slash_remount_dir_efi:   "{{corpusops_services_backup_slash_remount_dir_prefix}}/EFI"
+corpusops_services_backup_slash_remount_dir_slash: "{{corpusops_services_backup_slash_remount_dir_prefix}}/SLASH"
+corpusops_services_backup_slash_remount_dir_boot:  "{{corpusops_services_backup_slash_remount_dir_prefix}}/BOOT"
+corpusops_services_backup_slash_dest_dir_efi:   "{{corpusops_services_backup_slash_dest_dir_prefix}}/EFI"
+corpusops_services_backup_slash_dest_dir_slash: "{{corpusops_services_backup_slash_dest_dir_prefix}}/SLASH"
+corpusops_services_backup_slash_dest_dir_boot:  "{{corpusops_services_backup_slash_dest_dir_prefix}}/BOOT"
+corpusops_services_backup_slash_backups:
+  /:
+    o: "{{corpusops_services_backup_slash_remount_dir_slash}}"
+    d: "{{corpusops_services_backup_slash_dest_dir_slash}}"
+  /boot:
+    o: "{{corpusops_services_backup_slash_remount_dir_boot}}"
+    d: "{{corpusops_services_backup_slash_dest_dir_boot}}"
+  /boot/efi:
+    o: "{{corpusops_services_backup_slash_remount_dir_efi}}"
+    d: "{{corpusops_services_backup_slash_dest_dir_efi}}"
 corpusops_services_backup_slash_periodicity:  "0 14 * * * root"
-corpusops_services_backup_slash_rsync: "rsync -aAv --delete"
+corpusops_services_backup_slash_rsync: "rsync -aAvH --delete --numeric-ids"
 corpusops_services_backup_slash_log: ">/dev/null 2>&1"
 corpusops_services_backup_slash_cron_mailto: ""
-corpusops_services_backup_slash_cron: >-
-  {{corpusops_services_backup_slash_periodicity}}
-  {{corpusops_services_backup_slash_configs[0].name}}
-  {{corpusops_services_backup_slash_log}}
+corpusops_services_backup_slash_cron: |-
+  MAILTO="{{corpusops_services_backup_slash_cron_mailto}}"
+  {{corpusops_services_backup_slash_periodicity}} {{corpusops_services_backup_slash_configs[0].name}} {{corpusops_services_backup_slash_log}}

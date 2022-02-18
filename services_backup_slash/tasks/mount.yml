@@ -4,7 +4,6 @@
 - file:
     state: directory
     path: "{{item.value.ddir}}"
-
 - debug: {msg: "{{ansible_facts.mounts}}"}
 - mount:
     path: "{{item.value.odir}}"

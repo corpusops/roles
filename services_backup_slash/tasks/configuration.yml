@@ -3,24 +3,29 @@
     msg: |-
       {%- set data = {} %}
       {%- set odirs = {} %}
-      {%- for m in ansible_facts.mounts %}
-      {%- if (
-            (m.fstype|regex_search('(brtfs|ext(4|3|2))'))
-            and corpusops_services_backup_slash_dest_dir not in m.device
-            and corpusops_services_backup_slash_dest_dir not in m.mount
-            and not (m.options|regex_search(corpusops_services_backup_slash_options_filter))
-            and not (m.device|regex_search(corpusops_services_backup_slash_filter))
-            and not (m.mount|regex_search(corpusops_services_backup_slash_filter))
-        ) %}
-      {% set k = m.mount.replace('/', 'SLASH') %}
-      {%- set _ = m.update({
-          'k': k,
-          'do_mount': True,
-          'ddir': '{0}/{1}'.format(corpusops_services_backup_slash_dest_dir, k),
-          'odir': '{0}/{1}'.format(corpusops_services_backup_slash_dir, k)}) %}
-      {%- set _ = data.update({k: m}) %}
-      {%- set _ = odirs.update({m.odir: m}) %}
-      {%- endif %}
+      {%- for backuppeddir, idata in corpusops_services_backup_slash_backups.items() %}
+      {%-  set dest_dir = idata.d %}
+      {%-  set orig_dir = idata.o %}
+      {%-  for m in ansible_facts.mounts %}
+      {%-   if (
+              (m.fstype|regex_search('(brtfs|fat|zfs|xfs|ext(4|3|2))'))
+              and m.mount == backuppeddir
+              and dest_dir not in m.device
+              and dest_dir not in m.mount
+              and not (m.options|regex_search(corpusops_services_backup_slash_options_filter))
+              and not (m.device|regex_search(corpusops_services_backup_slash_filter))
+              and not (m.mount|regex_search(corpusops_services_backup_slash_filter))
+            ) %}
+      {%-     set k = m.mount|regex_replace('[/][/]+', '/')|regex_replace('^/$', 'SLASH') %}
+      {%-     set _ = m.update({
+              'k': k,
+              'do_mount': True,
+              'ddir': dest_dir,
+              'odir': orig_dir}) %}
+      {%-     set _ = data.update({k: m}) %}
+      {%-     set _ = odirs.update({m.odir: m}) %}
+      {%-   endif %}
+      {%-  endfor %}
       {%- endfor %}
       {%- for i, idata in odirs.items() %}
       {%-  for m in ansible_facts.mounts %}
