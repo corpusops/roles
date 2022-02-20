@@ -124,3 +124,4 @@ cops_burp_pidfile: "{{corpusops_vars.run_dir}}/burp.server-{{cops_burp_name}}.pi
 cops_burp_restore_pidfile: "{{corpusops_vars.run_dir}}/burp.restore-{{cops_burp_name}}.pid"
 cops_burp_cname_lowercase:  '1'
 cops_burp_cname_fqdn:  '1'
+cops_burp_disable_mlocate: true
