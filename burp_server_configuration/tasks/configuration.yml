@@ -58,3 +58,14 @@
       burp_server_configuration_filest is changed or
       burp_server_configuration_filesct is changed or
       burp_server_configuration_configst is changed)}}"
+- name: disable mlocate
+  shell: |
+    if [ -e chmod -x /etc/cron.daily/mlocate ];then
+      chmod -x /etc/cron.daily/mlocate
+    fi
+  changed_when: false
+  when: [cops_burp_disable_mlocate]
+
+
+
+
