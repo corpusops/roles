@@ -65,7 +65,7 @@
     fi
   changed_when: false
   when: [cops_burp_disable_mlocate]
-
-
-
-
+- shell: |
+    set -e
+    {{cops_burpsign_vars.prefix}}/casign.sh {{cops_burp_vars.server_cname}}
+  changed_when: false
