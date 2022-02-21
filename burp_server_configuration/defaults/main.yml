@@ -30,6 +30,11 @@ cops_burp_ca_burp_ca: /usr/sbin/burp_ca
 cops_burp_ca_dir: "{{cops_burp_prefix}}/CA"
 cops_burp_initd_server:  "{{corpusops_vars.config_dir}}/init.d/burp-server-{{cops_burp_name}}"
 cops_burp_initd_restore: "{{corpusops_vars.config_dir}}/init.d/burp-restore-{{cops_burp_name}}"
+cops_burp_server_wrapper:  "{{cops_burp_prefix}}/burp-admin.sh"
+cops_burp_restore_wrapper:  "{{cops_burp_prefix}}/burp-restore-admin.sh"
+cops_burp_configfile_server_admin:  "{{cops_burp_prefix}}/burp-server-admin.conf"
+cops_burp_configfile_restore_admin: "{{cops_burp_prefix}}/burp-restore-admin.conf"
+cops_burp_configfile_admin: "{{cops_burp_prefix}}/clientconfdir/{{cops_burp_server_cname}}"
 cops_burp_configfile_server:  "{{cops_burp_prefix}}/burp-server.conf"
 cops_burp_configfile_restore: "{{cops_burp_prefix}}/burp-restore.conf"
 cops_burp_unit_server:  "{{corpusops_vars.config_dir}}/systemd/system/burp-server-{{cops_burp_name}}.service"
@@ -41,7 +46,12 @@ cops_burp_configs_default:
 - {name: "{{corpusops_vars.config_dir}}/default/burp-server-{{cops_burp_name}}" , mode: "0640", template: "../templates/etc/default/burp-server"}
 - {name: "{{cops_burp_configfile_restore}}"            , mode: "0640", template: "../templates/etc/burp/burp-restore.conf"}
 - {name: "{{cops_burp_configfile_server}}"             , mode: "0640", template: "../templates/etc/burp/burp-server.conf"}
+- {name: "{{cops_burp_configfile_server_admin}}"       , mode: "0640", template: "../templates/etc/burp/burp-server-admin-client.conf"}
+- {name: "{{cops_burp_configfile_restore_admin}}"      , mode: "0640", template: "../templates/etc/burp/burp-restore-admin-client.conf"}
+- {name: "{{cops_burp_configfile_admin}}"              , mode: "0640", template: "../templates/etc/burp/burp-server-admin.conf"}
 - {name: "{{cops_burp_initd_server}}"                  , mode: "0755", template: "../templates/etc/init.d/burp-server"}
+- {name: "{{cops_burp_server_wrapper}}"                , mode: "0755", template: "../templates/etc/burp/burp-server.sh"}
+- {name: "{{cops_burp_restore_wrapper}}"               , mode: "0755", template: "../templates/etc/burp/burp-restore.sh"}
 - {name: "{{cops_burp_initd_restore}}"                 , mode: "0755", template: "../templates/etc/init.d/burp-restore"}
 - {name: "{{cops_burp_unit_server}}"                   , mode: "0640", template: "../templates/etc/systemd/system/burp-server.service"}
 - {name: "{{cops_burp_unit_restore}}"                  , mode: "0640", template: "../templates/etc/systemd/system/burp-restore.service"}
@@ -84,7 +94,7 @@ cops_burp_restore_custom_lines: "{{cops_burp_custom_lines}}"
 # during weekdays
 # Allow more hours at the weekend.
 cops_burp_timer_script: "{{cops_burp_prefix}}/timer_script"
-cops_burp_protocol: "2"
+cops_burp_protocol: "1"
 cops_burp_timer_arg:
   - '20h'
   - "{{('Mon,Tue,Wed,Thu,Fri,'
@@ -125,3 +135,5 @@ cops_burp_restore_pidfile: "{{corpusops_vars.run_dir}}/burp.restore-{{cops_burp_
 cops_burp_cname_lowercase:  '1'
 cops_burp_cname_fqdn:  '1'
 cops_burp_disable_mlocate: true
+cops_burp_server_cname: server
+cops_burp_server_host: "{{ansible_fqdn}}"
