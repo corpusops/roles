@@ -34,7 +34,7 @@ cops_burpclientserver_profiles_default: |-
   {%- endif %}
   {{- lookup('vars', 'cops_burpclientserver_profiles_'+p)}}
 cops_burpclientserver_default_backup_dirs: [
-  '/', '/boot', '/backup', '/data', '/etc', '/home', '/opt', '/media', '/mnt', '/lib', '/lib64', '/lib32', '/root', '/srv', '/srv/backups', '/usr', '/vmlinuz', '/initrd.img', '/var',
+  '/', '/boot', '/backup', '/dev', '/data', '/etc', '/home', '/opt', '/media', '/mnt', '/lib', '/lib64', '/lib32', '/root', '/srv', '/srv/backups', '/sys', '/tmp', '/usr', '/vmlinuz', '/initrd.img', '/var',
   '/var/lib/docker/containers', '/var/lib/docker/network', '/var/lib/docker/plugins', '/var/lib/docker/swarm', '/var/lib/docker/trust', '/var/lib/docker/volumes',
   '/var/lib/lxc',
   '/var/www',
@@ -78,6 +78,9 @@ cops_burpclientserver_profile: |-
         default=lookup('vars', 'cops_burpclientserver_profiles_{0}'.format(cops_burpclientserver_scname),
            default=cops_burpclientserver_profiles_default)))))}}
 # cops_burpclientserver_password_{{cops_burpclientserver_cname}}: null  # MUST BE SET !
+cops_burpclientserver_backup_dev: true
+cops_burpclientserver_backup_tmpfs: true
+cops_burpclientserver_backup_sysfs: true
 cops_burpclientserver_exclude_comp: |-
   exclude_comp = z2
   exclude_comp = bz2
@@ -94,47 +97,52 @@ cops_burpclientserver_exclude_comp: |-
   exclude_comp = p7zip
   exclude_comp = p7
 cops_burpclientserver_exclude_runtime_fs: |-
-  exclude_fs = sysfs
-  exclude_fs = tmpfs
-  exclude = /dev
-  exclude = /proc
-  exclude = /sys
-  exclude = /tmp
+  {% if cops_burpclientserver_backup_tmpfs %}#{% endif %}exclude_fs = tmpfs
+  {% if cops_burpclientserver_backup_sysfs %}#{% endif %}exclude_fs = sysfs
+  {% if cops_burpclientserver_backup_dev%}
+  exclude_regex = ^/dev/.*(shm|hugepages?|pts)/.+
+  {% else %}
+  exclude_regex = ^/dev/.+
+  {% endif %}
+  exclude_regex = ^/proc/.+
+  exclude_regex = ^/sys/.+
+  exclude_regex = ^/tmp/.+
 cops_burpclientserver_exclude_nobackup: |-
   nobackup = .nobackup
   exclude_regex = .*nobackup.*
 cops_burpclientserver_exclude_common: |
-  exclude_regex = .*lost.found.*
+  exclude_regex = /opt/beamium/.+
+  exclude_regex = .*lost.found/.+
   exclude_regex = .*makina-states.*-lxc.*.tar.*xz
-  exclude_regex = .*/mountpoints/.*
+  exclude_regex = .*/mountpoints/.+
   exclude_regex = .*spool.*cyrus.*backup_log.*
   exclude_regex = .*srv.*projects.*archives.*
   exclude_regex = .*srv.*salt.*makina-states.*
   exclude_regex = .*tmp_sync_rando.*
   exclude_regex = .*usr.*src.*linux-headers.*
-  exclude_regex = .*var.*cache.*apt.*
+  exclude_regex = .*var.*cache.*apt/.+
   exclude_regex = .*var.*cache.*salt.*master.*
   exclude_regex = .*var.*cache.*salt.*minion.*
-  exclude_regex = .*var.*lib.*apt.*lists.*
+  exclude_regex = .*var.*lib.*apt.*lists/.+
   exclude_regex = .*var.*lib.*docker.*aufs
   exclude_regex = .*var.*lib.*docker.*overlay
   exclude_regex = .*var.*lib.*docker.*overlay2
   exclude_regex = .*var.*lib.*docker.*vfs
   exclude_regex = .*var.*lib.*libvirt.*images.*
   exclude_regex = .*var.*lib.*lxc.*del.*
-  exclude_regex = .*var.*lib.*lxc.*makina-states.*/tmp/.*
+  exclude_regex = .*var.*lib.*lxc.*makina-states.*/tmp/.+
   exclude_regex = .*var.*lib.*lxc.*rootfs.*
-  exclude_regex = .*var.*lock.*
+  exclude_regex = .*var.*lock/.+
   exclude_regex = .*var.*log.*atop.*
-  exclude_regex = .*var.*run.*
-  exclude_regex = .*var.*/tmp/.*
+  exclude_regex = .*var/run/.+
+  exclude_regex = .*var.*/tmp/.+
   exclude_regex = .*mozilla/firefox/.*/cache.*
   exclude_regex = .*data.*burp.*
 cops_burpclientserver_exclude: |
   {{cops_burpclientserver_exclude_common}}
-  {{cops_burpclientserver_exclude_nobackup}}
   {{cops_burpclientserver_exclude_comp}}
   {{cops_burpclientserver_exclude_runtime_fs}}
+  {{cops_burpclientserver_exclude_nobackup}}
 cops_burpclientserver_setup: |-
   protocol = {{cops_burpclientserver_protocol}}
   password = {{cops_burpclientserver_password}}
