@@ -1,7 +1,7 @@
 ---
 - import_playbook: ../configure_server/vars.yml
 # if reconfigure=true: base clients on what is found on server/clientconfdir
-- hosts: "{{hostvars.localhost.aburp_server}}"
+- hosts: "{{hostvars.localhost.aburp_servers}}"
   gather_facts: false
   tasks:
   - shell: |
@@ -30,14 +30,23 @@
   gather_facts: false
   tasks:
   - set_fact:
-      aburp_clients: "{{hostvars[aburp_server].computed_burp_clients}}"
-      aburp_clients_facts: |-
-         {%- set f =['localhost', hostvars.localhost.aburp_server]%}
-         {%- if get_burp_clients_facts | default(True) %}
-         {%- set _ = f.extend(hostvars[aburp_server].computed_burp_clients)%}
+      cacheable: false
+      saburp_clients: |-
+        {% set c = {} %}
+        {% for s in hostvars.localhost.aburp_servers %}
+        {% set _ = c.update({s: hostvars[s].get('computed_burp_clients', [])}) %}
+        {% endfor%}
+        {{c}}
+  - set_fact:
+      saburp_clients_facts: |-
+         {%- set f =['localhost']+hostvars.localhost.aburp_servers%}
+         {%- if get_burp_clients_facts|default(True) %}
+         {%-  for o in saburp_clients.values()%}
+         {%-    set _ = f.extend(o) %}
+         {%-  endfor %}
          {%- endif %}
          {{- f|to_json-}}
-- hosts: "{{hostvars.localhost.aburp_clients_facts}}"
+- hosts: "{{hostvars.localhost.saburp_clients_facts}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
 - import_playbook: ../configure_server/configure.yml

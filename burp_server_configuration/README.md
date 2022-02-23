@@ -157,11 +157,12 @@ $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
   -e "{burp_client: [my.client], burp_server: server_host}" \
   # --skip-tags burp_server_install,burp_configure_server,burp_fw,burp_sign,burp_register_to_server,burp_deploy_client_certs,burp_configure_clients,burp_client_install
 ```
- 
+
 
 ## Reconfigure the server itself and regenerate all client serverside configurations
 - degraded mode:
     - you can add `get_burp_clients_facts: true` not to get clients ip to allow on firewall, uUnless you also reconfigure firewall (`burp_fw` tag)
+    - `$server` can also be a group of burp servers to reconfigure or a list of servers.
 
 ```sh
 server=server_host

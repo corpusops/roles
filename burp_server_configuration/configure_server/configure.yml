@@ -1,17 +1,20 @@
 ---
-- hosts: "{{hostvars.localhost.aburp_server}}"
+- hosts: "{{hostvars.localhost.aburp_servers}}"
   gather_facts: false
-  roles: 
+  roles:
   - "corpusops.roles/vars"
   - "corpusops.roles/burp_plugins"
   - "corpusops.roles/burp_vars"
   tasks:
+  - set_fact:
+      cacheable: false
+      aburp_clients: "{{hostvars.localhost.saburp_clients[inventory_hostname]}}"
   - block:
     - include_role: {name: corpusops.roles/burp_server_configuration, public: false}
     tags: [burp_server, configure_server, burp_configure_server]
   - block:
     - include_tasks: ../configure_server/client_fw.yml
-      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
+      loop: "{{aburp_clients|flatten(levels=1)}}"
     - cops_service: {state: reloaded, service: ms_iptables}
     tags: [burp_server, fw, burp_fw]
   - block:
@@ -19,7 +22,7 @@
         content:
           _cops_burpsign: |-
             {% set res = {'cnames': []} %}
-            {% for c in hostvars.localhost.aburp_clients %}
+            {% for c in burp_clients %}
             {%  set cdata = hostvars[c] %}
             {%  set cname = cdata.get('burp_cname', '') or cdata['inventory_hostname'] %}
             {%  if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
@@ -30,8 +33,9 @@
   - tags: [burp_server, register_to_server, burp_register_to_server]
     block:
     - include_tasks: ../configure_server/password.yml
+      vars: {burp_registered_server: "{{inventory_hostname}}"}
     - include_tasks: ../configure_server/backup_to_server.yml
-      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
+      loop: "{{aburp_clients|flatten(levels=1)}}"
     - name: Reload service
       cops_service:
         state: "{{cops_burp_service_activated|ternary('reloaded', 'stopped')}}"
@@ -45,4 +49,4 @@
       file:
         state: touch
         path: "{{cops_burp_directory}}/{{item}}/backup"
-      loop: "{{hostvars.localhost.aburp_clients|flatten(levels=1)}}"
+      loop: "{{aburp_clients|flatten(levels=1)}}"

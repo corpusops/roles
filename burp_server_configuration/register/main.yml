@@ -5,10 +5,15 @@
   gather_facts: false
   tasks:
     - set_fact:
+        cacheable: false
+        aburp_server: "{{hostvars.localhost.aburp_servers[0]}}"
         aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
             if not c|copsf_isstr %}{{c}}{%
             elif c in groups %}{{groups[c]}}{%
             else%}{{c}}{%endif%}"
+    - set_fact:
+        cacheable: false
+        saburp_clients: "{{ {aburp_server: aburp_clients} }}"
 - hosts: "{{['localhost', hostvars.localhost.aburp_server]+hostvars.localhost.aburp_clients}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
@@ -16,6 +21,7 @@
 - hosts: "{{hostvars.localhost.aburp_clients}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
+  vars: {burp_registered_server: "{{hostvars.localhost.aburp_server}}"}
   tasks:
   - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]
     block:
