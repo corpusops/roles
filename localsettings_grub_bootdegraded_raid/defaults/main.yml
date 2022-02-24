@@ -1,0 +1,1 @@
+cops_localsettings_grub_bootdegraded_raid_args: "md-mod.start_dirty_degraded=1 bootdegraded=yes"
