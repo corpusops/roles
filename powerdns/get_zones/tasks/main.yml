@@ -1,0 +1,4 @@
+- shell: pdnsutil list-all-zones
+  register: pdns_local_zones
+  changed_when: false
+- set_fact: {pdns_local_zones: "{{pdns_local_zones.stdout|copsf_splitstrip}}"}

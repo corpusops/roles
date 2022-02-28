@@ -1,0 +1,34 @@
+- community.general.nsupdate:
+    key_name: "{{pdns_tsig_key_name}}"
+    key_secret: "{{pdns_tsig_key.value}}"
+    server: "{{pdns_local_ip}}"
+    port: "{{pdns_port}}"
+    zone: "{{zone}}"
+    record: "{{record.value.id}}"
+    type: "{{record.value.type}}"
+    ttl: "{{record.value.ttl|default(omit)}}"
+    state: absent
+  when: record.value.type=='NS'
+  loop: "{{pdns_records|dict2items}}"
+  loop_control: {loop_var: record}
+#  async: 1000
+#  poll: 0
+#  register: async_results
+#- include_tasks: poll.yml
+- community.general.nsupdate:
+    key_name: "{{pdns_tsig_key_name}}"
+    key_secret: "{{pdns_tsig_key.value}}"
+    server: "{{pdns_local_ip}}"
+    port: "{{pdns_port}}"
+    zone: "{{zone}}"
+    record: "{{record.value.id}}"
+    value: "{{record.value.val}}"
+    type: "{{record.value.type}}"
+    ttl: "{{record.value.ttl|default(60)}}"
+  when: "record.value.type!='NS'"
+  loop: "{{pdns_records|dict2items}}"
+  loop_control: {loop_var: record}
+#  async: 1000
+#  poll: 0
+#  register: async_results
+#- include_tasks: poll.yml

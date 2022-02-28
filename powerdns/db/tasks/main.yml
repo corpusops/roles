@@ -1,0 +1,30 @@
+- tags: [cops_pdns_pgsql]
+  when: "'1' in pdns_is_pgsql"
+  block:
+  - {include_role: {name: corpusops.roles/services_db_postgresql},        tags: [pg_setup]}
+  - {include_role: {name: corpusops.roles/postgresql_role},               tags: [pg_role]}
+  - {include_role: {name: corpusops.roles/postgresql_db},                 tags: [pg_db]}
+  - {include_role: {name: corpusops.roles/services_backup_dbsmartbackup}, tags: [pg_backup]}
+  vars:
+    _cops_postgresql_db: "{{pdns_db}}"
+    _cops_postgresql_role: "{{pdns_db_role}}"
+- tags: [cops_pdns_mysql]
+  when: "'1' in pdns_is_mysql"
+  block:
+  - {include_role: {name: corpusops.roles/services_db_mysql},             tags: [mysql_setup]}
+  - {include_role: {name: corpusops.roles/mysql_db},                      tags: [mysql_db]}
+  - {include_role: {name: corpusops.roles/mysql_role},                    tags: [mysql_role]}
+  - {include_role: {name: corpusops.roles/services_backup_dbsmartbackup}, tags: [mysql_backup]}
+  vars:
+    _cops_mysql_db: "{{pdns_db}}"
+    _cops_mysql_role: "{{pdns_db_role}}"
+- tags: [cops_pdns_mysqlpw]
+  when: "'1' in pdns_is_mysql"
+  block:
+  - shell: cat /etc/secrets/corpusops_services_db_mysql_root_password
+    register: rootmysqlpw
+    changed_when: false
+  - changed_when: false
+    set_fact:
+      cacheable: false
+      rootmysqlpw: "{{rootmysqlpw.stdout.strip()}}"
