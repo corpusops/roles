@@ -1,0 +1,75 @@
+pdns_db_password: null
+pdns_manual_local_zones: []
+pdns_ips: {}
+pdns_ip6s: {}
+pdns_zones_manual: {}
+pdns_default_ns: null
+pdns_reverse_zones: {}
+pdns_domains: []
+pdns_local_ip: 127.0.0.1
+pdns_zones_default: |-
+  {%- set adata = {} %}
+  {%- for d in pdns_domains %}{%- set data = adata.setdefault(d, {}) %}
+  {%-   for i, val in pdns_ip6s.items() %}{% if i.endswith(d) %}
+  {%-     set rev = val|ansible.netcommon.ipaddr('revdns') %}
+  {%-     set _ = data.update(
+            {(i+'_AAAA'): {'id': i, 'ttl':60, 'type': 'AAAA', 'val': [val]}}) %}
+  {%-     for reverse, rdata in pdns_reverse_zones.items() if 'ip6.'in reverse %}
+  {%-       if val.startswith(rdata.pref) %}
+  {%-         set rlvl = (32-1)-reverse.replace('.ip6.arpa.', '').count('.') %}
+  {%-         set _ = adata.setdefault(reverse, {}).update(
+                {(i+'_PTR'): {'id': rev, 'ttl':60, 'type': 'PTR', 'val': i+"."}}) %}
+  {%-       endif %}
+  {%-     endfor %}
+  {%-   endif%}{% endfor %}
+  {%-   for i, val in pdns_ips.items() %}{% if i.endswith(d) %}
+  {%-     set ni = i[:(i|length-(d|length+1))]%}
+  {%-     set _ = data.update(
+            {(i+'_A'): {'id': ni,'ttl':60, 'type': 'A', 'val': [val]}}) %}
+  {%-     for reverse, rdata in pdns_reverse_zones.items() if 'in-addr.'in reverse %}
+  {%-       if val.startswith(rdata.pref) %}
+  {%-         set rev = val|ansible.netcommon.ipaddr('revdns') %}
+  {%-         set rlvl = (4-1)-reverse.replace('.in-addr.arpa.', '').count('.') %}
+  {%-         set ri = val.split('.')[-rlvl:] %}
+  {%-         set _ = ri.reverse() %}
+  {%-         set _ = adata.setdefault(reverse, {}).update(
+                {(i+'_PTR'): {
+                  'id': rev, 'rid': ri|join('.'), "r": rlvl,'ttl':60,
+                  'type': 'PTR', 'val': i+"."}}) %}
+  {%-       endif %}
+  {%-     endfor %}
+  {%-   endif%}{% endfor %}
+  {%- endfor %}
+  {%- set adata = adata|combine(pdns_zones_manual, recursive=True, list_merge='append') %}
+  {%- for z, zdata in adata.items() %}
+  {%-   set found = False %}
+  {%-   for r,rval in zdata.items() if rval.type == 'NS'%}{% set found=True%}{%endfor%}
+  {%-   if not found%}{%for ns in pdns_default_ns%}
+  {%-     set _ = adata[z].update({ns+'_NS': {'type': 'NS', 'id': '@', 'val': pdns_default_ns}})%}
+  {%-   endfor%}{% endif%}
+  {%- endfor %}
+  {{- adata|to_json }}
+pdns_zones: "{{pdns_zones_default}}"
+pdnsdist_port: 5551
+pdns_port: 5552
+pdns_disable_axfr: "yes"
+pdns_rec_port: 5553
+pdns_webserver_port: 18080
+corpusops_services_db_mysql_version: '8.0'
+webserver_listen_ip: "127.0.0.1"
+dnsdist_listen_ip: '0.0.0.0'
+pdns_db: {db: "{{pdns_backends.gmysql.dbname}}"}
+pdns_allowfrom_admin: "127.0.0.1,::1"
+pdns_api_key: null
+pdns_admin_pw: null
+pdns_allowfrom: ["127.0.0.0/8"]
+dnsdist_acls: []
+pdns_dnsupdate: "yes"
+pdns_rec_config_lua_file_content: ""
+pdns_rec_config_dns_script_file_content: ""
+pdns_is_mysql: "{% for p in pdns_backends%}{% if p.startswith('gmysql')%}1{%endif%}{%endfor%}"
+pdns_is_pgsql: "{% for p in pdns_backends%}{% if p.startswith('gpgsql')%}1{%endif%}{%endfor%}"
+pdns_rec_config_dns_script: "{{ pdns_rec_config_dir }}/dns-script.lua"
+pdns_rec_config_lua: "{{ pdns_rec_config_dir }}/config.lua"
+cops_pdns_service_overrides: {LimitNOFILE: 10000}
+pdns_tsig_key_name: pdnsansible

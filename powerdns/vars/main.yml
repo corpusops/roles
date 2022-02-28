@@ -1,0 +1,67 @@
+pdns_backends:
+  gmysql:
+    'host': localhost
+    'port': 3306
+    'password': "{{pdns_db_password}}"
+    'user': pdns
+    'dbname': pdns
+#
+dnsdist_locals: ['{{dnsdist_listen_ip}}:{{pdnsdist_port}}']
+dnsdist_webserver_address: "{{webserver_listen_ip}}"
+dnsdist_webserver_password: "{{pdns_admin_pw}}"
+dnsdist_webserver_port: "{{pdns_webserver_port+2}}"
+dnsdist_webserver_apikey: "{{pdns_api_key}}"
+dnsdist_config: |-
+  setACL({'0.0.0.0/0', '::/0'})
+  newServer({address='{{pdns_local_ip}}:{{pdns_port}}', pool='auth'})
+  newServer({address='{{pdns_local_ip}}:{{pdns_rec_port}}', pool='recursor'})
+  recursive_ips = newNMG()
+  {% for i in pdns_allowfrom %}
+  recursive_ips:addMask('{{i}}')
+  {% endfor %}
+  addAction(NetmaskGroupRule(recursive_ips), PoolAction('recursor'))
+  addAction(AllRule(), PoolAction('auth'))
+#
+pdns_config:
+  disable-axfr: "{{pdns_disable_axfr}}"
+  dnsupdate: "{{pdns_dnsupdate}}"
+  master: yes
+  slave: no
+  local-address: '{{pdns_local_ip}}'
+  local-ipv6: '::1'
+  local-port: '{{pdns_port}}'
+  webserver: "yes"
+  webserver-address: "{{webserver_listen_ip}}"
+  webserver-allow-from: "{{pdns_allowfrom_admin}}"
+  webserver-loglevel: normal
+  webserver-password: "{{pdns_admin_pw}}"
+  webserver-port: "{{pdns_webserver_port+1}}"
+  api-key: "{{pdns_api_key}}"
+  include-dir: "/etc/powerdns/pdns.d"
+pdns_rec_config:
+  allow-from: ["127.0.0.0/8"]
+  local-address: "{{pdns_local_ip}}:{{pdns_rec_port}}"
+  webserver: "yes"
+  webserver-address: "{{webserver_listen_ip}}"
+  webserver-allow-from: "{{pdns_allowfrom_admin}}"
+  webserver-loglevel: normal
+  webserver-password: "{{pdns_admin_pw}}"
+  webserver-port: "{{pdns_webserver_port+0}}"
+  api-key: "{{pdns_api_key}}"
+  include-dir: "/etc/powerdns/recursor.d"
+  # api: "yes"
+pdns_mysql_databases_credentials:
+  gmysql:
+    priv_user: root
+    priv_password: "{{rootmysqlpw}}"
+    priv_host: [localhost, '%']
+    host: "{{pdns_local_ip}}"
+pdns_db_role:
+  name: "{{pdns_backends.gmysql.dbname}}"
+  password: "{{pdns_backends.gmysql.password}}"
+  priv: '{{pdns_backends.gmysql.dbname}}.*:ALL'
+  host: '*'
+pdns_service_overrides: "{{cops_pdns_service_overrides}}"
+pdns_rec_service_overrides: "{{cops_pdns_service_overrides}}"
+dnsdist_service_overrides: "{{cops_pdns_service_overrides}}"
+# corpusops_services_db_postgresql_version: '14'

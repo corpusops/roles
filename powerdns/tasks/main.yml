@@ -1,0 +1,8 @@
+- {include_role: {name: corpusops.roles/powerdns/prereqs}, tags: [cops_pdns_prereqs]}
+- {name: resolve dns zones, debug: {msg: "{{pdns_zones}}"}}
+- {include_role: {name: pdns_recursor}, tags: [cops_prec]}
+- {include_role: {name: corpusops.roles/powerdns/db}, tags: [cops_pdns_db]}
+- {include_role: {name: corpusops.roles/ansible_plugins}}
+- {include_role: {name: pdns}, tags: [cops_pdns]}
+- {include_role: {name: corpusops.roles/powerdns/reg_zones}, tags: [pdns_rec_register_zones]}
+- {include_role: {name: dnsdist}, tags: [cops_dnsdist]}
