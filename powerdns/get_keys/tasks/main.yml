@@ -1,0 +1,2 @@
+- {shell: pdnsutil list-tsig-keys, register: pdns_tsig_keys, changed_when: false}
+- set_fact: {pdns_tsig_keys: "{{pdns_tsig_keys.stdout.strip()}}" }

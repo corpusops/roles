@@ -1,0 +1,29 @@
+
+- include_role: {name: corpusops.roles/powerdns/get_keys}
+- when:
+  - "not pdns_tsig_keys|regex_search('^'+pdns_tsig_key_name+'[.]', multiline=True, ignorecase=True)"
+  block:
+  - shell: pdnsutil generate-tsig-key {{pdns_tsig_key_name}} hmac-md5
+  - include_role: {name: corpusops.roles/powerdns/get_keys}
+- set_fact:
+    pdns_tsig_key: |-
+      {%- for i in pdns_tsig_keys.splitlines() %}
+      {%- if i|regex_search('^'+pdns_tsig_key_name+'[.]',ignorecase=True) %}
+      {{- {"value": i.split()[-1], "type": i.split()[-2][:-1]}|to_json }}
+      {%- endif %}
+      {%- endfor %}
+- include_role: {name: corpusops.roles/powerdns/get_zones}
+- include_tasks: regzone.yml
+  loop: "{{((pdns_zones|list)+pdns_manual_local_zones)|copsf_uniquify}}"
+  loop_control: {loop_var: zone}
+- include_role: {name: corpusops.roles/powerdns/get_zones}
+- copy:
+    force: true
+    dest: "/etc/powerdns/recursor.d/forwardedzones.conf"
+    content: |-
+      {% for i in pdns_local_zones %}
+      forward-zones{% if loop.index>1%}+{%endif%}={{i}}=127.0.0.1:{{pdns_port}}
+      {% endfor %}
+  register: registeredzonet
+- service: {state: restarted, name: pdns-recursor}
+  when: [registeredzonet.changed]

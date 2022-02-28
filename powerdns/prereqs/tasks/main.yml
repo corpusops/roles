@@ -1,0 +1,15 @@
+- set_fact: {rolesd: "{{(role_path+'/../../..')|copsf_abspath}}"}
+- git:
+    accept_hostkey: yes
+    repo: '{{item.r}}'
+    dest: '{{rolesd}}/{{item.d}}'
+    version:   '{{item.v|default(omit)}}'
+    recursive: '{{item.recursive|default(True)}}'
+    update: yes
+  loop:
+   - {"d": "pdns_recursor", "r": "https://github.com/corpusops/pdns_recursor-ansible.git"}
+   - {"d": "dnsdist",       "r": "https://github.com/corpusops/dnsdist-ansible.git"}
+   - {"d": "pdns",          "r": "https://github.com/corpusops/pdns-ansible.git"}
+  delegate_to: localhost
+- package: {name: [python3-dnspython]}
+  tags: [pdns_prereqs]

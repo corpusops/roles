@@ -1,0 +1,7 @@
+- shell: pdnsutil create-zone {{zone}}
+  register: regzone_shell
+  when: zone.replace('arpa.', 'arpa') not in pdns_local_zones
+- shell: pdnsutil set-meta {{zone}} TSIG-ALLOW-DNSUPDATE {{pdns_tsig_key_name}}
+- include_role: {name: corpusops.roles/powerdns/reg_records}
+  vars:
+    pdns_records: "{{pdns_zones.get(zone, {})}}"
