@@ -72,7 +72,7 @@ do_challenge() {
     fi
 
 }
-hile read domain;do
+while read domain;do
 if [[ -n $domain ]];then
     domain_args="-d $domain"
     if ( echo "$domain" | egrep -q "^*." );then
