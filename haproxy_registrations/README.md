@@ -211,6 +211,22 @@ corpusops_haproxy_registrations_registrations_haredis:
 
 ```
 
+#### security.txt
+```yaml"
+#  [default] /.well-known/security.txt
+# corpusops_haproxy_registrations_securitytxt_uri: /.well-known/security.txt
+# String, representing [security.txt content](https://securitytxt.org/)
+corpusops_haproxy_registrations_securitytxt: |-
+  securitytxt: |-
+     Contact: mailto:security@org
+     Expires: Mon, 1 Jan 2035 09:42 +0200
+     Encryption: https://pgp.key-server.io/pks/lookup?op=get&search=0xXX
+     Preferred-Languages: fr,en
+     Canonical: https://org/.well-known/security.txt
+     Hiring: https://org/hiring
+
+```
+
 ### redis
 We have a special redis mode to do custom health checks on a redis cluster
 
