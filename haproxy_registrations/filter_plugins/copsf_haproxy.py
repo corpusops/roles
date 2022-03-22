@@ -26,9 +26,11 @@ except ImportError:
     from ordereddict import OrderedDict
 
 
+OBJECT_CUSTOM_BACKEND = re.compile('letsencrypt|securitytxt')
 OBJECT_SANITIZER = re.compile('[\\\@+\$^&~"#\'()\[\]%*.:/]',
                               flags=re.M | re.U | re.X)
-registration_prefix = 'corpusops_haproxy_registrations_registrations_'
+PREFIX = 'corpusops_haproxy_registrations_'
+registration_prefix = PREFIX + 'registrations_'
 DEFAULT_FRONTENDS = {80: {}, 443: {}}
 SSHPROXY = [
   'option tcplog',
@@ -142,6 +144,12 @@ def ordered_frontend_opts(opts=None):
         opt = opt.strip()
         if opt.startswith('acl '):
             pref += 100
+        elif opt.startswith('errorfile '):
+            pref += 200
+        elif opt.startswith('http-request '):
+            pref += 240
+        elif opt.startswith('http-response '):
+            pref += 250
         elif 'use_backend' in opt:
             pref += 500
         elif 'default_backend' in opt:
@@ -156,7 +164,7 @@ def ordered_frontend_opts(opts=None):
             pref += 50
             if 'wildcard' in opt:
                 pref += 1
-        if 'letsencrypt' in opt and (
+        if OBJECT_CUSTOM_BACKEND.search(opt) and (
             'acl ' in opt or
             'use_backend ' in opt
         ):
@@ -165,7 +173,6 @@ def ordered_frontend_opts(opts=None):
 
     opts.sort(key=sort)
     return opts
-
 
 
 def register_frontend(data,
@@ -178,6 +185,7 @@ def register_frontend(data,
                       raw_frontend=None,
                       regexes=None,
                       letsencrypt=None,
+                      securitytxt=None,
                       ssh_proxy=None,
                       ssh_proxy_host=None,
                       ssh_proxy_port=None):
@@ -328,6 +336,10 @@ def register_frontend(data,
                             bracket='{', ebracket='}')
                         if cfgentry not in opts:
                             opts.append(cfgentry)
+    if securitytxt and not frontend.get('securitytxt_activated'):
+        opts.extend(['acl securitytxt path_beg /.well-known/security.txt',
+                     'use_backend bck_securitytxt if securitytxt'])
+        frontend['securitytxt_activated'] = True
     if letsencrypt and not frontend.get('letsencrypt_activated'):
         opts.append('acl letsencrypt'
                     ' path_beg /.well-known/acme-challenge/')
@@ -367,6 +379,7 @@ def register_servers_to_backends(data,
                                  http_check=None,
                                  http_fallback_port=None,
                                  http_fallback=None,
+                                 securitytxt=None,
                                  letsencrypt=None,
                                  letsencrypt_host=None,
                                  letsencrypt_http_port=None,
@@ -488,6 +501,13 @@ def register_servers_to_backends(data,
                 }]
             }
         })
+    if hmode.startswith('http') and securitytxt:
+        backends.update({
+            'bck_securitytxt': {
+                'raw_opts': [
+                    'errorfile 503 {0}'.format(data["securitytxt_file"]),
+                    'errorfile 200 {0}'.format(data["securitytxt_file"]),
+                ]}})
     if ssh_proxy:
         sshbckname = get_ssh_backend_proxy_name(ssh_proxy_host, ssh_proxy_port,
                                                 k='ssh')
@@ -543,6 +563,7 @@ def make_registrations(data, ansible_vars=None):
     proxy_modes = {}
     for m in data["proxy_modes"]:
         proxy_modes["{0}".format(m)] = data["proxy_modes"][m]
+    securitytxt = bool(ansible_vars.get(PREFIX + 'securitytxt', False))
     for k in data['registrations']:
         definitions = data['registrations'][k]
         for payload in definitions:
@@ -558,7 +579,7 @@ def make_registrations(data, ansible_vars=None):
                 to_port = int(fdata.get('to_port', port))
                 user = fdata.get('user', None)
                 password = fdata.get('password', None)
-                letsencrypt = fdata.get('letsencrypt', None)
+                letsencrypt = fdata.get('letsencrypt', True)
                 letsencrypt_host = fdata.get(
                     'letsencrypt_host', None)
                 letsencrypt_http_port = fdata.get(
@@ -584,6 +605,7 @@ def make_registrations(data, ansible_vars=None):
                     wildcards=wildcards,
                     regexes=regexes,
                     raw_frontend=raw_frontend,
+                    securitytxt=securitytxt,
                     letsencrypt=letsencrypt,
                     ssh_proxy=ssh_proxy,
                     ssh_proxy_host=ssh_proxy_host,
@@ -611,6 +633,7 @@ def make_registrations(data, ansible_vars=None):
                         frontends=frontends,
                         backends=backends,
                         raw_backend=raw_backend,
+                        securitytxt=securitytxt,
                         letsencrypt=letsencrypt,
                         letsencrypt_host=letsencrypt_host,
                         letsencrypt_http_port=letsencrypt_http_port,
@@ -636,4 +659,4 @@ class FilterModule(object):
 
     def filters(self):
         return __funcs__
-# vim:set et sts=4 ts=4 tw=80
+# vim:set et sts=4 ts=4 tw=120

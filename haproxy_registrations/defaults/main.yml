@@ -15,6 +15,9 @@ corpusops_haproxy_registrations_cops_sub_namespaces:
   proxy_modes: {}
   registrations: {}
   ssl: {}
+corpusops_haproxy_registrations_securitytxt_file: "{{corpusops_services_proxy_haproxy_vars.prefix}}/security.txt"
+corpusops_haproxy_registrations_securitytxt_uri: /.well-known/security.txt
+corpusops_haproxy_registrations_securitytxt: ""
 corpusops_haproxy_registrations_frontends: {}
 corpusops_haproxy_registrations_backends: {}
 corpusops_haproxy_registrations_dispatchers: {}
@@ -31,6 +34,9 @@ corpusops_haproxy_registrations_files: []
 corpusops_haproxy_registrations_configs:
   - {name: "{{corpusops_haproxy_registrations_file}}",
      template: "../templates/cfg.cfg",
+     owner: "{{corpusops_haproxy_registrations_user}}", group: root, mode: "0640"}
+  - {name: "{{corpusops_haproxy_registrations_securitytxt_file}}",
+     template: "../templates/security.txt",
      owner: "{{corpusops_haproxy_registrations_user}}", group: root, mode: "0640"}
 corpusops_haproxy_registrations_check_config: true
 corpusops_haproxy_registrations_backend_opts_http_strict:
