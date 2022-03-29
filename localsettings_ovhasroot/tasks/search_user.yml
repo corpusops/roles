@@ -2,15 +2,20 @@
   block:
   # test if user can co with ssh without triggering unreachable host error
   - block:
+    - debug: {msg: "ssh -p {{ansible_port|default('22')}} {{ansible_ssh_common_args|default('')}} {{ansible_ssh_extra_args|default('')}} {{ansible_user}}@{{ansible_host|default(inventory_hostname)}}"}
     - shell: ssh -p {{ansible_port|default('22')}} {{ansible_ssh_common_args|default('')}} {{ansible_ssh_extra_args|default('')}} {{ansible_user}}@{{ansible_host|default(inventory_hostname)}}
       async: "{{cops_ovhasroot_connect_timeout}}"
       poll: 0
       register: rawpreconnect
+    - debug: {msg: {rawpreconnect: "{{rawpreconnect|default(none)}}"}}
+      when: cops_ovhasroot_debug|default(false)
     - async_status: {jid: "{{rawpreconnect.ansible_job_id}}"}
       register: rawpreconnect_result
       until: rawpreconnect_result.finished==1
       retries: "{{(cops_ovhasroot_connect_timeout/0.5)|int}}"
       delay: 0.5
+    - debug: {msg: {rawpreconnect_result: "{{rawpreconnect_result|default(none)}}"}}
+      when: cops_ovhasroot_debug|default(false)
     - assert: {that: [rawpreconnect_result.rc==0]}
     vars: {ansible_connection: local}
   # test then if user can escalate
@@ -22,6 +27,6 @@
   - debug:
       msg:
         msg: "connect failed for {{ansible_user}}"
-        rawconnect: rawconnect|default(none)
-        rawpreconnect_result: rawconnect_result|default(none)
+        rawpreconnect: "{{rawpreconnect|default(none)}}"
+        rawpreconnect_result: "{{rawconnect_result|default(none)}}"
     vars: {ansible_connection: local}
