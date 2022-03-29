@@ -1,7 +1,11 @@
 cops_ovhasroot_login: ""
 cops_ovhasroot_root_login: root
-cops_ovhasroot_logins: [debian, ubuntu, "{{cops_ovhasroot_root_login}}"]
-cops_ovhasroot_connect_timeout: 5
+cops_ovhasroot_logins:
+- debian
+- ubuntu
+- "{{cops_ovhasroot_root_login}}"
+# cops_ovhasroot_logins: [ubuntu, "{{cops_ovhasroot_root_login}}"]
+cops_ovhasroot_connect_timeout: 10
 cops_ovhasroot_sudoshell: sh -ec
 cops_ovhasroot_authorized_files: /root/.ssh/authorized_keys*
 cops_ovhasroot_sudocmd: |-
