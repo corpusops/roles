@@ -70,6 +70,7 @@
       {% set corpusops_services_proxy_haproxy        = corpusops_services_proxy_haproxy         | default(False) %}
       {% set corpusops_services_virt_docker          = corpusops_services_virt_docker           | default(False) %}
       {% set corpusops_services_virt_lxc             = corpusops_services_virt_lxc              | default(False) %}
+      {% set corpusops_services_backup_slash         = corpusops_services_backup_slash          | default(False) %}
       {% set corpusops_do_certbot                    = corpusops_do_certbot                     | default(False) %}
       {% set corpusops_do_haproxy_registrations      = corpusops_do_haproxy_registrations       | default(False) %}
       {% set corpusops_do_ms_iptables_registrations  = corpusops_do_ms_iptables_registrations   | default(False) %}
@@ -342,6 +343,9 @@
 - include_role: {public: false, name: corpusops.roles/services_proxy_haproxy}
   tags: [haproxy]
   when: [provision_corpusops_services_proxy_haproxy]
+- include_role: {public: false, name: corpusops.roles/services_backup_slash}
+  tags: [backup_slash]
+  when: [provision_corpusops_services_backup_slash]
 - include_role: {public: false, name: corpusops.roles/sslcerts}
   tags: [sslcerts]
   when: [provision_corpusops_sslcerts]
