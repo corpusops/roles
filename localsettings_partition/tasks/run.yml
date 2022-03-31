@@ -1,0 +1,48 @@
+- when: ansible_os_family is undefined
+  setup: {}
+  tags: [partitions_setup]
+  when: [partitions_setup|default(True)]
+# make gpt / mbr table
+- name: install parted
+  package: {name: parted, state: present}
+  tags: [install_parted]
+  when: [install_parted|default(True)]
+- include_tasks: partition_table.yml
+  loop: "{{profile.get('partitions_tables', [])}}"
+  tags: [do_partitions_tables]
+  when: [do_partitions_tables|default(True), "profile.get('partitions_tables', [])"]
+# apply partitions
+- include_tasks: partitions.yml
+  loop: "{{profile.get('partitions', [])}}"
+  tags: [do_partitions]
+  when: [do_partitions|default(True), "profile.get('partitions', [])"]
+# make RAID arrays
+- block:
+  - name: install mrlesmithjr.mdadm role
+    ansible.builtin.git:
+      repo: https://github.com/mrlesmithjr/ansible-mdadm.git
+      dest: "{{role_path}}/../../ansible-mdadm"
+      force: true
+    tags: [install_mdadm_role]
+    delegate_to: localhost
+  tags: [do_raid]
+  when: [do_raid|default(True), "profile.get('raid', [])|copsf_asbool"]
+- include_tasks: raid.yml
+  tags: [do_raid]
+  when: [do_raid|default(True), "profile.get('raid', [])|copsf_asbool"]
+# create lvm groups & volumes
+- include_tasks: lvm.yml
+  tags: [do_lvm]
+  when: [do_lvm|default(True), "(profile.get('lvm_pvs', [])|copsf_asbool) or (profile.get('lvm_vgs', [])|copsf_asbool) or (profile.get('lvm_lvs', [])|copsf_asbool)"]
+- include_tasks: fs.yml
+  loop: "{{profile.get('fs', [])}}"
+  tags: [do_fs]
+  when: [do_fs|default(True), "profile.get('fs', [])|copsf_asbool"]
+- include_tasks: fstab.yml
+  loop: "{{profile.get('fstab', [])}}"
+  tags: [do_fstab]
+  when: [do_fstab|default(True), "profile.get('fstab', [])|copsf_asbool"]
+- include_tasks: noreservedblocks.yml
+  loop: "{{profile.get('noreservedblocks', [])}}"
+  tags: [do_noreserved_blocks]
+  when: [do_noreserved_blocks|default(True), "profile.get('noreservedblocks', [])|copsf_asbool"]

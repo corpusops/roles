@@ -1,0 +1,5 @@
+- shell: |-
+    if [ "x$(tune2fs -l {{item}} |egrep "Reserved block count"|awk -F: '{print $2}'|xargs -n1)" != "x0" ];then
+      tune2fs -m 0 {{item}}
+    fi
+  changed_when: false

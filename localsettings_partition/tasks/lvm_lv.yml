@@ -1,0 +1,9 @@
+- community.general.lvol:
+    vg: "{{item.vg}}"
+    state: "{{item.state|default(omit)}}"
+    lv: "{{item.lv|default(omit)}}"
+    thinpool: "{{item.thinpool|default(omit)}}"
+    snapshot: "{{item.snapshot|default(omit)}}"
+    size: "{{item.size|default(omit)}}"
+    opts: "{{item.opts|default(omit)}}"
+    shrink: "{{item.shrink|default(omit)}}"

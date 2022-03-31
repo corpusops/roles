@@ -1,0 +1,10 @@
+- parted: {device: "{{item.name}}", state: info}
+  register: diskinfo
+- when: diskinfo.get('disk', {}).get('table', '') == 'unknown'
+  block:
+  - shell: |-
+      set -ex
+      sgdisk -Z {{item.name}} || /bin/true
+      sgdisk -o {{item.name}}
+- parted: {device: "{{item.name}}", state: info}
+  register: diskinfo

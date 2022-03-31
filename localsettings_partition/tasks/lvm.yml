@@ -1,0 +1,8 @@
+- include_tasks: lvm_vg.yml
+  loop: "{{profile.get('lvm_vgs', [])}}"
+  tags: [lvm_vgs]
+  when: [lvm_vgs|default(True)]
+- include_tasks: lvm_lv.yml
+  loop: "{{profile.get('lvm_lvs', [])}}"
+  tags: [lvm_lvs]
+  when: [lvm_lvs|default(True)]

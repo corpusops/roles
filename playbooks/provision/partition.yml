@@ -1,0 +1,6 @@
+---
+- hosts: "{{provision_host|default('all')}}"
+  gather_facts: false
+  tasks:
+  - include_role: {public: false, name: corpusops.roles/localsettings_partition}
+
