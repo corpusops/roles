@@ -1,0 +1,6 @@
+- community.general.lvg:
+    vg: "{{item.name}}"
+    pvs: "{{item.pvs}}"
+    pv_options: "{{item.pv_options|default(omit)}}"
+    vg_options: "{{item.vg_options|default(omit)}}"
+    state: "{{item.state|default(omit)}}"

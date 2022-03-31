@@ -1,0 +1,30 @@
+corpusops_localsettings_partition_profiles:
+  stor1_stock:
+    partitions_tables:
+    - {name: /dev/sda, type: gpt}
+    - {name: /dev/sdb, type: gpt}
+    - {name: /dev/sdc, type: gpt}
+    - {name: /dev/sdd, type: gpt}
+    partitions:
+    - {name: /dev/sda, number: 1, type: fat32, label: gpt, flags: [esp],  start: 0%,      end: 512MiB}
+    - {name: /dev/sdb, number: 1, type: fat32, label: gpt, flags: [esp],  start: 0%,      end: 512MiB}
+    - {name: /dev/sdc, number: 1, type: fat32, label: gpt, flags: [esp],  start: 0%,      end: 512MiB}
+    - {name: /dev/sdd, number: 1, type: fat32, label: gpt, flags: [esp],  start: 0%,      end: 512MiB}
+    - {name: /dev/sda, number: 2,              label: gpt, flags: [raid], start: 512MiB,  end: "100%"}
+    - {name: /dev/sdb, number: 2,              label: gpt, flags: [raid], start: 512MiB,  end: "100%"}
+    - {name: /dev/sdc, number: 2,              label: gpt, flags: [raid], start: 512MiB,  end: "100%"}
+    - {name: /dev/sdd, number: 2,              label: gpt, flags: [raid], start: 512MiB,  end: "100%"}
+    raid:
+    - {name: md2, level: "6", devices: [/dev/sda2, /dev/sdb2, /dev/sdc2, /dev/sdd2], state: present}
+    lvm_vgs:
+    - {name: vg, pvs: /dev/md2, state: present}
+    lvm_lvs:
+    - {lv: data, vg: vg, shrink: false, size: "100%FREE", state: present}
+    fs:
+    - {dev: /dev/vg/data, force: false, fstype: ext4, opts: "-T news"}
+    fstab:
+    - {src: /dev/vg/data, path: /srv, fstype: ext4, state: mounted}
+    - {src: /srv/mountpoints/data, path: /data, fstype: none, state: mounted, opts: "bind,exec,rw", mk_src: true, mk_dest: true}
+    noreservedblocks: [/dev/vg/data]
+# fails by default !
+corpusops_localsettings_partition_profile: null

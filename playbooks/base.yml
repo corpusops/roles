@@ -5,6 +5,9 @@
 - import_playbook: install_python.yml
   tags: [do_base]
   when: [do_base|default(true)]
+- import_playbook: provision/partition.yml
+  tags: [do_server_partitions]
+  when: [do_server_partitions|default(true)]
 - import_playbook: mountpoints.yml
   tags: [do_mountpoints]
   when: [do_mountpoints|default(true)]

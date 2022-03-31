@@ -1,0 +1,15 @@
+- name: "corpusops_localsettings_partition preflight check - SKIPTEST"
+  debug: {msg: "{{corpusops_localsettings_partition | default(True) }}"}
+  register: corpusops_localsettings_partition_can_run
+  tags: corpusops_localsettings_partition
+- debug:
+    msg:
+    - "{{corpusops_localsettings_partition_profile}}"
+    - "{{corpusops_localsettings_partition_profile|copsf_asbool}}"
+  when: "corpusops_localsettings_partition_debug|default(false)"
+- include_tasks: run.yml
+  when:
+  - 'corpusops_localsettings_partition_can_run.msg == True'
+  - corpusops_localsettings_partition_profile|copsf_asbool
+  tags: [cops_localsettings_paritition]
+  vars: {profile: "{{corpusops_localsettings_partition_profile}}"}

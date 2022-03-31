@@ -1,0 +1,11 @@
+- template:
+    src: mke2fs.conf
+    dest: /etc/mke2fs.conf
+    force: true
+    trim_blocks: true
+- debug: {msg: "{{item}}"}
+- community.general.filesystem:
+    fstype: "{{item.fstype|default(omit)}}"
+    dev: "{{item.dev|default(omit)}}"
+    force: "{{item.force|default(omit)}}"
+    opts: "{{item.opts|default(omit)}}"

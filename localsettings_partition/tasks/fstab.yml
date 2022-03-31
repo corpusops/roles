@@ -1,0 +1,14 @@
+- when: item.get('mk_src', False)
+  file:
+    state: directory
+    path: "{{item.get('src', None)}}"
+- when: item.get('mk_dest', False)
+  file:
+    state: directory
+    path: "{{item.get('path', None)}}"
+- ansible.posix.mount:
+    fstype: "{{item.fstype|default(omit)}}"
+    src: "{{item.src|default(omit)}}"
+    path: "{{item.path|default(omit)}}"
+    opts: "{{item.opts|default(omit)}}"
+    state: "{{item.state|default(omit)}}"

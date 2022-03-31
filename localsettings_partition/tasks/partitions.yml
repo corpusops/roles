@@ -1,0 +1,9 @@
+- community.general.parted:
+    device:   "{{item.name|default(omit)}}"
+    number:   "{{item.number|default(omit)}}"
+    fs_type:  "{{item.type|default(omit)}}"
+    flags:    "{{item.flags|default(omit)}}"
+    label:    "{{item.label|default(omit)}}"
+    part_end: "{{item.end|default(omit)}}"
+    part_start: "{{item.start|default(omit)}}"
+    state: present

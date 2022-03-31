@@ -1,0 +1,2 @@
+dependencies:
+- role: corpusops.roles/localsettings_partition_vars

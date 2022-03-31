@@ -1,0 +1,4 @@
+- set_fact:
+    cacheable: false
+    mdadm_arrays: "{{profile.get('raid', [])}}"
+- include_role: {name: ansible-mdadm}
