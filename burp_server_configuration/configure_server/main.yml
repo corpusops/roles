@@ -15,7 +15,7 @@
       computed_burp_clients: |-
         {%- set l = hostvars.localhost.burp_reconf_limit and hostvars.localhost.burp_reconf_limit|int or None %}
         {%- set f = (burpclientconfdircontents.stdout.split()|sort) %}
-        {%- set c = (burp_clients|default([])|sort) %}
+        {%- set c = (aburp_clients|default([])|flatten(levels=1)|sort) %}
         {%- if not c %}
         {%-   for i in f %}{% if i in hostvars %}
         {%-    set _ = c.append(i) %}

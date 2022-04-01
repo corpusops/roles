@@ -22,7 +22,7 @@
         content:
           _cops_burpsign: |-
             {% set res = {'cnames': []} %}
-            {% for c in burp_clients %}
+            {% for c in aburp_clients|flatten(levels=1) %}
             {%  set cdata = hostvars[c] %}
             {%  set cname = cdata.get('burp_cname', '') or cdata['inventory_hostname'] %}
             {%  if cname not in res.cnames %}{% set _ = res.cnames.append(cname) %}{% endif %}
