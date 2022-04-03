@@ -1,3 +1,5 @@
 ---
 - hosts: all
-  roles: [corpusops.roles/localsettings_partition]
+  roles:
+  - corpusops.roles/ansible_plugins
+  - corpusops.roles/localsettings_partition

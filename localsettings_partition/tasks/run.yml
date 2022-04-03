@@ -1,7 +1,6 @@
-- when: ansible_os_family is undefined
+- when: ["ansible_os_family is undefined",  "partitions_setup|default(True)"]
   setup: {}
   tags: [partitions_setup]
-  when: [partitions_setup|default(True)]
 # make gpt / mbr table
 - name: install parted
   package: {name: parted, state: present}
