@@ -1,5 +1,4 @@
-corpusops_localsettings_partition_profiles:
-  stor1_stock:
+corpusops_localsettings_partition_stor1_stock:
     partitions_tables:
     - {name: /dev/sda, type: gpt}
     - {name: /dev/sdb, type: gpt}
@@ -19,12 +18,25 @@ corpusops_localsettings_partition_profiles:
     lvm_vgs:
     - {name: vg, pvs: /dev/md2, state: present}
     lvm_lvs:
-    - {lv: data, vg: vg, shrink: false, size: "100%FREE", state: present}
+    - {lv: data,    vg: vg, shrink: false, size: "50%FREE",  state: present}
+    - {lv: backups, vg: vg, shrink: false, size: "100%FREE", state: present}
     fs:
-    - {dev: /dev/vg/data, force: false, fstype: ext4, opts: "-T news"}
+    - {dev: /dev/vg/data,    force: false, fstype: ext4, opts: "-T news"}
+    - {dev: /dev/vg/backups, force: false, fstype: ext4, opts: "-T news"}
     fstab:
-    - {src: /dev/vg/data, path: /srv, fstype: ext4, state: mounted}
+    - {src: /dev/vg/data,    path: /srv,         fstype: ext4, state: mounted}
+    - {src: /dev/vg/backups, path: /mnt/backups, fstype: ext4, state: mounted, mk_dest: true}
     - {src: /srv/mountpoints/data, path: /data, fstype: none, state: mounted, opts: "bind,exec,rw", mk_src: true, mk_dest: true}
-    noreservedblocks: [/dev/vg/data]
+    noreservedblocks: [/dev/vg/data, /dev/vg/backups]
+corpusops_localsettings_partition_stor1_stock_lowdata:
+    lvm_lvs:
+    - {lv: data,    vg: vg, shrink: false, size: "20G", state: present}
+    - {lv: backups, vg: vg, shrink: false, size: "100%FREE", state: present}
+corpusops_localsettings_partition_profiles:
+  stor1_stock: "{{corpusops_localsettings_partition_stor1_stock|copsf_deepcopy}}"
+  stor1_stock_low_data: |-
+    {% set f = corpusops_localsettings_partition_stor1_stock|copsf_deepcopy    %}
+    {% set _ = f.update(corpusops_localsettings_partition_stor1_stock_lowdata) %}
+    {{ f | to_json }}
 # fails by default !
 corpusops_localsettings_partition_profile: null
