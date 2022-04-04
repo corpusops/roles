@@ -59,7 +59,7 @@ cops_burpclientserver_custom_lines: "{% set lines = (lookup(
       default=lookup('vars', 'cops_burpclientserver_custom_lines_{0}'.format(cops_burpclientserver_scname),
          default=cops_burpclientserver_default_custom_lines))))) %}{%
   if lines|copsf_islist %}{% set lines = lines|join('\n')%}{%endif%}
-  {{lines}}"
+  {{-lines}}"
 cops_burpclientserver_backup_dirs: "{{(lookup(
  'vars', 'burpclientserver_backup_dirs_{0}'.format(cops_burpclientserver_cname),
   default=lookup(
