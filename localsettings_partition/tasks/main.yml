@@ -11,5 +11,5 @@
   when:
   - 'corpusops_localsettings_partition_can_run.msg == True'
   - corpusops_localsettings_partition_profile|copsf_asbool
-  tags: [cops_localsettings_paritition]
+  tags: [cops_localsettings_partition]
   vars: {profile: "{{corpusops_localsettings_partition_profile}}"}
