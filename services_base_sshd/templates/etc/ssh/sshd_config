@@ -27,6 +27,8 @@ Match Group sftponly
   X11Forwarding no
   AllowTcpForwarding no
 
+{{ corpusops_services_base_sshd_custom_config }}
+
 # The strategy used for options in the default sshd_config shipped with
 # OpenSSH is to specify options with their default value where
 # possible, but leave them commented.  Uncommented options override the

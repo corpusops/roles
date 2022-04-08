@@ -38,3 +38,4 @@ corpusops_services_base_sshd_settings_UsePrivilegeSeparation: sandbox
 corpusops_services_base_sshd_settings_UsePAM: 'yes'
 corpusops_services_base_sshd_settings_PermitRootLogin: 'without-password'
 corpusops_services_base_sshd_chroot_sftp: False
+corpusops_services_base_sshd_custom_config: ""
