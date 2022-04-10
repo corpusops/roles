@@ -1,0 +1,70 @@
+- name: "get gpg keyid {{keyinfo.email}}"
+  args: {executable: /bin/bash}
+  shell: |-
+    {% set password = keyinfo.password|default('') %}
+    {% set name = keyinfo.name|default('') %}
+    set -x
+    gpg="gpg --keyid-format LONG"
+    testkey() {\
+      $gpg --list-keys        {{keyinfo.email}}|grep -q "<{{keyinfo.email}}>";\
+      $gpg --list-secret-keys {{keyinfo.email}}|grep -q "<{{keyinfo.email}}>";\
+    }
+    output_id() { $gpg --list-keys {{keyinfo.email}}|grep -B1 "<{{keyinfo.email}}>"|head -n1|xargs -n1; }
+    generate_key() {
+      if (rngd -V);then sudo rngd -r /dev/urandom;fi
+      echo "gpgkeycreate"
+      gpg --batch --gen-key <<EOF
+    Key-Type: 1
+    Key-Length: 4096
+    Subkey-Type: 1
+    Subkey-Length: 4096
+    Expire-Date: 0
+    Name-Real: {{name}}
+    Name-Email: {{keyinfo.email}}
+    {% if password %}
+    Passphrase: {{password}}
+    {% endif %}
+    EOF
+    }
+    {% set  gpg_trust_level = gpg_trust_level|default("5") %}
+    out_and_trust() {
+      keyid=$(output_id)
+      echo $keyid
+      {% if gpg_trust_level %}
+      printf "{{gpg_trust_level}}\ny\n"\
+      |gpg --batch --pinentry-mode loopback --command-fd 0 --expert --edit-key $keyid trust>&2
+      {% endif %}
+    }
+    if (testkey);then
+      out_and_trust
+    else
+      {% if gpg_key_create|default(False) %}
+      generate_key
+      if (testkey);then out_and_trust;else echo "keynotpresent";fi
+      {% else %}
+      echo "keynotpresent"
+      {% endif %}
+    fi
+  no_log: "{{not corpusops_services_duplicity_gpg_key_debug|default(false)}}"
+  register: gpg_key_idc
+  changed_when: "'keycreate' in gpg_key_idc.stdout"
+- {when: "'keynotpresent' in gpg_key_idc.stdout", set_fact: {cacheable: false, gpg_key_id: false}}
+- when: "'keynotpresent' not in gpg_key_idc.stdout"
+  block:
+  - set_fact: {cacheable: false, gpg_key_id: "{{gpg_key_idc.stdout.splitlines()[-1].strip()}}"}
+  - when: "gpg_key_export|default(false)"
+    block:
+    - name: "get gpg pubkey {{keyinfo.email}}"
+      shell: set -e;gpg --armor --export {{gpg_key_id}}
+      changed_when: false
+      register: gpg_key
+    - name: "get gpg privkey {{keyinfo.email}}"
+      shell: set -e;gpg --pinentry-mode loopback --armor --passphrase "$GPG_PASS" --export-secret-keys {{gpg_key_id}}
+      no_log: "{{not corpusops_services_duplicity_gpg_key_debug|default(false)}}"
+      changed_when: false
+      register: gpg_key_private
+      environment: {GPG_PASS: "{{keyinfo.password|default('')}}"}
+    - set_fact:
+        cacheable: false
+        gpg_key: "{{gpg_key.stdout}}"
+        gpg_key_private: "{{gpg_key_private.stdout}}"
