@@ -1,0 +1,18 @@
+---
+- when: "configitem.makedirs|default(true)"
+  file:
+    state: directory
+    dest: "{{configitem.dest|copsf_dirname}}"
+    mode: "{{configitem.dir_mode|default(omit)}}"
+    owner: "{{configitem.dir_owner|default(configitem.owner|default(omit))}}"
+    group: "{{configitem.dir_group|default(configitem.group|default(omit))}}"
+  notify: "{{configitem.notify|default(omit)}}"
+- template:
+    src: "{{configitem.src|default(configitem.dest[1:])}}"
+    dest: "{{configitem.dest}}"
+    mode: "{{configitem.mode|default(omit)}}"
+    owner: "{{configitem.owner|default(omit)}}"
+    group: "{{configitem.group|default(omit)}}"
+    force: "{{configitem.force|default(True)}}"
+    trim_blocks: "{{configitem.trim_blocks|default(false)}}"
+  notify: "{{configitem.notify|default(omit)}}"
