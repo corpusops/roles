@@ -6,7 +6,7 @@
 - include_tasks: configuration.yml
   when: 'cops_burp_can_run.msg == True'
   tags: [cops_burp, burp_configuration, cops_burp_configuration]
-- include_role: {name: burp_openssl}
+- include_role: {name: corpusops.roles/burp_openssl}
   tags: [cops_burp, burp_ssl, cops_burp_ssl]
 - include_tasks: services.yml
   when: 'cops_burp_can_run.msg == True'
