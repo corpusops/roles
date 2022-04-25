@@ -158,6 +158,7 @@
       provision_corpusops_services_virt_lxc: {{ corpusops_services_virt_lxc }}
       provision_corpusops_sshkeys: {{ corpusops_sshkeys }}
       provision_corpusops_sslcerts: {{ corpusops_sslcerts }}
+      provision_corpusops_services_backup_slash: {{ corpusops_services_backup_slash }}
   tags: [prereqs,corpusops_vars,corpusops_vars_core,corpusops_vars_provision]
 - include_role: {public: false, name: corpusops.roles/switch_to_systemd_resolved}
   tags: [switch_to_systemd]
