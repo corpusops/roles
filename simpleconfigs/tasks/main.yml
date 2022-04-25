@@ -15,4 +15,5 @@
     group: "{{configitem.group|default(omit)}}"
     force: "{{configitem.force|default(True)}}"
     trim_blocks: "{{configitem.trim_blocks|default(false)}}"
+  register: simpleconfigitem
   notify: "{{configitem.notify|default(omit)}}"
