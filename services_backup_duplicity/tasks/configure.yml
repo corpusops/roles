@@ -1,0 +1,9 @@
+- include_tasks: profile.yml
+  loop_control: {loop_var: duplicity_profile_name}
+  loop: "{{corpusops_services_backup_duplicity_selected_profiles}}"
+- include_role: {name: corpusops.roles/simpleconfigs/wrapper}
+  vars:
+    configitems:
+    - src: "{{duplicity_logrotate_template|default('etc/logrotate.d/duplicity')}}"
+      dest: "{{duplicity_logrotate_dest|default('/etc/logrotate.d/duplicity')}}"
+      mode: "0644"

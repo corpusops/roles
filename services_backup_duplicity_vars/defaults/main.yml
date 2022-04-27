@@ -1,0 +1,150 @@
+corpusops_services_backup_duplicity_gpgcontroller: localhost
+corpusops_services_backup_duplicity_cache_folder: /srv/nobackup/duplicity_cache
+corpusops_services_backup_duplicity_bpackages: [gpg, rng-tools, gettext,
+    python3-pip, python3-swiftclient, python3-boto3, python3-boto, python3-fasteners]
+corpusops_services_backup_duplicity_spackages: |-
+  {{ ((ansible_distribution in ['Ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) > ('18'|copsf_looseversion))) and
+  ['librsync-dev']
+    or
+  ['librsync-dev']
+  )}}
+corpusops_services_backup_duplicity_packages: "{{corpusops_services_backup_duplicity_bpackages + corpusops_services_backup_duplicity_spackages }}"
+corpusops_services_backup_duplicity_packages_local: [gpg, rng-tools]
+
+corpusops_services_backup_duplicity_pythonversion: "3"
+corpusops_services_backup_duplicity_pip: ["boto3>=1.17.94"]
+
+corpusops_services_backup_duplicity_gpg_key_name: "{{inventory_hostname}}-duplicity"
+corpusops_services_backup_duplicity_gpg_key_email: "{{corpusops_services_backup_duplicity_gpg_key_name}}@local"
+corpusops_services_backup_duplicity_gpg_key_password: secretvP9eR3jC8uP9hR8xE2pC8oB7vJ9qG2hN
+
+corpusops_services_backup_duplicity_install_prefix: "{{corpusops_core_apps_path}}/duplicity"
+corpusops_services_backup_duplicity_git: "https://gitlab.com/kiorky/duplicity.git"
+corpusops_services_backup_duplicity_git_version: "master"
+corpusops_services_backup_duplicity_prefix: "/etc/duplicity-corpusops"
+corpusops_services_backup_duplicity_cron_prefix: "/etc/cron.d"
+
+corpusops_services_backup_duplicity_env_slug: ""
+corpusops_services_backup_duplicity_backup_slug: ""
+corpusops_services_backup_duplicity_duplicity_slug: ""
+corpusops_services_backup_duplicity_wrapper_slug: ""
+corpusops_services_backup_duplicity_extra_args: ""
+corpusops_services_backup_duplicity_cleanup_slug: ""
+#corpusops_services_backup_duplicity_extra_args: "--s3-endpoint-url=\"{{url}}\""
+#       corpusops_services_backup_duplicity_env_slug: |-
+#         {% if duplicity[inventory_hostname].s3_user|default('') |copsf_asbool %}
+#         export BACKUP_DEST="s3://{{duplicity[inventory_hostname].bucket}}"
+#         export AWS_ACCESS_KEY_ID="{{duplicity[inventory_hostname].s3_user}}"
+#         export AWS_SECRET_ACCESS_KEY="{{duplicity[inventory_hostname].s3_password}}"
+#         {% else %}
+#         export BACKUP_DEST="swift://{{duplicity[inventory_hostname].bucket}}"z
+#         export SWIFT_AUTHURL="https://auth.cloud.ovh.net/v3/"
+#         export SWIFT_AUTHVERSION="3"
+#         export SWIFT_PROJECT_DOMAIN_NAME="Default"
+#         export SWIFT_USERNAME="{{duplicity[inventory_hostname].swift_user}}"
+#         export SWIFT_PASSWORD="{{duplicity[inventory_hostname].swift_password}}"
+#         export SWIFT_REGIONNAME="DE"
+#         export SWIFT_TENANTID="7e885449b91f4b63ad9001c9d4b4e3e8"
+#         export OS_AUTH_URL=${SWIFT_AUTHURL}
+#         export OS_IDENTITY_API_VERSION=$SWIFT_AUTHVERSION
+#         export OS_PASSWORD=${SWIFT_PASSWORD}
+#         export OS_PROJECT_DOMAIN_ID=default
+#         export OS_PROJECT_DOMAIN_NAME=${SWIFT_PROJECT_DOMAIN_NAME}
+#         export OS_PROJECT_ID="${SWIFT_TENANTID}"
+#         export OS_PROJECT_NAME=9892686484035682
+#         export OS_REGION_NAME=${SWIFT_REGIONNAME}
+#         export OS_USER_DOMAIN_NAME=Default
+#         export OS_USERNAME=${SWIFT_USERNAME}
+#         {% endif %}
+
+
+corpusops_services_backup_duplicity_sign: ""
+corpusops_services_backup_duplicity_sign_password: ""
+corpusops_services_backup_duplicity_max_time: "$((60*60*24*15))"
+corpusops_services_backup_duplicity_par2: "--par2-redundancy=10"
+corpusops_services_backup_duplicity_volsize: 2000
+corpusops_services_backup_duplicity_args: '--volsize {{corpusops_services_backup_duplicity_volsize}} --num-retries=5 --s3-use-new-style --s3-use-multiprocessing --no-compression --num-retries 3 --asynchronous-upload --verbosity notice --cf-backend swift --encrypt-key="$GPG_ENC_KEY" $( [[ -n "$GPG_SIGN_KEY" ]] && "--sign-key=\"$GPG_SIGN_KEY\""; ) --archive-dir="{{corpusops_services_backup_duplicity_cache_folder}}" {{corpusops_services_backup_duplicity_par2}} {{corpusops_services_backup_duplicity_extra_args}}'
+corpusops_services_backup_duplicity_logrotate: 31
+corpusops_services_backup_duplicity_full_retention: 240M
+corpusops_services_backup_duplicity_full_cmd: "duplicity full"
+corpusops_services_backup_duplicity_keep_last: "1"
+corpusops_services_backup_duplicity_remove_older_than: "15D"
+
+corpusops_services_backup_duplicity_incr_cmd: "duplicity incr --full-if-older-than {{corpusops_services_backup_duplicity_full_retention}}"
+corpusops_services_backup_duplicity_cmd: "duplicity"
+corpusops_services_backup_duplicity_clean_cmd: |-
+    duplicity remove-all-inc-of-but-n-full {{corpusops_services_backup_duplicity_keep_last}}
+    duplicity remove-older-than            {{corpusops_services_backup_duplicity_remove_older_than}}
+corpusops_services_backup_duplicity_cron_periodicity: "#0 4 * * *"
+corpusops_services_backup_duplicity_cron_cleanup_periodicity: "#0 16 * * *"
+#
+corpusops_services_backup_duplicity_cold_cron_periodicity: "#0 4 * * SAT"
+corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity: "#0 16 * * *"
+corpusops_services_backup_duplicity_cold_full_retention: 3M
+corpusops_services_backup_duplicity_cold_incr_cmd: "duplicity incr --full-if-older-than {{corpusops_services_backup_duplicity_cold_full_retention}}"
+#
+corpusops_services_backup_duplicity_selected_profiles: []
+# corpusops_services_backup_duplicity_selected_profiles: [backup_server]
+corpusops_services_backup_duplicity_profiles:
+  backup_server_cold: |-
+    {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+    {%- set _=p.update(corpusops_services_backup_duplicity_profiles_cold) %}
+    {{- p | to_json }}
+  backup_server_data: |-
+    {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+    {%- set _=p.update(corpusops_services_backup_duplicity_profiles_data) %}
+    {{- p | to_json }}
+  backup_server_burp2: |-
+    {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+    {%- set _=p.update(corpusops_services_backup_duplicity_profiles_burp2) %}
+    {{- p | to_json }}
+corpusops_services_backup_duplicity_profiles_burp2:
+  burp2: true
+  dirs: ['/data/burp2']
+corpusops_services_backup_duplicity_profiles_data:
+  dirs: ['/data/nobackup/archives']
+corpusops_services_backup_duplicity_profiles_cold:
+  dirs: ['/data/nobackup/cold']
+  periodicity: "{{corpusops_services_backup_duplicity_cold_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity}}"
+corpusops_services_backup_duplicity_profiles_base:
+  use_innerdirs: true
+  periodicity: "{{corpusops_services_backup_duplicity_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_cron_cleanup_periodicity}}"
+  max_time: "{{corpusops_services_backup_duplicity_max_time}}"
+  prefix: "{{corpusops_services_backup_duplicity_prefix}}"
+  cron_prefix: "{{corpusops_services_backup_duplicity_cron_prefix}}"
+  #
+  gpg_key_name: "{{corpusops_services_backup_duplicity_gpg_key_name}}"
+  gpg_key_email: "{{corpusops_services_backup_duplicity_gpg_key_email}}"
+  gpg_key_password: "{{corpusops_services_backup_duplicity_gpg_key_password}}"
+  #
+  gpg_sign_key: "{{corpusops_services_backup_duplicity_sign}}"
+  gpg_sign_key_password: "{{corpusops_services_backup_duplicity_sign_password}}"
+  #
+  args: "{{corpusops_services_backup_duplicity_args}} --copy-links"
+  full_cmd: "{{corpusops_services_backup_duplicity_full_cmd}}"
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}}"
+  clean_cmd: "{{corpusops_services_backup_duplicity_clean_cmd}}"
+  #
+  env: "{{duplicity_profile_name}}-env"
+  env_slug: "{{corpusops_services_backup_duplicity_env_slug}}"
+  #
+  cleanup: "{{duplicity_profile_name}}-cleanup"
+  cleanup_slug: "{{corpusops_services_backup_duplicity_cleanup_slug}}"
+  #
+  wrapper: "{{duplicity_profile_name}}-wrapper"
+  wrapper_slug: "{{corpusops_services_backup_duplicity_wrapper_slug}}"
+  #
+  probe: "{{duplicity_profile_name}}-probe"
+  #
+  backup: "{{duplicity_profile_name}}-backup"
+  backup_full: "{{duplicity_profile_name}}-backup-full"
+  backup_slug: "{{corpusops_services_backup_duplicity_backup_slug}}"
+  #
+  duplicity: "{{duplicity_profile_name}}-duplicity"
+  duplicity_slug: "{{corpusops_services_backup_duplicity_duplicity_slug}}"
+  duplicity_cmd: "{{corpusops_services_backup_duplicity_cmd}}"
+  #
+  cron: "duplicity-{{duplicity_profile_name|regex_replace('[_]', '-')}}"
+  cron_script: etc/cron.d/crontab

@@ -1,0 +1,40 @@
+#!/bin/bash
+SDEBUG=${SDEBUG-}
+
+if [[ -n $SDEBUG ]];then set -x;fi
+
+get_pids() { grep "pid:" $BACKUP_STATE |awk -F pid: '{print $2}'; }
+remove_from_state() { sed -i -re "/pid:$1/ d" "$BACKUP_STATE"; }
+delete_state() { if [ -e $BACKUP_STATE ];then rm -vf "$BACKUP_STATE";fi; }
+mark_state() { echo "{{duplicity_profile_name}} START $(date)" > "$BACKUP_STATE"; }
+log() { echo "[{{duplicity_profile_name}}]: $@">&2; }
+vv() { log "$@";"$@"; }
+die() { log "$@";exit ${ret:-1}; }
+get_gpg_keyid_by_email() { gpg --keyid-format LONG --list-keys $1|grep -B1 "<$1>"|head -n1|xargs -n1; }
+function get_children_pids() {
+    cpids=$(pgrep -P $1|xargs)
+    for cpid in $cpids;do
+        echo "$cpid"
+        get_children_pids $cpid
+    done
+}
+
+export BACKUP_STATE=/run/duplicity_{{duplicity_profile_name}}.state
+export GPG_ENC_KEY="$(get_gpg_keyid_by_email {{duplicity_profile.gpg_key_email}})"
+export GPG_SIGN_KEY="{{duplicity_profile.gpg_sign_key}}"
+export PASSPHRASE="{{duplicity_profile.gpg_key_password}}"
+export SIGN_PASSPHRASE="{{duplicity_profile.gpg_sign_key_password}}"
+export LOG_DIR="${LOG_DIR:-/var/log/duplicity}"
+export DUPLICITY_ARCHIVES_DIR="{{corpusops_services_backup_duplicity_cache_folder}}"
+export DUPLICITY_DRYRUN=${DUPLICITY_DRYRUN-}
+export DUPLICITY_VERBOSITY=${DUPLICITY_VERBOSITY-9}
+export DUPLICITY_FORCE_FULL=${DUPLICITY_FORCE_FULL-}
+export DUPLICITY_MAX_BACKUP_SECONDS=${DUPLICITY_MAX_BACKUP_SECONDS:-{{duplicity_profile.max_time}}}
+{{duplicity_profile.env_slug}}
+
+[[ -n "$GPG_ENC_KEY" ]] || ( die "NO GPG_ENC_KEY"; )
+[[ -n "$PASSPHRASE" ]] || ( die "NO PASSPHRASE"; )
+
+if [[ -n "$GPG_SIGN_KEY" ]];then
+    [[ -n "$SIGN_PASSPHRASE" ]] || ( die "NO SIGN_PASSPHRASE"; )
+fi
