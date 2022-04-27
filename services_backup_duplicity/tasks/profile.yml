@@ -1,0 +1,39 @@
+- set_fact:
+    cacheable: false
+    duplicity_profile: "{{corpusops_services_backup_duplicity_profiles[duplicity_profile_name]}}"
+  no_log: "{{not corpusops_services_backup_duplicity_gpg_key_debug|default(false)}}"
+- include_tasks: gen_gpg_key.yml
+  tags: [duplicity_gpg]
+  loop_control: {loop_var: keyinfo}
+  loop:
+  - name: "{{duplicity_profile.gpg_key_name}}"
+    email: "{{duplicity_profile.gpg_key_email}}"
+    password: "{{duplicity_profile.gpg_key_password}}"
+- include_role: {name: corpusops.roles/simpleconfigs/wrapper}
+  tags: [duplicity_conf]
+  vars:
+    configitems:
+    - src: "{{duplicity_profile.cron_script|default('etc/cron.d/crontab')}}"
+      dest: "{{duplicity_profile.cron_prefix}}/{{duplicity_profile.cron}}"
+      mode: "0644"
+    - src: "{{duplicity_provile.env_script|default('etc/duplicity/env')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.env}}"
+      mode: "0600"
+    - src: "{{duplicity_profile.wrapper_script|default('etc/duplicity/wrapper')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.wrapper}}"
+      mode: "0700"
+    - src: "{{duplicity_profile.probe_script|default('etc/duplicity/probe')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.probe}}"
+      mode: "0700"
+    - src: "{{duplicity_profile.backup_script|default('etc/duplicity/backup-full')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.backup_full}}"
+      mode: "0700"
+    - src: "{{duplicity_profile.backup_script|default('etc/duplicity/backup')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.backup}}"
+      mode: "0700"
+    - src: "{{duplicity_profile.cleanup_script|default('etc/duplicity/cleanup')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.cleanup}}"
+      mode: "0700"
+    - src: "{{duplicity_profile.cleanup_script|default('etc/duplicity/duplicity')}}"
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.duplicity}}"
+      mode: "0700"

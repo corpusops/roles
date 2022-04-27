@@ -1,0 +1,48 @@
+#!/bin/bash
+#{% set use_innerdirs = duplicity_profile.use_innerdirs|default(False)  %}
+#{% set burp2 = duplicity_profile.burp2|default(False)  %}
+#{% set multi = use_innerdirs or burp2 %}
+set -e
+
+
+cd "$(dirname $(readlink -f "$0"))"
+. {{duplicity_profile_name}}-env
+{{duplicity_profile.cleanup_slug}}
+
+
+dupli() {
+    exit 0
+    local dir="$1"
+    local url="${BACKUP_DEST}/${1}"
+    local log_file="${LOG_DIR}/${1//\//_}.log"
+    if [ ! -e "$LOG_DIR" ];then mkdir -pv ${LOG_DIR};fi
+    {% for i in duplicity_profile.clean_cmd.splitlines() %}{% if i.strip()%}
+    {{i}} {{duplicity_profile.args.strip()}} --force "${url}"
+    {%endif%}{% endfor %}
+}
+
+rundupli() {
+    echo "run duplicity in $(pwd)" >&2
+    if !(dupli "$(pwd)");then log "backup for $i failed";ret=$(($ret+1));fi
+}
+
+ret=0
+cwd="$(pwd)"
+
+for i in {% for j in duplicity_profile.dirs%} "{{j}}"{%endfor%};do
+	if [ ! -e "$i" ];then mkdir -p "$i";fi
+    cd "$i"
+    {% if multi %}
+    while read f;do
+        if [ -d "$f" ];then
+            cd "$f"
+            rundupli
+            cd "$cwd"
+        fi
+    done < <(ls -1d "$(pwd)"/*{% if burp2 %}/current{%endif%})
+    {% else %}
+    rundupli
+    {% endif %}
+    cd "$cwd"
+done
+exit $ret

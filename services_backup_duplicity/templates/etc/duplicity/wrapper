@@ -1,0 +1,11 @@
+#!/bin/bash
+#{% set use_innerdirs = duplicity_profile.use_innerdirs|default(False)  %}
+#{% set multi = use_innerdirs %}
+set -e
+cd "$(dirname $(readlink -f "$0"))"
+. {{duplicity_profile_name}}-env
+{{duplicity_profile.wrapper_slug}}
+set +e
+s=$1
+shift
+exec "$s" "$@"

@@ -1,0 +1,8 @@
+- name: "corpusops_services_backup_duplicity preflight check - SKIPTEST"
+  debug: {msg: "{{corpusops_services_backup_duplicity | default(True) }}"}
+  register: corpusops_services_backup_duplicity_can_run
+  tags: corpusops_services_backup_duplicity
+- include_tasks: run.yml
+  when:
+  - 'corpusops_services_backup_duplicity_can_run.msg == True'
+  tags: [cops_services_backup_duplicity]

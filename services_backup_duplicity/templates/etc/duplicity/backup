@@ -1,0 +1,105 @@
+#!/bin/bash
+#{% set use_innerdirs = duplicity_profile.use_innerdirs|default(False)  %}
+#{% set burp2 = duplicity_profile.burp2|default(False)  %}
+#{% set multi = use_innerdirs or burp2 %}
+set -e
+
+cd "$(dirname $(readlink -f "$0"))"
+. {{duplicity_profile_name}}-env
+{{duplicity_profile.backup_slug}}
+
+[[ -n "$BACKUP_DEST" ]] || ( die "NO BACKUP_DEST"; )
+
+dupli() {
+    local dir="$1"
+    local url="${BACKUP_DEST}/${1}"
+    local log_file="${LOG_DIR}/${1//\//_}.log"
+    if [ ! -e "$LOG_DIR" ];then mkdir -pv ${LOG_DIR};fi
+    if [[ -z "$DUPLICITY_FORCE_FULL" ]];then
+        ( {{duplicity_profile.incr_cmd}} $( [[ -n $DUPLICITY_DRYRUN ]] && echo "--dry-run -v$DUPLICITY_VERBOSITY"; ) {{duplicity_profile.args.strip()}} --log-file="${log_file}" "${1}" "${url}"\
+          || {{duplicity_profile.full_cmd}} $( [[ -n $DUPLICITY_DRYRUN ]] && echo "--dry-run -v$DUPLICITY_VERBOSITY"; ) {{duplicity_profile.args.strip()}} --log-file="${log_file}" "${1}" "${url}"; )&
+        lastpid=$!
+    else
+        ( {{duplicity_profile.full_cmd}} $( [[ -n $DUPLICITY_DRYRUN ]] && echo "--dry-run -v$DUPLICITY_VERBOSITY"; ) {{duplicity_profile.args.strip()}} --log-file="${log_file}" "${1}" "${url}"; )&
+        lastpid=$!
+    fi
+	for cpid in $(get_children_pids $lastpid);do echo "pid:$cpid">>"$BACKUP_STATE";done
+    wait $lastpid
+    remove_from_state $lastpid
+}
+
+rundupli() {
+    echo "run duplicity in $(pwd)" >&2
+    if !(dupli "$(pwd)");then log "backup for $i failed";ret=$(($ret+1));fi
+}
+
+kill_backups() {
+    pids=$(get_pids)
+    log "Killing {{duplicity_profile_name}} backup (duplicity): $pids"
+    for i in "$pids";do
+        if ( kill -0 $i &>/dev/null );then kill -9 $i;fi
+        remove_from_state $i
+    done
+    delete_state
+}
+
+ret=0
+cwd="$(pwd)"
+
+if [ -e $BACKUP_STATE ];then
+    START_DT_MIN=$(($(date +%s) - $DUPLICITY_MAX_BACKUP_SECONDS))
+    STATE_DATE=$(stat -L --format %Y "$BACKUP_STATE")
+    to_kill="" is_running=""
+    for i in $(get_pids);do
+        if (kill -0 $i &>/dev/null);then is_running="1";fi
+    done
+    if [ $STATE_DATE -le $START_DT_MIN ];then to_kill="1";fi
+    if [[ -z $is_running ]];then to_kill="1";fi
+    if [[ -n $to_kill ]];then kill_backups;fi
+fi
+if [ -e $BACKUP_STATE ];then echo "backup in process (rm $BACKUP_STATE), bailing out";exit 3;fi
+mark_state
+echo "pid:$$" >> "$BACKUP_STATE"
+if [[ -n "$@" ]];then
+    for f in "$@";do
+        if [ -d "$f" ];then
+            cd "$f"
+            rundupli
+            cd "$cwd"
+        fi
+    done
+    cd "$cwd"
+else
+    for i in {% for j in duplicity_profile.dirs%} "{{j}}"{%endfor%};do
+    	if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        {% if multi %}
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                rundupli
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*{% if burp2 %}/current{%endif%})
+        {% else %}
+        rundupli
+        {% endif %}
+        cd "$cwd"
+    done
+    {% if multi %}
+    for i in {% for j in duplicity_profile.dirs%} "{{j}}_inner"{%endfor%};do
+    	if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                rundupli
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*/*)
+        cd "$cwd"
+    done
+fi
+{% endif %}
+delete_state
+exit $ret

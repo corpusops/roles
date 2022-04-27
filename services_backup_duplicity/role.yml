@@ -1,0 +1,5 @@
+---
+- hosts: all
+  roles:
+  - corpusops.roles/ansible_plugins
+  - corpusops.roles/services_backup_duplicity

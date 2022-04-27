@@ -1,0 +1,41 @@
+- name: install packages
+  package: {package: "{{corpusops_services_backup_duplicity_packages_local}}", state: present}
+  tags: [install_packages, install_packages_local]
+  when: [install_packages_local|default(install_packages|default(True))]
+  delegate_to: "{{corpusops_services_backup_duplicity_gpgcontroller}}"
+- name: install packages
+  package: {package: "{{corpusops_services_backup_duplicity_packages}}", state: present}
+  tags: [install_packages, install_packagesa]
+  when: [install_packages|default(True)]
+- name: install packagesdeps
+  package: {package: duplicity, state: build-dep}
+  tags: [install_packages, install_packagesd]
+  when: [install_packagesd|default(True)]
+# We force to use duplicity pypi version, using python3
+- block:
+  - name: install packagesdeps
+    package: {package: duplicity, state: absent}
+    tags: [install_packages, install_packagesr]
+    when: [install_packagesr|default(True)]
+  - git:
+      repo: "{{corpusops_services_backup_duplicity_git}}"
+      version: "{{corpusops_services_backup_duplicity_git_version}}"
+      dest: "{{corpusops_services_backup_duplicity_install_prefix}}"
+      force: true
+    tags: [install_packages, install_packagesg]
+    when: [install_git|default(True)]
+  - name: install python packages
+    pip: {executable: "pip{{corpusops_services_backup_duplicity_pythonversion}}",
+          state: latest, name: "{{corpusops_services_backup_duplicity_pip}}"}
+    tags: [install_packages, install_pip]
+    when: [install_pip|default(True)]
+  - name: install python packages
+    pip: {executable: "pip{{corpusops_services_backup_duplicity_pythonversion}}",
+          state: latest, name: ".", editable: true,
+          chdir: "{{corpusops_services_backup_duplicity_install_prefix}}"}
+    tags: [install_packages, install_pip]
+    when: [install_pip|default(True)]
+- include_tasks: configure.yml
+  tags: [configure]
+  when: [configure|default(True)]
+

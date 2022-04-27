@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+export DUPLICITY_FORCE_FULL=1
+cd "$(dirname $(readlink -f "$0"))"
+. {{duplicity_profile_name}}-backup

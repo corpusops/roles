@@ -1,0 +1,26 @@
+- block: [{include_role: {name: corpusops.roles/gpg_key}}]
+  vars: {gpg_trust_level: "5"}
+  delegate_to: "{{inventory_hostname}}"
+- set_fact: {cacheable: false, server_gpg_key_id: "{{gpg_key_id}}"}
+
+- block: [{include_role: {name: corpusops.roles/gpg_key}}]
+  delegate_to: "{{corpusops_services_backup_duplicity_gpgcontroller}}"
+  vars: {gpg_key_create: true, gpg_trust_level: "5"}
+- assert: {that: "gpg_key_id|copsf_asbool"}
+
+- when: "(not gpg_key_id) or (server_gpg_key_id != gpg_key_id)"
+  environment: {GPG_PASS: "{{keyinfo.password}}"}
+  delegate_to: "{{inventory_hostname}}"
+  block:
+  - block: [{include_role: {name: corpusops.roles/gpg_key, public: true}}]
+    delegate_to: "{{corpusops_services_backup_duplicity_gpgcontroller}}"
+    vars: {gpg_key_export: true}
+  - name: "transfer gpg pubkey {{keyinfo.email}}"
+    shell: |-
+      set -e;echo "{{gpg_key}}" | gpg --import
+  - name: "transfer gpg privkey {{keyinfo.email}}"
+    shell: |-
+      set -e;echo "{{gpg_key_private}}"|gpg --pinentry-mode loopback --passphrase "$GPG_PASS" --import
+    no_log: "{{not corpusops_services_backup_duplicity_gpg_key_debug|default(false)}}"
+  - block: [{include_role: {name: corpusops.roles/gpg_key}}]
+    vars: {gpg_key_create: true, gpg_trust_level: "5"}

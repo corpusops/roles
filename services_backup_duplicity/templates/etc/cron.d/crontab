@@ -1,0 +1,5 @@
+MAILTO=""
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+{{duplicity_profile['periodicity']}}         root {{duplicity_profile.prefix}}/{{duplicity_profile['backup']}}
+{{duplicity_profile['cleanup_periodicity']}} root {{duplicity_profile.prefix}}/{{duplicity_profile['cleanup']}}
+
