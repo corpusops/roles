@@ -76,9 +76,10 @@
   loop:
     - bin/cops_lxc_init.sh
 - include_tasks: config.yml
+- shell: qsdf
 - name: "RestartContainer{{lxc_container_name}}"
   shell: "{{lxc_path}}/{{lxc_container_name}}/cops_lxc_manage.sh restart"
-  when: "corpusops_lxc_create_config.changed"
+  when: "corpusops_lxc_create_config.changed or lxc_manual_lxc_conf_t.changed"
   changed_when: false
   tags: corpusops_lxc_create,corpusops_lxc_create_prereq
 - name: "StartContainer{{lxc_container_name}}"
