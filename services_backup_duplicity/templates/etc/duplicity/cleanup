@@ -11,38 +11,79 @@ cd "$(dirname $(readlink -f "$0"))"
 
 
 dupli() {
-    exit 0
     local dir="$1"
     local url="${BACKUP_DEST}/${1}"
     local log_file="${LOG_DIR}/${1//\//_}.log"
     if [ ! -e "$LOG_DIR" ];then mkdir -pv ${LOG_DIR};fi
     {% for i in duplicity_profile.clean_cmd.splitlines() %}{% if i.strip()%}
-    {{i}} {{duplicity_profile.args.strip()}} --force "${url}"
+    {{i.strip()}} {{duplicity_profile.args.strip()}} --force "${url}"
     {%endif%}{% endfor %}
 }
 
 rundupli() {
-    echo "run duplicity in $(pwd)" >&2
+    log "run duplicity(delete) in $(pwd)"
     if !(dupli "$(pwd)");then log "backup for $i failed";ret=$(($ret+1));fi
 }
+
 
 ret=0
 cwd="$(pwd)"
 
-for i in {% for j in duplicity_profile.dirs%} "{{j}}"{%endfor%};do
-	if [ ! -e "$i" ];then mkdir -p "$i";fi
-    cd "$i"
-    {% if multi %}
-    while read f;do
+if [ -e $BACKUP_STATE ];then
+    START_DT_MIN=$(($(date +%s) - $DUPLICITY_MAX_BACKUP_SECONDS))
+    STATE_DATE=$(stat -L --format %Y "$BACKUP_STATE")
+    to_kill="" is_running=""
+    for i in $(get_pids);do
+        if (kill -0 $i &>/dev/null);then is_running="1";fi
+    done
+    if [ $STATE_DATE -le $START_DT_MIN ];then to_kill="1";fi
+    if [[ -z $is_running ]];then to_kill="1";fi
+    if [[ -n $to_kill ]];then kill_backups;fi
+fi
+if [ -e $BACKUP_STATE ];then echo "delete backup in process (rm $BACKUP_STATE), bailing out";exit 3;fi
+mark_state
+echo "pid:$$" >> "$BACKUP_STATE"
+if [[ -n "$@" ]];then
+    for f in "$@";do
         if [ -d "$f" ];then
             cd "$f"
             rundupli
             cd "$cwd"
         fi
-    done < <(ls -1d "$(pwd)"/*{% if burp2 %}/current{%endif%})
-    {% else %}
-    rundupli
-    {% endif %}
+    done
     cd "$cwd"
-done
+else
+    for i in {% for j in duplicity_profile.dirs%} "{{j}}"{%endfor%};do
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        {% if multi %}
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                rundupli
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*{% if burp2 %}/current{%endif%})
+        {% else %}
+        rundupli
+        {% endif %}
+        cd "$cwd"
+    done
+    {% if multi %}
+    for i in {% for j in duplicity_profile.dirs%} "{{j}}_inner"{%endfor%};do
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                rundupli
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*/*)
+        cd "$cwd"
+    done
+fi
+{% endif %}
+delete_state
 exit $ret
+

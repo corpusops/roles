@@ -23,24 +23,14 @@ dupli() {
         ( {{duplicity_profile.full_cmd}} $( [[ -n $DUPLICITY_DRYRUN ]] && echo "--dry-run -v$DUPLICITY_VERBOSITY"; ) {{duplicity_profile.args.strip()}} --log-file="${log_file}" "${1}" "${url}"; )&
         lastpid=$!
     fi
-	for cpid in $(get_children_pids $lastpid);do echo "pid:$cpid">>"$BACKUP_STATE";done
+    for cpid in $(get_children_pids $lastpid);do echo "pid:$cpid">>"$BACKUP_STATE";done
     wait $lastpid
     remove_from_state $lastpid
 }
 
 rundupli() {
-    echo "run duplicity in $(pwd)" >&2
+    log "run duplicity in $(pwd)"
     if !(dupli "$(pwd)");then log "backup for $i failed";ret=$(($ret+1));fi
-}
-
-kill_backups() {
-    pids=$(get_pids)
-    log "Killing {{duplicity_profile_name}} backup (duplicity): $pids"
-    for i in "$pids";do
-        if ( kill -0 $i &>/dev/null );then kill -9 $i;fi
-        remove_from_state $i
-    done
-    delete_state
 }
 
 ret=0
@@ -71,7 +61,7 @@ if [[ -n "$@" ]];then
     cd "$cwd"
 else
     for i in {% for j in duplicity_profile.dirs%} "{{j}}"{%endfor%};do
-    	if [ ! -e "$i" ];then mkdir -p "$i";fi
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
         cd "$i"
         {% if multi %}
         while read f;do
@@ -88,7 +78,7 @@ else
     done
     {% if multi %}
     for i in {% for j in duplicity_profile.dirs%} "{{j}}_inner"{%endfor%};do
-    	if [ ! -e "$i" ];then mkdir -p "$i";fi
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
         cd "$i"
         while read f;do
             if [ -d "$f" ];then

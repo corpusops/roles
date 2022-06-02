@@ -18,6 +18,16 @@ function get_children_pids() {
         get_children_pids $cpid
     done
 }
+kill_backups() {
+    pids=$(get_pids)
+    log "Killing {{duplicity_profile_name}} backup (duplicity): $pids"
+    for i in "$pids";do
+        if ( kill -0 $i &>/dev/null );then kill -9 $i;fi
+        remove_from_state $i
+    done
+    delete_state
+}
+
 
 export BACKUP_STATE=/run/duplicity_{{duplicity_profile_name}}.state
 export GPG_ENC_KEY="$(get_gpg_keyid_by_email {{duplicity_profile.gpg_key_email}})"
