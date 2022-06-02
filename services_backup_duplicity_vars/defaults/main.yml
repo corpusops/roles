@@ -69,19 +69,19 @@ corpusops_services_backup_duplicity_full_retention: 240M
 corpusops_services_backup_duplicity_full_cmd: "duplicity full"
 corpusops_services_backup_duplicity_keep_last: "1"
 corpusops_services_backup_duplicity_remove_older_than: "15D"
-
-corpusops_services_backup_duplicity_incr_cmd: "duplicity incr --full-if-older-than {{corpusops_services_backup_duplicity_full_retention}}"
 corpusops_services_backup_duplicity_cmd: "duplicity"
 corpusops_services_backup_duplicity_clean_cmd: |-
     duplicity remove-all-inc-of-but-n-full {{corpusops_services_backup_duplicity_keep_last}}
-    duplicity remove-older-than            {{corpusops_services_backup_duplicity_remove_older_than}}
-corpusops_services_backup_duplicity_cron_periodicity: "#0 4 * * *"
-corpusops_services_backup_duplicity_cron_cleanup_periodicity: "#0 16 * * *"
+corpusops_services_backup_duplicity_cron_periodicity: "0 4 * * *"
+corpusops_services_backup_duplicity_cold_cron_periodicity:  "0 5 29,1 * *"
+corpusops_services_backup_duplicity_data_cron_periodicity:  "0 5 29,1,15 * *"
+corpusops_services_backup_duplicity_burp2_cron_periodicity: "0 2 29,1,4,7,10,13,16,19,22,25,28,31 * *"
+corpusops_services_backup_duplicity_cron_cleanup_periodicity: "0 16 * * *"
 #
-corpusops_services_backup_duplicity_cold_cron_periodicity: "#0 4 * * SAT"
-corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity: "#0 16 * * *"
-corpusops_services_backup_duplicity_cold_full_retention: 3M
-corpusops_services_backup_duplicity_cold_incr_cmd: "duplicity incr --full-if-older-than {{corpusops_services_backup_duplicity_cold_full_retention}}"
+corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity: "0 12 * * *"
+corpusops_services_backup_duplicity_data_cron_cleanup_periodicity: "0 16 * * *"
+corpusops_services_backup_duplicity_burp2_cron_cleanup_periodicity: "0 20 * * *"
+corpusops_services_backup_duplicity_cold_full_retention: "{{100*365}}Y"
 #
 corpusops_services_backup_duplicity_selected_profiles: []
 # corpusops_services_backup_duplicity_selected_profiles: [backup_server]
@@ -98,12 +98,24 @@ corpusops_services_backup_duplicity_profiles:
     {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
     {%- set _=p.update(corpusops_services_backup_duplicity_profiles_burp2) %}
     {{- p | to_json }}
+corpusops_services_backup_duplicity_incr_cmd: "duplicity incr --full-if-older-than"
+corpusops_services_backup_duplicity_burp2_retention: "{{1*31}}D"
+corpusops_services_backup_duplicity_slow_retention:  "{{3*31}}D"
+corpusops_services_backup_duplicity_data_retention:  "{{corpusops_services_backup_duplicity_slow_retention}}"
+corpusops_services_backup_duplicity_cold_retention:  "{{corpusops_services_backup_duplicity_slow_retention}}"
 corpusops_services_backup_duplicity_profiles_burp2:
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_burp2_retention}}"
   burp2: true
   dirs: ['/data/burp2']
+  periodicity: "{{corpusops_services_backup_duplicity_burp2_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_burp2_cron_cleanup_periodicity}}"
 corpusops_services_backup_duplicity_profiles_data:
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_cold_retention}}"
   dirs: ['/data/nobackup/archives']
+  periodicity: "{{corpusops_services_backup_duplicity_data_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_data_cron_cleanup_periodicity}}"
 corpusops_services_backup_duplicity_profiles_cold:
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_cold_retention}}"
   dirs: ['/data/nobackup/cold']
   periodicity: "{{corpusops_services_backup_duplicity_cold_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity}}"

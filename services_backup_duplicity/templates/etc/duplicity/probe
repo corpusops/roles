@@ -77,7 +77,7 @@ class Check(object):
             "--warning",
             default=2 * dlag,
             const=2 * dlag,
-            type=str,
+            type=int,
             nargs="?",
             dest="wlag",
             help="warning lag trigger",
@@ -86,7 +86,7 @@ class Check(object):
             "--critical",
             default=3 * dlag,
             const=3 * dlag,
-            type=float,
+            type=int,
             nargs="?",
             dest="clag",
             help="critical lag trigger",
@@ -131,7 +131,7 @@ class Check(object):
         out = subprocess.check_output(cmd, shell=True).decode()
         if not ('Chain start time' in out and 'Chain end time' in out):
             raise Exception(f'[{path}] invalid output\n{out}')
-        end = endre.search(out).groups()[0]
+        end = [a for a in endre.finditer(out)][-1].groups()[0]
         endd = datetime.strptime(end, '%a %b %d %H:%M:%S %Y')
         lag = int(datetime.now().timestamp() - endd.timestamp())
         if lag > self.args['clag']:
@@ -197,7 +197,9 @@ class Check(object):
                     if os.path.isdir(a)])
         errors = []
         for ix, cpath in enumerate(path):
-            classifier = use_innerdirs and os.path.basename(os.path.dirname(cpath)) or os.path.basename(cpath)
+            classifier = ((burp2 or '_inner/' not in cpath)
+                          and os.path.basename(os.path.dirname(cpath))
+                          or os.path.basename(cpath))
             stats = stats_dir and f"{stats_dir}/{stats_re.sub('_', cpath)}.log" or ''
             try:
                 method, msg, counters = self.test(
@@ -208,6 +210,8 @@ class Check(object):
         if errors:
             self.critical('Error for {0}'.format(
                 ', '.join([a[0] for a in errors])))
+        if method == self.unknown and (burp2 or use_innerdirs):
+            method = self.ok
         perfdata = ""
         for i, val in counters.items():
             perfdata += " {0}={1}".format(i, val)
