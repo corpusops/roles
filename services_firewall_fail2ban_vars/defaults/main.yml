@@ -48,7 +48,7 @@ corpusops_services_firewall_fail2ban_configs_default:
   - {name: "/etc/fail2ban/fail2ban.conf",
      owner: root, group: root, state: directory, mode: "0644"}
   - {name: "/etc/init.d/fail2ban",
-     owner: root, group: root, state: directory, mode: "0644"}
+     owner: root, group: root, state: directory, mode: "0755"}
   - {name: "/etc/systemd/system/fail2ban.service",
      owner: root, group: root, state: directory, mode: "0644"}
 corpusops_services_firewall_fail2ban_configs_redhat:
@@ -63,7 +63,7 @@ corpusops_services_firewall_fail2ban_configs_redhat:
   - {name: "/etc/fail2ban/fail2ban.conf",
      owner: root, group: root, state: directory, mode: "0644"}
   - {name: "/etc/init.d/fail2ban",
-     owner: root, group: root, state: directory, mode: "0644"}
+     owner: root, group: root, state: directory, mode: "0755"}
   - {name: "/etc/systemd/system/fail2ban.service",
      owner: root, group: root, state: directory, mode: "0644"}
 corpusops_services_firewall_fail2ban_filters:
