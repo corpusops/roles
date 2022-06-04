@@ -1,5 +1,6 @@
 {% set v = vars['corpusops_services_ci_gitlab_runner_vars'] %}
 
 [Service]
+{{corpusops_services_ci_gitlab_runner_unit_block}}
 ExecStart=
 ExecStart={{v.start}}

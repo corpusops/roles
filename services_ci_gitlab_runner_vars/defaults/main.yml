@@ -30,13 +30,16 @@ corpusops_services_ci_gitlab_runner_filescopy: null
 corpusops_services_ci_gitlab_runner_filescopy_default: []
 corpusops_services_ci_gitlab_runner_config: "/etc/gitlab-runner/config.toml"
 corpusops_services_ci_gitlab_runner_working_directory: "/srv/nobackup/gitlabrunner"
-corpusops_services_ci_gitlab_runner_start: >
-  /usr/lib/gitlab-runner/gitlab-runner "run"
-  "--working-directory" "{{corpusops_services_ci_gitlab_runner_working_directory}}"
-  "--config" "{{corpusops_services_ci_gitlab_runner_config}}"
-  "--service" "{{corpusops_services_ci_gitlab_runner_name}}"
-  "--syslog"
-  "--user" "{{corpusops_services_ci_gitlab_runner_user}}"
+corpusops_services_ci_gitlab_runner_unit_block: |-
+  Environment=PATH=/usr/lib/gitlab-runner:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+corpusops_services_ci_gitlab_runner_start: >-
+  /bin/sh -c "gitlab-runner run
+  \"--working-directory\" \"{{corpusops_services_ci_gitlab_runner_working_directory}}\"
+  \"--config\" \"{{corpusops_services_ci_gitlab_runner_config}}\"
+  \"--service\" \"{{corpusops_services_ci_gitlab_runner_name}}\"
+  \"--syslog\"
+  \"--user\" \"{{corpusops_services_ci_gitlab_runner_user}}\"
+  "
 corpusops_services_ci_gitlab_runner_files_apt: []
 corpusops_services_ci_gitlab_runner_configs:
 - {name: "/etc/systemd/system/{{corpusops_services_ci_gitlab_runner_name}}.service.d/override.conf",
