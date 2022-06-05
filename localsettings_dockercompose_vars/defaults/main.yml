@@ -8,7 +8,7 @@ corpusops_localsettings_dockercompose_cops_knobs: ['mirror', 'repo', 'version',
                       'configs', 'sources_lists', 'packages']
 corpusops_localsettings_dockercompose_cops_sub_namespaces:
   settings: {}
-corpusops_localsettings_dockercompose_version: '1.28.5'
+corpusops_localsettings_dockercompose_version: '1.29.2'
 corpusops_localsettings_dockercompose_crc: "{{corpusops_localsettings_dockercompose_crc_versions.get(corpusops_localsettings_dockercompose_version, null)}}"
 corpusops_localsettings_dockercompose_crc_versions:
   '1.20.1': '11a6923c2a589b946598fe205c8f645e57f3f4ee153d3b7315b7e1993c1b2ad1'
@@ -21,6 +21,7 @@ corpusops_localsettings_dockercompose_crc_versions:
   '1.26.2': '13e50875393decdb047993c3c0192b0a3825613e6dfc0fa271efed4f5dbdd6eb'
   '1.27.4': '04216d65ce0cd3c27223eab035abfeb20a8bef20259398e3b9d9aa8de633286d'
   '1.28.5': '46406eb5d8443cc0163a483fcff001d557532a7fad5981e268903ad40b75534c'
+  '1.29.2': 'f3f10cf3dbb8107e9ba2ea5f23c1d2159ff7321d16f0a23051d68d8e2547b323'
 corpusops_localsettings_dockercompose_verify_sha256: true
 corpusops_localsettings_dockercompose_bin: "docker-compose-{{corpusops_localsettings_dockercompose_platform}}-{{corpusops_localsettings_dockercompose_arch}}"
 corpusops_localsettings_dockercompose_filetest: ["{{corpusops_localsettings_dockercompose_bin}}"]
