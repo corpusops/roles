@@ -9,7 +9,6 @@
           corpusops_ssh_added_keys_map: "{{corpusops_ssh_added_keys_map}}"
           corpusops_ssh_removed_keys_map: "{{corpusops_ssh_removed_keys_map}}"
       register: _c_ssh
-      no_log: "not cops_ssh_debug|default(false)"
       connection: local
     - connection: local
       set_fact:
