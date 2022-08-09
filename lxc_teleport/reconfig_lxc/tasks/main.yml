@@ -1,0 +1,9 @@
+- name: reconfig lxc
+  shell: |-
+    set -ex
+    cd {{cops_root}}
+    {{edryrun}} bin/ansible-playbook -Dvvv -i {{inventory}} \
+    {{cops_roles}}/playbooks/provision/lxc_container.yml \
+    -e "{lxc_host: {{bm}}, lxc_container_name: {{lxc}}, \
+         cops_vars_debug: true}"
+  tags: [reconfig_ansible]

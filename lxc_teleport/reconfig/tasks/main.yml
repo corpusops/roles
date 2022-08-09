@@ -1,0 +1,46 @@
+- name: config cfg
+  shell: |-
+    set -ex
+    cd {{lxc_path}}
+    {{edryrun}} sed -i -r \
+      -e "s/^lxc.uts.name.*/lxc.uts.name = {{lxc}}/g" \
+      -e "s/((lxc.mount.fstab|lxc.rootfs.path|lxc.include).*\/var\/lib\/lxc\/)[^/]+(\/.*)/\1{{lxc}}\3/g" \
+      config
+  tags: [reconfig_cfg]
+- name: config etc
+  args: {executable: bash}
+  shell: |-
+    set -ex
+    cd {{lxc_path}}/rootfs
+    while read f;do
+        {{edryrun}} sed -i -re "s/{{ofqdn}}|{{fqdn}}/{{fqdn}}/g" "$f"
+    done \
+    < <(egrep -r "{{ofqdn}}|{{fqdn}}" etc/|grep : |awk -F: '{print $1}'|grep -v .git|uniq)
+  tags: [reconfig_rootfs]
+- name: config postfix
+  args: {executable: bash}
+  shell: |-
+    set -ex
+    cd {{lxc_path}}/rootfs
+    while read f;do
+        {{edryrun}} sed -i -re "s/{{olxc_h}}|{{lxc_h}}/{{lxc_h}}/g" "$f"
+    done \
+    < <(egrep -r "{{olxc_h}}|{{lxc_h}}" etc/|grep : |awk -F: '{print $1}'|grep -v .git|uniq)
+    while read f;do
+        postmap etc/postfix/$(basename $f .db)
+    done < <(find etc/postfix/ -type f -name "*.db")
+  tags: [reconfig_postfix]
+- name: regen ssh
+  args: {executable: bash}
+  shell: |-
+    set -ex
+    cd {{lxc_path}}/rootfs
+    while read sshfolder;do
+        hf=$(dirname $sshfolder)
+        u=$(basename $hf)
+        echo $u
+        echo $hf
+        {{ssh_keys_script}}
+    done < <(find root/ home/ -name ".ssh")
+  tags: [reconfig_ssh, regen_ssh]
+  when: [regen_ssh]

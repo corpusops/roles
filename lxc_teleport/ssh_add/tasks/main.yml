@@ -1,0 +1,5 @@
+- authorized_key:
+    state: present
+    user: root
+    key: "{{hostvars[rsync_host].lxcsshkey.public_key}}"
+    exclusive: false

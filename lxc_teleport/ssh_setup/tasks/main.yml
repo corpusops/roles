@@ -1,0 +1,7 @@
+- shell:  ssh {{ rsync_dest }} echo
+  failed_when: false
+  register: sshtest
+  changed_when: false
+- community.crypto.openssh_keypair: {type: ed25519, path: "~/.ssh/id_ed25519"}
+  register: lxcsshkey
+  when: sshtest.rc != 0

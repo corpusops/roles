@@ -1,0 +1,32 @@
+is_remote: "{{ obm != bm}}"
+pushrsync: "{{is_remote}}"
+orig: "{% if is_remote %}{{(not pushrsync) and '{}:'.format(obm) or ''}}{%endif%}{{olxc_path}}"
+dest: "{% if is_remote %}{{     pushrsync  and '{}:'.format(bm)  or ''}}{%endif%}{{lxc_path}}"
+olxc_path: "/var/lib/lxc/{{olxc}}"
+lxc_path: "/var/lib/lxc/{{lxc}}"
+dryrun: true
+edryrun: "{{dryrun and 'echo' or ''}}"
+rsync: "rsync -aAzvPH --numeric-ids --delete"
+rsync_host: "{{pushrsync and obm or bm }}"
+rsync_dest: "{{pushrsync and bm  or obm}}"
+rsync_rootfs: true
+rsync_cfg: true
+fqdn: "{{lxc}}"
+ofqdn: "{{olxc}}"
+lxc_h: "{{fqdn.split('.')[0]}}"
+olxc_h: "{{ofqdn.split('.')[0]}}"
+regen_ssh: true
+ssh_keys_script_default: |-
+    chroot . su $u -c "{{edryrun}} ssh-keygen  -N '' -C ''  -t rsa -b 2048 -f $sshfolder/id_rsa" <<< y
+    chroot . su $u -c "{{edryrun}} ssh-keygen  -N '' -C ''  -t ed25519 -f $sshfolder/id_ed25519" <<< y
+ssh_keys_script: "{{ssh_keys_script_default}}"
+inventory: /etc/ansible/
+reconfig_skip_tags: "lxc_setup,haproxy_setup,ms_iptables_setup,letsencrypt_setup"
+cops_roles: "{{role_path|copsf_dirname|copsf_dirname}}"
+cops_root: "{{cops_roles|copsf_dirname|copsf_dirname}}"
+
+###
+lxc: "{{choose_a_lxc}}"
+bm: "{{choose_a_bm}}"
+obm: "{{bm}}"
+olxc: "{{lxc}}"

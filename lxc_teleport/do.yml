@@ -1,0 +1,51 @@
+# obm: orig bm
+# bm: target bm
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - include_role: {name: ./vars, public: true}
+  - set_fact:
+      rsync_host: "{{rsync_host}}"
+      rsync_dest: "{{rsync_dest}}"
+
+- hosts: "{{['localhost', hostvars.localhost.rsync_host, hostvars.localhost.rsync_dest]}}"
+  tasks: [setup: {}]
+
+- hosts: "{{hostvars.localhost.rsync_host}}"
+  gather_facts: false
+  tasks:
+  - block:
+    - include_role: {name: ./ssh_setup}
+    tags: [rsync, setup_ssh]
+    when: [lxc != olxc or bm != obm]
+
+- hosts: "{{hostvars.localhost.rsync_dest}}"
+  gather_facts: false
+  tasks:
+  - block:
+    - include_role: {name: ./ssh_add}
+    tags: [rsync, setup_ssh, ssh_setup]
+    when:
+    - lxc != olxc or bm != obm
+    - hostvars[hostvars.localhost.rsync_host].sshtest.rc != 0
+
+- hosts: "{{hostvars.localhost.rsync_host}}"
+  tasks:
+  - include_role: {name: ./rsync}
+    tags: [rsync]
+    when: [lxc != olxc or bm != obm]
+
+- hosts: "{{hostvars.localhost.bm}}"
+  gather_facts: false
+  tasks:
+  - include_role: {name: ./reconfig}
+    tags: [reconfig]
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - include_role: {name: ./reconfig_bm}
+    tags: [reconfig_bm]
+  - include_role: {name: ./reconfig_lxc}
+    tags: [reconfig_lxc]
+
