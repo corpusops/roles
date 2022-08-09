@@ -1,0 +1,9 @@
+- name: reconfig bm
+  shell: |-
+    set -ex
+    cd {{cops_root}}
+    {{edryrun}} bin/ansible-playbook -Dvvvv -i {{inventory}} -l {{bm}} \
+    {{cops_roles}}/playbooks/provision/lxc_compute_node/main.yml  \
+    --skip-tags {{reconfig_skip_tags}} \
+    -e "{cops_vars_debug: true, cops_secret_vars_debug: true}"
+  tags: [reconfig_ansible]

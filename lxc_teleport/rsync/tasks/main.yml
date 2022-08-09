@@ -1,0 +1,10 @@
+- name: sync cfg
+  shell: |-
+    set -ex
+    {{edryrun}} {{rsync}} {{orig}}/ {{dest}}/ --exclude=rootfs
+  when: [rsync_cfg]
+- name: sync rootfs
+  shell: |-
+    set -ex
+    {{edryrun}} {{rsync}} {{orig}}/rootfs/ {{dest}}/rootfs/
+  when: [rsync_rootfs]
