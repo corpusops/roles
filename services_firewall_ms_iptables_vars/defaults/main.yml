@@ -17,9 +17,14 @@ corpusops_services_firewall_ms_iptables_repo_keys: null
 corpusops_services_firewall_ms_iptables_repo_keys_default: []
 corpusops_services_firewall_ms_iptables_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_services_firewall_ms_iptables_repo: null
+corpusops_services_firewall_ms_iptables_force_python: true
 corpusops_services_firewall_ms_iptables_packages: null
-corpusops_services_firewall_ms_iptables_packages_default:
-  - 'iptables'
+corpusops_services_firewall_ms_iptables_packages_default: |-
+    {% set p =['iptables'] %}
+    {% if corpusops_services_firewall_ms_iptables_force_python and (ansible_distribution.lower() in ['ubuntu', 'mint'] and (corpusops_core_os_release | version_compare('22.04', '>=' )))%}
+    {% set _ = p.append('python-is-python3') %}
+    {% endif %}
+    {{ p | to_json }}
 corpusops_services_firewall_ms_iptables_services: null
 corpusops_services_firewall_ms_iptables_group: ms_iptables
 corpusops_services_firewall_ms_iptables_services_default: [ms_iptables]
