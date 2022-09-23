@@ -1,0 +1,22 @@
+- when: cops_localsettings_boot_lxc_grub2
+  block:
+  - shell: cat /etc/default/grub
+    register: grub_content
+    changed_when: false
+  - shell: |-
+      set -e
+      sed -i -re "s/(GRUB_CMDLINE_LINUX.*=.*)\"$/\1 {{item}}\"/g" /etc/default/grub
+      echo grubchanged
+    when: "not grub_content.stdout | regex_search('GRUB_CMDLINE_LINUX.*=.* {0}'.format(item))"
+    register: patch_grubm
+    loop: "{{cops_localsettings_boot_lxc_args.split()}}"
+    changed_when: False
+  - debug: {msg: "{% set r = [False] %}{% for i in patch_grubm.results%}{% if 'grubchanged' in (i.stdout|default(''))%}{% set _ = r.append(True)%}{% endif %}{%endfor%}{{r[-1]}}"}
+    register: patch_grub
+    changed_when: patch_grub.msg
+  - shell: |-
+      set -ex
+      update-grub
+      update-initramfs -u
+    when:
+    - patch_grub.changed or (localsettings_boot_lxc_forcegen|default(False))

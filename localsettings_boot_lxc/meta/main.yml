@@ -1,0 +1,3 @@
+dependencies:
+- role: corpusops.roles/vars
+- role: corpusops.roles/localsettings_boot_lxc_vars
