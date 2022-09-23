@@ -1,0 +1,13 @@
+---
+- name: "corpusops_localsettings_boot_lxc preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_localsettings_boot_lxc | default(True) }}"
+  register: corpusops_localsettings_boot_lxc_can_run
+  tags: corpusops_localsettings_boot_lxc
+- stat: {path: /etc/default/grub}
+  register: hasdefgrub
+- include_tasks: run.yml
+  when:
+  - 'corpusops_localsettings_boot_lxc_can_run.msg == True'
+  - 'hasdefgrub.stat.exists'
+  tags: corpusops_localsettings_boot_lxc
