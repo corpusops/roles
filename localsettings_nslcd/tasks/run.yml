@@ -4,4 +4,3 @@
 
 - include_role: {name: s-hamann.nslcd}
   tags: [configure_nslcd]
-  vars: {nslcd_harden: "{{cops_nslcd_harden}}"}
