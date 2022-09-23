@@ -17,4 +17,3 @@ corpusops_localsettings_nscd_roles:
   # fork of https://github.com/s-hamann/ansible-nslcd:w
   repo: "https://github.com/corpusops/ansible-nslcd"
   version: master
-cops_nslcd_harden: false
