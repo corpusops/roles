@@ -1,0 +1,3 @@
+- include_role: {name: corpusops.roles/ms_iptables_add}
+  vars:
+    corpusops_ms_iptables_add_config: "{{corpusops_services_firewall_ms_iptables_conf_prefix}}/zz_restrict_ssh.json"

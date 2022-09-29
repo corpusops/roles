@@ -1,0 +1,3 @@
+dependencies:
+- corpusops.roles/plugins
+- corpusops.roles/services_firewall_ms_iptables_vars

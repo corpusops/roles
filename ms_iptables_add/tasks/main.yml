@@ -1,0 +1,16 @@
+- file:
+    state: directory
+    path: "{{corpusops_ms_iptables_add_config|copsf_dirname}}"
+- when: "not corpusops_ms_iptables_add_content_ips|copsf_asbool"
+  block:
+  - file:
+      dest: "{{corpusops_ms_iptables_add_config}}"
+      state: absent
+- when: "corpusops_ms_iptables_add_content_ips|copsf_asbool"
+  block:
+  - copy:
+      content: "{{corpusops_ms_iptables_add_content|to_nice_json}}"
+      dest: "{{corpusops_ms_iptables_add_config}}"
+      force: true
+      mode: "0644"
+# - cops_service: {name: ms_iptables, state: "{{corpusops_ms_iptables_add_service_state}}"}
