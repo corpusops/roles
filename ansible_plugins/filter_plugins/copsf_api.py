@@ -35,6 +35,10 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 try:
+    from collections import Mapping
+except ImportError:
+    from collections.abc import Mapping
+try:
     import Crypto.Random  # pylint: disable=E0611
     HAS_RANDOM = True
 except ImportError:
