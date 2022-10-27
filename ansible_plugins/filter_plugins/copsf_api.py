@@ -100,8 +100,8 @@ def dictupdate(dest, upd, recursive_update=True):  # noqa
     Merges upd recursively into dest
     But instead of merging lists, it overrides them from target dict
     '''
-    if (not isinstance(dest, collections.Mapping)) \
-            or (not isinstance(upd, collections.Mapping)):
+    if (not isinstance(dest, Mapping)) \
+            or (not isinstance(upd, Mapping)):
         msg = ('Cannot update using non-dict types'
                ' in dictupdate.update()')
         try:
@@ -125,8 +125,8 @@ def dictupdate(dest, upd, recursive_update=True):  # noqa
                 dest_subkey = dest.get(key, None)
             except AttributeError:
                 dest_subkey = None
-            if isinstance(dest_subkey, collections.Mapping) \
-                    and isinstance(val, collections.Mapping):
+            if isinstance(dest_subkey, Mapping) \
+                    and isinstance(val, Mapping):
                 ret = dictupdate(dest_subkey, val)
                 dest[key] = ret
             else:
