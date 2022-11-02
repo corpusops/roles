@@ -1,3 +1,6 @@
+install_cadvisor: "{{corpusops_services_virt_docker|default(lxc_data.docker|default(lxc_docker|default(False)))}}"
+install_node_exporter: true
+install_prometheus: true
 #
 cops_prometheus_roles:
   - name: cloudalchemy.node_exporter
@@ -27,7 +30,8 @@ cops_node_exporter_web_listen_address: '127.0.0.1:9100'
 cops_node_exporter_textfile_dir: '/srv/node_exporter'
 #
 cops_cadvisor_port: 9102
-cops_cadvisor_runtime_options: "-listen_ip 127.0.0.1"
+cops_cadvisor_listen_ip: "127.0.0.1"
+cops_cadvisor_runtime_options: "-listen_ip {{cops_cadvisor_listen_ip}} --docker_only=true --housekeeping_interval=30s --max_housekeeping_interval=35s --global_housekeeping_interval=30s --allow_dynamic_housekeeping=true --disable_metrics=accelerator,cpu_topology,disk,diskIO,memory_numa,network,tcp,udp,percpu,sched,process,hugetlb,referenced_memory,resctrl"
 cops_cadvisor_version: v0.45.0
 cops_cadvisor_checksum: "{{cops_cadvisor_checksums[cadvisor_version]}}"
 cops_cadvisor_checksums:
