@@ -14,10 +14,10 @@
   - include_role: {name: corpusops.roles/monitoring/vars, public: y}
   - include_role: {name: ome.cadvisor}
     tags: [install_cadvisor]
-    when: ["install_cadvisor|default(true)"]
+    when: [install_cadvisor]
   - include_role: {name: cloudalchemy.node_exporter}
     tags: [install_node_exporter]
-    when: ["install_node_exporter|default(true)"]
+    when: [install_node_exporter]
   - include_role: {name: cloudalchemy.prometheus}
     tags: [install_prometheus]
-    when: ["install_prometheus|default(true)"]
+    when: [install_prometheus]
