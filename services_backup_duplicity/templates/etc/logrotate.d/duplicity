@@ -2,7 +2,7 @@
 {
   daily
   copytruncate
-  minsize 4M
+  minsize 100M
   missingok
   rotate {{corpusops_services_backup_duplicity_logrotate}}
   compress
