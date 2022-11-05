@@ -14,10 +14,14 @@ dupli() {
     local dir="$1"
     local url="${BACKUP_DEST}/${1}"
     local log_file="${LOG_DIR}/${1//\//_}.log"
+    local ret=0
     if [ ! -e "$LOG_DIR" ];then mkdir -pv ${LOG_DIR};fi
+    set +e
     {% for i in duplicity_profile.clean_cmd.splitlines() %}{% if i.strip()%}
-    {{i.strip()}} {{duplicity_profile.args.strip()}} --force "${url}"
+    if ! ( {{i.strip()}} {{duplicity_profile.args.strip()}} --force "${url}" );then ret=1;fi
     {%endif%}{% endfor %}
+    set -e
+    return $ret
 }
 
 rundupli() {

@@ -64,17 +64,20 @@ corpusops_services_backup_duplicity_max_time: "$((60*60*24*15))"
 corpusops_services_backup_duplicity_par2: "--par2-redundancy=10"
 corpusops_services_backup_duplicity_volsize: 2000
 corpusops_services_backup_duplicity_args: '--volsize {{corpusops_services_backup_duplicity_volsize}} --num-retries=5 --s3-use-new-style --s3-use-multiprocessing --no-compression --num-retries 3 --asynchronous-upload --verbosity notice --cf-backend swift --encrypt-key="$GPG_ENC_KEY" $( [[ -n "$GPG_SIGN_KEY" ]] && "--sign-key=\"$GPG_SIGN_KEY\""; ) --archive-dir="{{corpusops_services_backup_duplicity_cache_folder}}" {{corpusops_services_backup_duplicity_par2}} {{corpusops_services_backup_duplicity_extra_args}}'
-corpusops_services_backup_duplicity_logrotate: 31
+corpusops_services_backup_duplicity_logrotate: "{{3*365}}"
 corpusops_services_backup_duplicity_full_retention: 240M
 corpusops_services_backup_duplicity_full_cmd: "duplicity full"
 corpusops_services_backup_duplicity_keep_last: "1"
+corpusops_services_backup_duplicity_keep_last_incs: "{{corpusops_services_backup_duplicity_keep_last}}"
+corpusops_services_backup_duplicity_keep_last_fulls: "{{corpusops_services_backup_duplicity_keep_last}}"
 corpusops_services_backup_duplicity_remove_older_than: "15D"
 corpusops_services_backup_duplicity_cmd: "duplicity"
 corpusops_services_backup_duplicity_clean_cmd: |-
-    duplicity remove-all-inc-of-but-n-full {{corpusops_services_backup_duplicity_keep_last}}
+   duplicity remove-all-inc-of-but-n-full {{corpusops_services_backup_duplicity_keep_last_incs}}
+   duplicity remove-all-but-n-full {{corpusops_services_backup_duplicity_keep_last}}
 corpusops_services_backup_duplicity_cron_periodicity: "0 4 * * *"
-corpusops_services_backup_duplicity_cold_cron_periodicity:  "0 5 1 * *"
-corpusops_services_backup_duplicity_data_cron_periodicity:  "0 5 1,15 * *"
+corpusops_services_backup_duplicity_cold_cron_periodicity:  "0 5 1 1 *"
+corpusops_services_backup_duplicity_data_cron_periodicity:  "0 5 1 1 *"
 corpusops_services_backup_duplicity_burp2_cron_periodicity: "0 2 1,4,7,10,13,16,19,22,25,28,31 * *"
 corpusops_services_backup_duplicity_cron_cleanup_periodicity: "0 16 * * *"
 #
