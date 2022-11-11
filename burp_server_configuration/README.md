@@ -159,6 +159,7 @@ $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/main.yml \
 ```
 
 
+
 ## Reconfigure the server itself and regenerate all client serverside configurations
 - degraded mode:
     - you can add `get_burp_clients_facts: true` not to get clients ip to allow on firewall, uUnless you also reconfigure firewall (`burp_fw` tag)
@@ -171,7 +172,15 @@ $COPS_ROOT/bin/ansible-playbook --flush-cache -Dvvv -i $inv\
     -e "{burp_server: $server, cops_vars_debug: true, get_burp_clients_facts: false}" \
     --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_servere,burp_install
 ```
+### And also redeploy all confs on clients
+```sh
 
+server=server_host
+$COPS_ROOT/bin/ansible-playbook --flush-cache -Dvvv -i $inv\
+    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/configure_server/main.yml \
+    -e "{burp_server: $server, cops_vars_debug: true, get_burp_clients_facts: false}" \
+    --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_servere,burp_install
+```          
 
 ### regenerate server cert & key
 ```sh
