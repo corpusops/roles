@@ -25,10 +25,18 @@ from time import time
 import copy
 from subprocess import Popen, PIPE
 import traceback
+
+if sys.version >= '3':
+    unicode = str
+    basestring = str
+
 try:
     from thread import get_ident as _get_ident
 except ImportError:
-    from dummy_thread import get_ident as _get_ident
+    try:
+        from _thread import get_ident as _get_ident
+    except ImportError:
+        from dummy_thread import get_ident as _get_ident
 
 
 re_flags = re.M | re.U | re.S
@@ -634,7 +642,7 @@ def invalidate_memoize_cache(key='cache_key_{0}', cache=None, *a, **kw):
 
 
 def popen(command, *args, **kwargs):
-    async = kwargs.pop('async', False)
+    aasync = kwargs.pop('async', False)
     env = kwargs.pop('env', {})
     env.setdefault('LANG', 'C')
     env.setdefault('LC_ALL', 'C')
@@ -650,7 +658,7 @@ def popen(command, *args, **kwargs):
         shell = True
     p = Popen(args, shell=shell, env=environ,
               stdin=PIPE, stdout=PIPE, stderr=PIPE, **kwargs)
-    if not async:
+    if not aasync:
         p.wait()
     return p
 

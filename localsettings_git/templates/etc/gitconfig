@@ -41,6 +41,7 @@
         re = config user.name 'Régis Leroy'
         rle =  !git rn && git re
         r = !"f() { git reset $@; git checkout $@; }; f"
+        rco= !"f() { echo \"$@\" | while read f;do ( ( git reset -- $f || true ) && ( git checkout -- $f || true ) ) || true;done }; f \"$@\""
         kn = config user.email "kiorky@cryptelium.net"
         ke = config user.name 'Mathieu Le Marec - Pasquet'
         k =  !git kn && git ke
