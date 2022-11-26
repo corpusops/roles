@@ -34,7 +34,7 @@ cops_burpclientserver_profiles_default: |-
   {%- endif %}
   {{- lookup('vars', 'cops_burpclientserver_profiles_'+p)}}
 cops_burpclientserver_default_backup_dirs: [
-  '/', '/boot', '/backup', '/dev', '/data', '/etc', '/home', '/opt', '/media', '/mnt', '/lib', '/lib64', '/lib32', '/root', '/srv', '/srv/backups', '/sys', '/tmp', '/usr', '/vmlinuz', '/initrd.img', '/var',
+  '/', '/boot', '/boot/efi', '/backup', '/dev', '/data', '/etc', '/home', '/opt', '/media', '/mnt', '/lib', '/lib64', '/lib32', '/root', '/srv', '/srv/backups', '/sys', '/tmp', '/usr', '/vmlinuz', '/initrd.img', '/var',
   '/var/lib/docker/containers', '/var/lib/docker/network', '/var/lib/docker/plugins', '/var/lib/docker/swarm', '/var/lib/docker/trust', '/var/lib/docker/volumes',
   '/var/lib/lxc',
   '/var/www',
@@ -114,11 +114,13 @@ cops_burpclientserver_exclude_common: |
   exclude_regex = /opt/beamium/.+
   exclude_regex = .*lost.found/.+
   exclude_regex = .*makina-states.*-lxc.*.tar.*xz
+  exclude_regex = .*srv/remounts/.+
   exclude_regex = .*/mountpoints/.+
   exclude_regex = .*spool.*cyrus.*backup_log.*
   exclude_regex = .*srv.*projects.*archives.*
   exclude_regex = .*srv.*salt.*makina-states.*
   exclude_regex = .*tmp_sync_rando.*
+  exclude_regex = fail2ban.*sqlite.?
   exclude_regex = .*usr.*src.*linux-headers.*
   exclude_regex = .*var.*cache.*apt/.+
   exclude_regex = .*var.*cache.*salt.*master.*
