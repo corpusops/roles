@@ -50,6 +50,9 @@ corpusops_services_virt_docker_settings_containerd: "/run/containerd/containerd.
 corpusops_services_virt_docker_daemonjon_values: "{{corpusops_services_virt_docker_daemonjon_values_default}}"
 corpusops_services_virt_docker_daemonjon_values_default: |-
   {%- set ret = {
+    "features": {
+      "buildkit": corpusops_services_virt_docker_settings_buildkit
+    },
     "containerd": corpusops_services_virt_docker_settings_containerd,
     "host": corpusops_services_virt_docker_settings_hosts,
     "experimental": corpusops_services_virt_docker_experimental|copsf_asbool,
@@ -59,6 +62,7 @@ corpusops_services_virt_docker_daemonjon_values_default: |-
                  "max-size": corpusops_services_virt_docker_logsmaxsize},
     } %}
   {{- ret | to_json }}
+corpusops_services_virt_docker_settings_buildkit: True
 corpusops_services_virt_docker_settings_http_proxy: ""
 corpusops_services_virt_docker_settings_TMPDIR: ""
 corpusops_services_virt_docker_cleanup_script: /usr/local/bin/cops_docker_cleanup.sh
