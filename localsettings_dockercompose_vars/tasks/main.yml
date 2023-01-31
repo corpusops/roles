@@ -6,10 +6,11 @@
       {%- set cops_vars_registry_prefix = cops_vars_registry_target+"_" %}
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
       {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
-      {%- set v = 'version' %}
-      {%- if namespaced[v] and (namespaced[v] not in namespaced[v+'s']) %}
-      {%-  set _ = namespaced[v+'s'].append(namespaced[v])%}
-      {%- endif %}
+      {%- for v in ('version', 'switch_version') %}
+      {%-   if namespaced[v] and (namespaced[v] not in namespaced[v+'s']) %}
+      {%-     set _ = namespaced[v+'s'].append(namespaced[v])%}
+      {%-   endif %}
+      {%- endfor %}
       {%- for name, val in namespaced.items() %}
       {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
       {%- endfor %}

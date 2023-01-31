@@ -1,0 +1,59 @@
+- debug:
+    msg:
+      _archive:
+        mode: "0755"
+        filetest: "{{corpusops_localsettings_dockercompose_vars.filetest}}"
+        archive: "{{_corpusops_localsettings_dockercompose_v2_archive}}"
+        app_path: "{{_corpusops_localsettings_dockercompose_v2_app_path}}"
+        urls:
+          archive_crc: "{{corpusops_localsettings_dockercompose_vars.v2_crc}}"
+          verify_sha256: "{{corpusops_localsettings_dockercompose_vars.v2_verify_sha256}}"
+          archive: "{{_corpusops_localsettings_dockercompose_v2_urls.archive}}"
+  vars:
+    version: "{{item}}"
+  loop: "{{corpusops_localsettings_dockercompose_vars.versions|flatten(levels=1)}}"
+  register: corpusops_localsettings_dockercompose_v2_archives
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  loop: "{{corpusops_localsettings_dockercompose_v2_archives.results|flatten(levels=1)}}"
+- file:
+    state: directory
+    path: "{{corpusops_localsettings_dockercompose_v2_dockerplugin_dir}}"
+- name: "link {{item.key}}"
+  file:
+    force: true
+    state: link
+    src: "{{item.value.src}}"
+    path: "{{item.value.path}}"
+  vars:
+    version: "{{corpusops_localsettings_dockercompose_vars.version}}"
+  loop: "{{_corpusops_localsettings_dockercompose_v2_bins|dict2items}}"
+#
+- debug:
+    msg:
+      _archive:
+        mode: "0755"
+        filetest: "{{corpusops_localsettings_dockercompose_vars.filetest}}"
+        archive: "{{_corpusops_localsettings_dockercompose_switch_archive}}"
+        app_path: "{{_corpusops_localsettings_dockercompose_switch_app_path}}"
+        urls:
+          archive_crc: "{{corpusops_localsettings_dockercompose_vars.switch_crc}}"
+          verify_sha256: "{{corpusops_localsettings_dockercompose_vars.switch_verify_sha256}}"
+          archive: "{{_corpusops_localsettings_dockercompose_switch_urls.archive}}"
+  vars:
+    version: "{{item}}"
+  loop: "{{corpusops_localsettings_dockercompose_vars.switch_versions|flatten(levels=1)}}"
+  register: corpusops_localsettings_dockercompose_switch_archives
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  loop: "{{corpusops_localsettings_dockercompose_switch_archives.results|flatten(levels=1)}}"
+- name: "link {{item.key}}"
+  file:
+    force: true
+    state: link
+    src: "{{item.value.src}}"
+    path: "{{item.value.path}}"
+  vars:
+    version: "{{corpusops_localsettings_dockercompose_vars.switch_version}}"
+  loop: "{{_corpusops_localsettings_dockercompose_switch_bins|dict2items}}"
+#
