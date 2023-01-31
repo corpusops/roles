@@ -1,0 +1,27 @@
+- debug:
+    msg:
+      _archive:
+        mode: "0755"
+        filetest: "{{corpusops_localsettings_dockercompose_vars.filetest}}"
+        archive: "{{_corpusops_localsettings_dockercompose_archive}}"
+        app_path: "{{_corpusops_localsettings_dockercompose_app_path}}"
+        urls:
+          archive_crc: "{{corpusops_localsettings_dockercompose_vars.crc}}"
+          verify_sha256: "{{corpusops_localsettings_dockercompose_vars.verify_sha256}}"
+          archive: "{{_corpusops_localsettings_dockercompose_urls.archive}}"
+  vars:
+    version: "{{item}}"
+  loop: "{{corpusops_localsettings_dockercompose_vars.versions|flatten(levels=1)}}"
+  register: corpusops_localsettings_dockercompose_archives
+- include_role: {name: corpusops.roles/install_archive}
+  vars: {_archive: "{{item.msg._archive}}"}
+  loop: "{{corpusops_localsettings_dockercompose_archives.results|flatten(levels=1)}}"
+- name: "link {{item.key}}"
+  file:
+    force: true
+    state: link
+    src: "{{item.value.src}}"
+    path: "{{item.value.path}}"
+  vars:
+    version: "{{corpusops_localsettings_dockercompose_vars.version}}"
+  loop: "{{_corpusops_localsettings_dockercompose_bins|dict2items}}"
