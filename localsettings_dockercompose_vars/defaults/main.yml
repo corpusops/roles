@@ -9,7 +9,8 @@ corpusops_localsettings_dockercompose_cops_knobs: [
   'configs', 'sources_lists', 'packages']
 corpusops_localsettings_dockercompose_cops_sub_namespaces:
   settings: {}
-corpusops_localsettings_dockercompose_version: '2.1.1'
+corpusops_localsettings_dockercompose_version: '{{corpusops_localsettings_dockercompose_v1_version}}'
+corpusops_localsettings_dockercompose_v1_version: '1.29.2'
 corpusops_localsettings_dockercompose_v2_version: '2.1.1'
 corpusops_localsettings_dockercompose_switch_version: '1.0.2'
 corpusops_localsettings_dockercompose_crc: "{{corpusops_localsettings_dockercompose_crc_versions.get(corpusops_localsettings_dockercompose_version, null)}}"
