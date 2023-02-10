@@ -1,0 +1,4 @@
+cops_localsettings_boot_degraded_disks_args: "md-mod.start_dirty_degraded=1 bootdegraded=yes"
+cops_localsettings_boot_degraded_disks_grub2: true
+cops_localsettings_boot_degraded_disks_fstab: true
+cops_localsettings_boot_degraded_disks_python: "{{ansible_python_interpreter|default('python')}}"

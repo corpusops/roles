@@ -1,0 +1,54 @@
+- when: cops_localsettings_boot_degraded_disks_fstab
+  block:
+  - shell: |-
+      set -ex
+      python="{{cops_localsettings_boot_degraded_disks_python}}"
+      if [ -e /etc/fstab ];then
+      $python << EOF
+      import re, datetime
+      chrono = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+      lines = []
+      write = False
+      with open('/etc/fstab', 'r') as fic:
+        data = fic.read()
+        for i in data.splitlines():
+          ni, parts = i, i.split()
+          if not i.startswith('#'):
+            if len(parts) == 6:
+              opts, fstype = parts[3].split(','), parts[2]
+              if re.search('^ext|swap|v?fat', fstype) or ('bind' in opts):
+                for o in ['nofail', 'x-systemd.device-timeout=10', 'x-systemd.mount-timeout=10']:
+                  if o not in opts:
+                    write = True
+                    opts.append(o)
+                parts[3] = ','.join(opts)
+          if write:
+              ni = '    '.join(parts)
+          lines.append(ni)
+      if write and lines:
+        print('Writing new fstab')
+        with open('/etc/fstab.'+chrono, 'w') as fic:
+          fic.write(data)
+        with open('/etc/fstab', 'w') as fic:
+          for i in lines:
+            fic.write(i+'\n')
+      EOF
+      fi
+- when: cops_localsettings_boot_degraded_disks_grub2
+  block:
+  - shell: cat /etc/default/grub
+    register: grub_content
+    changed_when: false
+  - shell: |-
+      set -e
+      sed -i -re "s/(GRUB_CMDLINE_LINUX.*=.*)\"$/\1 {{cops_localsettings_boot_degraded_disks_args}}\"/g" /etc/default/grub
+      echo grubchanged
+    when: cops_localsettings_boot_degraded_disks_args not in grub_content.stdout
+    register: patch_grub
+    changed_when: "'grubchanged' in patch_grub.stdout"
+  - shell: |-
+      set -ex
+      update-grub
+      update-initramfs -u
+    when:
+    - patch_grub.changed or (localsettings_boot_degraded_disks_forcegen|default(False))
