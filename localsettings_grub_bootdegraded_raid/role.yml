@@ -1,3 +1,0 @@
----
-- hosts: all
-  roles: [corpusops.roles/localsettings_grub_bootdegraded_raid]
