@@ -44,18 +44,18 @@ my $TIMEOUT = 60;
 my $DEBUG	= 0;
 
 # no check on debian < 6
-if ( -e '/etc/debian_version') {
-	open(my $fh, '<:encoding(UTF-8)', '/etc/debian_version');
-	while (my $row = <$fh>) {
-	  chomp $row;
-	  if (substr($row, 0, 1) =~ /^\d+?$/){
-	  if (substr($row, 0, 1) < "6" ){
-		print "OK - This debian is not checked anymore\n";
-		exit($ERRORS{OK});
-	  }}
-	}
-	
-}
+# if ( -e '/etc/debian_version') {
+# 	open(my $fh, '<:encoding(UTF-8)', '/etc/debian_version');
+# 	while (my $row = <$fh>) {
+# 	  chomp $row;
+# 	  if (substr($row, 0, 1) =~ /^\d+?$/){
+# 	  if (substr($row, 0, 1) < "6" ){
+# 		print "OK - This debian is not checked anymore\n";
+# 		exit($ERRORS{OK});
+# 	  }}
+# 	}
+# 	
+# }
 
 #####################################################################
 #
