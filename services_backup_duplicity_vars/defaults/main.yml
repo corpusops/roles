@@ -125,13 +125,13 @@ corpusops_services_backup_duplicity_profiles_default:
 corpusops_services_backup_duplicity_ssh_options: "--ssh-options \"-oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no\""
 
 corpusops_services_backup_duplicity_incr_cmd: "duplicity incr --full-if-older-than"
-corpusops_services_backup_duplicity_sftp_retention:  "{{1*31}}D"
-corpusops_services_backup_duplicity_lftp_retention:  "{{1*31}}D"
-corpusops_services_backup_duplicity_rclone_retention:  "{{1*31}}D"
-corpusops_services_backup_duplicity_burp2_retention: "{{1*31}}D"
-corpusops_services_backup_duplicity_slow_retention:  "{{3*31}}D"
-corpusops_services_backup_duplicity_data_retention:  "{{corpusops_services_backup_duplicity_slow_retention}}"
-corpusops_services_backup_duplicity_cold_retention:  "{{corpusops_services_backup_duplicity_slow_retention}}"
+corpusops_services_backup_duplicity_sftp_retention:   "{{1*31}}D"
+corpusops_services_backup_duplicity_lftp_retention:   "{{1*31}}D"
+corpusops_services_backup_duplicity_rclone_retention: "{{1*31}}D"
+corpusops_services_backup_duplicity_burp2_retention:  "{{1*31}}D"
+corpusops_services_backup_duplicity_slow_retention:   "{{3*31}}D"
+corpusops_services_backup_duplicity_data_retention:   "{{corpusops_services_backup_duplicity_slow_retention}}"
+corpusops_services_backup_duplicity_cold_retention:   "{{corpusops_services_backup_duplicity_slow_retention}}"
 corpusops_services_backup_duplicity_profiles_burp2:
   incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_burp2_retention}}"
   burp2: true
@@ -153,6 +153,7 @@ corpusops_services_backup_duplicity_profiles_base:
   use_gpg: true
   periodicity: "{{corpusops_services_backup_duplicity_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_cron_cleanup_periodicity}}"
+  dirs: "{{duplicity_host_profile.dirs|default([])}}"
   max_time: "{{corpusops_services_backup_duplicity_max_time}}"
   prefix: "{{corpusops_services_backup_duplicity_prefix}}"
   cron_prefix: "{{corpusops_services_backup_duplicity_cron_prefix}}"
@@ -193,41 +194,45 @@ corpusops_services_backup_duplicity_profiles_base:
 corpusops_services_backup_duplicity_profiles_rclone:
   use_innerdirs: false
   incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_rclone_retention}}"
-  dirs: "{{duplicity[inventory_hostname].dirs|default([])}}"
   periodicity: "{{corpusops_services_backup_duplicity_rclone_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_rclone_cron_cleanup_periodicity}}"
   args: "{{corpusops_services_backup_duplicity_args}} {{corpusops_services_backup_duplicity_ssh_options}}"
   env_slug: |-
     export BACKUP_DEST="par2+rclone://duplicity:/"
   rcloneconf: |-
-    {% set d = duplicity[inventory_hostname]|default({}) %}
+    {%- set d = duplicity_host_profile %}
+    {%- set pw = d.rclone_obscured_password|default('') %}
+    {%- set key_file = d.key_file|default('') %}
     [duplicity]
     type = sftp
     host = {{d.ssh_host|default('')}}
     user = {{d.ssh_user|default('')}}
     port = {{d.ssh_port|default(22)}}
-    pass = {{d.rclone_obscured_password|default('')}}
+    {% if key_file %}
+    key_file = {{ key_file }}
+    {% endif %}
+    {% if pw %}
+    pass = {{ pw }}
+    {% endif %}
+duplicity_host_profile: "{{duplicity.get(inventory_hostname, {})}}"
 corpusops_services_backup_duplicity_profiles_lftp:
   use_innerdirs: false
   incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_lftp_retention}}"
-  dirs: "{{duplicity[inventory_hostname].dirs|default([])}}"
   periodicity: "{{corpusops_services_backup_duplicity_lftp_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_lftp_cron_cleanup_periodicity}}"
   args: "{{corpusops_services_backup_duplicity_args}} {{corpusops_services_backup_duplicity_ssh_options}}"
   env_slug: |-
-    {% set d = duplicity[inventory_hostname]|default({}) %}
+    {% set d = duplicity_host_profile %}
     export FTP_PASSWORD="{{d.ssh_password|default('')}}"
     export RSYNC_PASSWORD="{{d.ssh_password|default('')}}"
-
     export BACKUP_DEST="par2+{{d.lftp_scheme|default('sftp')}}://{{d.ssh_user|default('')}}@{{d.ssh_host|default('')}}:{{d.ssh_port|default(22)}}"
 corpusops_services_backup_duplicity_profiles_sftp:
   use_innerdirs: false
   incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_sftp_retention}}"
-  dirs: "{{duplicity[inventory_hostname].dirs|default([])}}"
   periodicity: "{{corpusops_services_backup_duplicity_sftp_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_sftp_cron_cleanup_periodicity}}"
   env_slug: |-
-    {% set d = duplicity[inventory_hostname]|default({}) %}33
+    {% set d = duplicity_host_profile %}
     export FTP_PASSWORD="{{d.ssh_password|default('')}}"
     export BACKUP_DEST="par2+pexpect+sftp://{{d.ssh_user|default('')}}@{{d.ssh_host|default('')}}"
   args: "{{corpusops_services_backup_duplicity_args}} {{corpusops_services_backup_duplicity_ssh_options}}"
