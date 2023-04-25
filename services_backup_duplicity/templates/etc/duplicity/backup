@@ -11,8 +11,7 @@ cd "$(dirname $(readlink -f "$0"))"
 [[ -n "$BACKUP_DEST" ]] || ( die "NO BACKUP_DEST"; )
 
 dupli() {
-    local dir="$1"
-    local url="${BACKUP_DEST}/${1}"
+    local url="$(echo $BACKUP_DEST|sed -re "s/\/+$//g")/$(echo $1|sed -re "s/^\/+//g")"
     local log_file="${LOG_DIR}/${1//\//_}.log"
     if [ ! -e "$LOG_DIR" ];then mkdir -pv ${LOG_DIR};fi
     if [[ -z "$DUPLICITY_FORCE_FULL" ]];then
@@ -89,7 +88,7 @@ else
         done < <(ls -1d "$(pwd)"/*/*)
         cd "$cwd"
     done
+    {% endif %}
 fi
-{% endif %}
 delete_state
 exit $ret

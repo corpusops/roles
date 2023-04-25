@@ -2,13 +2,27 @@
     cacheable: false
     duplicity_profile: "{{corpusops_services_backup_duplicity_profiles[duplicity_profile_name]}}"
   no_log: "{{not corpusops_services_backup_duplicity_gpg_key_debug|default(false)}}"
+# second round args
+- set_fact:
+    cacheable: false
+    corpusops_services_backup_duplicity_profile_secondround: "{{corpusops_services_backup_duplicity_profile_secondround_}}"
+- set_fact:
+    cacheable: false
+    duplicity_profile: |-
+      {%- set _ = duplicity_profile.update(corpusops_services_backup_duplicity_profile_secondround) %}
+      {{- duplicity_profile | to_json }}
 - include_tasks: gen_gpg_key.yml
   tags: [duplicity_gpg]
+  when: ["duplicity_gpg.use_gpg|default(True)"]
   loop_control: {loop_var: keyinfo}
   loop:
   - name: "{{duplicity_profile.gpg_key_name}}"
     email: "{{duplicity_profile.gpg_key_email}}"
     password: "{{duplicity_profile.gpg_key_password}}"
+- file:
+    state: directory
+    mode: "0750"
+    path: "{{duplicity_profile.prefix}}"
 - include_role: {name: corpusops.roles/simpleconfigs/wrapper}
   tags: [duplicity_conf]
   vars:
@@ -37,3 +51,26 @@
     - src: "{{duplicity_profile.cleanup_script|default('etc/duplicity/duplicity')}}"
       dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.duplicity}}"
       mode: "0700"
+- when: ['"rclone" in duplicity_profile_name']
+  block:
+  - name: test if rclone is installed, because we dont ourselves
+    shell: rclone --version
+    changed_when: false
+    failed_when: false
+    register: rclone_installed
+  - when: rclone_installed.rc != 0
+    shell: |-
+      set -e
+      curl https://rclone.org/install.sh | sudo bash
+    register: rclone_installed
+  - when: rclone_installed.get('rc', 0) != 0
+    name: test if rclone is installed, because we dont ourselves
+    shell: rclone --version
+    register: rclone_installed
+  - blockinfile:
+      dest: "{{duplicity_profile.prefix}}/{{duplicity_profile_name}}-rclone.conf"
+      marker: "# {mark} rclone"
+      insertafter: EOF
+      unsafe_writes: True
+      create: true
+      content: "{{duplicity_profile.rcloneconf}}"

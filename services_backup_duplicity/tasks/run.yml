@@ -28,7 +28,7 @@
     pip: {executable: "pip{{corpusops_services_backup_duplicity_pythonversion}}",
           state: latest, name: "{{corpusops_services_backup_duplicity_pip}}"}
     tags: [install_packages, install_pip]
-    when: [install_pip|default(True)]
+    when: [install_pip|default(True), "corpusops_services_backup_duplicity_pip|length>0"]
   - name: install python packages
     pip: {executable: "pip{{corpusops_services_backup_duplicity_pythonversion}}",
           state: latest, name: ".", editable: true,

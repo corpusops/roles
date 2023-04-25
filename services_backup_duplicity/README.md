@@ -34,3 +34,11 @@ corpusops_services_backup_duplicity_profiles: "{{corpusops_services_backup_dupli
 - duplicity will itself not run if already running
 - we still add on the script something can kill everything if the backup ran for an excessive long time (default: 15days)
 - the script will try to kill both the backup runner script (bash) and the children duplicity processes.
+
+## how to init
+- inspire yourself from the services_backup_duplicity_vars/defaults/main.yml comments:
+- write or select the appropriate backup profiles
+- set corpusops_services_backup_duplicity_selected_profiles
+- think to set for earch profile in env_slug:
+   - any env var needed for authentication like OS_* vars for openstack or FTP_PASSWORD for ftp/sftp.
+   - BACKUP_DEST which is the url to backup to
