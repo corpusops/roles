@@ -30,7 +30,7 @@
     - src: "{{duplicity_profile.cron_script|default('etc/cron.d/crontab')}}"
       dest: "{{duplicity_profile.cron_prefix}}/{{duplicity_profile.cron}}"
       mode: "0644"
-    - src: "{{duplicity_provile.env_script|default('etc/duplicity/env')}}"
+    - src: "{{duplicity_profile.env_script|default('etc/duplicity/env')}}"
       dest: "{{duplicity_profile.prefix}}/{{duplicity_profile.env}}"
       mode: "0600"
     - src: "{{duplicity_profile.wrapper_script|default('etc/duplicity/wrapper')}}"
