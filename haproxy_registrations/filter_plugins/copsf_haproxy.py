@@ -657,16 +657,32 @@ def make_registrations(data, ansible_vars=None):
 
     return data
 
+__funcs__ = {}
+EXPOSED_FILTERS = [
+    'sanitize',
+    'get_object_name',
+    'get_backend_name',
+    'get_frontend_name',
+    'ordered_backend_opts',
+    'ordered_frontend_opts',
+    'make_registrations',
+]
 
-__funcs__ = {
-    'copshaproxyf_sanitize': sanitize,
-    'copshaproxyf_get_object_name': get_object_name,
-    'copshaproxyf_get_backend_name': get_backend_name,
-    'copshaproxyf_get_frontend_name': get_frontend_name,
-    'copshaproxyf_ordered_backend_opts': ordered_backend_opts,
-    'copshaproxyf_ordered_frontend_opts': ordered_frontend_opts,
-    'copshaproxyf_make_registrations': make_registrations,
-}
+
+def wrap_trace(f):
+    def caller(*a, **kw):
+        import traceback
+        try:
+            return f(*a, **kw)
+        except (Exception,) as exc:
+            trace = traceback.format_exc()
+            logging.getLogger('').error(trace)
+            raise
+    return caller
+
+
+for i in EXPOSED_FILTERS:
+    __funcs__[f'copshaproxyf_{i}'] = wrap_trace(locals()[i])
 
 
 class FilterModule(object):
