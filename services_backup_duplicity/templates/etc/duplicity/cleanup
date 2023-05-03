@@ -46,6 +46,55 @@ fi
 if [ -e $BACKUP_STATE ];then echo "delete backup in process (rm $BACKUP_STATE), bailing out";exit 3;fi
 mark_state
 echo "pid:$$" >> "$BACKUP_STATE"
+
+strip_first_s() { sed -re "s/^\///g"; }
+
+BUCKET_CONTENT=""
+
+get_bucket_content() {
+    if [[ -z "$BUCKET_CONTENT" ]] || [[ -n "${FORCE_LIST_BUCKET}" ]];then
+        BUCKET_CONTENT="$(swift list $@)"
+    fi
+    echo "$BUCKET_CONTENT"
+}
+
+remove_unexisting_inner() {
+    for d in $@;do
+        w=$(echo $d|strip_first_s)
+        if ( echo $BACKUP_DEST | grep -q swift:// );then
+            local bck=$(echo $BACKUP_DEST|sed -re "s|swift://||g"|sed -re "s/\/.*//g")
+            local content="$(get_bucket_content $bck|grep -E "^$w")"
+            content="$(echo "$content"|strip_first_s|sed -re "s/\/[^\/]+$//g"|uniq|sort)"
+            while read f;do
+                if [[ -n $f ]];then
+                    local g=$( echo $f|strip_first_s)
+                    if [ ! -e /$g ];then
+                        swift delete $bck -p $g || true
+                    fi
+                fi
+            done <<< "$content"
+        fi
+    done
+}
+
+remove_unexisting() {
+    for d in $@;do
+        w=$(echo $d|strip_first_s)
+        if ( echo $BACKUP_DEST | grep -q swift:// );then
+            local bck=$(echo $BACKUP_DEST|sed -re "s|swift://||g"|sed -re "s/\/.*//g")
+            local content="$(get_bucket_content $bck|grep -E "^$w")"
+            while read f;do
+                if [[ -n $f ]];then
+                    local g="$( echo $f|strip_first_s|sed -re "s/\/[^\/]+$//g"|uniq|sort)"
+                    if [ ! -e /$g ];then
+                        swift delete $bck -p $g || true
+                    fi
+                fi
+            done <<< "$content"
+        fi
+    done
+}
+
 if [[ -n "$@" ]];then
     for f in "$@";do
         if [ -d "$f" ];then
@@ -59,6 +108,7 @@ else
     for i in {% for j in duplicity_profile.dirs%} "{{j}}"{%endfor%};do
         if [ ! -e "$i" ];then mkdir -p "$i";fi
         cd "$i"
+        remove_unexisting "$i"
         {% if multi %}
         while read f;do
             if [ -d "$f" ];then
@@ -76,6 +126,7 @@ else
     for i in {% for j in duplicity_profile.dirs%} "{{j}}_inner"{%endfor%};do
         if [ ! -e "$i" ];then mkdir -p "$i";fi
         cd "$i"
+        remove_unexisting_inner "$i"
         while read f;do
             if [ -d "$f" ];then
                 cd "$f"
