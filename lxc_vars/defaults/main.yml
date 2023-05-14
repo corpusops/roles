@@ -32,7 +32,7 @@ corpusops_lxc_auto_start: '1'
 # make docker works inside lxc (make it unconfined and unsecure
 # security will rely on making everything confined running inside
 # docker containers
-corpusops_lxc_docker: "{{lxc_docker|default('docker' in corpusops_lxc_container_name)}}"
+corpusops_lxc_docker: "{% set v=hostvars.get(lxc_container_name, {}) %}{{lxc_docker|default(v.get('lxc_docker', v.get('corpusops_services_virt_docker', 'docker' in corpusops_lxc_container_name)))}}"
 
 # set to null or empty list to disable
 # auto password deletion, on containers
