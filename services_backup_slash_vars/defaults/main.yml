@@ -52,5 +52,6 @@ corpusops_services_backup_slash_rsync: "rsync -aAvH --delete --numeric-ids"
 corpusops_services_backup_slash_log: ">/dev/null 2>&1"
 corpusops_services_backup_slash_cron_mailto: ""
 corpusops_services_backup_slash_cron: |-
+  /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
   MAILTO="{{corpusops_services_backup_slash_cron_mailto}}"
   {{corpusops_services_backup_slash_periodicity}} {{corpusops_services_backup_slash_configs[0].name}} {{corpusops_services_backup_slash_log}}
