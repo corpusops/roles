@@ -11,7 +11,7 @@ corpusops_lxc_cops_sub_namespaces:
 corpusops_lxc_cops_sub_sub_namespaces:
   containers: {}
 
-### ssh keys allowed to connect as root inside the container
+# ssh keys allowed to connect as root inside the container
 corpusops_lxc_ssh_keys_paths: ["~/.ssh/id_rsa.pub"]
 corpusops_lxc_ssh_keys: []
 corpusops_lxc_ssh_user: root
@@ -32,7 +32,7 @@ corpusops_lxc_auto_start: '1'
 # make docker works inside lxc (make it unconfined and unsecure
 # security will rely on making everything confined running inside
 # docker containers
-corpusops_lxc_docker: "{% set v=hostvars[corpusops_lxc_container_name]|default({}) %}{{lxc_docker|default(v.get('lxc_docker', v.get('corpusops_services_virt_docker', 'docker' in corpusops_lxc_container_name)))}}"
+corpusops_lxc_docker: "{% set v=hostvars.get(lxc_container_name, {}) %}{{lxc_docker|default(v.get('lxc_docker', v.get('corpusops_services_virt_docker', 'docker' in corpusops_lxc_container_name)))}}"
 
 # set to null or empty list to disable
 # auto password deletion, on containers
