@@ -78,6 +78,7 @@ corpusops_services_backup_duplicity_clean_cmd: |-
    duplicity remove-all-but-n-full {{corpusops_services_backup_duplicity_keep_last}}
 corpusops_services_backup_duplicity_cron_periodicity: "0 4 * * *"
 corpusops_services_backup_duplicity_cold_cron_periodicity:  "#0 5 1 1,3,5,7,9,11 *"
+corpusops_services_backup_duplicity_noenc_cron_periodicity:  "#0 5 1 1,3,5,7,9,11 *"
 corpusops_services_backup_duplicity_data_cron_periodicity:  "0 5 1 1,5,9 *"
 corpusops_services_backup_duplicity_burp2_cron_periodicity: "0 2 1,4,7,10,13,16,19,22,25,28,31 * *"
 corpusops_services_backup_duplicity_sftp_cron_periodicity: "0 2 1,4,7,10,13,16,19,22,25,28,31 * *"
@@ -87,17 +88,23 @@ corpusops_services_backup_duplicity_rclone_cron_periodicity_time: "0 2"
 corpusops_services_backup_duplicity_cron_cleanup_periodicity: "0 16 * * *"
 #
 corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity: "0 12 * * *"
+corpusops_services_backup_duplicity_noenc_cron_cleanup_periodicity: "0 12 * * *"
 corpusops_services_backup_duplicity_data_cron_cleanup_periodicity: "0 16 * * *"
 corpusops_services_backup_duplicity_burp2_cron_cleanup_periodicity: "0 20 * * *"
 corpusops_services_backup_duplicity_sftp_cron_cleanup_periodicity: "0 20 * * *"
 corpusops_services_backup_duplicity_lftp_cron_cleanup_periodicity: "0 20 * * *"
 corpusops_services_backup_duplicity_rclone_cron_cleanup_periodicity: "0 20 * * *"
 corpusops_services_backup_duplicity_cold_full_retention: "{{100*365}}Y"
+corpusops_services_backup_duplicity_noenc_full_retention: "{{100*365}}Y"
 #
 corpusops_services_backup_duplicity_selected_profiles: []
 # corpusops_services_backup_duplicity_selected_profiles: [backup_server]
 corpusops_services_backup_duplicity_profiles: "{{corpusops_services_backup_duplicity_profiles_default}}"
 corpusops_services_backup_duplicity_profiles_default:
+  backup_server_noenc: |-
+    {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+    {%- set _=p.update(corpusops_services_backup_duplicity_profiles_noenc) %}
+    {{- p | to_json }}
   backup_server_cold: |-
     {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
     {%- set _=p.update(corpusops_services_backup_duplicity_profiles_cold) %}
@@ -132,6 +139,7 @@ corpusops_services_backup_duplicity_burp2_retention:  "{{1*31}}D"
 corpusops_services_backup_duplicity_slow_retention:   "{{3*31}}D"
 corpusops_services_backup_duplicity_data_retention:   "{{corpusops_services_backup_duplicity_slow_retention}}"
 corpusops_services_backup_duplicity_cold_retention:   "{{corpusops_services_backup_duplicity_slow_retention}}"
+corpusops_services_backup_duplicity_noenc_retention:   "{{corpusops_services_backup_duplicity_slow_retention}}"
 corpusops_services_backup_duplicity_profiles_burp2:
   incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_burp2_retention}}"
   burp2: true
@@ -143,11 +151,22 @@ corpusops_services_backup_duplicity_profiles_data:
   dirs: ['/data/nobackup/archives']
   periodicity: "{{corpusops_services_backup_duplicity_data_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_data_cron_cleanup_periodicity}}"
+corpusops_services_backup_duplicity_profiles_data:
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_noenc_retention}}"
+  dirs: ['/data/nobackup/archives']
+  periodicity: "{{corpusops_services_backup_duplicity_data_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_data_cron_cleanup_periodicity}}"
 corpusops_services_backup_duplicity_profiles_cold:
   incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_cold_retention}}"
   dirs: ['/data/nobackup/cold']
   periodicity: "{{corpusops_services_backup_duplicity_cold_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity}}"
+corpusops_services_backup_duplicity_profiles_noenc:
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_noenc_retention}}"
+  dirs: ['/data/nobackup/noenc']
+  use_gpg: false
+  periodicity: "{{corpusops_services_backup_duplicity_noenc_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_noenc_cron_cleanup_periodicity}}"
 corpusops_services_backup_duplicity_profiles_base:
   use_innerdirs: true
   use_gpg: true
