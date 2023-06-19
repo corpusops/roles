@@ -52,7 +52,7 @@
     cd /etc
     git config user.email 'makinastates@paas.tld'
     git config user.name 'Makina-States'
-    /usr/bin/etckeeper commit "Initial commit"
+    /usr/bin/etckeeper commit "Initial commit" || true
     chmod -Rf 2700 /etc/.git
   when: "corpusops_localsettings_etckeeper_do.rc != 0"
   tags: corpusops_localsettings_etckeeper
