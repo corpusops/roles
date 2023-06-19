@@ -135,7 +135,7 @@ def main(argv=None):
         systemwide_sshkeys()
     if opts.reset_postfix:
         os.system('newaliases')
-    if opts.machineid:
+    if opts.reset_machineid:
         os.system('printf "%s\n" $(openssl rand -hex 16|tr -d "\n ") >/etc/machine-id')
     if opts.reset_files or opts.reset_postfix:
         for kind, files in RESET_FILES.items():
