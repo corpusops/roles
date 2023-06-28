@@ -55,17 +55,17 @@ class LookupModule(LookupBase):
         ret = []
         for value in terms:
             try:
-                # try to resolve the overrides dict if it comes from 
+                # try to resolve the overrides dict if it comes from
                 # recent ansible versions and a form like:
                 # - include_role: {name: corpusops/registry}
                 #   loop: "{{myvar}}" /
-                #   vars: 
+                #   vars:
                 #      cops_vars_registry_target: foo
                 #      _foo: "{{myvar.subelement}}"
                 overrides_prefix = '_{0}'.format(value[:-1])
                 ov = self._templar.available_variables.get(overrides_prefix, None)
-                if ( 
-                    ov and 
+                if (
+                    ov and
                     isinstance(ov, six.string_types) and
                     '{{' in ov and
                     '}}' in ov and
@@ -82,13 +82,7 @@ class LookupModule(LookupBase):
                         log.error(trace)
                 val = __funcs__['copsf_registry'](
                     self._templar.available_variables, value, **kwargs)
-                try:
-                    registry = self._templar.template(self._templar.template(val[0], fail_on_undefined=True))
-                except Exception:
-                    trace = traceback.format_exc()
-                    print(trace)
-                    raise
-
+                registry = self._templar.template(self._templar.template(val[0], fail_on_undefined=True))
                 defaults_vals_reg ='__{0}{1}'.format(value, REGISTRY_DEFAULT_SUFFIX)
                 rval = OrderedDict()
                 if gs:
@@ -106,5 +100,9 @@ class LookupModule(LookupBase):
                 else:
                     print(trace)
                     raise
+            except Exception:
+                trace = traceback.format_exc()
+                print(trace)
+                raise
 
         return ret
