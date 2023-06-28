@@ -87,6 +87,7 @@ class LookupModule(LookupBase):
                 except Exception:
                     trace = traceback.format_exc()
                     print(trace)
+                    raise
 
                 defaults_vals_reg ='__{0}{1}'.format(value, REGISTRY_DEFAULT_SUFFIX)
                 rval = OrderedDict()
