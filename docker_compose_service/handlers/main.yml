@@ -4,7 +4,7 @@
     daemon_reload: yes
     state: "restarted"
     name: "{{item}}"
-  loop: ["{{docker_compose_service_vars.project}}"]
+  loop: ["{{docker_compose_service_vars.service_name}}"]
   tags: [service, systemd_do]
   when: "(corpusops_vars.has_services_manager and
           docker_compose_service_vars.state in ['started'] and
