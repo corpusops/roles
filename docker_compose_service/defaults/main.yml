@@ -1,6 +1,7 @@
 ---
 # name of the systemd service to install, default to directory basename
 docker_compose_service_default_project: "{{docker_compose_service_path|copsf_basename}}"
+docker_compose_service_service_name: "{{docker_compose_service_project}}"
 docker_compose_service_project: "{{(docker_compose_service_working_directory or docker_compose_service_default_path)|copsf_basename}}"
 # working directory for compose file
 docker_compose_service_path:    "{{ docker_compose_service_working_directory or docker_compose_service_default_path}}"

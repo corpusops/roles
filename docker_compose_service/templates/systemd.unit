@@ -1,9 +1,10 @@
 # {{ansible_managed}}
 #{% set v = vars['docker_compose_service_vars'] %}
+#{% set s = v.service_name %}
 #{% set d = v.project %}
 #{% set w = v.path %}
 [Unit]
-Description={{d}} DockerCompose service
+Description={{s}} DockerCompose service
 Before={{v._before}}
 After={{v._after}}
 Requires={{v._requires}}
