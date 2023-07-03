@@ -1,4 +1,5 @@
 {% set data=cops_burpclient_vars %}
+/var/log/burp-client-{{data.name}}.cron.log
 /var/log/burp-client-{{data.name}} {
         daily
         missingok

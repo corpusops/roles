@@ -80,6 +80,6 @@ cops_burpclient_common_lines: |-
   read_all_blockdevs = 0
 cops_burpclient_crons: |-
   OPENSSL_CONF={{cops_burp_sslconf}}
-  * *   * * *  root {{cops_burpclient_prefix}}/cron.sh    1>/dev/null 2>&1
+  * *   * * *  root {{cops_burpclient_prefix}}/cron.sh    1>>/var/log/burp-client-{{cops_burpclient_name}}.cron.log 2>&1
   0 */3 * * *  root {{cops_burpclient_prefix}}/cleanup-burp-processes.sh
 cops_burpclient_sslconf: "{{cops_burp_sslconf}}"
