@@ -37,9 +37,7 @@ cops_burpclient_configs: null
 cops_burpclient_configs_default:
 - {name: "{{corpusops_vars.config_dir}}/logrotate.d/burp-client-{{cops_burpclient_name}}"  , mode: "0640", template: "../templates/etc/logrotate.d/burp-client"}
 - {name: "{{corpusops_vars.config_dir}}/cron.d/burp-client-{{cops_burpclient_name}}"  , mode: "0640", template: "../templates/etc/cron.d/burp"}
-- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cron.sh"  , mode: "0750", template: "../templates/etc/burp/cron.sh"}
-- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cleanup-burp-processes.sh" , mode: "0750", template: "../templates/etc/burp/cleanup-burp-processes.sh"}
-- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cron.py"  , mode: "0750", template: "../templates/etc/burp/cron.py"}
+- {name: "{{corpusops_vars.config_dir}}/burp-{{cops_burpclient_name}}/cronng.sh"  , mode: "0750", template: "../templates/etc/burp/cronng.sh"}
 - {name: "{{cops_burpclient_configfile_restore}}"            , mode: "0640", template: "../templates/etc/burp/burp-client-restore.conf"}
 - {name: "{{cops_burpclient_configfile_client}}"             , mode: "0640", template: "../templates/etc/burp/burp-client.conf"}
 - {name: "{{cops_burpclient_prefix}}/burp.sh"                , mode: "0755", template: "../templates/etc/burp/burp.sh"}
@@ -80,6 +78,5 @@ cops_burpclient_common_lines: |-
   read_all_blockdevs = 0
 cops_burpclient_crons: |-
   OPENSSL_CONF={{cops_burp_sslconf}}
-  * *   * * *  root {{cops_burpclient_prefix}}/cron.sh    1>>/var/log/burp-client-{{cops_burpclient_name}}.cron.log 2>&1
-  0 */3 * * *  root {{cops_burpclient_prefix}}/cleanup-burp-processes.sh
+  * *   * * *  root {{cops_burpclient_prefix}}/cronng.sh    1>>/var/log/burp-client-{{cops_burpclient_name}}.cronng.log 2>&1
 cops_burpclient_sslconf: "{{cops_burp_sslconf}}"
