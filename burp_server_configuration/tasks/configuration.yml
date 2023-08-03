@@ -37,19 +37,7 @@
     fi
   changed_when: "'CHANGED' in burp_server_configuration_configst3.stderr"
   register: burp_server_configuration_configst3
-- copy:
-    dest: "{{item[1]}}"
-    src: "{{item[0]}}"
-    remote_src: true
-    force: true
-  loop:
-  - ["{{cops_burpsign_vars.ca}}/CA_burpCA.crt",
-     "{{cops_burp_vars.ssl_cert_ca}}"]
-  - ["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt",
-     "{{cops_burp_vars.ssl_cert}}"]
-  - ["{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.key",
-      "{{cops_burp_vars.ssl_key}}"]
-  register: burp_server_configuration_configst4
+- include_tasks: copy_servercert.yml
 - set_fact:
     cacheable: false
     burp_server_configuration_configs_changed: "{{(

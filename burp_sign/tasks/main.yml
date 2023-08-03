@@ -1,10 +1,5 @@
 ---
-- include_role: {name: corpusops.roles/burp_vars, public: true}
-- tags: [cops_burpsign_vars]
-  block:
-  - include_role: {name: corpusops.roles/registry, public: true}
-    vars: {cops_vars_registry_target: cops_burpsign}
-    no_log: "{{not (cops_vars_debug|default(false))}}"
+- include_role: {name: corpusops.roles/burp_sign_vars, public: true}
 - include_tasks: run.yml
   tags: [cops_burpsign_server]
   no_log: "{{not (cops_vars_debug|default(false))}}"

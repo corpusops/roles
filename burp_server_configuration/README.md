@@ -172,3 +172,10 @@ $COPS_ROOT/bin/ansible-playbook --flush-cache -Dvvv -i $inv\
     --skip-tags burp_configure_server,burp_sign,burp_fw,burp_register_to_servere,burp_install
 ```
 
+
+### regenerate server cert & key
+```sh
+$COPS_ROOT/bin/ansible-playbook --flush-cache -i $inv\
+    $COPS_ROOT/roles/corpusops.roles/burp_server_configuration/register/regen_key.yml \
+        -e "{burp_server: $backupserver, cops_vars_debug: true}" -vvvvvvvvD
+```
