@@ -1,0 +1,15 @@
+- import_playbook: ../configure_server/configure.yml
+- hosts: "{{hostvars.localhost.aburp_clients}}"
+  gather_facts: true
+  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
+  vars: {burp_registered_server: "{{hostvars.localhost.aburp_server}}"}
+  tasks:
+  - set_fact:
+      cacheable: false
+      aburp_clients: "{{hostvars.localhost.saburp_clients[burp_registered_server]}}"
+  - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]
+    block:
+    - include_tasks: ../register/transfert_certs.yml
+  - tags: [burp_clients, configure_clients, burp_configure_clients]
+    block:
+    - include_tasks: ../register/configure_client.yml

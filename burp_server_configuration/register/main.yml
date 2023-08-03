@@ -1,34 +1,8 @@
 ---
-- import_playbook: ../configure_server/vars.yml
-- hosts: localhost
-  connection: local
-  gather_facts: false
-  tasks:
-    - set_fact:
-        cacheable: false
-        aburp_server: "{{hostvars.localhost.aburp_servers[0]}}"
-        aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
-            if not c|copsf_isstr %}{{c}}{%
-            elif c in groups %}{{groups[c]}}{%
-            else%}{{c}}{%endif%}"
-    - set_fact:
-        cacheable: false
-        saburp_clients: "{{ {aburp_server: aburp_clients} }}"
+- import_playbook: main_pre.yml
+  tags: [main_pre]
 - hosts: "{{['localhost', hostvars.localhost.aburp_server]+hostvars.localhost.aburp_clients}}"
   gather_facts: true
   roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
-- import_playbook: ../configure_server/configure.yml
-- hosts: "{{hostvars.localhost.aburp_clients}}"
-  gather_facts: true
-  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
-  vars: {burp_registered_server: "{{hostvars.localhost.aburp_server}}"}
-  tasks:
-  - set_fact:
-      cacheable: false
-      aburp_clients: "{{hostvars.localhost.saburp_clients[burp_registered_server]}}"
-  - tags: [burp_clients, deploy_client_certs, burp_deploy_client_certs]
-    block:
-    - include_tasks: ../register/transfert_certs.yml
-  - tags: [burp_clients, configure_clients, burp_configure_clients]
-    block:
-    - include_tasks: ../register/configure_client.yml
+- import_playbook: main_post.yml
+  tags: [main_post]

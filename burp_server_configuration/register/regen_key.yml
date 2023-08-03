@@ -1,0 +1,39 @@
+---
+- import_playbook: main_pre.yml
+  tags: [main_pre]
+- hosts: "{{['localhost', hostvars.localhost.aburp_server]}}"
+  gather_facts: true
+  roles: ["corpusops.roles/vars", "corpusops.roles/burp_plugins"]
+- hosts: "{{hostvars.localhost.aburp_servers}}"
+  tags: [delete_server_key]
+  gather_facts: false
+  tasks:
+  - include_role: {name: corpusops.roles/burp_server_vars, public: true}
+  - include_role: {name: corpusops.roles/burp_sign_vars, public: true}
+  - shell: |
+      set -ex
+      d="{{hostvars.localhost.aburp_confdir}}"
+      test -e "$d" || exit 144
+      cd $d
+      c=$(date "+%Y%m%d%H%M%S")
+      for i in \
+      "{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.crt" \
+      "{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.key" \
+      "{{cops_burpsign_vars.ca}}/{{cops_burp_vars.cname}}.csr" \
+      ;do if [ -e "$i" ];then mv -vf "$i" "$i.$c.bak";fi;done
+      cd ..
+      sed -i -re "s/default_md.*=.*1/default_md = {{cops_burpsign_vars.alg}}/g" CA.cnf openssl.cnf
+      ./casign.sh {{cops_burp_vars.cname}}
+  - include_tasks: ../tasks/copy_servercert.yml
+  - name: service
+    cops_service:
+      state: "{{cops_burp_vars.activated
+       | ternary('restarted',
+                 'stopped')}}"
+      enabled: "{{cops_burp_vars.activated
+                  | ternary(True, False)}}"
+      name: "{{item}}"
+      daemon_reload: true
+    loop: "{{cops_burp_vars.services|flatten(levels=1)}}"
+    tags: burp_server_configuration
+    when: "corpusops_vars.has_services_manager"

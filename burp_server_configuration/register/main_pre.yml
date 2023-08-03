@@ -1,0 +1,15 @@
+- import_playbook: ../configure_server/vars.yml
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - set_fact:
+        cacheable: false
+        aburp_server: "{{hostvars.localhost.aburp_servers[0]}}"
+        aburp_clients: "{% set c = burp_clients|default('burp_clients') %}{%
+            if not c|copsf_isstr %}{{c}}{%
+            elif c in groups %}{{groups[c]}}{%
+            else%}{{c}}{%endif%}"
+    - set_fact:
+        cacheable: false
+        saburp_clients: "{{ {aburp_server: aburp_clients} }}"
