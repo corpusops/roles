@@ -42,7 +42,8 @@ export DUPLICITY_DRYRUN=${DUPLICITY_DRYRUN-}
 export DUPLICITY_VERBOSITY=${DUPLICITY_VERBOSITY-9}
 export DUPLICITY_FORCE_FULL=${DUPLICITY_FORCE_FULL-}
 export DUPLICITY_MAX_BACKUP_SECONDS=${DUPLICITY_MAX_BACKUP_SECONDS:-{{duplicity_profile.max_time}}}
-export RCLONE_CONFIG="${RCLONE_CONFIG:-{{duplicity_profile.prefix}}/{{duplicity_profile_name}}-rclone.conf}"
+export W="$(pwd)"
+export RCLONE_CONFIG="${RCLONE_CONFIG:-$W/{{duplicity_profile_name}}-rclone.conf}"
 {{duplicity_profile.env_slug}}
 
 {% if duplicity_profile.use_gpg|default(True) %}
