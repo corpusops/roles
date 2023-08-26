@@ -13,12 +13,13 @@
   loop: "{{corpusops_services_db_postgis_vars.files_apt|flatten(levels=1)}}"
   when: "(corpusops_services_db_postgis_vars.files_apt is not none and
           corpusops_services_db_postgis_vars.files_apt|length > 0)"
+- debug: {msg: "{{corpusops_services_db_postgis_vars.repo_keys}}"}
 - name: install services_db_postgis repokey
   apt_key:
     id: '{{item}}'
     keyserver: "{{corpusops_services_db_postgis_vars.keyserver}}"
     state: present
-  loop: '{{corpusops_services_db_postgis_vars.repo_keys}}'
+  loop: '{{corpusops_services_db_postgis_vars.repo_keys or []}}'
   when: "(ansible_os_family.lower() in ['debian'] and
           corpusops_services_db_postgis_vars.repo_keys is not none and
           corpusops_services_db_postgis_vars.repo_keys|length > 0)"

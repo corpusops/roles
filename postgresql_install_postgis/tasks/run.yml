@@ -4,10 +4,10 @@
   vars:
     _cops_postgresql_extensions:
       db: "{{cops_postgresql_install_postgis_vars.db}}"
-      port: "{{cops_postgresql_install_postgis_vars.port}}"
-      login_host: "{{cops_postgresql_install_postgis_vars.login_host}}"
-      login_user: "{{cops_postgresql_install_postgis_vars.login_user}}"
-      login_password: "{{cops_postgresql_install_postgis_vars.login_password}}"
+      port: "{{cops_postgresql_install_postgis_vars.port|default(omit) or omit}}"
+      login_host: "{{cops_postgresql_install_postgis_vars.login_host|default(omit) or omit}}"
+      login_user: "{{cops_postgresql_install_postgis_vars.login_user|default(omit) or omit}}"
+      login_password: "{{cops_postgresql_install_postgis_vars.login_password|default(omit) or omit}}"
       extensions: "{{cops_postgresql_install_postgis_vars.extensions}}"
       become: "{{cops_postgresql_install_postgis_vars.become}}"
       become_user: "{{cops_postgresql_install_postgis_vars.become_user}}"
