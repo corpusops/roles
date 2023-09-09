@@ -20,6 +20,9 @@
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
       {%- endif %}
+      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|copsf_looseversion >= '21.10'|copsf_looseversion)) %}{%- for p in ['python', 'python-dev'] %}
+      {%-    set _ = namespaced['packages'].remove(p) %}
+      {%- endfor %}{%- endif %}
       {%- if ansible_virtualization_type in ['docker', 'container', 'virtualpc'] %}
       {%- for i in namespaced.packages_not_in_docker %}
       {%- if i in namespaced.packages %}
