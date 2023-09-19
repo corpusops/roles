@@ -73,7 +73,18 @@ corpusops_haproxy_registrations_backend_opts_https:
 - 'http-request set-header X-SSL %[ssl_fc]'
 - 'option log-health-checks'
 - 'http-check expect rstatus (2|3|4|5)[0-9][0-9]'
+corpusops_haproxy_registrations_backend_opts_raw: []
 corpusops_haproxy_registrations_backend_opts_tcp: ['balance roundrobin']
+corpusops_haproxy_registrations_backend_opts_ldap:
+- "balance roundrobin"
+- "option dontlognull"
+- "option tcplog"
+- "option tcp-check"
+- "option clitcpka"
+- "stick-table type ip size 200k expire 30m"
+- "timeout server 1800"
+- "timeout tunnel 10s"
+- "timeout connect 1s"
 corpusops_haproxy_registrations_backend_opts_rabbitmq:
 - "balance roundrobin"
 - "option tcp-check"
@@ -100,10 +111,16 @@ corpusops_haproxy_registrations_backend_opts_redis_auth:
 - 'tcp-check expect string +OK'
 corpusops_haproxy_registrations_frontend_opts_http: []
 corpusops_haproxy_registrations_frontend_opts_https: []
+corpusops_haproxy_registrations_frontend_opts_ldap:
+- "option socket-stats"
+- "option tcpka"
+- "timeout client 3600s"
 corpusops_haproxy_registrations_proxy_modes_9200: 'http'
 corpusops_haproxy_registrations_proxy_modes_80: 'http'
 corpusops_haproxy_registrations_proxy_modes_443: 'https'
 corpusops_haproxy_registrations_proxy_modes_5672: 'rabbitmq'
 corpusops_haproxy_registrations_proxy_modes_6379: 'redis'
 corpusops_haproxy_registrations_proxy_modes_6378: 'redis'
+corpusops_haproxy_registrations_proxy_modes_636: 'ldap'
+corpusops_haproxy_registrations_proxy_modes_389: 'ldap'
 corpusops_haproxy_registrations_redis_password: secret

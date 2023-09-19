@@ -19,6 +19,7 @@ import tempfile
 import random
 import string
 import re
+import six
 from distutils.version import LooseVersion
 try:
     from collections import OrderedDict
@@ -29,6 +30,7 @@ except ImportError:
 OBJECT_CUSTOM_BACKEND = re.compile('letsencrypt|securitytxt')
 OBJECT_SANITIZER = re.compile('[\\\@+\$^&~"#\'()\[\]%*.:/]',
                               flags=re.M | re.U | re.X)
+DEFAULT_FRONTEND_MODE = DEFAULT_BACKEND_MODE = 'tcp'
 PREFIX = 'corpusops_haproxy_registrations_'
 registration_prefix = PREFIX + 'registrations_'
 DEFAULT_FRONTENDS = {80: {}, 443: {}}
@@ -174,6 +176,11 @@ def ordered_frontend_opts(opts=None):
     opts.sort(key=sort)
     return opts
 
+def get_backend_mode(mode):
+    return mode.startswith('http') and 'http' or 'tcp'
+
+def get_frontend_mode(mode):
+    return mode.startswith('http') and 'http' or 'tcp'
 
 def register_frontend(data,
                       port,
@@ -189,6 +196,7 @@ def register_frontend(data,
                       ssh_proxy=None,
                       ssh_proxy_host=None,
                       ssh_proxy_port=None):
+    mode = mode or DEFAULT_FRONTEND_MODE
     proxied_port = port
     if ssh_proxy:
         proxied_port = port + 1
@@ -234,9 +242,7 @@ def register_frontend(data,
     if raw_frontend is None:
         raw_frontend = []
     # normalise https -> http  & default proxy mode to TCP
-    hmode = frontend.setdefault(
-        'mode',
-        mode.startswith('http') and 'http' or 'tcp')
+    haproxy_mode = frontend.setdefault('mode', get_frontend_mode(mode))
     opts = frontend.setdefault(
         'raw_opts',
         data['frontend_opts'].get(mode, [])[:])
@@ -244,7 +250,7 @@ def register_frontend(data,
     # TUPLE FOR ORDER IS IMPORTANT !
     # one_backend does not have any importance, its sole purpose is
     # to factorize further code
-    if not hmode.startswith('http'):
+    if not haproxy_mode.startswith('http'):
         aclmodes = (('default', ['one_backend']),)
     else:
         aclmodes = (('regex', regexes),
@@ -362,8 +368,9 @@ def register_frontend(data,
 def register_servers_to_backends(data,
                                  port,
                                  ip,
+                                 weight=1,
                                  to_port=None,
-                                 mode='tcp',
+                                 mode=None,
                                  user=None,
                                  password=None,
                                  wildcards=None,
@@ -387,12 +394,15 @@ def register_servers_to_backends(data,
                                  ssh_proxy=None,
                                  ssh_proxy_host=None,
                                  ssh_proxy_port=None):
+
     '''
     Register a specific minion as a backend server
     where haproxy will forward requests to
     '''
+    mode = mode or DEFAULT_BACKEND_MODE
+    weight = int(weight)
     proxied_port = port
-    if http_check is None:
+    if http_check is None and mode.startswith('http'):
         http_check = "OPTIONS /"
     if ssh_proxy:
         proxied_port = port + 1
@@ -438,8 +448,8 @@ def register_servers_to_backends(data,
         data['backend_opts']['tcp'])
     if not to_port:
         to_port = port
+    haproxy_mode = get_backend_mode(mode)
     if mode.startswith('http'):
-        hmode = 'http'
         #  we try first a backend over https, and if not present on http #}
         if mode.startswith('https'):
             servers = []
@@ -447,46 +457,42 @@ def register_servers_to_backends(data,
                 servers.append(
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
                      'bind': '{0}:{1}'.format(ip, to_port),
-                     'opts': 'check weight 100 {0} {1} {2}'.format(
-                         inter_check, ssl_check, raw_srv,
+                     'opts': 'check weight {3} {0} {1} {2}'.format(
+                         inter_check, ssl_check, raw_srv, weight=weight,
                          bracket='{', ebracket='}')})
             else:
                 ssl_check_s = ssl_check_forced and ssl_check or ''
                 servers.append(
                     {'name': 'srv_{0}_ssl'.format(sane_ip),
                      'bind': '{0}:{1}'.format(ip, to_port),
-                     'opts': 'check weight 100 {0} {1} {2}'.format(
-                         inter_check, ssl_check_s, raw_srv)})
+                     'opts': 'check weight {3} {0} {1} {2}'.format(
+                         inter_check, ssl_check_s, raw_srv, weight)})
             if http_fallback:
                 servers.insert(0, {'name': 'srv_{0}_clear'.format(sane_ip),
                                    'bind': '{0}:{1}'.format(
                                        ip, http_fallback_port),
-                                   'opts': ('check weight 50'
+                                   'opts': ('check weight {2}'
                                             ' {0} backup {1}').format(
-                                                inter_check, raw_srv,
+                                                inter_check, raw_srv, weight-1,
                                                 bracket='{', ebracket='}',)})
         else:
             servers = [{'name': 'srv_{0}'.format(sane_ip),
                         'bind': '{0}:{1}'.format(ip, to_port),
-                        'opts': 'check {0} {1}'.format(inter_check, raw_srv,
+                        'opts': 'check {0} {1}'.format(inter_check, raw_srv, weight,
                                                        bracket='{', ebracket='}')}]
 
-    elif mode in [
-        'rabbitmq', 'tcp', 'tcps',
-        'ssl', 'tls', 'redis', 'redis_auth'
-    ]:
-        hmode = 'tcp'
+    else:
         servers = [
                {'name': 'srv_{0}'.format(sane_ip),
                 'bind': '{0}:{1}'.format(ip, to_port),
-                'opts': 'check {0}'.format(inter_check)}]
-    if not hmode.startswith('http'):
+                'opts': 'weight {1} check {0} {2}'.format(inter_check, weight, raw_srv)}]
+    if not haproxy_mode.startswith('http'):
         aclmodes = (('default', ['one_backend']),)
     else:
         aclmodes = (('host', hosts),
                     ('regex', regexes),
                     ('wildcard', wildcards))
-    if hmode.startswith('http') and letsencrypt:
+    if haproxy_mode.startswith('http') and letsencrypt:
         backends.update({
             'bck_letsencrypt': {
                 'servers': [{
@@ -501,7 +507,7 @@ def register_servers_to_backends(data,
                 }]
             }
         })
-    if hmode.startswith('http') and securitytxt:
+    if haproxy_mode.startswith('http') and securitytxt:
         backends.update({
             'bck_securitytxt': {
                 'raw_opts': [
@@ -532,7 +538,7 @@ def register_servers_to_backends(data,
             for match in hosts:
                 bck_name = get_backend_name(mode, proxied_port, **{aclmode: match})
                 backend = backends.setdefault(bck_name, {})
-                backend.setdefault('mode', hmode)
+                backend.setdefault('mode', haproxy_mode)
                 bopts = backend.setdefault('raw_opts', copy.deepcopy(raw_backend))
                 if (bopts or opts) and http_check:
                     bopts.append("option httpchk {0}".format(http_check))
@@ -590,14 +596,15 @@ def make_registrations(data, ansible_vars=None):
                 ssh_proxy_host = payload.get('ssh_proxy_host', None)
                 ssh_proxy_port = payload.get('ssh_proxy_port', None)
                 ssl_terminated = fdata.get('ssl_terminated', None)
-                inter_check = fdata.get('inter_check', None)
+                inter_check = fdata.get('inter_check',
+                                        payload.get('inter_check', None))
                 raw_backend = fdata.get('raw_backend', None)
                 raw_srv = fdata.get('raw_srv', None)
                 raw_frontend = fdata.get('raw_frontend', None)
                 ssl_check = fdata.get('ssl_check', None)
                 http_fallback = fdata.get('http_fallback', None)
                 http_fallback_port = fdata.get('http_fallback_port', None)
-                mode = fdata.get('mode', proxy_modes.get(sport, 'tcp'))
+                mode = fdata.get('mode', payload.get('mode', proxy_modes.get(sport, None)))
                 frontends = register_frontend(
                     data, port=port, mode=mode, hosts=hosts,
                     frontends=frontends,
@@ -616,9 +623,15 @@ def make_registrations(data, ansible_vars=None):
                 if not isinstance(payload['ip'], list):
                     payload['ip'] = payload['ip']
                 for ip in payload['ip']:
+                    oip = ip
+                    pdata = {'weight': 1, 'ip': ip}
+                    if isinstance(ip, dict):
+                        pdata.update(ip)
+                    elif isinstance(ip, (tuple, list)):
+                        pdata = {'weight': ip[1], 'ip': ip[0]}
                     backends = register_servers_to_backends(
                         data,
-                        port=port, ip=ip,
+                        port=port, ip=pdata['ip'], weight=pdata['weight'],
                         to_port=to_port, mode=mode,
                         user=user, password=password,
                         hosts=hosts, wildcards=wildcards,
@@ -641,6 +654,7 @@ def make_registrations(data, ansible_vars=None):
                         ssh_proxy=ssh_proxy,
                         ssh_proxy_host=ssh_proxy_host,
                         ssh_proxy_port=ssh_proxy_port)
+
     return data
 
 
@@ -659,4 +673,4 @@ class FilterModule(object):
 
     def filters(self):
         return __funcs__
-# vim:set et sts=4 ts=4 tw=120
+# vim:set et sts=4 ts=4 tw=120 ft=python:

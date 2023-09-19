@@ -323,6 +323,16 @@ Then use
 ssh yourhost.net
 ```
 
+### ldap proxy
+```yaml
+corpusops_haproxy_registrations_registrations_ldap:
+  ip: [[ip, 2], [hostvars['foobar'].local_ip, 1]]
+  inter_check: 'inter 1s'
+  frontends: 
+    389:  {'to_port': 389, 'mode': 'tcp'}
+    636:  {'to_port': 636, 'mode': 'tcp'}
+```
+
 ### Add raw opts
 ```yaml
 - hosts: ["foobar"]
