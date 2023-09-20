@@ -1,0 +1,58 @@
+---
+corpusops_services_dns_dhcpd6_cops_do_format_resolve: false
+corpusops_services_dns_dhcpd6_cops_computed_defaults: []
+corpusops_services_dns_dhcpd6_cops_flavors: ['ubuntu', 'debian', 'centos', 'redhat', 'default']
+corpusops_services_dns_dhcpd6_cops_sub_os_append: {}
+corpusops_services_dns_dhcpd6_cops_knobs: [
+  'files', 'filescopy', 'configs', 'packages', 'services',
+  'repo_keys', 'repo_keys_url', 'repo',]
+corpusops_services_dns_dhcpd6_cops_lowered: []
+corpusops_services_dns_dhcpd6_cops_sub_namespaces:
+  settings: {}
+corpusops_services_dns_dhcpd6_activated: True
+corpusops_services_dns_dhcpd6_user: "root"
+corpusops_services_dns_dhcpd6_group: "{{corpusops_services_dns_dhcpd6_user}}"
+corpusops_services_dns_dhcpd6_repo: null
+corpusops_services_dns_dhcpd6_services_default: [isc-dhcp-server6]
+corpusops_services_dns_dhcpd6_packages: [isc-dhcp-server]
+corpusops_services_dns_dhcpd6_files: null
+corpusops_services_dns_dhcpd6_filescopy: null
+corpusops_services_dns_dhcpd6_filescopy_default: []
+# - {template: "usr/local/bin/cops_dhcpd_cleanup.sh",
+#    dest: "{{corpusops_services_dns_dhcpd6_cleanup_script}}",
+#    mode: "755"}
+corpusops_services_dns_dhcpd6_files_default: {}
+# - {path: "{{corpusops_services_dns_dhcpd6_daemonjon|copsf_dirname}}",
+#    state: directory, mode: "755"}
+corpusops_services_dns_dhcpd6_configs: null
+corpusops_services_dns_dhcpd6_configs_debian:
+  - {name: '/etc/systemd/system/isc-dhcp-server6.service',
+     mode: "644"}
+  - {name: "/etc/default/isc-dhcp-server6" ,
+     mode: "644"}
+  - {name: "{{corpusops_services_dns_dhcpd6_config}}" ,
+     mode: "644"}
+corpusops_services_dns_dhcpd6_configs_redhat: []
+corpusops_services_dns_dhcpd6_config: "{{corpusops_services_dns_dhcpd6_directory}}/dhcpd6.conf"
+corpusops_services_dns_dhcpd6_interfaces: ""
+corpusops_services_dns_dhcpd6_options: ""
+corpusops_services_dns_dhcpd6_defaults: "{{corpusops_services_dns_dhcpd6_defaults_defaults}}"
+corpusops_services_dns_dhcpd6_defaults_defaults:
+  INTERFACES: '{{corpusops_services_dns_dhcpd6_interfaces}}'
+  OPTIONS: '{{corpusops_services_dns_dhcpd6_options}}'
+  DHCPD_CONF: '{{corpusops_services_dns_dhcpd6_config}}'
+corpusops_services_dns_dhcpd6_directory: "/etc/dhcp"
+corpusops_services_dns_dhcpd6_subnets: {}
+corpusops_services_dns_dhcpd6_hosts: {}
+corpusops_services_dns_dhcpd6_extra_dirs: []
+corpusops_services_dns_dhcpd6_conf: "{%set c = {}%}{% set _ = c.update(corpusops_services_dns_dhcpd6_conf_default)%}{% set _ = c.update(corpusops_services_dns_dhcpd6_conf_custom) %}{{c}}"
+corpusops_services_dns_dhcpd6_conf_custom: {}
+corpusops_services_dns_dhcpd6_conf_default:
+  'domain_name_servers': '{{corpusops_services_dns_dhcpd6_ns}}'
+  'domain_name': '{{corpusops_services_dns_dhcpd6_domain}}'
+  'default_lease_time': '864000'
+  'max_lease_time': '864000'
+  'log_facility': 'local7'
+  'ddns_update_style': 'none'
+corpusops_services_dns_dhcpd6_domain: "example.org"
+corpusops_services_dns_dhcpd6_ns: "2001:4860:4860::8888, 2001:4860:4860::8844"
