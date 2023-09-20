@@ -1,0 +1,59 @@
+---
+- name: install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: '{{corpusops_services_dns_dhcpd6_vars.packages}}'
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_dns_dhcpd6_vars.packages is not none and
+          corpusops_services_dns_dhcpd6_vars.packages|length > 0)"
+  register: corpusops_services_dns_dhcpd6_pkgst
+- name: update & install prerequisites
+  package:
+    cache_valid_time: '{{60*60}}'
+    update_cache: yes
+    name: "{{corpusops_services_dns_dhcpd6_vars.packages|flatten(levels=1)}}"
+    state: present
+  when: "(ansible_os_family.lower() in ['debian'] and
+          corpusops_services_dns_dhcpd6_vars.packages is not none and
+          corpusops_services_dns_dhcpd6_vars.packages|length > 0)"
+- name: update & install prerequisites (yum-utils)
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: 'yum-utils'
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_dns_dhcpd6_vars.packages is not none and
+          corpusops_services_dns_dhcpd6_vars.packages|length > 0)"
+- name: repo
+  shell: |
+    yum-config-manager --add-repo "{{item}}"
+  loop: "{{[corpusops_services_dns_dhcpd6_vars.repo]|flatten(levels=1)}}"
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_dns_dhcpd6_vars.packages is not none and
+          corpusops_services_dns_dhcpd6_vars.packages|length > 0)"
+- name: update & install prerequisites
+  package:
+    update_cache: yes
+    enablerepo: epel-testing
+    name: "{{corpusops_services_dns_dhcpd6_vars.packages|flatten(levels=1)}}"
+    state: present
+  when: "(ansible_os_family.lower() in ['redhat'] and
+          corpusops_services_dns_dhcpd6_vars.packages is not none and
+          corpusops_services_dns_dhcpd6_vars.packages|length > 0)"
+- group:
+    name: "{{corpusops_services_dns_dhcpd6_vars.group}}"
+    system: yes
+    state: present
+  when: "corpusops_services_dns_dhcpd6_vars.group|default(none)"
+- user:
+    name: "{{corpusops_services_dns_dhcpd6_vars.user}}"
+    system: yes
+    groups: "{{corpusops_services_dns_dhcpd6_vars.group}}"
+    append: true
+  when: "corpusops_services_dns_dhcpd6_vars.user|default(none)"
+- set_fact:
+    cacheable: false
+    corpusops_services_dns_dhcpd6_prequisites_changed: "{{( corpusops_services_dns_dhcpd6_pkgst.changed )}}" 
