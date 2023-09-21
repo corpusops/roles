@@ -1,0 +1,5 @@
+---
+- include_role: {name: corpusops.roles/registry, public: true}
+  vars: {cops_vars_registry_target: corpusops_services_dns_dhcpd}
+  tags: [corpusops_vars, corpusops_services_dns_dhcpd_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"

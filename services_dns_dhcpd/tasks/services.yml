@@ -1,0 +1,23 @@
+---
+- set_fact:
+    cacheable: false
+    corpusops_services_dns_dhcpd_service_state: >-
+      {% if (
+        corpusops_services_dns_dhcpd_configs_changed     |default(False) or
+        corpusops_services_dns_dhcpd_prequisites_changed |default(False)
+      )%}re{%endif%}started
+- set_fact:
+    cacheable: false
+    corpusops_services_dns_dhcpd_service_state: "{{corpusops_services_dns_dhcpd_service_state.strip()}}"
+- name: service
+  cops_service:
+    state: "{{corpusops_services_dns_dhcpd_vars.activated
+     | ternary(corpusops_services_dns_dhcpd_service_state,
+               'stopped')}}"
+    enabled: "{{corpusops_services_dns_dhcpd_vars.activated
+                | ternary(True, False)}}"
+    name: "{{item}}"
+    daemon_reload: true
+  loop: "{{corpusops_services_dns_dhcpd_vars.services|flatten(levels=1)}}"
+  tags: corpusops_services_dns_dhcpd
+- meta: flush_handlers 
