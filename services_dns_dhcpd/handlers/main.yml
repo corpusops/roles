@@ -1,0 +1,24 @@
+---
+- listen: restart_corpusops_services_dns_dhcpd
+  systemd:
+    daemon_reload: yes
+    state: restarted
+    name: "{{hdhcpditemd}}"
+  loop_control: {loop_var: hdhcpditemd}
+  loop: "{{corpusops_services_dns_dhcpd_vars.services|flatten(levels=1)}}"
+  when: "(corpusops_services_dns_dhcpd_vars.activated and
+          corpusops_services_dns_dhcpd_services|default(True) and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr == 'systemd'))"
+  tags: [corpusops_services_dns_dhcpd, corpusops_services_dns_dhcpd_services]
+- listen: restart_corpusops_services_dns_dhcpd
+  cops_service:
+    state: restarted
+    name: "{{hdhcpditemc}}"
+  loop: "{{corpusops_services_dns_dhcpd_vars.services|flatten(levels=1)}}"
+  loop_control: {loop_var: hdhcpditemc}
+  when: "(corpusops_services_dns_dhcpd_vars.activated and
+          corpusops_services_dns_dhcpd_services|default(True) and
+          corpusops_vars.has_services_manager and
+          (ansible_service_mgr != 'systemd'))"
+  tags: [corpusops_services_dns_dhcpd, corpusops_services_dns_dhcpd_services]

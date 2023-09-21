@@ -1,0 +1,5 @@
+---
+- hosts: all
+  roles: [corpusops.roles/ansible_plugins]
+  tasks:
+  - include_role: {name: corpusops.roles/services_dns_dhcpd}

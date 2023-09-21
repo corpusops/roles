@@ -1,0 +1,16 @@
+# Defaults for isc-dhcp-server initscript
+# sourced by /etc/init.d/isc-dhcp-server
+# installed at /etc/default/isc-dhcp-server by the maintainer scripts
+# {{ansible_managed}}
+
+
+{% set data=corpusops_services_dns_dhcpd_vars %}
+# Path to dhcpd's config file (default: /etc/dhcp/dhcpd.conf).
+#DHCPD_CONF=/etc/dhcp/dhcpd.conf
+
+# Path to dhcpd's PID file (default: /var/run/dhcpd.pid).
+#DHCPD_PID=/var/run/dhcpd.pid
+
+{% for i, val in corpusops_services_dns_dhcpd_defaults.items() %}
+{{i}}="{{val}}"
+{% endfor %}

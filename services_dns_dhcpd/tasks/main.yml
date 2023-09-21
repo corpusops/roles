@@ -1,0 +1,24 @@
+---
+- name: "corpusops_services_dns_dhcpd preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_dns_dhcpd | default(True) }}"
+  register: corpusops_services_dns_dhcpd_can_run
+  tags: corpusops_services_dns_dhcpd
+- include_tasks: prerequisites.yml
+  when: ['corpusops_services_dns_dhcpd_can_run.msg == True',
+         "corpusops_services_dns_dhcpd_do_prerequisites|default(true)"]
+  tags: [corpusops_services_dns_dhcpd,
+         sshd_prerequisites,
+         corpusops_services_dns_dhcpd_prerequisites]
+- include_tasks: configuration.yml
+  when: ['corpusops_services_dns_dhcpd_can_run.msg == True',
+         "corpusops_services_dns_dhcpd_do_configuration|default(true)"]
+  tags: [corpusops_services_dns_dhcpd,
+         sshd_configuration,
+         corpusops_services_dns_dhcpd_configuration]
+- include_tasks: services.yml
+  when: ['corpusops_services_dns_dhcpd_can_run.msg == True',
+         "corpusops_services_dns_dhcpd_do_services|default(true)"]
+  tags: [corpusops_services_dns_dhcpd,
+         sshd_services,
+         corpusops_services_dns_dhcpd_services]
