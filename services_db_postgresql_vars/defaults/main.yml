@@ -14,20 +14,28 @@ corpusops_services_db_postgresql_cops_sub_namespaces:
 corpusops_services_db_postgresql_activated: True
 corpusops_services_db_postgresql_repo_keys_url: null
 corpusops_services_db_postgresql_repo_keys: null
-corpusops_services_db_postgresql_repo_keys_default: [ACCC4CF8]
-corpusops_services_db_postgresql_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
+corpusops_services_db_postgresql_repo_keys_default: [ACCC4CF8, 7FCC7D46ACCC4CF8]
+corpusops_services_db_postgresql_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_services_db_postgresql_repo: null
 corpusops_services_db_postgresql_repo_debian: "deb http://apt.postgresql.org/pub/repos/apt/ {{corpusops_core_distribution_release}}-pgdg main"
 corpusops_services_db_postgresql_repo_redhat: "https://download.postgresql.com/linux/centos/postgresql-ce.repo"
 corpusops_services_db_postgresql_repo_fedora: "https://download.postgresql.com/linux/fedora/postgresql-ce.repo"
 corpusops_services_db_postgresql_client_packages: null
-corpusops_services_db_postgresql_client_packages_default:
+corpusops_services_db_postgresql_client_packages_pythonpsycopg:  |-
+  {%- set p = [] %}
+  {%- if ansible_lsb.id.lower() in ['ubuntu', 'linuxmint'] %}
+  {%- if (corpusops_core_distribution_version|copsf_looseversion) <= '18.04'|copsf_looseversion %}
+  {%- set _ = p.append('python-psycopg2') %}
+  {%- endif%}
+  {%- endif%}
+  {{- p }}
+corpusops_services_db_postgresql_client_packages_default1:
   - 'libpq-dev'
-  - 'python-psycopg2'
   - 'python3-psycopg2'
   - "postgresql-client-{{corpusops_services_db_postgresql_version}}"
   # installs server !
   # - "postgresql-contrib-{{corpusops_services_db_postgresql_version}}"
+corpusops_services_db_postgresql_client_packages_default: "{{corpusops_services_db_postgresql_client_packages_default1+corpusops_services_db_postgresql_client_packages_pythonpsycopg}}"
 corpusops_services_db_postgresql_packages: null
 corpusops_services_db_postgresql_packages_default:
   - 'libpq-dev'
