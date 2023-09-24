@@ -90,7 +90,7 @@ corpusops_localsettings_php_repo_keys_url: null
 corpusops_localsettings_php_repo_keys: null
 corpusops_localsettings_php_repo_keys_default: []
 corpusops_localsettings_php_repo_keys_ubuntu: [E5267A6C]
-corpusops_localsettings_php_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
+corpusops_localsettings_php_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_localsettings_php_repo: null
 corpusops_localsettings_php_repo_ubuntu: "deb http://ppa.launchpad.net/ondrej/php/ubuntu {{corpusops_core_distribution_release.lower()}} main"
 corpusops_localsettings_php_packages: |-

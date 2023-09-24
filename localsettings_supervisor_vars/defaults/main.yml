@@ -12,7 +12,7 @@ corpusops_localsettings_supervisor_activated: True
 corpusops_localsettings_supervisor_repo_keys_url: null
 corpusops_localsettings_supervisor_repo_keys: null
 corpusops_localsettings_supervisor_repo_keys_default: []
-corpusops_localsettings_supervisor_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
+corpusops_localsettings_supervisor_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_localsettings_supervisor_repo: null
 corpusops_localsettings_supervisor_packages: null
 corpusops_localsettings_supervisor_packages_default: []
