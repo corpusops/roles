@@ -4,7 +4,7 @@ corpusops_services_firewall_ms_iptables_disabled: "{{not corpusops_services_fire
 corpusops_services_firewall_ms_iptables_repo_keys_url: null
 corpusops_services_firewall_ms_iptables_repo_keys: null
 corpusops_services_firewall_ms_iptables_repo_keys_default: []
-corpusops_services_firewall_ms_iptables_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
+corpusops_services_firewall_ms_iptables_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_services_firewall_ms_iptables_repo: null
 corpusops_services_firewall_ms_iptables_packages: null
 corpusops_services_firewall_ms_iptables_packages_default:

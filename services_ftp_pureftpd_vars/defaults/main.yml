@@ -12,7 +12,7 @@ corpusops_services_ftp_pureftpd_activated: True
 corpusops_services_ftp_pureftpd_repo_keys_url: null
 corpusops_services_ftp_pureftpd_repo_keys: null
 corpusops_services_ftp_pureftpd_repo_keys_default: []
-corpusops_services_ftp_pureftpd_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
+corpusops_services_ftp_pureftpd_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_services_ftp_pureftpd_repo: null
 corpusops_services_ftp_pureftpd_packages: null
 corpusops_services_ftp_pureftpd_packages_default: |

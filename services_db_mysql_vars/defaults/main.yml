@@ -18,7 +18,7 @@ corpusops_services_db_mysql_activated: True
 corpusops_services_db_mysql_repo_keys_url: null
 corpusops_services_db_mysql_repo_keys: null
 corpusops_services_db_mysql_repo_keys_default: []
-corpusops_services_db_mysql_keyserver: "hkp://hkps.pool.sks-keyservers.net:80"
+corpusops_services_db_mysql_keyserver: "{{corpusops_core_hkp_keyserver}}"
 corpusops_services_db_mysql_repo: null
 #corpusops_services_db_mysql_repo_debian: "deb http://apt.mysql.org/pub/repos/apt/ {{corpusops_core_distribution_release}}-mysqldg main"
 corpusops_services_db_mysql_repo_debian: null
