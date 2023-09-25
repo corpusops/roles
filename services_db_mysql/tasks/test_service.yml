@@ -1,0 +1,10 @@
+- shell: |-
+    set -ex
+    {%for i in cops_mysql_service%}
+    systemctl status {{i}}
+    {% endfor %}
+  tags: corpusops_services_db_mysql_status
+  failed_when: "{{dofail}}"
+  changed_when: false
+  when: cops_mysql_service|copsf_asbool
+  register: cops_mysql_service_test

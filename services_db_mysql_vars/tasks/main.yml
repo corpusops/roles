@@ -12,7 +12,7 @@
     content: |-
       {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
       {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
-      {%- set namespaced, _ = lookup('cops_mysql', registry_prefix, data=namespaced) %}
+      {%- set namespaced = lookup('cops_mysql', registry_prefix, data=namespaced) %}
       {%- for name, val in namespaced.items() %}
       {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
       {%- endfor %}
