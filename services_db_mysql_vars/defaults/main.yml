@@ -29,8 +29,16 @@ corpusops_services_db_mysql_client_packages_default:
 - "mysql-client-{{corpusops_services_db_mysql_version}}"
 - "libmysqlclient-dev"
 corpusops_services_db_mysql_py_packages: null
-corpusops_services_db_mysql_py_packages_default:
-- "python-mysqldb"
+corpusops_services_db_mysql_py_packages_default: "{{corpusops_services_db_postgresql_client_packages_python2+corpusops_services_db_mysql_py_packages_default1}}"
+corpusops_services_db_postgresql_client_packages_python2:  |-
+  {%- set p = [] %}
+  {%- if ansible_lsb.id.lower() in ['ubuntu', 'linuxmint'] %}
+  {%- if (corpusops_core_distribution_version|copsf_looseversion) <= '18.04'|copsf_looseversion %}
+  {%- set _ = p.append('python-mysqldb') %}
+  {%- endif%}
+  {%- endif%}
+  {{- p }}
+corpusops_services_db_mysql_py_packages_default1:
 - "python3-mysqldb"
 corpusops_services_db_mysql_packages: null
 corpusops_services_db_mysql_packages_default:

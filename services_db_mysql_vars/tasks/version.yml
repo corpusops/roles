@@ -2,22 +2,21 @@
 - tags: [mysql_version]
   block:
   - shell: |
-      mysql --version|awk '{ print $5 }'|awk -F\, '{ print $1 }'
+      mysql --version|sed -re "s/.*distrib\s+//gi;s/.*Ver\s+//g;s/,? .*//g;s/-.*//g"|awk -F, '{print $1}'
     changed_when: false
     register: cops_c_mysql_version
   - set_fact:
       cacheable: false
-      mysql_57onward: "{{  ('5.7'|copsf_looseversion) <= (
-                              cops_c_mysql_version.stdout|copsf_looseversion)}}"
-      mysql_55onward: "{{  ('5.5'|copsf_looseversion) <= (
-                              cops_c_mysql_version.stdout|copsf_looseversion)}}"
-      mysql_55downward: "{{('5.5'|copsf_looseversion) >  (
-                              cops_c_mysql_version.stdout|copsf_looseversion)}}"
+      mysql_80onward:   "{{('8.0'|copsf_looseversion) <= (cops_c_mysql_version.stdout.strip()|copsf_looseversion)}}"
+      mysql_57onward:   "{{('5.7'|copsf_looseversion) <= (cops_c_mysql_version.stdout.strip()|copsf_looseversion)}}"
+      mysql_55onward:   "{{('5.5'|copsf_looseversion) <= (cops_c_mysql_version.stdout.strip()|copsf_looseversion)}}"
+      mysql_55downward: "{{('5.5'|copsf_looseversion) >  (cops_c_mysql_version.stdout.strip()|copsf_looseversion)}}"
     when: "cops_c_mysql_version.rc == 0 and cops_c_mysql_version.stdout|copsf_asbool"
   # assume last version on fallback
   - set_fact:
       cacheable: false
-      mysql_57onward:   true
+      mysql_80onward:   true
+      mysql_57onward:   false
       mysql_55onward:   false
       mysql_55downward: false
     when: "cops_c_mysql_version.rc != 0 or (not cops_c_mysql_version.stdout|copsf_asbool)"

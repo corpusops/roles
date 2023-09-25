@@ -3,6 +3,7 @@
     cacheable: false
     corpusops_services_db_mysql_service_state: >-
       {% if (
+        corpusops_services_db_mysql_force_restart       |default(False) or
         corpusops_services_db_mysql_configs_changed     |default(False) or
         corpusops_services_db_mysql_prequisites_changed |default(False) or
         corpusops_services_db_mysql_wrappers_changed    |default(False)
@@ -23,39 +24,28 @@
 # with debian cluster mgmnt, verify our mysql is really up
 # and die otherwise
 - shell: |
-    systemctl --all --no-legend --no-pager|awk '{print $1}'|grep mysql|grep .service
+    systemctl --all --no-legend --no-pager|awk '{print $1}'|grep mysql|grep .service|grep -v mysqld.service
   register: cops_mysql_service
   changed_when: false
   when: "corpusops_vars.has_services_manager and ansible_service_mgr in ['systemd']"
 - set_fact:
     cacheable: false
-    cops_mysql_service: "{{cops_mysql_service.get('stdout', '').strip()}}"
+    cops_mysql_service: "{{cops_mysql_service.get('stdout', '')|copsf_splitstrip}}"
 # try to restart if down
-- shell: "systemctl status {{cops_mysql_service}}"
-  tags: corpusops_services_db_mysql_status
-  failed_when: false
-  changed_when: false
-  when: cops_mysql_service|copsf_asbool
-  register: cops_mysql_service_test
-- name: restart specific cluster service
-  cops_service:
-    state: "{{corpusops_services_db_mysql_vars.activated
-     | ternary(corpusops_services_db_mysql_service_state,
-               'stopped')}}"
-    enabled: "{{corpusops_services_db_mysql_vars.activated
-                | ternary(True, False)}}"
-    name: "{{item}}"
-  loop: "{{cops_mysql_service|flatten(levels=1)}}"
-  tags: corpusops_services_db_mysql
-  when: |
+- {include_tasks: test_service.yml, vars: {dofail: false}}
+- when: |
     (cops_mysql_service|copsf_asbool and
      cops_mysql_service_test.rc !=0)
-# bail out if restart of specific cluster failed
-- shell: "systemctl status {{cops_mysql_service}}"
-  tags: corpusops_services_db_mysql_status
-  register: cops_mysql_service_test
-  changed_when: false
-  when: |
-    (corpusops_vars.has_services_manager and
-     cops_mysql_service|copsf_asbool and
-     cops_mysql_service_test.rc !=0)
+  # bail out if restart of specific cluster failed
+  block:
+  - name: restart specific cluster service
+    cops_service:
+      state: "{{corpusops_services_db_mysql_vars.activated
+       | ternary(corpusops_services_db_mysql_service_state,
+                 'stopped')}}"
+      enabled: "{{corpusops_services_db_mysql_vars.activated
+                  | ternary(True, False)}}"
+      name: "{{item}}"
+    loop: "{{cops_mysql_service|flatten(levels=1)}}"
+    tags: corpusops_services_db_mysql
+  - {include_tasks: test_service.yml, vars: {dofail: true}}

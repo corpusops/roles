@@ -47,14 +47,11 @@ class LookupModule(LookupBase):
         ret = []
         for value in terms:
             try:
-                ret.append(
-                    self._templar.template(
-                    self._templar.template(
-                        __funcs__['{0}'.format(func)](
-                            prefix=value,
-                            ansible_vars=self._templar.available_variables, **kwargs),
-                    fail_on_undefined=True))
-                )
+                pass1, _ = __funcs__['{0}'.format(func)](
+                    prefix=value,
+                    ansible_vars=self._templar.available_variables, **kwargs)
+                pass2 = self._templar.template(pass1, fail_on_undefined=True)
+                ret.append(self._templar.template(pass2))
             except AnsibleUndefinedVariable:
                 if default is not None:
                     ret.append(default)

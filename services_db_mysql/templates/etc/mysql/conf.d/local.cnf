@@ -105,8 +105,10 @@ max_heap_table_size = {{ data.tmp_table_size_M }}M
 #
 # * Query Cache Configuration
 #
+{% if not mysql_80onward%}
 query_cache_limit	= 1M
 query_cache_size    = {{ data.query_cache_size_M }}M
+{% endif %}
 #
 # * Logging and Replication
 #
