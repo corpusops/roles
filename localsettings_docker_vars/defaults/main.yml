@@ -32,6 +32,9 @@ corpusops_localsettings_docker_packages_redhat: [
   gnupg2, python-pip, docker-ce]
 corpusops_localsettings_docker_packages_default: >
   {%- set pkgs = ['gnupg2', 'pass', 'docker-ce'] -%}
+  {%- if ansible_os_family.lower() in ['debian'] %}
+  {%-   set _ = pkgs.extend(['apparmor-utils']) %}
+  {%- endif %}
   {%- if (ansible_distribution in ['Ubuntu'] and (corpusops_core_distribution_version | string | copsf_looseversion >= '20.04')) or
          (ansible_distribution in ['Debian'] and (corpusops_core_distribution_version | string | copsf_looseversion >= '9')) -%}
   {%- set _ = pkgs.append('docker-compose-plugin')%}
