@@ -1,0 +1,4 @@
+- hosts: all
+  # gather_facts: "{{gather_facts|default(False)}}"
+  tasks:
+  - {include_role: {name: "{{role}}"}}
