@@ -1,0 +1,3 @@
+cops_localsettings_boot_old_lxcs_args: "systemd.unified_cgroup_hierarchy=false"
+cops_localsettings_boot_old_lxcs_grub2: true
+cops_localsettings_boot_old_lxcs_python: "{{ansible_python_interpreter|default('python')}}"
