@@ -49,6 +49,7 @@
       {% set corpusops_services_backup_dbsmartbackup = corpusops_services_backup_dbsmartbackup  | default(False) %}
       {% set corpusops_services_base_cron            = corpusops_services_base_cron             | default(True) %}
       {% set corpusops_localsettings_boot_degraded_disks             = corpusops_localsettings_boot_degraded_disks              | default(not is_container) %}
+      {% set corpusops_localsettings_boot_old_lxcs                   = corpusops_localsettings_boot_old_lxcs              | default(not is_container) %}
       {% set corpusops_services_base_ntp             = corpusops_services_base_ntp              | default(not is_container) %}
       {% set corpusops_services_base_sshd            = corpusops_services_base_sshd             | default(not is_docker) %}
       {% set corpusops_services_base_ssh_server      = corpusops_services_base_ssh_server       | default(True) %}
@@ -136,6 +137,7 @@
       provision_corpusops_services_base_cron: {{ corpusops_services_base_cron }}
       provision_corpusops_services_base_ntp: {{ corpusops_services_base_ntp }}
       provision_corpusops_localsettings_boot_degraded_disks: {{ corpusops_localsettings_boot_degraded_disks }}
+      provision_corpusops_localsettings_boot_old_lxcs: {{ corpusops_localsettings_boot_old_lxcs }}
       provision_corpusops_services_base_sshd: {{ corpusops_services_base_sshd }}
       provision_corpusops_services_db_mysql_client: {{ corpusops_services_db_mysql_client }}
       provision_corpusops_services_db_mysql: {{ corpusops_services_db_mysql }}
@@ -277,10 +279,13 @@
   when: [provision_corpusops_localsettings_ssh]
 - include_role: {public: false, name: corpusops.roles/localsettings_sudo}
   tags: [sudo]
-  when: [provision_corpusops_localsettings_sudo]
+  when: [provision_corpusops_localsettings_sudo] 
 - include_role: {public: false, name: corpusops.roles/localsettings_boot_degraded_disks}
   tags: [boot_degraded_disks]
   when: [provision_corpusops_localsettings_boot_degraded_disks]
+- include_role: {public: false, name: corpusops.roles/localsettings_boot_old_lxcs}
+  tags: [boot_old_lxcs]
+  when: [provision_corpusops_localsettings_boot_old_lxcs]
 - include_role: {public: false, name: corpusops.roles/services_base_ntp}
   tags: [ntp]
   when: [provision_corpusops_services_base_ntp]
