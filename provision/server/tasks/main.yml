@@ -279,7 +279,7 @@
   when: [provision_corpusops_localsettings_ssh]
 - include_role: {public: false, name: corpusops.roles/localsettings_sudo}
   tags: [sudo]
-  when: [provision_corpusops_localsettings_sudo] 
+  when: [provision_corpusops_localsettings_sudo]
 - include_role: {public: false, name: corpusops.roles/localsettings_boot_degraded_disks}
   tags: [boot_degraded_disks]
   when: [provision_corpusops_localsettings_boot_degraded_disks]
