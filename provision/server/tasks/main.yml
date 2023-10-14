@@ -49,7 +49,7 @@
       {% set corpusops_services_backup_dbsmartbackup = corpusops_services_backup_dbsmartbackup  | default(False) %}
       {% set corpusops_services_base_cron            = corpusops_services_base_cron             | default(True) %}
       {% set corpusops_localsettings_boot_degraded_disks             = corpusops_localsettings_boot_degraded_disks              | default(not is_container) %}
-      {% set corpusops_localsettings_boot_old_lxcs                   = corpusops_localsettings_boot_old_lxcs              | default(not is_container) %}
+      {% set corpusops_localsettings_boot_old_lxcs                   = corpusops_localsettings_boot_old_lxcs              | default(False) %}
       {% set corpusops_services_base_ntp             = corpusops_services_base_ntp              | default(not is_container) %}
       {% set corpusops_services_base_sshd            = corpusops_services_base_sshd             | default(not is_docker) %}
       {% set corpusops_services_base_ssh_server      = corpusops_services_base_ssh_server       | default(True) %}
