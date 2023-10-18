@@ -9,8 +9,10 @@ retry() {
     step=$2
     shift;shift
     while true;do
+        set +e
         "${@}"
         ret=$?
+        set -e
         if [ "x${ret}" = "x0" ];then
             break
         else
@@ -60,8 +62,17 @@ fi
 
 retry 15 1 ping -q -W 4 -c 1 8.8.8.8
 if ! which python >/dev/null 2>/dev/null;then
-  retry 15 1 /bin/cops_pkgmgr_install.sh python \
-    || DO_UPDATE=y retry 15 1 /bin/cops_pkgmgr_install.sh python
+  python=python
+  if ( apt-get --version &>/dev/null );then
+        if ! ( apt-get install -s $python );then
+            apt-get update
+            if ! ( apt-get install -s $python );then
+                python="python-is-python3"
+            fi
+        fi
+  fi
+  retry 15 1 /bin/cops_pkgmgr_install.sh $python \
+        || DO_UPDATE=y retry 15 1 /bin/cops_pkgmgr_install.sh $python
   if [ "x${?}" != "x0" ];then
       echo "cant install prerequisites" >&2
       exit 1
