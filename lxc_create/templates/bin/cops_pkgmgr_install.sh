@@ -273,7 +273,7 @@ is_debian_like() { echo $DISTRIB_ID | grep -E -iq "debian|ubuntu|mint"; }
 is_suse_like() { echo $DISTRIB_ID | grep -E -iq "suse"; }
 is_alpine_like() { echo $DISTRIB_ID | grep -E -iq "alpine" || test -e /etc/alpine-release; }
 is_redhat_like() { echo $DISTRIB_ID \
-        | grep -E -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora|amzn)"; }
+        | grep -E -iq "((^ol$)|rhel|redhat|red-hat|centos|fedora)"; }
 set_lang() { locale=${1:-C};export LANG=${locale};export LC_ALL=${locale}; }
 is_darwin () {
     if [ "x${FORCE_DARWIN-}" != "x" ];then return 0;fi
@@ -538,7 +538,7 @@ pymod_ver() {
 get_setuptools() {
     local py=${1:-python}
     local setuptoolsreq="setuptools"
-    if ( is_python2 $py );then setuptoolsreq="setuptools<=45"; else setuptoolsreq="setuptools<50"; fi
+    if ( is_python2 $py );then setuptoolsreq="setuptools<=45"; else setuptoolsreq="setuptools<68"; fi
     echo "$setuptoolsreq"
 }
 install_pip() {
@@ -760,8 +760,8 @@ ensure_command() {
 ### archlinux (pacman)
 is_pacman_available() {
     for i in $@;do
-        if ! ( pacman -Si $(i_y) "$i" >/devnull 2>&1 ||\
-                pacman -Sg $(i_y) "$i" >/devnull 2>&1; );then
+        if ! ( pacman -Si $(i_y) "$i" >/dev/null 2>&1 ||\
+                pacman -Sg $(i_y) "$i" >/dev/null 2>&1; );then
             return 1
         fi
     done
@@ -770,7 +770,7 @@ is_pacman_available() {
 
 is_pacman_installed() {
     for i in $@;do
-        if ! ( pacman -Qi $(i_y) "$i" >/devnull 2>&1; ); then
+        if ! ( pacman -Qi $(i_y) "$i" >/dev/null 2>&1; ); then
             return 1
         fi
     done
