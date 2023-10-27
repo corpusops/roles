@@ -547,7 +547,7 @@ pymod_ver() {
 get_setuptools() {
     local py=${1:-python}
     local setuptoolsreq="setuptools"
-    if ( is_python2 $py );then setuptoolsreq="setuptools<=45"; else setuptoolsreq="setuptools<50"; fi
+    if ( is_python2 $py );then setuptoolsreq="setuptools<=45"; else setuptoolsreq="setuptools<68"; fi
     echo "$setuptoolsreq"
 }
 install_pip() {
