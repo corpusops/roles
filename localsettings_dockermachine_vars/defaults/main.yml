@@ -6,7 +6,7 @@ corpusops_localsettings_dockermachine_cops_sub_os_append: {}
 corpusops_localsettings_dockermachine_cops_lowered: []
 corpusops_localsettings_dockermachine_cops_knobs: ['version']
 corpusops_localsettings_dockermachine_cops_sub_namespaces: {}
-corpusops_localsettings_dockermachine_version: '0.16.1'
+corpusops_localsettings_dockermachine_version: '0.16.2'
 corpusops_localsettings_dockermachine_packages: []
 corpusops_localsettings_dockermachine_files: []
 corpusops_localsettings_dockermachine_configs: []
