@@ -1,0 +1,22 @@
+#
+cadvisor_port: "{{cops_cadvisor_port}}"
+cadvisor_runtime_options: "{{cops_cadvisor_runtime_options}}"
+cadvisor_version: "{{cops_cadvisor_version}}"
+cadvisor_checksum: "{{cops_cadvisor_checksums[cadvisor_version]}}"
+cadvisor_url: "{{cops_cadvisor_url}}"
+#
+prometheus_web_listen_address : "{{cops_prometheus_web_listen_address}}"
+prometheus_db_dir: "{{cops_prometheus_db_dir}}"
+prometheus_root_dir: "{{cops_prometheus_root_dir}}"
+prometheus_storage_retention: "{{cops_prometheus_storage_retention}}"
+prometheus_global: "{{cops_prometheus_global}}"
+prometheus_remote_read: "{{cops_prometheus_remote_read}}"
+prometheus_remote_write: "{{cops_prometheus_remote_write}}"
+prometheus_targets: "{{cops_prometheus_targets}}"
+prometheus_scrape_jobs: "{{cops_prometheus_scrape_jobs}}"
+prometheus_web_config: "{{cops_prometheus_web_config}}"
+prometheus_version: "{{cops_prometheus_version}}"
+#
+node_exporter_web_listen_address: "{{cops_node_exporter_web_listen_address}}"
+node_exporter_textfile_dir: "{{cops_node_exporter_textfile_dir}}"
+
