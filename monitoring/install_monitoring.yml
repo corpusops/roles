@@ -1,0 +1,23 @@
+- hosts: localhost
+  tags: [install_roles]
+  gather_facts: y
+  roles: [corpusops.roles/ansible_plugins]
+  vars: {ansible_connection: local}
+  tasks:
+  - include_role: {name: corpusops.roles/monitoring/vars, public: y}
+  - include_role: {name: corpusops.roles/checkout}
+    vars: {dest: "{{cops_prometheus_roles_dir}}", checkout_items: "{{cops_prometheus_roles}}"}
+- hosts: "{{monitored_servers|default('all')}}"
+  gather_facts: y
+  roles: [corpusops.roles/ansible_plugins]
+  tasks:
+  - include_role: {name: corpusops.roles/monitoring/vars, public: y}
+  - include_role: {name: ome.cadvisor}
+    tags: [install_cadvisor]
+    when: ["install_cadvisor|default(true)"]
+  - include_role: {name: cloudalchemy.node_exporter}
+    tags: [install_node_exporter]
+    when: ["install_node_exporter|default(true)"]
+  - include_role: {name: cloudalchemy.prometheus}
+    tags: [install_prometheus]
+    when: ["install_prometheus|default(true)"]

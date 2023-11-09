@@ -1,0 +1,38 @@
+#
+cops_prometheus_roles:
+  - name: cloudalchemy.node_exporter
+    repo: "https://github.com/cloudalchemy/ansible-node-exporter"
+  - name: cloudalchemy.prometheus
+    repo: "https://github.com/cloudalchemy/ansible-prometheus"
+  - name: ome.cadvisor
+    repo: "https://github.com/ome/ansible-role-cadvisor"
+cops_prometheus_roles_dir: "{{playbook_dir}}/../.."
+#
+cops_prometheus_web_listen_address: '127.0.0.1:9090'
+cops_prometheus_db_dir: '/srv/prometheus/db'
+cops_prometheus_root_dir: '/srv/prometheus'
+cops_prometheus_storage_retention: '30d'
+cops_prometheus_remote_read: []
+cops_prometheus_remote_write: []
+cops_prometheus_targets: []
+cops_prometheus_scrape_jobs: []
+cops_prometheus_web_config: []
+cops_prometheus_version: '2.38.0'
+cops_prometheus_global:
+  scrape_interval: 60s
+  scrape_timeout: 15s
+  evaluation_interval: 15s
+#
+cops_node_exporter_web_listen_address: '127.0.0.1:9100'
+cops_node_exporter_textfile_dir: '/srv/node_exporter'
+#
+cops_cadvisor_port: 9102
+cops_cadvisor_runtime_options: "-listen_ip 127.0.0.1"
+cops_cadvisor_version: v0.45.0
+cops_cadvisor_checksum: "{{cops_cadvisor_checksums[cadvisor_version]}}"
+cops_cadvisor_checksums:
+  v0.44.0:  "c7de202fe8886762c65dd03c567c19d82d71a0a46739ef0bc760a980d1116f6b"
+  v0.45.0:  "514beaca139eb40879731a32f24b4f366a989ae02a9dc3484d9726d9c1a78e80"
+# see https://github.com/google/cadvisor/pull/3155
+cops_cadvisor_url: "https://github.com/corpusops/cadvisor/releases/download/"
+# cops_cadvisor_url: "https://github.com/google/cadvisor/releases/download/
