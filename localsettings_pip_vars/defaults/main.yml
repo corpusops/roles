@@ -5,4 +5,5 @@ corpusops_localsettings_pip_url: "https://bootstrap.pypa.io/{{corpusops_localset
 # handle https://github.com/pypa/pip/issues/9500
 corpusops_localsettings_pip_pref: "{% if (
         (ansible_python.version.major < 3) or
-        (ansible_python.version.major == 3 and ansible_python.version.minor < 6)) %}pip/2.7/{%endif %}"
+        (ansible_python.version.major == 3 and ansible_python.version.minor < 6)) %}pip/2.7/{%
+        elif ansible_python.version.minor == 6%}pip/3.6/{%endif %}"
