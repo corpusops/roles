@@ -296,7 +296,7 @@ corpusops_haproxy_registrations_registrations_mc_cloud_http2:
          "mode": "http"
 ```
 
-### Make a https to ssh proxy
+### Make a https to ssh proxy
 ``hosts`` needs a value but this wont "virtualhost" ssh. Only one ssh host is possible.
 
 To register a proxy to ssh (from https) (eg: to bypass firewalls):

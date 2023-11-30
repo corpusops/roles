@@ -9,7 +9,7 @@
       {%- set _ = registry.update({cops_vars_registry_prefix+'vars': namespaced}) %}
 
       {%- for name, val in namespaced.items() %}
-      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+("{0}".format(name)): val}) %}
       {%- endfor %}
       {{- registry|to_json }}
   no_log: "{{not (cops_vars_debug|default(false))}}"
