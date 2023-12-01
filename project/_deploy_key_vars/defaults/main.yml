@@ -1,0 +1,15 @@
+# keys to include in deployment
+cops_deploy_ssh_key_filter: []
+_cops_deploy_ssh_key_paths: |-
+  {%- set keys = {} %}
+  {%- for kvar in vars %}{% if kvar.startswith('cops_deploy_ssh_key_paths') %}
+  {%-   set vkeys = lookup('vars', kvar, default={}) %}
+  {%-   for key in vkeys %}
+  {%-     if (not cops_deploy_ssh_key_filter
+             or (cops_deploy_ssh_key_filter and key in cops_deploy_ssh_key_filter))%}
+  {%-         set _ = keys.update({key: vkeys[key]}) %}
+  {%-     endif %}
+  {%-   endfor %}
+  {%- endif %}{% endfor %}
+  {{- keys | to_json }}
+

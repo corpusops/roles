@@ -4,9 +4,9 @@
       state: absent
       path: "{{askey_path.value.path}}"
     loop_control: {loop_var: askey_path}
-    loop: "{{cops_deploy_ssh_key_paths|dict2items}}"
+    loop: "{{_cops_deploy_ssh_key_paths|dict2items}}"
   - file:
       state: absent
       path: "{{zskey_path.value.path}}.pub"
     loop_control: {loop_var: zskey_path}
-    loop: "{{cops_deploy_ssh_key_paths|dict2items}}"
+    loop: "{{_cops_deploy_ssh_key_paths|dict2items}}"
