@@ -1,4 +1,5 @@
 # keys to include in deployment
+cops_deploy_ssh_prefix: ""
 cops_deploy_ssh_key_filter: []
 _cops_deploy_ssh_key_paths: |-
   {%- set keys = {} %}
