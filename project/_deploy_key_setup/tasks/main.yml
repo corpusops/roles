@@ -1,7 +1,7 @@
 ---
 - include_role: {name: corpusops.roles/project/_deploy_key_vars, public: true}
 - file:
-    path: "{{bkey_path.value.path|copsf_dirname}}"
+    path: "{{cops_deploy_ssh_prefix}}/{{bkey_path.value.path|copsf_dirname}}"
     state: directory
     mode: "0700"
   loop_control: {loop_var: bkey_path}
