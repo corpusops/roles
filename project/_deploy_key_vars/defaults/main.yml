@@ -8,9 +8,13 @@ _cops_deploy_ssh_key_paths: |-
   {%-   for key in vkeys %}
   {%-     if (not cops_deploy_ssh_key_filter
              or (cops_deploy_ssh_key_filter and key in cops_deploy_ssh_key_filter))%}
+  {%-         set p = vkeys[key].get('path', '') %}
+  {%-         if p and not p.startswith(cops_deploy_ssh_prefix) %}
+  {%-           set p = '{0}{1}'.format(not p.startswith('/') and cops_deploy_ssh_prefix or '', p) %}
+  {%-           set _ = vkeys[key].update({'path': p})%}
+  {%-         endif %}
   {%-         set _ = keys.update({key: vkeys[key]}) %}
   {%-     endif %}
   {%-   endfor %}
   {%- endif %}{% endfor %}
   {{- keys | to_json }}
-
