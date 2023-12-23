@@ -1,5 +1,6 @@
 # keys to include in deployment
-cops_deploy_ssh_prefix: "{{ lookup('env', 'PWD') }}/"
+cops_deploy_ssh_cwd: "{{ lookup('env', 'PWD') }}/"
+cops_deploy_ssh_prefix: "{{cops_deploy_ssh_cwd}}"
 cops_deploy_ssh_key_filter: []
 _cops_deploy_ssh_key_paths: |-
   {%- set keys = {} %}
@@ -8,7 +9,8 @@ _cops_deploy_ssh_key_paths: |-
   {%-   for key in vkeys %}
   {%-     if (not cops_deploy_ssh_key_filter
              or (cops_deploy_ssh_key_filter and key in cops_deploy_ssh_key_filter))%}
-  {%-         set p = vkeys[key].get('path', '') %}
+  {#-         unprefix absolute paths to reprefix with a custom in the next step one #}
+  {%-         set p = vkeys[key].get('path', '') | regex_replace('^{0}'.format(cops_deploy_ssh_cwd), '') %}
   {%-         if p and not p.startswith(cops_deploy_ssh_prefix) %}
   {%-           set p = '{0}{1}'.format(not p.startswith('/') and cops_deploy_ssh_prefix or '', p) %}
   {%-           set _ = vkeys[key].update({'path': p})%}
