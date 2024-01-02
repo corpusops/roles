@@ -59,31 +59,23 @@
       {%-      set ethernet = netplanether.setdefault("eth{0}".format(ifc), {}) %}
       {%-      set _ = netconfigured.append("eth{0}".format(ifc)) %}
       {%-      set ip = lxcdata['eth{0}_ip'.format(ifc)] %}
-      {%-      for conf, knob in {
-                'mac': 'macaddress',
-                'gateway': 'routes',
-                'ip': 'addresses'}.items() %}
+      {%-      set ip = (('/' in ip)
+                 and ip or "{0}/{1}".format(ip, ip|copsf_lxc_subnet)) %}
+      {%-      set netmask = (not ip) and '' or ip.split('/')[1] %}
+      {%-      for conf, knob in {'mac': 'macaddress',
+                                  'gateway': 'routes',
+                                  'ip': 'addresses'}.items() %}
       {%-        set confval = lxcdata['eth{0}_{1}'.format(ifc, conf)] %}
       {%-        if confval %}
       {#-          only configure gateway route if we are not on dhcp #}
-      {%           if not ip %}{% set knob = None %}{% endif %}
+      {%-          if not ip %}{% set knob = None %}{% endif %}
       {%-          if knob in ['routes'] %}
-      {%-             set _ = ethernet.setdefault(
-                      'routes', []).extend([
-                          {'to': '{0}/32'.format(confval),
-                           'via':  lxcdata['eth{0}_ip'.format(ifc)],
-                           'on-link': true,
-                           'metric': 100},
-                          {'to': '0.0.0.0/0',
-                           'via': confval,
-                           'on-link': true,
-                           'metric': 100}]) %}
-      {%-             set confval = ethernet['routes'] %}
+      {%-            set routes = [{'to': '0.0.0.0/0', 'via': confval, 'on-link': true, 'metric': 100}] %}
+      {%-            set ipfo_routes = [{'to': '{0}/32'.format(confval), 'via': lxcdata['eth{0}_ip'.format(ifc)], 'on-link': true, 'metric': 100}] + routes %}
+      {%-            set _ = ethernet.setdefault('routes', []).extend(netmask!="32" and routes or ipfo_routes) %}
+      {%-            set confval = ethernet['routes'] %}
       {%-          elif knob in ['addresses'] %}
-      {%-            if '/' not in confval %}
-      {%-              set confval = "{0}/{1}".format(confval, confval|copsf_lxc_subnet) %}
-      {%-            endif %}
-      {%-            set confval = [confval] %}
+      {%-            set confval = [ip] %}
       {%-          endif %}
       {%-          if knob %}
       {%-           set _ = ethernet.update({knob: confval}) %}

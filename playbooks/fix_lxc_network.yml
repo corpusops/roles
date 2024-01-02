@@ -1,0 +1,9 @@
+- hosts: all
+  tasks:
+  - shell: |-
+      set -ex
+      for i in /var/lib/lxc/*/tmp/01-netplan-corpusops.yaml /var/lib/lxc/*/rootfs/etc/netplan/01-netplan-corpusops.yaml;do
+        if ( grep -q 'to: 10.8.0.1' "$i" );then
+          sed -i -re "/(to: 10.8.0.1\/32)/d" $i
+        fi
+      done
