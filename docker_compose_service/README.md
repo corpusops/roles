@@ -10,7 +10,7 @@
     name: corpusops.roles/docker_compose_service
   vars:
     _docker_compose_service:
-      path: "/home/myapp"
+      working_directory: "/home/myapp"
       files: [docker-compose.yml, docker-compose-prod.yml]
 ```
 
@@ -23,7 +23,7 @@
     ```yaml
     _docker_compose_service:
       # working directory for compose file
-      path: /tmp
+      working_directory: /tmp
       # files to use for docker-compose calls
       files: [docker-compose.yml]
       # name of the systemd service to install, default to directory basename
