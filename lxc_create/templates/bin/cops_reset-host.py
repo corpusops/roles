@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--origin', required=True)
 parser.add_argument('--destination')
 parser.add_argument('--same-ssh-for-all', action='store_true')
-for i in ('files', 'ssh', 'postfix', 'sshd_keys'):
+for i in ('files', 'ssh', 'postfix', 'sshd_keys', 'machineid'):
     parser.add_argument(
         '--reset-{0}'.format(i),
         dest='reset_{0}'.format(i),
@@ -135,6 +135,8 @@ def main(argv=None):
         systemwide_sshkeys()
     if opts.reset_postfix:
         os.system('newaliases')
+    if opts.machineid:
+        os.system('printf "%s\n" $(openssl rand -hex 16|tr -d "\n ") >/etc/machine-id')
     if opts.reset_files or opts.reset_postfix:
         for kind, files in RESET_FILES.items():
             for ofg in files:
