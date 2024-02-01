@@ -1,0 +1,6 @@
+- shell: |-
+    set -e
+    for i in /var/lib/lxc/*/rootfs/etc/machine-id;do
+      echo "Resetting $i" >&2
+      printf "%s\n" $(openssl rand -hex 16| tr -d '\n ') >"$i"
+    done

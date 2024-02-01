@@ -83,6 +83,7 @@ if [ -e "$rh" ] && [ ! -e $marker ];then
     chmod +x "$rh" && \
         "$rh" \
             --origin="{{lxc_container_name}}" \
+            --reset-machineid \
             --reset-sshd_keys \
             --reset-ssh \
             --reset-files \
