@@ -1,0 +1,7 @@
+- hosts: all
+  roles: [corpusops.roles/ansible_plugins]
+  tasks:
+  - name: exec role {{item}}
+    include_role: {name: "{{item}}"}
+    with_items: "{{roles}}"
+
