@@ -82,7 +82,12 @@ class LookupModule(LookupBase):
                         log.error(trace)
                 val = __funcs__['copsf_registry'](
                     self._templar.available_variables, value, **kwargs)
-                registry = self._templar.template(self._templar.template(val[0], fail_on_undefined=True))
+                try:
+                    registry = self._templar.template(self._templar.template(val[0], fail_on_undefined=True))
+                except Exception:
+                    trace = traceback.format_exc()
+                    print(trace)
+
                 defaults_vals_reg ='__{0}{1}'.format(value, REGISTRY_DEFAULT_SUFFIX)
                 rval = OrderedDict()
                 if gs:
@@ -94,9 +99,11 @@ class LookupModule(LookupBase):
                     rval = registry
                 ret.append(rval)
             except AnsibleUndefinedVariable:
+                trace = traceback.format_exc()
                 if default is not None:
                     ret.append(default)
                 else:
+                    print(trace)
                     raise
 
         return ret
