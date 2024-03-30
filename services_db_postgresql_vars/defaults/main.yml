@@ -76,7 +76,8 @@ corpusops_services_db_postgresql_wrapped_binaries: [
   pg_restore, pg_isready, createlang, droplang]
 corpusops_services_db_postgresql_dist: "{{corpusops_core_distribution_release}}"
 corpusops_services_db_postgresql_user: 'postgres'
-corpusops_services_db_postgresql_version: '10'
+corpusops_services_db_postgresql_encpassword: "{%if (corpusops_services_db_postgresql_version|int) >= 14%}scram-sha-256{%else%}md5{%endif%}"
+corpusops_services_db_postgresql_version: "{%- if ansible_lsb.id.lower() in ['ubuntu', 'linuxmint'] and  (corpusops_core_distribution_version|copsf_looseversion) >= '22.04'|copsf_looseversion %}14{%else%}10{%endif%}{%endif%}"
 corpusops_services_db_postgresql_encoding: 'utf8'
 corpusops_services_db_postgresql_locale: 'fr_FR.UTF-8'
 corpusops_services_db_postgresql_postgis_db: 'postgis'
@@ -119,22 +120,22 @@ corpusops_services_db_postgresql_pg_hba:
      'db': 'all',
      'user': 'all',
      'address': '127.0.0.1/32',
-     'method': 'md5'}
+     'method': "{{corpusops_services_db_postgresql_encpassword}}"}
   - {"comment": '# IPv6 local connections:'}
   - {'type': 'host',
      'db': 'all',
      'user': 'all',
      'address': '::1/128',
-     'method': 'md5'}
+     'method': "{{corpusops_services_db_postgresql_encpassword}}"}
   - {"comment": '# makina-states lxc inter communication'}
   - {'type': 'host',
      'db': 'all',
      'user': 'all',
      'address': '10.5.0.0/16',
-     'method': 'md5'}
+     'method': "{{corpusops_services_db_postgresql_encpassword}}"}
   - {'type': 'host',
      'db': 'all',
      'user': 'all',
      'address': '0.0.0.0/0',
-     'method': 'md5'}
+     'method': "{{corpusops_services_db_postgresql_encpassword}}"}
 corpusops_services_db_postgresql_disable_cluster_creation: "{{ansible_virtualization_type.lower() in ['docker', 'container']}}"
