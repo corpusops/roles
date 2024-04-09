@@ -1,0 +1,11 @@
+[Unit]
+Description=X Virtual Frame Buffer Service
+After=network.target
+
+[Service]
+ExecStart=/bin/sh -c "\
+            if [ -f /etc/default/xvfb ];then . /etc/default/xvfb;fi; \
+            args="$${XVFBARGS:-':99 -screen 0 1024x768 -fbdir /var/run -ac'}"; \
+            set -ex;exec /usr/bin/Xvfb $$args"
+[Install]
+WantedBy=multi-user.target

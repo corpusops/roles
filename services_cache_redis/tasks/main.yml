@@ -1,0 +1,9 @@
+---
+- name: "corpusops_services_cache_redis preflight check - SKIPTEST"
+  debug:
+    msg: "{{corpusops_services_cache_redis | default(True) }}"
+  register: corpusops_services_cache_redis_can_run
+  tags: corpusops_services_cache_redis
+- include_tasks: run.yml
+  when: 'corpusops_services_cache_redis_can_run.msg == True'
+  tags: corpusops_services_cache_redis
