@@ -1,0 +1,4 @@
+---
+- hosts: all
+  roles:
+    - corpusops.roles/services_cache_redis

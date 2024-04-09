@@ -1,0 +1,4 @@
+# /etc/default/xvfb
+# {{ ansible_managed}}
+XVFBARGS="{{corpusops_services_cache_redis_vars.args}}"
+# vim:set et sts=4 ts=4 tw=80:

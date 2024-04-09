@@ -1,0 +1,21 @@
+---
+- name: registry setter
+  vars: {cops_vars_registry_target: corpusops_services_cache_redis}
+  include_jinja_vars:
+    content: |-
+      {%- set cops_vars_registry_prefix = cops_vars_registry_target + "_" %}
+      {%- set registry = lookup('cops_registry', cops_vars_registry_prefix) %}
+      {%- set namespaced = registry[cops_vars_registry_prefix+'vars'] %}
+      {%- if ((ansible_lsb.id.lower() in ['ubuntu']) and (corpusops_core_os_release < '15.04')) %}
+      {%-  set _ = namespaced['files'].extend(namespaced['files_upstart']) %}
+      {%-  set _ = namespaced['configs'].extend(namespaced['configs_upstart']) %}
+      {%-  for p in ['python-xvfbwrapper', 'python3-xvfbwrapper'] %}
+      {%-    set _ = namespaced['packages'].pop(namespaced['packages'].index(p)) %}
+      {%-  endfor %}
+      {%- endif %}
+      {%- for name, val in namespaced.items() %}
+      {%-    set _ = registry.update({cops_vars_registry_prefix+name: val}) %}
+      {%- endfor %}
+      {{- registry | to_json }}
+  tags: [corpusops_vars, corpusops_services_cache_redis_vars]
+  no_log: "{{not (cops_vars_debug|default(false))}}"
