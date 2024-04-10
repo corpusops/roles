@@ -102,7 +102,7 @@ corpusops_localsettings_certbot_http_domains: "{{corpusops_localsettings_certbot
 corpusops_localsettings_certbot_dns_domains: "{{corpusops_localsettings_certbot_domains}}"
 corpusops_localsettings_certbot_dns_authenticator: dns-ovh
 corpusops_localsettings_certbot_authenticator: standalone
-corpusops_localsettings_certbot_email: foo@example.com
+corpusops_localsettings_certbot_email: "supersecret@gmail.com"
 corpusops_localsettings_certbot_keysize: 4096
 corpusops_localsettings_certbot_preferred_challenges_http: [http-01]
 # corpusops_localsettings_certbot_preferred_challenges_http: [tls-sni-01, http-01]
@@ -127,7 +127,7 @@ corpusops_localsettings_certbot_port: 54080
 corpusops_localsettings_certbot_sport: 54443
 corpusops_localsettings_certbot_expiry: 86400
 corpusops_localsettings_certbot_dns_slaves: []
-corpusops_localsettings_certbot_test: true
+corpusops_localsettings_certbot_test: false
 corpusops_localsettings_certbot_mailto: ""
 corpusops_localsettings_certbot_has_cron: |
 corpusops_localsettings_certbot_cron: |
@@ -153,6 +153,8 @@ corpusops_localsettings_certbot_certonly_args: >
   --config=$CONFIG
   --http-01-port {{corpusops_localsettings_certbot_port}}
 #  --tls-sni-01-port {{corpusops_localsettings_certbot_sport}}
+corpusops_localsettings_certbot_force_domains: []
+corpusops_localsettings_certbot_force: false
 corpusops_localsettings_certbot_dns_force_workers_restart: false
 corpusops_localsettings_certbot_dns_certonly_args: >
   -n
