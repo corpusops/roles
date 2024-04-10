@@ -73,6 +73,13 @@ updated=""
 cli_args="{{d.certonly_args.replace('\n', '')}}"
 if [[ -n "$CERTBOT_DOMAINS" ]];then
 exitcode=0
+force_domain() {
+    for i in $@;do
+        if [ -e "$CERTBOT_CONFIGDIR/force-$i" ];then return 0;fi
+    done
+    if [ -e "$CERTBOT_CONFIGDIR/force" ];then return 0;fi
+    return 1;
+}
 while read domain;do
 if [[ -n $domain ]];then
 	cert_file="$CERTBOT_CONFIGDIR/live/$domain/fullchain.pem"
@@ -94,7 +101,7 @@ if [[ -n $domain ]];then
         if [ "x${ipfound}" != "x" ];then break;fi
     done <<< "$ip
 $ip6"
-	if [ "x${ipfound}" = "x" ];then
+    if [ "x${ipfound}" = "x" ] && ! ( force_domain $domain );then
         :
 	elif [ ! -f "$cert_file" ]; then
 		log "certificate file not found for domain $domain." >&2
@@ -105,7 +112,7 @@ $ip6"
 		datenow=$(date -d "now" +%s)
 		days_exp=$(echo \( $exp - $datenow \) / $EXPIRY |bc)
 	fi
-	if [ "x${ipfound}" = "x" ];then
+    if [ "x${ipfound}" = "x" ] && ! ( force_domain $domain );then
         log "DNS setup mismatch for $domain"
         dnsmismatch="$dnsmismatch $domain"
 	elif [ "x${force}" = "x" ] && [ $days_exp -gt $exp_limit ] ; then

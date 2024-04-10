@@ -22,13 +22,30 @@
 - file:
     state: touch
     dest: "{{corpusops_localsettings_certbot_vars.logsdir}}/letsencrypt.log"
-    mode: 0644
+    mode: "0644"
     owner: "{{corpusops_localsettings_certbot_vars.user}}"
     group: "{{corpusops_localsettings_certbot_vars.group}}"
 - file:
     state: absent
     path: /etc/cron.d/cops_le_renew
   when: "not corpusops_localsettings_certbot_vars.has_cron"
+- file:
+    state: touch
+    dest: "{{corpusops_localsettings_certbot_configdir}}/force-{{item}}"
+    mode: "0640"
+    force: true
+  when: "corpusops_localsettings_certbot_force_domains|length>0"
+  loop: "{{corpusops_localsettings_certbot_force_domains}}"
+- file:
+    state: absent
+    dest: "{{corpusops_localsettings_certbot_configdir}}/force"
+  when: "not corpusops_localsettings_certbot_vars.force"
+- file:
+    state: touch
+    dest: "{{corpusops_localsettings_certbot_configdir}}/force"
+    mode: "0640"
+    force: true
+  when: "corpusops_localsettings_certbot_vars.force"
 - copy:
     content: "{{corpusops_localsettings_certbot_vars.cron}}"
     dest: /etc/cron.d/cops_le_renew
@@ -60,3 +77,4 @@
       mode: "0600"
       owner: "{{corpusops_localsettings_certbot_vars.user}}"
       group: "{{corpusops_localsettings_certbot_vars.group}}"
+
