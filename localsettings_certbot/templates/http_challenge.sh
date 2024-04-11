@@ -74,10 +74,10 @@ cli_args="{{d.certonly_args.replace('\n', '')}}"
 if [[ -n "$CERTBOT_DOMAINS" ]];then
 exitcode=0
 force_domain() {
+    if [ -e "$CERTBOT_CONFIGDIR/force" ];then return 0;fi
     for i in $@;do
         if [ -e "$CERTBOT_CONFIGDIR/force-$i" ];then return 0;fi
     done
-    if [ -e "$CERTBOT_CONFIGDIR/force" ];then return 0;fi
     return 1;
 }
 while read domain;do
