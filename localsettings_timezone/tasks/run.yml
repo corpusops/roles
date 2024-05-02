@@ -32,7 +32,7 @@
   when: "item.exists and item.islnk"
   loop: |
     {%-  set val = [corpusops_localsettings_timezone_ltzd.stat,
-                   corpusops_localsettings_timezone_ltd.stat] %}
+                   corpusops_localsettings_timezone_lt.stat] %}
     {{- val | to_json  }}
   changed_when: False
 - name: localtime
