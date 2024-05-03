@@ -12,9 +12,21 @@
   rescue:
   - name: "Alternative | Add Docker apt key."
     shell: >
-      curl -sSL "{{corpusops_localsettings_docker_vars.repo_keys_url}}"
-      |sudo apt-key add -
+      curl -sSL "{{corpusops_localsettings_docker_vars.repo_keys_url}}" {% if ansible_distribution.lower() in ['debian'] %}
+      |sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg{% else %}|sudo apt-key add -{% endif%}
     register: corpusops_localsettings_docker_key
+- name: "Debian alternative | Add Docker apt key."
+  shell: |-
+    set -e
+    if [ ! -e /etc/apt/keyrings/docker.gpg ];then
+    curl -sSL "{{corpusops_localsettings_docker_vars.repo_keys_url}}"|sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
+    echo changedkey
+    fi
+  when:
+  - ansible_distribution.lower() in ['debian']
+  changed_when:
+  - "'changedkey' in corpusops_localsettings_docker_key.stdout"
+  register: corpusops_localsettings_docker_key
 - name: remove docker setup
   file:
     path: /etc/apt/sources.list.d/docker.list
