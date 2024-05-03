@@ -78,7 +78,6 @@ corpusops_localsettings_basepkgs_packages_debian:
       - python
       - python3
       - python-dev
-      - python-six
       - screen
       - software-properties-common
       - sudo

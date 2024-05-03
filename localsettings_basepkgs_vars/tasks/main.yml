@@ -11,30 +11,33 @@
       {%-  if (aid in ['debian']) or (aid in ['ubuntu'] and corpusops_core_os_release|string|version_compare('13.10', '>' )) %}
       {%-    set _ = namespaced['packages'].append('iproute2') %}
       {%-  endif %}
-      {%-  if aid in ['ubuntu'] and corpusops_core_os_release|version_compare('15.04', '<' ) %}
+      {%-  if aid in ['ubuntu'] and corpusops_core_os_release|string|version_compare('15.04', '<' ) %}
       {%-    set _ = namespaced['packages'].append('ubuntu-extras-keyring') %}
       {%-  endif %}
-      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|copsf_looseversion >= '18.04'|copsf_looseversion))
-           or ((aid in ['debian']) and (corpusops_core_os_release|copsf_looseversion >=     '9'|copsf_looseversion))
+      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|string|copsf_looseversion >= '18.04'|copsf_looseversion))
+           or ((aid in ['debian']) and (corpusops_core_os_release|string|copsf_looseversion|replace('n/a', 1000) >=     '9'|copsf_looseversion))
       %}
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
       {%- endif %}
-      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|copsf_looseversion >= '21.10'|copsf_looseversion)) %}
-      {%- for p in ['python', 'python-dev'] %}
+      {%- if (
+      (aid in ['ubuntu'] and (corpusops_core_os_release|string|copsf_looseversion >= '21.10'|copsf_looseversion))
+      or (aid in ['debian'] and (corpusops_core_os_release|string|copsf_looseversion >= '11'|copsf_looseversion))
+      ) %}
+      {%-   for p in ['python', 'python-dev'] %}
       {%-    set _ = namespaced['packages'].remove(p) %}
-      {%- endfor %}
-      {%-    set _ = namespaced['packages'].append('python3-distutils') %}
+      {%-   endfor %}
+      {%-   set _ = namespaced['packages'].append('python3-distutils') %}
       {%- endif %}
-      {%-  if ((aid in ['ubuntu']) and (corpusops_core_os_release|copsf_looseversion >= '22.04'|copsf_looseversion)) %}
+      {%- if ((aid in ['ubuntu']) and (corpusops_core_os_release|string|copsf_looseversion >= '22.04'|copsf_looseversion)) %}
       {%-    set _ = namespaced['packages'].append('python-is-python3') %}
       {%- endif %}
       {%- if ansible_virtualization_type in ['docker', 'container', 'virtualpc'] %}
-      {%- for i in namespaced.packages_not_in_docker %}
-      {%- if i in namespaced.packages %}
-      {%- set _ = namespaced.packages.pop(namespaced.packages.index(i)) %}
-      {%- endif %}
-      {%- endfor %}
+      {%-   for i in namespaced.packages_not_in_docker %}
+      {%-     if i in namespaced.packages %}
+      {%-       set _ = namespaced.packages.pop(namespaced.packages.index(i)) %}
+      {%-     endif %}
+      {%-   endfor %}
       {%- endif %}
       {%- if ansible_virtualization_type not in ['docker', 'container', 'virtualpc'] %}
       {%-  set _ = namespaced['packages'].extend(namespaced['packages_nonminimal'])%}
