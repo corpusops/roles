@@ -18,6 +18,7 @@
 - name: "Debian alternative | Add Docker apt key."
   shell: |-
     set -e
+    if [ ! -e /etc/apt/keyrings ];then mkdir -p /etc/apt/keyrings;fi
     if [ ! -e /etc/apt/keyrings/docker.gpg ];then
     curl -sSL "{{corpusops_localsettings_docker_vars.repo_keys_url}}"|sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
     echo changedkey
