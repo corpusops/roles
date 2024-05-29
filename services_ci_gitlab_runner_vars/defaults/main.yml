@@ -45,3 +45,8 @@ corpusops_services_ci_gitlab_runner_configs:
 - {name: "/etc/systemd/system/{{corpusops_services_ci_gitlab_runner_name}}.service.d/override.conf",
    template: "service.systemd",
    user: "root", group: "root", mode: "0756"}
+corpusops_services_ci_gitlab_runner_creds_repo: "https://github.com/corpusops/docker-gitlabtools"
+corpusops_services_ci_gitlab_runner_creds_dest: "/srv/apps/docker-gitlabtools"
+corpusops_services_ci_gitlab_runner_creds_ref: main
+corpusops_services_ci_gitlab_runner_copsgitlab: true
+

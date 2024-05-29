@@ -32,3 +32,17 @@
       (corpusops_gitlab_runner_configst3|default({})) is changed or
       (corpusops_gitlab_runner_configst2|default({})) is changed or
       (corpusops_gitlab_runner_configst1|default({})) is changed}}"
+- when: corpusops_services_ci_gitlab_runner_copsgitlab
+  block:
+  - git:
+      repo: "{{corpusops_services_ci_gitlab_runner_creds_repo}}"
+      dest: "{{corpusops_services_ci_gitlab_runner_creds_dest}}"
+      version: "{{corpusops_services_ci_gitlab_runner_creds_ref}}"
+      force: true
+  - file:
+      state: link
+      src: "{{corpusops_services_ci_gitlab_runner_creds_dest}}/rootfs/common/bin/docker-credential-copsgitlab"
+      dest: "/usr/local/bin/docker-credential-copsgitlab"
+  - shell: docker-credential-copsgitlab init
+    changed_when: false
+
