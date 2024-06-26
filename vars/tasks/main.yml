@@ -1,4 +1,5 @@
 ---
+- setup: {}
 - cops_lsb_release: {}
   tags: [corpusops_vars, corpusops_vars_release]
 - name: setup cops facts
