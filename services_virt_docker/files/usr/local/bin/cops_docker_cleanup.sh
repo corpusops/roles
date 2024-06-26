@@ -46,4 +46,8 @@ while read i;do
         docker rmi $i >/dev/null
     fi
 done < <(echo ${imgids}|xargs -n1|sort -u)
+
+if ( docker builder --help &>/dev/null );then
+    docker builder prune -f
+fi
 # vim:set et sts=4 ts=4 tw=0:
