@@ -23,7 +23,7 @@
             'backing_store', 'clone_snapshot',
             'from_container',
             'pip', 'clone_snapshot',
-            'template',
+            'template', 'inline_lxc_conf',
             'template_options',
             ] %}
       {%-    if k == 'clone_snapshot' %}
