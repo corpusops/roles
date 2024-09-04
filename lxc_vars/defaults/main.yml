@@ -38,6 +38,7 @@ corpusops_lxc_docker: "{% set v=hostvars[corpusops_lxc_container_name]|default({
 # auto password deletion, on containers
 # only ssh login is allowed by default
 corpusops_lxc_remove_password: [root, user, debian, ubuntu]
+corpusops_lxc_inline_lxc_conf: ""
 
 corpusops_lxc_nameservers: ["{{corpusops_services_virt_lxc_vars.gateway}}"]
 corpusops_lxc_ns_search: []

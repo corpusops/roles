@@ -10,7 +10,7 @@ iface {{ifc}} inet dhcp
 {%- endif %}
 {%-  set ip = idata.addresses[0].split('/')[0] %}
 {%- if net %}
-{%-  set netm = idata.addresses[0]|ipaddr('netmask') %}
+{%-  set netm = idata.addresses[0]|ansible.utils.ipaddr('netmask') %}
 {%- else %}
 {%-  set netm = idata.addresses[0]|copsf_lxc_subnet(cidr=False)  %}
 {%- endif%}
