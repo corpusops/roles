@@ -1,10 +1,16 @@
 ---
 corpusops_localsettings_pip_py: "{{ansible_python.executable}}"
 corpusops_localsettings_pip_url: "https://bootstrap.pypa.io/{{corpusops_localsettings_pip_pref}}get-pip.py"
-
-# handle https://github.com/pypa/pip/issues/9500
+# handle https://github.com/pypa/pip/issues/9500 for old pythons (<3)
 corpusops_localsettings_pip_setuptools_old_req: "setuptools<45"
-corpusops_localsettings_pip_setuptools_req: "setuptools<66"
+# handle in between bug for python editable mode installs ()
+corpusops_localsettings_pip_setuptools_pre312_req: "setuptools<66"
+# python 3.12 and newer needs setuptools >=75
+corpusops_localsettings_pip_setuptools_default_req: "setuptools>=75"
+# variable to force a custom overriden requirement
+corpusops_localsettings_pip_setuptools_forced_req: ""
+# will be set_facted
+corpusops_localsettings_pip_setuptools_req: "{{corpusops_localsettings_pip_setuptools_python}}"
 corpusops_localsettings_pip_pref: "{% if (
         (ansible_python.version.major < 3) or
         (ansible_python.version.major == 3 and ansible_python.version.minor < 6)) %}pip/2.7/{%

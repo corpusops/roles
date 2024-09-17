@@ -1,4 +1,20 @@
 ---
+- shell: '{{corpusops_localsettings_pip_py}} -c "import sys;print(sys.version.split()[0])" %}'
+  register: corpusops_localsettings_pip_setuptools_python_version
+  changed_when: false
+- set_fact:
+    corpusops_localsettings_pip_setuptools_python_version: "{{corpusops_localsettings_pip_setuptools_python_version.stdout.strip()}}"
+    cacheable: false
+  changed_when: false
+- set_fact:
+    cacheable: false
+    corpusops_localsettings_pip_setuptools_req: "{%
+    if corpusops_localsettings_pip_setuptools_forced_req
+    %}{{corpusops_localsettings_pip_setuptools_forced_req}}{%
+    elif (corpusops_localsettings_pip_setuptools_python_version|copsf_looseversion) < ('3.12.3'|copsf_looseversion)
+    %}{{corpusops_localsettings_pip_setuptools_pre312_req}}{%
+    else%}{{corpusops_localsettings_pip_setuptools_default_req}}{%endif%}"
+  changed_when: false
 - include_role: {name: corpusops.roles/registry, public: true}
   vars: {cops_vars_registry_target: corpusops_localsettings_pip}
   tags: [corpusops_vars, corpusops_localsettings_pip_vars]

@@ -70,7 +70,6 @@ corpusops_localsettings_basepkgs_packages_debian:
       - lsb-release
       - lsof
       - mawk
-      - mime-support
       - netbase
       - openssh-client
       - passwd
