@@ -113,7 +113,7 @@
     if ( $py -V 2>&1|grep -iq "python 2");then
       sreq="{{corpusops_localsettings_pip_setuptools_old_req}}"
     else
-      sreq="{{corpusops_localsettings_pip_setuptools_req}}"
+      sreq="{{corpusops_localsettings_pip_setuptools_forced_req or corpusops_localsettings_pip_setuptools_req}}"
     fi
     $py -c 'import setuptools' || $py -m pip install $sreq
     $py -m pip install \

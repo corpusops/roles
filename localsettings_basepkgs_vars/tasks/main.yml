@@ -19,6 +19,9 @@
       %}
       {%-    set _ = namespaced['packages'].append('gpg-agent') %}
       {%-  endif %}
+      {%-   if not (aid in ['ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) >= ('24'|copsf_looseversion))) %}
+      {%-    set _ = namespaced['packages'].append('mime-support') %}
+      {%-  endif %}
       {%- endif %}
       {%- if (
       (aid in ['ubuntu'] and (corpusops_core_os_release|string|copsf_looseversion >= '21.10'|copsf_looseversion))
@@ -27,7 +30,9 @@
       {%-   for p in ['python', 'python-dev'] %}
       {%-    set _ = namespaced['packages'].remove(p) %}
       {%-   endfor %}
-      {%-   set _ = namespaced['packages'].append('python3-distutils') %}
+      {%-   if not (aid in ['ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) >= ('24'|copsf_looseversion))) %}
+      {%-    set _ = namespaced['packages'].append('python3-distutils') %}
+      {%-   endif %}
       {%- endif %}
       {%- if ((aid in ['ubuntu']) and (corpusops_core_os_release|string|copsf_looseversion >= '22.04'|copsf_looseversion)) %}
       {%-    set _ = namespaced['packages'].append('python-is-python3') %}
