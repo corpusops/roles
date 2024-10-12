@@ -31,7 +31,7 @@
   tags: [backup_files]
   name: "Backup projet files"
   block:
-  - include: rbackup_wrapper.yml
+  - include_tasks: rbackup_wrapper.yml
     loop: "{{[cops_project_backup_paths_to_backup]}}"
     loop_control: {loop_var: backup_paths}
   vars:
@@ -43,7 +43,7 @@
   tags: [backup_docker_volumes]
   name: "Backup projet docker volumes"
   block:
-  - include: rbackup_wrapper.yml
+  - include_tasks: rbackup_wrapper.yml
     loop: "{{[cops_project_backup_docker_volumes_paths]}}"
     loop_control: {loop_var: backup_paths}
   vars:
