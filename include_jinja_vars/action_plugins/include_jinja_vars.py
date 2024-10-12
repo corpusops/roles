@@ -17,6 +17,11 @@ IS_JINJA = re.compile('{{.+}}|{%.+%}')
 import cProfile
 import tempfile
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 _default = object()
 
 
@@ -475,6 +480,10 @@ class ActionModule(ActionBase):
                     data, AnsibleUnsafeText
                 ):
                     pdata = six.text_type(pdata.decode('utf-8'))
+                    if self.unsafe_resolve and isinstance(
+                        data, AnsibleUnsafeText
+                    ):
+                        pdata = StringIO(pdata).getvalue()
                 match = is_jinja(pdata)
                 try:
                     fdata = self._loader.load(pdata, show_content)
