@@ -14,7 +14,7 @@
       {% endfor %}
       {{ r | to_json }}
   register: __files_to_backup
-- include: rbackup.yml
+- include_tasks: rbackup.yml
   loop: "{{__files_to_backup.msg|flatten(levels=1)}}"
   loop_control: {loop_var: backup_path}
   when: ["__files_to_backup.msg|length>0"]

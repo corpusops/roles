@@ -1,7 +1,8 @@
 ---
-- when: ["not cops_configs_is_async_copys"]
-  name: create parent wrapper [template]
-  include: _create_parent.yml
+# XXX: async mode is disabled since a2.17
+#- when: ["not cops_configs_is_async_copys"]
+- name: create parent wrapper [template]
+  include_tasks: _create_parent.yml
   loop_control: {loop_var: subitem}
   loop:
   - path: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{(

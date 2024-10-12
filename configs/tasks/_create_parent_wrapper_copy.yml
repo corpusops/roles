@@ -1,7 +1,6 @@
 ---
-- when: ["not cops_configs_is_async_copys"]
-  name: create parent wrapper [copy]
-  include: _create_parent.yml
+- name: create parent wrapper [copy]
+  inlude_tasks: _create_parent.yml
   loop_control: {loop_var: subitem}
   loop:
   - path: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{(

@@ -19,51 +19,51 @@
 - assert:
     that: "{{cops_configs_templates|copsf_islist}}"
     msg: "{{cops_configs_templates}} is not a list"
-- when: ["cops_configs_is_async_files"]
-  name: async files [directory]
-  include: _create_parent_wrapper_file.yml
-  async: "{{cops_configs_async}}"
-  poll: "{{cops_configs_poll}}"
-  notify: "{{cops_configs_templates_notify
-             | default((cops_configs_notify
-             | default([])))}}"
-  loop_control: {loop_var: cops_aconfig_fl_item}
-  loop: "{{cops_configs_files|default([])}}"
-- when: ["cops_configs_is_async_files"]
-  name: async files
-  file:
-    path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_fl_item.name
-             | default(cops_aconfig_fl_item.path)}}"
-    state: "{{cops_aconfig_fl_item.state|default(omit)}}"
-    src: "{{cops_aconfig_fl_item.src|default(omit)}}"
-    force: "{{cops_aconfig_fl_item.force|default(omit)}}"
-    mode: "{{cops_aconfig_fl_item.mode|default(omit)}}"
-    owner: "{{cops_aconfig_fl_item.owner|default(omit)}}"
-    group: "{{cops_aconfig_fl_item.group|default(omit)}}"
-    recurse: "{{cops_aconfig_fl_item.recurse|default(omit)}}"
-  async: "{{cops_configs_async}}"
-  poll: "{{cops_configs_poll}}"
-  notify: "{{cops_configs_templates_notify
-             | default((cops_configs_notify
-             | default([])))}}"
-  loop_control: {loop_var: cops_aconfig_fl_item}
-  loop: "{{cops_configs_files|default([])}}"
-  register: cops_configs_files_results
-- when: ["cops_configs_is_async_files"]
-  include_tasks: ./_wrap_include_role.yml
-  vars:
-    cops_async_results: "{{cops_configs_files_results}}"
 
-- when: "not (cops_configs_is_async|default(_cops_configs_is_async))"
-  name: sync files [directory]
-  include: _create_parent_wrapper_file.yml
-  notify: "{{cops_configs_templates_notify
-             | default((cops_configs_notify
-             | default([])))}}"
+# XXX: async mode is disabled since a2.17
+
+#- when: ["cops_configs_is_async_files"]
+#  name: async files [directory]
+#  include_tasks: _create_parent_wrapper_file.yml
+#  async: "{{cops_configs_async}}"
+#  poll: "{{cops_configs_poll}}"
+#  notify: "{{cops_configs_templates_notify
+#             | default((cops_configs_notify
+#             | default([])))}}"
+#  loop_control: {loop_var: cops_aconfig_fl_item}
+#  loop: "{{cops_configs_files|default([])}}"
+#- when: ["cops_configs_is_async_files"]
+#  name: async files
+#  file:
+#    path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_fl_item.name
+#             | default(cops_aconfig_fl_item.path)}}"
+#    state: "{{cops_aconfig_fl_item.state|default(omit)}}"
+#    src: "{{cops_aconfig_fl_item.src|default(omit)}}"
+#    force: "{{cops_aconfig_fl_item.force|default(omit)}}"
+#    mode: "{{cops_aconfig_fl_item.mode|default(omit)}}"
+#    owner: "{{cops_aconfig_fl_item.owner|default(omit)}}"
+#    group: "{{cops_aconfig_fl_item.group|default(omit)}}"
+#    recurse: "{{cops_aconfig_fl_item.recurse|default(omit)}}"
+#  async: "{{cops_configs_async}}"
+#  poll: "{{cops_configs_poll}}"
+#  notify: "{{cops_configs_templates_notify
+#             | default((cops_configs_notify
+#             | default([])))}}"
+#  loop_control: {loop_var: cops_aconfig_fl_item}
+#  loop: "{{cops_configs_files|default([])}}"
+#  register: cops_configs_files_results
+#- when: ["cops_configs_is_async_files"]
+#  include_tasks: ./_wrap_include_role.yml
+#  vars:
+#    cops_async_results: "{{cops_configs_files_results}}"
+
+#- when: "not (cops_configs_is_async|default(_cops_configs_is_async))"
+- name: sync files [directory]
+  include_tasks: _create_parent_wrapper_file.yml
   loop_control: {loop_var: cops_aconfig_fl_item}
   loop: "{{cops_configs_files|default([])}}"
-- when: "not (cops_configs_is_async|default(_cops_configs_is_async))"
-  name: sync files
+#- when: "not (cops_configs_is_async|default(_cops_configs_is_async))"
+- name: sync files
   file:
     path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_fl_item.name
              | default(cops_aconfig_fl_item.dest
@@ -83,53 +83,52 @@
   register: cops_configs_files_results
 
 # install custom config templates
-- when: ["cops_configs_is_async_templates"]
-  name: async templates [directory]
-  include: _create_parent_wrapper_template.yml
-  async: "{{cops_configs_async}}"
-  poll: "{{cops_configs_poll}}"
-  notify: "{{cops_configs_templates_notify
-             | default((cops_configs_notify
-             | default([])))}}"
-  loop_control: {loop_var: cops_aconfig_cfg_item}
-  loop: "{{cops_configs_templates|default([])}}"
-- when: ["cops_configs_is_async_templates"]
-  name: async templates
-  template:
-    dest: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
-    src: "{{cops_aconfig_cfg_item.src
-            |default(cops_aconfig_cfg_item.template|default(
-             (cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
-              | copsf_append_templates_dir_to_default_abs_template_path
-            ))}}"
-    force: "{{cops_aconfig_cfg_item.force|default(True)}}"
-    mode: "{{cops_aconfig_cfg_item.mode|default(omit)}}"
-    owner: "{{cops_aconfig_cfg_item.owner|default(omit)}}"
-    group: "{{cops_aconfig_cfg_item.group|default(omit)}}"
-    trim_blocks: "{{cops_aconfig_cfg_item.trim_blocks
-                    |default(False)}}"
-  async: "{{cops_configs_async}}"
-  poll: "{{cops_configs_poll}}"
-  notify: "{{cops_configs_templates_notify
-             | default((cops_configs_notify
-             | default([])))}}"
-  loop_control: {loop_var: cops_aconfig_cfg_item}
-  loop: "{{cops_configs_templates|default([])}}"
-  register: cops_configs_templates_results
-  vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
-- when: ["cops_configs_is_async_templates"]
-  include_tasks: ./_wrap_include_role.yml
-  vars:
-    cops_async_results: "{{cops_configs_templates_results}}"
+#- when: ["cops_configs_is_async_templates"]
+#  name: async templates [directory]
+#  include_tasks: _create_parent_wrapper_template.yml
+#  async: "{{cops_configs_async}}"
+#  poll: "{{cops_configs_poll}}"
+#  notify: "{{cops_configs_templates_notify
+#             | default((cops_configs_notify
+#             | default([])))}}"
+#  loop_control: {loop_var: cops_aconfig_cfg_item}
+#  loop: "{{cops_configs_templates|default([])}}"
+#- when: ["cops_configs_is_async_templates"]
+#  name: async templates
+#  template:
+#    dest: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
+#    src: "{{cops_aconfig_cfg_item.src
+#            |default(cops_aconfig_cfg_item.template|default(
+#             (cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name))
+#              | copsf_append_templates_dir_to_default_abs_template_path
+#            ))}}"
+#    force: "{{cops_aconfig_cfg_item.force|default(True)}}"
+#    mode: "{{cops_aconfig_cfg_item.mode|default(omit)}}"
+#    owner: "{{cops_aconfig_cfg_item.owner|default(omit)}}"
+#    group: "{{cops_aconfig_cfg_item.group|default(omit)}}"
+#    trim_blocks: "{{cops_aconfig_cfg_item.trim_blocks
+#                    |default(False)}}"
+#  async: "{{cops_configs_async}}"
+#  poll: "{{cops_configs_poll}}"
+#  notify: "{{cops_configs_templates_notify
+#             | default((cops_configs_notify
+#             | default([])))}}"
+#  loop_control: {loop_var: cops_aconfig_cfg_item}
+#  loop: "{{cops_configs_templates|default([])}}"
+#  register: cops_configs_templates_results
+#  vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
+#- when: ["cops_configs_is_async_templates"]
+#  include_tasks: ./_wrap_include_role.yml
+#  vars:
+#    cops_async_results: "{{cops_configs_templates_results}}"
 
-- when: ["not cops_configs_is_async_templates"]
-  name: async file template [directory]
-  include: _create_parent_wrapper_template.yml
-  notify: "{{cops_configs_templates_notify|default((cops_configs_notify|default([])))}}"
+#- when: ["not cops_configs_is_async_templates"]
+- name: file template [directory]
+  include_tasks: _create_parent_wrapper_template.yml
   loop_control: {loop_var: cops_aconfig_cfg_item}
   loop: "{{cops_configs_templates|default([])}}"
-- when: ["not cops_configs_is_async_templates"]
-  name: sync templates
+#- when: ["not cops_configs_is_async_templates"]
+- name: sync templates
   template:
     dest: "{{cops_aconfig_cfg_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_cfg_item.dest|default(cops_aconfig_cfg_item.name)}}"
     src: "{{cops_aconfig_cfg_item.src
@@ -151,58 +150,55 @@
   register: cops_configs_templates_results
   vars: {ansible_search_path: "{{cops_ansible_search_path}}"}
 
-- when: ["cops_configs_is_async_copys"]
-  name: async file copy [directory]
-  include: _create_parent_wrapper_copy.yml
-  async: "{{cops_configs_async}}"
-  poll: "{{cops_configs_poll}}"
-  notify: "{{cops_configs_copys_notify
-             | default((cops_configs_notify
-             | default([])))}}"
-  loop_control: {loop_var: cops_aconfig_tpl_item}
-  loop: "{{cops_configs_copys|default([])}}"
-  register: cops_configs_copys_dirs_results
-- when: ["cops_configs_is_async_copys"]
-  name: async file copy
-  copy:
-    dest: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_tpl_item.dest|default(omit)}}"
-    src: "{{cops_aconfig_tpl_item.src
-            | default(
-                cops_aconfig_tpl_item.template
-                | default(
-                  'templates/'+cops_aconfig_tpl_item.dest
-                )
-              )}}"
-    content: "{{cops_aconfig_tpl_item.content|default(omit)}}"
-    force: "{{cops_aconfig_tpl_item.get('force', True)}}"
-    mode: "{{cops_aconfig_tpl_item.mode|default(omit)}}"
-    owner: "{{cops_aconfig_tpl_item.owner|default(omit)}}"
-    group: "{{cops_aconfig_tpl_item.group|default(omit)}}"
-    recurse: "{{cops_aconfig_tpl_item.recurse|default(omit)}}"
-  async: "{{cops_configs_async}}"
-  poll: "{{cops_configs_poll}}"
-  notify: "{{cops_configs_copys_notify
-             | default((cops_configs_notify
-             | default([])))}}"
-  loop_control: {loop_var: cops_aconfig_tpl_item}
-  loop: "{{cops_configs_copys|default([])}}"
-  register: cops_configs_copys_results
-- when: ["cops_configs_is_async_copys"]
-  include_tasks: _wrap_include_role.yml
-  vars:
-    cops_async_results: "{{cops_configs_copys_results}}"
+#- when: ["cops_configs_is_async_copys"]
+#  name: async file copy [directory]
+#  include_tasks: _create_parent_wrapper_copy.yml
+#  async: "{{cops_configs_async}}"
+#  poll: "{{cops_configs_poll}}"
+#  notify: "{{cops_configs_copys_notify
+#             | default((cops_configs_notify
+#             | default([])))}}"
+#  loop_control: {loop_var: cops_aconfig_tpl_item}
+#  loop: "{{cops_configs_copys|default([])}}"
+#  register: cops_configs_copys_dirs_results
+#- when: ["cops_configs_is_async_copys"]
+#  name: async file copy
+#  copy:
+#    dest: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_tpl_item.dest|default(omit)}}"
+#    src: "{{cops_aconfig_tpl_item.src
+#            | default(
+#                cops_aconfig_tpl_item.template
+#                | default(
+#                  'templates/'+cops_aconfig_tpl_item.dest
+#                )
+#              )}}"
+#    content: "{{cops_aconfig_tpl_item.content|default(omit)}}"
+#    force: "{{cops_aconfig_tpl_item.get('force', True)}}"
+#    mode: "{{cops_aconfig_tpl_item.mode|default(omit)}}"
+#    owner: "{{cops_aconfig_tpl_item.owner|default(omit)}}"
+#    group: "{{cops_aconfig_tpl_item.group|default(omit)}}"
+#    recurse: "{{cops_aconfig_tpl_item.recurse|default(omit)}}"
+#  async: "{{cops_configs_async}}"
+#  poll: "{{cops_configs_poll}}"
+#  notify: "{{cops_configs_copys_notify
+#             | default((cops_configs_notify
+#             | default([])))}}"
+#  loop_control: {loop_var: cops_aconfig_tpl_item}
+#  loop: "{{cops_configs_copys|default([])}}"
+#  register: cops_configs_copys_results
+#- when: ["cops_configs_is_async_copys"]
+#  include_tasks: _wrap_include_role.yml
+#  vars:
+#    cops_async_results: "{{cops_configs_copys_results}}"
 
 # Install copied files
-- when: ["not cops_configs_is_async_copys"]
-  name: sync file copy [directory]
-  include: _create_parent_wrapper_copy.yml
-  notify: "{{cops_configs_copys_notify
-             | default((cops_configs_notify
-             | default([])))}}"
+#- when: ["not cops_configs_is_async_copys"]
+- name: sync file copy [directory]
+  include_tasks: _create_parent_wrapper_copy.yml
   loop_control: {loop_var: cops_aconfig_tpl_item}
   loop: "{{cops_configs_copys|default([])}}"
-- when: ["not cops_configs_is_async_copys"]
-  name: sync file copy
+#- when: ["not cops_configs_is_async_copys"]
+- name: sync file copy
   copy:
     dest: "{{cops_aconfig_tpl_item.prefix|default(cops_configs_prefix)}}{{cops_aconfig_tpl_item.dest|default(omit)}}"
     src: "{%if (cops_aconfig_tpl_item.content|default(False) != False and
