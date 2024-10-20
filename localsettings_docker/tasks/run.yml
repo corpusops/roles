@@ -110,9 +110,9 @@
     #   nb=""
     # fi
     if ( $py -V 2>&1|grep -iq "python 2");then
-      sreq="setuptools<45"
+      sreq="{{corpusops_localsettings_pip_setuptools_old_req}}"
     else
-      sreq="setuptools"
+      sreq="{{corpusops_localsettings_pip_setuptools_req}}"
     fi
     $py -c 'import setuptools' || $py -m pip install $sreq
     $py -m pip install \

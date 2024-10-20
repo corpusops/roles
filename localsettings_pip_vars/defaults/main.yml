@@ -3,6 +3,8 @@ corpusops_localsettings_pip_py: "{{ansible_python.executable}}"
 corpusops_localsettings_pip_url: "https://bootstrap.pypa.io/{{corpusops_localsettings_pip_pref}}get-pip.py"
 
 # handle https://github.com/pypa/pip/issues/9500
+corpusops_localsettings_pip_setuptools_old_req: "setuptools<45"
+corpusops_localsettings_pip_setuptools_req: "setuptools<66"
 corpusops_localsettings_pip_pref: "{% if (
         (ansible_python.version.major < 3) or
         (ansible_python.version.major == 3 and ansible_python.version.minor < 6)) %}pip/2.7/{%
