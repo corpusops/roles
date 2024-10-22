@@ -118,7 +118,7 @@
     $py -c 'import setuptools' || $py -m pip install $sreq
     $py -m pip install \
     {{corpusops_localsettings_docker_vars.pip_args}} ${nb} \
-    $( if ! ( $py -m pip install --help |grep -q -- prefer-binary );then echo 'cryptography<3.4';fi ) \
+    $( if ! ( $py -m pip install --help |grep -q -- prefer-binary );then echo 'cryptography<3.4' 'pyOpenSSL<22';fi ) \
     {{corpusops_localsettings_docker_vars.py_packages|join(' ')}}
   changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
   register: corpusops_localsettings_docker_c_pyinst
