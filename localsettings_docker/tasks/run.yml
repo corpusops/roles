@@ -100,6 +100,7 @@
 # (SNI madness, look at me)
 - name: install python pre - prerequisites
   shell: |
+    set -e
     py="{{ansible_python.executable}}"
     # retry to use wheels
     # if ( $py -m pip install --help 2>&1|grep -E -iq -- --no-binary; );then
@@ -116,9 +117,9 @@
     fi
     $py -c 'import setuptools' || $py -m pip install $sreq
     $py -m pip install \
-    {{corpusops_localsettings_docker_vars.pip_args}} ${nb}\
-    {{corpusops_localsettings_docker_vars.py_packages
-      |join(' ')}}
+    {{corpusops_localsettings_docker_vars.pip_args}} ${nb} \
+    $( if ! ( $py -m pip install --help |grep -q -- prefer-binary );then echo 'cryptography<3.4';fi ) \
+    {{corpusops_localsettings_docker_vars.py_packages|join(' ')}}
   changed_when: '"Successfully installed" in corpusops_localsettings_docker_c_pyinst.stdout'
   register: corpusops_localsettings_docker_c_pyinst
   when: "corpusops_localsettings_docker_vars.has_docker_py"
