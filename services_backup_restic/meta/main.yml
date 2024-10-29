@@ -1,0 +1,3 @@
+dependencies:
+- role: corpusops.roles/vars
+- role: corpusops.roles/services_backup_restic_vars

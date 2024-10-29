@@ -1,0 +1,25 @@
+- when: not corpusops_services_backup_restic_ssh_priv
+  block:
+  - include_role: {name: corpusops.roles/ssh_key}
+  - set_fact:
+    cacheable: false
+    corpusops_services_backup_restic_ssh_priv: "{{ssh_key_priv}}"
+    corpusops_services_backup_restic_ssh_pub: "{{ssh_key_pub}}"
+  vars:
+    ssh_key_directory: "{{corpusops_services_backup_restic_ssh_prefix}}"
+    ssh_key_name: "{{corpusops_services_backup_restic_ssh_key_name}}"
+  delegate_to: "{{corpusops_services_backup_restic_sshcontroller}}"
+- when: "{{corpusops_services_backup_restic_ssh_priv|length>0}}"
+  block:
+  - file:
+      path: "{{corpusops_services_backup_restic_ssh_prefix}}/{{corpusops_services_backup_restic_ssh_key_name}}"
+      content: "{{corpusops_services_backup_restic_ssh_priv}}"
+      mode: "0600"
+      force: true
+- when: "{{corpusops_services_backup_restic_ssh_pub|length>0}}"
+  block:
+  - file:
+      path: "{{corpusops_services_backup_restic_ssh_prefix}}/{{corpusops_services_backup_restic_ssh_key_name}}.pub"
+      content: "{{corpusops_services_backup_restic_ssh_pub}}"
+      mode: "0600"
+      force: true

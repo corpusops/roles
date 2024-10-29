@@ -173,8 +173,8 @@
   when: |
         archive_vars.urls.unpack|default(true) and (
         ('.tbz2' in liitem.bn) or
-        ('.tar.bz2' in liitem.bn) or
         ('.bz2' in liitem.bn) or
+        ('.tar.bz2' in liitem.bn) or
         ('.tar' in liitem.bn) or
         ('.tgz' in liitem.bn) or
         ('.tar.gz' in liitem.bn) or

@@ -1,0 +1,233 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from datetime import datetime
+import glob
+import os
+import sys
+import traceback
+import argparse
+import re
+import subprocess
+import itertools
+from collections import OrderedDict
+
+
+re_flags = re.I | re.M
+statre = re.compile('[.] (?P<stat>[^ ]+) (?P<value>[^ ]+)')
+startre = re.compile('Chain start time: (.*)')
+endre = re.compile('Chain end time: (.*)')
+
+
+class Check(object):
+    def __init__(self, *a, **kw):
+        self._program = "restic_backup_probe"
+        self._author = "Mathieu Le Marec - Pasquet (kiorky)"
+        self._nick = self._program.replace("check_", "")
+        self._ok = 0
+        self._warning = 1
+        self._critical = 2
+        self._unknown = 3
+        self.parser = None
+        self.args = None
+        self.options = None
+
+    def compute_perfdata(self, force=True):
+        if force or not self._perfdata:
+            self._perfdata += "noperfdata=1"
+        return self._perfdata
+
+    def exit(self, code, msg="", perfdata=None):
+        if perfdata:
+            msg += "|{0}".format(perfdata.strip())
+        if msg:
+            print(msg)
+        sys.exit(code)
+
+    def critical(self, msg="", perfdata=None):
+        msg = "{0} CRITICAL - {1}".format(self._nick, msg)
+        self.exit(self._critical, msg=msg, perfdata=perfdata)
+
+    def warning(self, msg="", perfdata=None):
+        msg = "{0} WARNING - {1}".format(self._nick, msg)
+        self.exit(self._warning, msg=msg, perfdata=perfdata)
+
+    def unknown(self, msg="", perfdata=None):
+        msg = "{0} UNKNOWN - {1}".format(self._nick, msg)
+        self.exit(self._unknown, msg=msg, perfdata=perfdata)
+
+    def ok(self, msg="", perfdata=None):
+        msg = "{0} OK - {1}".format(self._nick, msg)
+        self.exit(self._ok, msg=msg, perfdata=perfdata)
+
+    def opt_parser(self):
+        dlag = int(os.environ.get('RESTIC_BACKUP_MAX_LAG', 18 * 60 * 60))
+        parser = self.parser = argparse.ArgumentParser(
+            prog=self._program, description=("Check restic backup state")
+        )
+        parser.add_argument(
+            "--lag-max",
+            default=dlag,
+            const=dlag,
+            type=str,
+            nargs="?",
+            dest="lag",
+            help="lag trigger",
+        )
+        parser.add_argument(
+            "--warning",
+            default=2 * dlag,
+            const=2 * dlag,
+            type=int,
+            nargs="?",
+            dest="wlag",
+            help="warning lag trigger",
+        )
+        parser.add_argument(
+            "--critical",
+            default=3 * dlag,
+            const=3 * dlag,
+            type=int,
+            nargs="?",
+            dest="clag",
+            help="critical lag trigger",
+        )
+        parser.add_argument(
+            "--archives-dir",
+            default=os.environ.get('RESTIC_ARCHIVES_DIR',
+                                   os.path.expanduser("~/.cache/restic"))
+        )
+        parser.add_argument(
+            "--stats-dir",
+            default="/var/log/restic",
+        )
+        parser.add_argument(
+            "--backup-uri",
+            default=os.environ.get('BACKUP_DEST', ''),
+        )
+        parser.add_argument(
+            "--burp2",
+            default=False,
+            action='store_true',
+        )
+        parser.add_argument(
+            "--use-innerdirs",
+            default=False,
+            action='store_true',
+        )
+        parser.add_argument(
+            "--path",
+            action='append'
+        )
+        self.args = vars(parser.parse_args())
+
+    def test(self, method, msg, counters, classifier, path, stats, backup_uri, archives_dir):
+        lag = 0
+        uri = f'{backup_uri}/{path}'
+        pclassifier = sclassifier = ''
+        if classifier:
+            pclassifier = classifier + '_'
+            sclassifier = '_' + classifier
+        cmd = f"restic collection-status --archive-dir='{archives_dir}' {uri}"
+        out = subprocess.check_output(cmd, shell=True).decode()
+        if not ('Chain start time' in out and 'Chain end time' in out):
+            raise Exception(f'[{path}] invalid output\n{out}')
+        end = [a for a in endre.finditer(out)][-1].groups()[0]
+        endd = datetime.strptime(end, '%a %b %d %H:%M:%S %Y')
+        lag = int(datetime.now().timestamp() - endd.timestamp())
+        if lag > self.args['clag']:
+            method = self.critical
+            msg.append(f'{pclassifier}restic data is very stale: {endd}')
+        elif lag > self.args['wlag']:
+            if method != self.critical:
+                method = self.warning
+            msg.append(f'{pclassifier}restic data is a bit stale: {endd}')
+        else:
+            if method == self.unknown:
+                method = self.ok
+            msg.append(f'{pclassifier}restic data is fresh: {endd}')
+        if stats and os.path.exists(stats):
+            with open(stats) as fic:
+                dstats = fic.read()
+                if (
+                    '[ Backup Statistics ]' in dstats and
+                    '-------------------------------------------------' in dstats
+                ):
+                    record = False
+                    for i in reversed(dstats.splitlines()):
+                        if '-------------------------------------------------' in i:
+                            record = True
+                            continue
+                        if 'Backup Statistics ' in i:
+                            break
+                        statm = statre.search(i)
+                        if record and statm:
+                            g = statm.groupdict()
+                            counters[f"{pclassifier}{g['stat']}"] = g["value"]
+                            counters[f"{g['stat']}{sclassifier}"] = g["value"]
+        counters[f'{pclassifier}lag'] = lag
+        counters[f'lag{sclassifier}'] = lag
+        return method, msg, counters
+
+    def run(self):
+        method = self.unknown
+        counters = OrderedDict()
+        self.opt_parser()
+        msg = []
+        backup_uri = self.args['backup_uri']
+        archives_dir = self.args['archives_dir']
+        use_innerdirs = self.args['use_innerdirs']
+        burp2 = self.args['burp2']
+        path = self.args['path']
+        stats_re = re.compile('[/]', flags=re_flags)
+        stats_dir = self.args['stats_dir']
+        if not backup_uri:
+            self.critical(f'Invalid backup_uri {backup_uri}')
+        if not path:
+            self.critical(f'Invalid path {path}')
+        if burp2:
+            path = [a for a in itertools.chain.from_iterable(
+                    [a for a in [glob.glob(f'{b}/*/current') for b in path]])]
+        elif use_innerdirs:
+            path = (
+                [a for a in itertools.chain.from_iterable(
+                    [a for a in [glob.glob(f'{b}/*') for b in path]])
+                    if os.path.isdir(a)] +
+                [a for a in itertools.chain.from_iterable(
+                    [a for a in [glob.glob(f'{b}_inner/*/*') for b in path]])
+                    if os.path.isdir(a)])
+        errors = []
+        for ix, cpath in enumerate(path):
+            classifier = ((burp2 or '_inner/' not in cpath)
+                          and os.path.basename(os.path.dirname(cpath))
+                          or os.path.basename(cpath))
+            stats = stats_dir and f"{stats_dir}/{stats_re.sub('_', cpath)}.log" or ''
+            try:
+                method, msg, counters = self.test(
+                    method, msg, counters, classifier, cpath, stats, backup_uri, archives_dir)
+            except Exception:
+                trace = traceback.format_exc()
+                errors.append((cpath, trace))
+        if errors:
+            self.critical('Error for {0}'.format(
+                ', '.join([a[0] for a in errors])))
+        if method == self.unknown and (burp2 or use_innerdirs):
+            method = self.ok
+        perfdata = ""
+        for i, val in counters.items():
+            perfdata += " {0}={1}".format(i, val)
+        method(' -- '.join(msg), perfdata=perfdata)
+
+    def safe_run(self):
+        try:
+            self.run()
+        except Exception:
+            trace = traceback.format_exc()
+            self.critical(trace)
+
+
+def main():
+    Check().safe_run()
+
+
+if __name__ == "__main__":
+    main()

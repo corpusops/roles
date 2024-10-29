@@ -1,0 +1,87 @@
+corpusops_services_backup_restic_cache_folder: /srv/nobackup/restic_cache
+corpusops_services_backup_restic_bpackages: [ssh]
+corpusops_services_backup_restic_spackages: |-
+  {{ ((ansible_distribution in ['Ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) > ('18'|copsf_looseversion))) and ['librsync-dev'] or ['librsync-dev'])}}
+corpusops_services_backup_restic_packages_sshcontroller: "{{corpusops_services_backup_restic_packages}}"
+corpusops_services_backup_restic_packages: "{{(
+  corpusops_services_backup_restic_bpackages + corpusops_services_backup_restic_spackages +
+  )}}"
+corpusops_services_backup_restic_install_prefix: "{{corpusops_core_apps_path}}/restic"
+corpusops_services_backup_restic_prefix: "/etc/restic-corpusops"
+corpusops_services_backup_restic_ssh_prefix: "{{corpusops_services_backup_restic_prefix}}"
+corpusops_services_backup_restic_ssh_pub: ""
+corpusops_services_backup_restic_ssh_priv: ""
+corpusops_services_backup_restic_ssh_key_name: "{{inventory_hostname}}-{{restic_profile_name}}"
+corpusops_services_backup_restic_sshcontroller: "{{inventory_hostname}}"
+corpusops_services_backup_restic_cron_prefix: "/etc/cron.d"
+corpusops_services_backup_restic_env_slug: ""
+corpusops_services_backup_restic_backup_slug: ""
+corpusops_services_backup_restic_restic_slug: ""
+corpusops_services_backup_restic_wrapper_slug: ""
+corpusops_services_backup_restic_extra_args: ""
+corpusops_services_backup_restic_cleanup_slug: ""
+corpusops_services_backup_restic_profile_secondround_:
+  args: '{%for o in ["filelist", "regexp"]%}{%for i in restic_profile.get("include_"+o.replace("-", "_"), [])%} --include-{{o}}="{{i}}"{%endfor%}{%endfor%} {%for o in ["device", "filelist", "if-present", "other-filesystems", "regexp", "older-than"]%}{%for i in restic_profile.get("exclude_"+o.replace("-", "_"), [])%} --exclude-{{o}}="{{i}}"{%endfor%}{%endfor%} {%for o in ["include", "exclude"] %}{%for i in restic_profile.get(o, [])%} --{{i}}}="{{o}}"{%endfor%}{%endfor%} {{restic_profile.args}}'
+corpusops_services_backup_restic_max_time: "$((60*60*24*15))"
+corpusops_services_backup_restic_args: ' {{corpusops_services_backup_restic_extra_args}}'
+corpusops_services_backup_restic_logrotate: "{{3*365}}"
+corpusops_services_backup_restic_cmd: "restic backup"
+corpusops_services_backup_restic_clean_cmd: |-
+   restic remove-all-inc-of-but-n-full {{corpusops_services_backup_restic_keep_last_incs}}
+   restic remove-all-but-n-full {{corpusops_services_backup_restic_keep_last}}
+corpusops_services_backup_restic_cron_periodicity: "0 4 * * *"
+corpusops_services_backup_restic_cron_cleanup_periodicity: "0 12 * * *"
+corpusops_services_backup_restic_selected_profiles: []
+corpusops_services_backup_restic_ssh_options: "--ssh-options \"-oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no\""
+corpusops_services_backup_restic_profiles_standard:
+  use_innerdirs: false
+  cmd: "{{corpusops_services_backup_restic_incr_cmd}}"
+  periodicity: "{{corpusops_services_backup_restic_rclone_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_restic_rclone_cron_cleanup_periodicity}}"
+  args: "{{corpusops_services_backup_restic_args}} {{corpusops_services_backup_restic_ssh_options}}"
+  env_slug: ""
+  rcloneconf: |-
+    [restic-testclient]
+    type = alias
+    remote = /home/restic
+corpusops_services_backup_restic_profiles_base:
+  use_innerdirs: true
+  binary: restic
+  cache_folder: "{{corpusops_services_backup_restic_cache_folder}}"
+  periodicity: "{{corpusops_services_backup_restic_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_restic_cron_cleanup_periodicity}}"
+  dirs: "{{restic_host_profile.dirs|default([])}}"
+  max_time: "{{corpusops_services_backup_restic_max_time}}"
+  prefix: "{{corpusops_services_backup_restic_prefix}}"
+  cron_prefix: "{{corpusops_services_backup_restic_cron_prefix}}"
+  #
+  args: "{{corpusops_services_backup_restic_args}}"
+  cmd: "{{corpusops_services_backup_restic_cmd}}"
+  clean_cmd: "{{corpusops_services_backup_restic_clean_cmd}}"
+  #
+  env: "{{restic_profile_name}}-env"
+  env_slug: "{{corpusops_services_backup_restic_env_slug}}"
+  #
+  cleanup: "{{restic_profile_name}}-cleanup"
+  cleanup_slug: "{{corpusops_services_backup_restic_cleanup_slug}}"
+  #
+  wrapper: "{{restic_profile_name}}-wrapper"
+  wrapper_slug: "{{corpusops_services_backup_restic_wrapper_slug}}"
+  #
+  probe: "{{restic_profile_name}}-probe"
+  #
+  backup: "{{restic_profile_name}}-backup"
+  backup_slug: "{{corpusops_services_backup_restic_backup_slug}}"
+  #
+  restic: "{{restic_profile_name}}-restic"
+  restic_slug: "{{corpusops_services_backup_restic_restic_slug}}"
+  restic_cmd: "{{corpusops_services_backup_restic_cmd}}"
+  #
+  cron: "restic-{{restic_profile_name|regex_replace('[_]', '-')}}"
+  cron_script: "/etc/cron.d/crontab"
+  has_cron: true
+  #
+  use_ssh: true
+# to be setup in callers (inventory, playbook, etc)
+corpusops_services_backup_restic_profiles: []
+restic_host_profile: "{{restic_host_profiles.get(inventory_hostname, {})}}"

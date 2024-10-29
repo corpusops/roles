@@ -1,0 +1,29 @@
+---
+- debug:
+    msg:
+      _archive:
+        mode: "0755"
+        filetest: "{{corpusops_localsettings_restic_vars.filetest}}"
+        archive: "{{_corpusops_localsettings_restic_archive}}"
+        app_path: "{{_corpusops_localsettings_restic_app_path}}"
+        urls:
+          archive_crc: "{{corpusops_localsettings_restic_vars.crc}}"
+          verify_sha256: "{{corpusops_localsettings_restic_vars.verify_sha256}}"
+          archive: "{{_corpusops_localsettings_restic_urls.archive}}"
+          unpack: false
+  vars:
+    version: "{{item}}"
+  loop: "{{corpusops_localsettings_restic_vars.versions|flatten(levels=1)}}"
+  register: corpusops_localsettings_restic_archives
+- include_tasks: downloadextract.yml
+  vars: {_archive: "{{item.msg._archive}}"}
+  loop: "{{corpusops_localsettings_restic_archives.results|flatten(levels=1)}}"
+- name: "link {{item.key}}"
+  file:
+    force: true
+    state: link
+    src: "{{item.value.src}}"
+    path: "{{item.value.path}}"
+  vars:
+    version: "{{corpusops_localsettings_restic_vars.version}}"
+  loop: "{{_corpusops_localsettings_restic_bins|dict2items}}"

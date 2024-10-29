@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+cd "$(dirname $(readlink -f "$0"))"
+. {{restic_profile_name}}-env
+{{restic_profile.restic_slug}}
+
+{{restic_profile.binary}} $RESTIC_VERBOSITY $( [[ -n $RESTIC_DRYRUN ]] && echo "--dry-run"; ) {{restic_profile.args.strip()}} $@

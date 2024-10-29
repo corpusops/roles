@@ -1,0 +1,143 @@
+#!/bin/bash
+#{% set use_innerdirs = restic_profile.use_innerdirs|default(False)  %}
+#{% set burp2 = restic_profile.burp2|default(False)  %}
+#{% set multi = use_innerdirs or burp2 %}
+set -e
+
+
+cd "$(dirname $(readlink -f "$0"))"
+. {{restic_profile_name}}-env
+{{restic_profile.cleanup_slug}}
+
+
+restic() {
+    local url="$(echo $BACKUP_DEST|sed -re "s/\/+$//g")/$(echo $1|sed -re "s/^\/+//g")"
+    local log_file="${LOG_DIR}/${1//\//_}.log"
+    local ret=0
+    if [ ! -e "$LOG_DIR" ];then mkdir -pv ${LOG_DIR};fi
+    set +e
+    {% for i in restic_profile.clean_cmd.splitlines() %}{% if i.strip()%}
+    if ! ( {{i.strip()}} {{restic_profile.args.strip()}} --force "${url}" );then ret=1;fi
+    {%endif%}{% endfor %}
+    set -e
+    return $ret
+}
+
+runrestic() {
+    log "run restic(delete) in $(pwd)"
+    if !(restic "$(pwd)");then log "backup for $i failed";ret=$(($ret+1));fi
+}
+
+
+ret=0
+cwd="$(pwd)"
+
+if [ -e $BACKUP_STATE ];then
+    START_DT_MIN=$(($(date +%s) - $RESTIC_MAX_BACKUP_SECONDS))
+    STATE_DATE=$(stat -L --format %Y "$BACKUP_STATE")
+    to_kill="" is_running=""
+    for i in $(get_pids);do
+        if (kill -0 $i &>/dev/null);then is_running="1";fi
+    done
+    if [ $STATE_DATE -le $START_DT_MIN ];then to_kill="1";fi
+    if [[ -z $is_running ]];then to_kill="1";fi
+    if [[ -n $to_kill ]];then kill_backups;fi
+fi
+if [ -e $BACKUP_STATE ];then echo "delete backup in process (rm $BACKUP_STATE), bailing out";exit 3;fi
+mark_state
+echo "pid:$$" >> "$BACKUP_STATE"
+
+strip_first_s() { sed -re "s/^\///g"; }
+
+BUCKET_CONTENT=""
+
+get_bucket_content() {
+    if [[ -z "$BUCKET_CONTENT" ]] || [[ -n "${FORCE_LIST_BUCKET}" ]];then
+        BUCKET_CONTENT="$(swift list $@)"
+    fi
+    echo "$BUCKET_CONTENT"
+}
+
+remove_unexisting_inner() {
+    for d in $@;do
+        w=$(echo $d|strip_first_s)
+        if ( echo $BACKUP_DEST | grep -q swift:// );then
+            local bck=$(echo $BACKUP_DEST|sed -re "s|swift://||g"|sed -re "s/\/.*//g")
+            local content="$(get_bucket_content $bck|grep -E "^$w")"
+            content="$(echo "$content"|strip_first_s|sed -re "s/\/[^\/]+$//g"|uniq|sort)"
+            while read f;do
+                if [[ -n $f ]];then
+                    local g=$( echo $f|strip_first_s)
+                    if [ ! -e /$g ];then
+                        swift delete $bck -p $g || true
+                    fi
+                fi
+            done <<< "$content"
+        fi
+    done
+}
+
+remove_unexisting() {
+    for d in $@;do
+        w=$(echo $d|strip_first_s)
+        if ( echo $BACKUP_DEST | grep -q swift:// );then
+            local bck=$(echo $BACKUP_DEST|sed -re "s|swift://||g"|sed -re "s/\/.*//g")
+            local content="$(get_bucket_content $bck|grep -E "^$w")"
+            while read f;do
+                if [[ -n $f ]];then
+                    local g="$( echo $f|strip_first_s|sed -re "s/\/[^\/]+$//g"|uniq|sort)"
+                    if [ ! -e /$g ];then
+                        swift delete $bck -p $g || true
+                    fi
+                fi
+            done <<< "$content"
+        fi
+    done
+}
+
+if [[ -n "$@" ]];then
+    for f in "$@";do
+        if [ -d "$f" ];then
+            cd "$f"
+            runrestic
+            cd "$cwd"
+        fi
+    done
+    cd "$cwd"
+else
+    for i in {% for j in restic_profile.dirs%} "{{j}}"{%endfor%};do
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        remove_unexisting "$i"
+        {% if multi %}
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                runrestic
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*{% if burp2 %}/current{%endif%})
+        {% else %}
+        runrestic
+        {% endif %}
+        cd "$cwd"
+    done
+    {% if multi %}
+    for i in {% for j in restic_profile.dirs%} "{{j}}_inner"{%endfor%};do
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        remove_unexisting_inner "$i"
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                runrestic
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*/*)
+        cd "$cwd"
+    done
+    {% endif %}
+fi
+delete_state
+exit $ret
+

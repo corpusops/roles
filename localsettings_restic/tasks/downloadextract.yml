@@ -1,0 +1,12 @@
+- include_role: {name: corpusops.roles/install_archive}
+- shell: |
+    set -ex
+    cd "{{_archive.app_path}}"
+    b="{{_archive.archive}}"
+    bin="$(basename "$b" .bz2)"
+    if [ ! -e "$bin" ];then
+     bunzip2 -k "$b"
+     echo "ansibleextracted">&2
+    fi
+  register: resticextract
+  changed_when: "'ansibleextracted' in resticextract.stderr"

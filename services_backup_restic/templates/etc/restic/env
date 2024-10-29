@@ -1,0 +1,55 @@
+#!/bin/bash
+SDEBUG=${SDEBUG-}
+
+if [[ -n $SDEBUG ]];then set -x;fi
+
+get_pids() { grep "pid:" $BACKUP_STATE |awk -F pid: '{print $2}'; }
+remove_from_state() { sed -i -re "/pid:$1/ d" "$BACKUP_STATE"; }
+delete_state() { if [ -e $BACKUP_STATE ];then rm -vf "$BACKUP_STATE";fi; }
+mark_state() { echo "{{restic_profile_name}} START $(date)" > "$BACKUP_STATE"; }
+_log() { echo "[{{restic_profile_name}}]: $(date "+%F %T"): $@"; }
+log() { _log "$@" >&2; }
+flog() {
+    local log_file="${log_file:-$LOG_FILE}"
+    local d=="$(dirname "$LOG_FILE")"
+    if [ ! -e "$d" ];then mkdir -pv "$d";fi
+    _log "$@" >> "$LOG_FILE"
+}
+fvlog() { log "$@" && flog "$@"; }
+vv() { log "$@";"$@"; }
+die() { log "$@";exit ${ret:-1}; }
+logdie() { fvlog "$@";exit ${ret:-1}; }
+function get_children_pids() {
+    cpids=$(pgrep -P $1|xargs)
+    for cpid in $cpids;do
+        echo "$cpid"
+        get_children_pids $cpid
+    done
+}
+kill_backups() {
+    pids=$(get_pids)
+    log "Killing {{restic_profile_name}} backup (restic): $pids"
+    for i in "$pids";do
+        if ( kill -0 $i &>/dev/null );then kill -9 $i;fi
+        remove_from_state $i
+    done
+    delete_state
+}
+sanitize_file() { echo "$@" | sed -re "s/(\/|[:.])/__/g"; }
+
+export BACKUP_STATE=/run/restic_{{restic_profile_name}}.state
+export RESTIC_PASSWORD="{{restic_profile.gpg_key_password}}"
+export LOG_DIR="${LOG_DIR:-/var/log/restic}"
+export LOG_FILE="${LOG_DIR}/{{restic_profile_name}}_global.log"
+export RESTIC_CACHE_DIR="{{restic_profile.cache_folder}}/{{restic_profile.name}}"
+export RESTIC_DRYRUN=${RESTIC_DRYRUN-}
+export RESTIC_VERBOSITY=${RESTIC_VERBOSITY-"-vv"}
+export RESTIC_MAX_BACKUP_SECONDS=${RESTIC_MAX_BACKUP_SECONDS:-{{restic_profile.max_time}}}
+export W="$(pwd)"
+
+{{restic_profile.env_slug}}
+
+[[ -n "$RESTIC_REPOSITORY" ]] || ( die "NO \$RESTIC_REPOSITORY"; )
+[[ -n "$RESTIC_PASSWORD" ]] || ( die "NO \$RESTIC_PASSWORD"; )
+
+export RESTIC_REPOSITORY_SAFE=$(sanitize_file $RESTIC_REPOSITORY)

@@ -1,0 +1,14 @@
+---
+- hosts: all
+  vars:
+    corpusops_services_http_nginx_default_vhost_is_default_server: false
+  #tasks:
+  #  # see if install_archives does not conflict
+  #  - include_role: {name: corpusops.roles/localsettings_restic}
+  #  - include_role: {name: corpusops.roles/localsettings_phantoms}
+  #  - include_role: {name: corpusops.roles/localsettings_nodejs}
+  roles:
+    # see if install_archives does not conflict
+    - role: corpusops.roles/localsettings_restic
+    - role: corpusops.roles/localsettings_nodejs
+    - role: corpusops.roles/localsettings_phantoms

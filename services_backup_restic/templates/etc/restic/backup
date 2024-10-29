@@ -1,0 +1,98 @@
+#!/bin/bash
+#{% set use_innerdirs = restic_profile.use_innerdirs|default(False)  %}
+#{% set burp2 = restic_profile.burp2|default(False)  %}
+#{% set multi = use_innerdirs or burp2 %}
+set -e
+
+cd "$(dirname $(readlink -f "$0"))"
+. {{restic_profile_name}}-env
+{{restic_profile.backup_slug}}
+
+restic_repo_init() {
+    if ! ( {{restic_profile.binary}} $RESTIC_VERBOSITY {{restic_profile.args.strip()}} stats );then
+        fvlog "$(date): init restic repo in $RESTIC_REPOSITORY"
+        $( [[ -n $RESTIC_DRYRUN ]] && echo echo ) {{restic_profile.binary}} init $RESTIC_VERBOSITY >> "$LOG_FILE" 2>&1
+        if [[ "$?" != "0" ]];then
+            logdie "restic init in $RESTIC_REPOSITORY failed"
+        fi
+    fi
+}
+
+do_restic() {
+    local bn="$(sanitize_file $1)"
+    local log_file="$LOG_DIR/{{restic_profile_name}}_${RESTIC_REPOSITORY_SAFE}_$bn"
+    ( vv {{restic_profile.binary}} $RESTIC_VERBOSITY \
+        $( [[ -n $RESTIC_DRYRUN ]] && echo "--dry-run"; ) \
+        {{restic_profile.args.strip()}} --tag "directory=$1" "${1}" ) >> "${log_file}" 2>&1 &
+    lastpid=$!
+    for cpid in $(get_children_pids $lastpid);do echo "pid:$cpid">>"$BACKUP_STATE";done
+    wait $lastpid
+    remove_from_state $lastpid
+}
+
+run_restic_in_cwd() {
+    fvlog "run restic in $(pwd)"
+    if ! (do_restic "$(pwd)");then fvlog "backup for $i failed";ret=$(($ret+1));fi
+}
+
+ret=0
+cwd="$(pwd)"
+
+if [ -e $BACKUP_STATE ];then
+    START_DT_MIN=$(($(date +%s) - $RESTIC_MAX_BACKUP_SECONDS))
+    STATE_DATE=$(stat -L --format %Y "$BACKUP_STATE")
+    to_kill="" is_running=""
+    for i in $(get_pids);do
+        if (kill -0 $i &>/dev/null);then is_running="1";fi
+    done
+    if [ $STATE_DATE -le $START_DT_MIN ];then to_kill="1";fi
+    if [[ -z $is_running ]];then to_kill="1";fi
+    if [[ -n $to_kill ]];then kill_backups;fi
+fi
+if [ -e $BACKUP_STATE ];then ret=3 die "backup in process (rm $BACKUP_STATE), bailing out";fi
+mark_state
+echo "pid:$$" >> "$BACKUP_STATE"
+restic_repo_init
+if [[ -n "$@" ]];then
+    for f in "$@";do
+        if [ -d "$f" ];then
+            cd "$f"
+            run_restic_in_cwd
+            cd "$cwd"
+        fi
+    done
+    cd "$cwd"
+else
+    for i in {% for j in restic_profile.dirs %} "{{j}}"{%endfor%};do
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        {% if multi %}
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                run_restic
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*{% if burp2 %}/current{%endif%})
+        {% else %}
+        run_restic_in_cwd
+        {% endif %}
+        cd "$cwd"
+    done
+    {% if multi %}
+    for i in {% for j in restic_profile.dirs %} "{{j}}_inner"{%endfor%};do
+        if [ ! -e "$i" ];then mkdir -p "$i";fi
+        cd "$i"
+        while read f;do
+            if [ -d "$f" ];then
+                cd "$f"
+                run_restic_in_cwd
+                cd "$cwd"
+            fi
+        done < <(ls -1d "$(pwd)"/*/*)
+        cd "$cwd"
+    done
+    {% endif %}
+fi
+delete_state
+exit $ret

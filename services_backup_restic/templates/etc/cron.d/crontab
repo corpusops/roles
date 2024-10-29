@@ -1,0 +1,6 @@
+MAILTO=""
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+{% set comment = not restic_profile.get('has_cron', False) and '# ' or '' %=
+{{comment}}{{restic_profile['periodicity']}}         root {{restic_profile.prefix}}/{{restic_profile['backup']}}
+{{comment}}{{restic_profile['cleanup_periodicity']}} root {{restic_profile.prefix}}/{{restic_profile['cleanup']}}
+

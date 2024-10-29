@@ -1,0 +1,17 @@
+- name: install packages
+  package: {package: "{{corpusops_services_backup_restic_packages_sshcontroller}}", state: present}
+  tags: [restic_install_packages, restic_install_packages_sshcontroller]
+  when: [restic_install_packages_sshcontroller|default(restic_install_packages|default(True))]
+  delegate_to: "{{corpusops_services_backup_restic_sshcontroller}}"
+- name: install packages
+  package: {package: "{{corpusops_services_backup_restic_packages}}", state: present}
+  tags: [resticèinstall_packages, restic_install_packages_client]
+  when: [restic_install_packages_client|default(restic_install_packages|default(True))]
+- name: download restic and make a symlink
+  include_role: {name: corpusops.roles/localsettings_restic}
+  tags: [restic_install_binary]
+  when: [restic_install_binary|default(True)]]
+- include_tasks: configure.yml
+  tags: [restic_configure]
+  when: [restic_configure|default(True)]
+

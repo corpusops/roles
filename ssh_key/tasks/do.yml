@@ -1,0 +1,19 @@
+- name: create keys directory container
+  file:
+    dest: "{{ssh_key_directory}}"
+    mode: "0700"
+    state: directory
+- name: Generate an read the OpenSSH keypair
+  community.crypto.openssh_keypair:
+    path: "{{ssh_key_filepath}}"
+    size: "{{ssh_key_size or omit}}"
+    comment: "{{ssh_key_comment}}"
+    passphrase: "{{ssh_key_passphrase or omit}}"
+    type: "{{ssh_key_type}}"
+  register: ssh_key_export
+- slurp: {path: "{{ssh_key_filepath}}"}
+  register: ssh_key_priv
+  no_log: "{{not ssh_key_debug|default(False)}}"
+- slurp: {path: "{{ssh_key_pub_filepath}}"}
+  register: ssh_key_pub
+  no_log: "{{not ssh_key_debug|default(False)}}"

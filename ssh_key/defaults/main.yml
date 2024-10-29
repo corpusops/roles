@@ -1,0 +1,9 @@
+ssh_key_controller: "{{inventory_hostname}}"
+ssh_key_directory: /etc/corpusops-ssh
+ssh_key_name: key
+ssh_key_filepath: "{{ssh_key_directory}}/{{ssh_key_name}}"
+ssh_key_pub_filepath: "{{ssh_key_filepath}}.pub"
+ssh_key_type: ed25519
+ssh_key_passphrase: ""
+ssh_key_comment: ""
+ssh_key_size: ""

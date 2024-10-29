@@ -1,0 +1,27 @@
+- name: remove unrelated profiles
+  shell: |-
+    set -e
+    {% set c = corpusops_services_backup_restic_cron_prefix %}
+    {% set e = '-(backup|backup|rclone.conf|cleanup|restic|env|probe|wrapper)$' %}
+    {% set cronpref = '^restic-(' %}
+    {% set r = '^' + (corpusops_services_backup_restic_selected_profiles|join(e+'|^')) + e %}
+    {% set rc = cronpref + (corpusops_services_backup_restic_selected_profiles|join('|'))+ ')$' %}
+    if [ ! -e "{{corpusops_services_backup_restic_prefix}}" ];then exit 0;fi
+    {# delete profile configuration files #}
+    cd "{{corpusops_services_backup_restic_prefix}}"
+    for i in $(ls);do if (echo "$i" | grep -vqE "{{r}}" ) ;then rm -vf $i;echo deleted $i>&2;fi;done
+    {# delete cron #}
+    if ( ls "{{c}}"/restic-* >/dev/null 2>&1 );then for i in "{{c}}"/restic-*;do
+      if (basename "$i"|grep -vqE "{{rc}}" );then echo rm -vf $i;echo crondeleted $i>&2;fi
+    done;fi
+  changed_when: ["'deleted' in rmprofile.stderr"]
+  register: rmprofile
+- include_tasks: profile.yml
+  loop_control: {loop_var: restic_profile_name}
+  loop: "{{corpusops_services_backup_restic_profiles}}"
+- include_role: {name: corpusops.roles/simpleconfigs/wrapper}
+  vars:
+    configitems:
+    - src: "{{restic_logrotate_template|default('etc/logrotate.d/restic')}}"
+      dest: "{{restic_logrotate_dest|default('/etc/logrotate.d/restic')}}"
+      mcde: "0644"

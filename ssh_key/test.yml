@@ -1,0 +1,13 @@
+- hosts: all
+  tasks:
+  - include_role: {name: corpusops.roles/ssh_key}
+    vars:
+      ssh_key_directory: /tmp/testssh
+  - include_role: {name: corpusops.roles/ssh_key}
+    vars:
+      ssh_key_directory: /tmp/testssh
+      ssh_key_name: tata
+  - include_role: {name: corpusops.roles/ssh_key}
+    vars:
+      ssh_key_directory: /tmp/testssh
+      ssh_key_name: tutu

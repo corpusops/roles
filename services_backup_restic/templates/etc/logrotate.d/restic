@@ -1,0 +1,10 @@
+/var/log/restic/*.log 
+{
+  daily
+  copytruncate
+  minsize 100M
+  missingok
+  rotate {{corpusops_services_backup_restic_logrotate}}
+  compress
+  notifempty
+}
