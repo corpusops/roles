@@ -37,7 +37,7 @@ corpusops_localsettings_docker_packages_default: >
   {%- endif %}
   {%- if (ansible_distribution in ['Ubuntu'] and (corpusops_core_distribution_version | string | copsf_looseversion >= '20.04')) or
          (ansible_distribution in ['Debian'] and (corpusops_core_distribution_version | string | copsf_looseversion >= '9')) -%}
-  {%- set _ = pkgs.append('docker-compose-plugin')%}
+  {%- set _ = pkgs.extend(['docker-compose-plugin', 'docker-buildx-plugin'])%}
   {%- set _ = pkgs.append('python3-pip')%}
   {%- else %}
   {%- set _ = pkgs.append('python-pip') %}
