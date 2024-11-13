@@ -48,7 +48,10 @@ from multiprocessing import (
 )
 import signal
 
-from Queue import Empty, Queue
+try:
+    from Queue import Empty, Queue
+except ImportError:
+    from queue import Empty, Queue
 import logging
 from subprocess import Popen, PIPE
 from threading import Thread
@@ -56,6 +59,7 @@ import socket
 
 
 # this match the log ! :)
+basestring = str
 _name = 'burp-client-{{data.name}}'
 logger = logging.getLogger('{0}-main'.format(_name))
 worker_logger = logging.getLogger('{0}-worker'.format(_name))
@@ -115,6 +119,12 @@ def popen(cargs=None, shell=True):
     return ret, ps
 
 
+def _decode(s):
+    if hasattr(s, 'decode'):
+        s = s.decode()
+    return s
+
+
 def get_worker_pids(*args, **kwargs):
     '''
     Search worker process
@@ -124,7 +134,7 @@ def get_worker_pids(*args, **kwargs):
         '|grep -v grep'
         '|grep -v \'sh -c\''
         '|awk \'{print $2}\'')[0]
-    out = ops[0] + ops[1] + "\n"
+    out = _decode(ops[0]) + _decode(ops[1]) + "\n"
     # burp process can becomes zombie, just kill it after a while
     pids = filter_host_pids(
         [a.strip()
@@ -133,7 +143,7 @@ def get_worker_pids(*args, **kwargs):
     pidstimes = {}
     chunk_re = re.compile('[:-]')
     if pids:
-        details = popen('ps -eo pid,etime,comm,args')[0][0].splitlines()[1:]
+        details = _decode(popen('ps -eo pid,etime,comm,args')[0][0]).splitlines()[1:]
         for line in details:
             infos = line.split()
             pid = infos[0].strip()
@@ -165,7 +175,7 @@ def get_deployer_pids(*args, **kwargs):
     pps = popen(
         'ps aux|grep \'{0}\'|grep -v grep'
         {% raw %}'|awk \'{{print $2}}\''.format(prog))[0]{%endraw%}
-    return pps[0] + pps[1] + "\n"
+    return _decode(pps[0]) + _decode(pps[1]) + "\n"
 
 
 def get_running_pids(*args, **kwargs):
@@ -177,10 +187,10 @@ def get_running_pids(*args, **kwargs):
     ]:
         if not isinstance(pids, list):
             pids = [
-                a for item in [a.strip()
-                               for a in pids.split()
-                               if a.strip()
-                               and a not in filtered]]
+                item for item in [pidl.strip()
+                               for pidl in pids.split()
+                               if pidl.strip()
+                               and pidl not in filtered]]
         for item in pids:
             if item not in ps:
                 ps.append(item)
@@ -224,8 +234,10 @@ class Tee(object):
         self.file_output = file_output
 
     def write(self, s=''):
-        if isinstance(s, unicode):
-            s = s.encode('utf-8')
+        if sys.version[0] < "3":
+            if isinstance(s, unicode):
+                s = s.encode('utf-8')
+        s = _decode(s)
         self.buffer += s
         if self.output:
             self.orig.write(s)
@@ -285,8 +297,10 @@ def printer(io_q, p_q, logfile, proc):
                 else:
                     meth = rawlogger.info
                     e = 'S: '
-                if isinstance(line, unicode):
-                    line = str(line.encode('utf-8'))
+                if sys.version[0] < '3':
+                    if isinstance(line, unicode):
+                        line = str(line.encode('utf-8'))
+                line = _decode(line)
                 meth(e + line.strip())
                 logflush()
             except Empty:
@@ -431,7 +445,7 @@ def deploy(callback_args, loglevel, logfile, lock, **kwargs):
                                 content = buf + content
                                 buf = ''
                             try:
-                                stderr += content
+                                stderr += _decode(content)
                             except UnicodeDecodeError:
                                 # handle 2codes chars
                                 buf = content
@@ -443,7 +457,7 @@ def deploy(callback_args, loglevel, logfile, lock, **kwargs):
                         print('Looping again in {0}s'.format(delay))
                         if delay:
                             time.sleep(delay)
-                except Exception, ex:
+                except (Exception,) as ex:
                     worker_logger.error('{0} failed'.format(cmd))
                     worker_logger.error("{0}".format(ex))
                     # XXX: do we really need the trace ?
@@ -504,12 +518,12 @@ def communicator(func, logfile=None):
             ret = func(*args, **kwargs)
             resume_signals()
             blind_send(protocol_queue, 'END', logfile=logfile)
-        except TimeoutError, ex:
+        except (TimeoutError,) as ex:
             blind_send(messages_queue, ex.message, logfile=logfile)
             blind_send(protocol_queue, 'TIMEOUT', logfile=logfile)
             resume_signals()
             trace = traceback.format_exc()
-        except Exception, ex:
+        except (Exception,) as ex:
             resume_signals()
             trace = traceback.format_exc()
             blind_send(messages_queue,
@@ -777,7 +791,7 @@ def clean_locks(locks=None):
         if os.path.exists(lock):
             try:
                 os.unlink(lock)
-            except Exception, ex:
+            except (Exception,) as ex:
                 logger.ingo('problem while removing {0}\n{1}'.format(
                     lock, ex))
 
@@ -835,7 +849,7 @@ def main():
                 options.deploy_log,
                 options.deploy_lock]
         ckwargs = copy.deepcopy(OPTIONS)
-        if not options.async:
+        if not getattr(options, 'async'):
             exitcode = deploy(*args, **ckwargs)
         else:
             exitcode = enter_mainloop(_run_deploy,
@@ -851,10 +865,10 @@ def main():
         logger.error('processerror')
         logger.error(traceback.format_exc())
         exitcode = 128
-    except TimeoutError, ex:
+    except (TimeoutError,) as ex:
         exitcode = 127
         logger.error('Deployment has been killed after a timeout')
-    except Exception, ex:
+    except (Exception,) as ex:
         trace = traceback.format_exc()
         logger.error("Unknown error")
         logger.error('{0}'.format(ex))
@@ -875,11 +889,12 @@ def main():
     toggle_log(False, True)
     # remove multiprocess handlers
     # as we completly biased the behavior
-    rorder = range(len(atexit._exithandlers))
-    rorder.reverse()
-    for i in rorder:
-        if 'multiprocessing' in atexit._exithandlers[i][0].__module__:
-            atexit._exithandlers.pop(i)
+    if hasattr(atexit, '_exithandlers'):
+        rorder = range(len(atexit._exithandlers))
+        rorder.reverse()
+        for i in rorder:
+            if 'multiprocessing' in atexit._exithandlers[i][0].__module__:
+                atexit._exithandlers.pop(i)
     sys.exit(exitcode)
 
 
