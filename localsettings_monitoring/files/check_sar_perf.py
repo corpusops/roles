@@ -49,9 +49,9 @@ class SarNRPE:
         sar=Popen(command, shell=True, stdout=PIPE, stderr=PIPE)
         (sout,serr) = sar.communicate() 
         if hasattr(serr, 'decode'):
-            serr = serr.decode()
+            serr = serr.decode('utf-8')
         if hasattr(sout, 'decode'):
-            sout = sout.decode()
+            sout = sout.decode('utf-8')
         if device == None:     
             (columns, data) = self.SortOutput(sout)
         else:
