@@ -81,7 +81,7 @@ corpusops_services_mail_postfix_configs_default:
 - {name: "{{corpusops_services_mail_postfix_prefix}}/transport",
    user: "root", group: "postfix", mode: "640"}
 - {name: "{{corpusops_services_mail_postfix_prefix}}/main.cf",
-   user: "root", group: "postfix", mode: "640"}
+   user: "root", group: "postfix", mode: "644"}
 - {name: "{{corpusops_services_mail_postfix_prefix}}/destinations",
    user: "root", group: "postfix", mode: "640"}
 #
