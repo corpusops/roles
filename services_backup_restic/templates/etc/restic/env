@@ -39,7 +39,7 @@ sanitize_file() { echo "$@" | sed -re "s/(\/|[:.])/__/g"; }
 
 export BACKUP_STATE=/run/restic_{{restic_profile_name}}.state
 export RESTIC_PASSWORD="{{restic_profile.gpg_key_password}}"
-export LOG_DIR="${LOG_DIR:-/var/log/restic}"
+export LOG_DIR="${LOG_DIR:-{{corpusops_services_backup_restic_log_dir}}}"
 export LOG_FILE="${LOG_DIR}/{{restic_profile_name}}_global.log"
 export RESTIC_CACHE_DIR="{{restic_profile.cache_folder}}/{{restic_profile.name}}"
 export RESTIC_DRYRUN=${RESTIC_DRYRUN-}

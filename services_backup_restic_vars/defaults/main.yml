@@ -1,13 +1,10 @@
 corpusops_services_backup_restic_cache_folder: /srv/nobackup/restic_cache
 corpusops_services_backup_restic_bpackages: [ssh]
-corpusops_services_backup_restic_spackages: |-
-  {{ ((ansible_distribution in ['Ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) > ('18'|copsf_looseversion))) and ['librsync-dev'] or ['librsync-dev'])}}
+corpusops_services_backup_restic_packages: "{{corpusops_services_backup_restic_bpackages}}"
 corpusops_services_backup_restic_packages_sshcontroller: "{{corpusops_services_backup_restic_packages}}"
-corpusops_services_backup_restic_packages: "{{(
-  corpusops_services_backup_restic_bpackages + corpusops_services_backup_restic_spackages +
-  )}}"
 corpusops_services_backup_restic_install_prefix: "{{corpusops_core_apps_path}}/restic"
 corpusops_services_backup_restic_prefix: "/etc/restic-corpusops"
+corpusops_services_backup_restic_log_dir: "/var/log/restic"
 corpusops_services_backup_restic_ssh_prefix: "{{corpusops_services_backup_restic_prefix}}"
 corpusops_services_backup_restic_ssh_pub: ""
 corpusops_services_backup_restic_ssh_priv: ""
@@ -29,33 +26,36 @@ corpusops_services_backup_restic_cmd: "restic backup"
 corpusops_services_backup_restic_clean_cmd: |-
    restic remove-all-inc-of-but-n-full {{corpusops_services_backup_restic_keep_last_incs}}
    restic remove-all-but-n-full {{corpusops_services_backup_restic_keep_last}}
+corpusops_services_backup_restic_global_single_value_args:  cacert, cache_dir, compression, http_user_agent, limit_download, limit_upload, key_hint, pack_size, password_command, password_file, repo, repository_file, retry_lock, stuck_request_timeout, tls_client_cert
+corpusops_services_backup_restic_backup_single_value_args: [group_by, host, parent, read_concurrency, stdin_filename, time]
+corpusops_services_backup_restic_value_args: "{{corpusops_services_backup_restic_global_single_value_args+corpusops_services_backup_restic_backup_single_value_args}}"
+corpusops_services_backup_restic_backup_multiple_value_args: [file_from, file_from_raw, files_from_verbatim, exclude, exclude_if_present, exclude_larger_than, iexclude, iexclude_file, tag]
+corpusops_services_backup_restic_global_multiple_value_args: [option]
+crpusops_services_backup_restic_multiple_value_args: "{{corpusops_services_backup_restic_global_multiple_value_args+corpusops_services_backup_restic_backup_multiple_value_args}}"
+corpusops_services_backup_restic_backup_bool_args: [dry_run, ignore_ctime, ignore_cnode, no_scan, one_file_system, skip_if_unchanged, stdin_from_command, with_atime]
+corpusops_services_backup_restic_global_bool_args: [cleanup_cache, insecure_no_password, insecure_no_tls, json, no_cache, no_extra_verify, no_lock, quiet, verbose]
+corpusops_services_backup_restic_bool_args: "{{corpusops_services_backup_restic_backup_bool_args+corpusops_services_backup_restic_global_bool_args}}"
+corpusops_services_backup_restic_profile_secondround_:
+  args: '{% for o in corpusops_services_backup_restic_bool_args%}{% if restic_profile.get(o, False) %}--{{o.replace('_', '-')}}{%endfor%} {%for o in corpusops_services_backup_restic_multiple_value_args%}{%for i in restic_profile.get(o.replace("_", "-"), [])%} --{{o.replace('_', '-')}}="{{i}}"{%endfor%}{%endfor%} {%for o in corpusops_services_backup_restic_single_value_args%}{% set op = o.replace("_", "-") %}{% set v = restic_profile.get(op, '')%}{%if v %} --{{op}}="{{v}}"{%endif%}{%endfor%} {{restic_profile.get('extra_args', '')}}'
 corpusops_services_backup_restic_cron_periodicity: "0 4 * * *"
 corpusops_services_backup_restic_cron_cleanup_periodicity: "0 12 * * *"
 corpusops_services_backup_restic_selected_profiles: []
-corpusops_services_backup_restic_ssh_options: "--ssh-options \"-oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no\""
-corpusops_services_backup_restic_profiles_standard:
+corpusops_services_backup_restic_ssh_options: "ssh -p23 -oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no user@host"
+corpusops_services_backup_restic_default_dirs: [/home, /srv, /var, /root, /boot]
+corpusops_services_backup_restic_profiles_storagebox_sftp_appendonly:
   use_innerdirs: false
-  cmd: "{{corpusops_services_backup_restic_incr_cmd}}"
-  periodicity: "{{corpusops_services_backup_restic_rclone_cron_periodicity}}"
-  cleanup_periodicity: "{{corpusops_services_backup_restic_rclone_cron_cleanup_periodicity}}"
-  args: "{{corpusops_services_backup_restic_args}} {{corpusops_services_backup_restic_ssh_options}}"
-  env_slug: ""
-  rcloneconf: |-
-    [restic-testclient]
-    type = alias
-    remote = /home/restic
-corpusops_services_backup_restic_profiles_base:
-  use_innerdirs: true
   binary: restic
   cache_folder: "{{corpusops_services_backup_restic_cache_folder}}"
   periodicity: "{{corpusops_services_backup_restic_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_restic_cron_cleanup_periodicity}}"
-  dirs: "{{restic_host_profile.dirs|default([])}}"
+  dirs: "{{restic_host_profile.dirs|default(corpusops_services_backup_restic_default_dirs)}}"
   max_time: "{{corpusops_services_backup_restic_max_time}}"
   prefix: "{{corpusops_services_backup_restic_prefix}}"
   cron_prefix: "{{corpusops_services_backup_restic_cron_prefix}}"
   #
-  args: "{{corpusops_services_backup_restic_args}}"
+  args: {}
+  # example:
+  # args: {option: ["rclone.program=ssh user@host rclone serve restic"], extra_args: "--verbose"}
   cmd: "{{corpusops_services_backup_restic_cmd}}"
   clean_cmd: "{{corpusops_services_backup_restic_clean_cmd}}"
   #
@@ -74,6 +74,12 @@ corpusops_services_backup_restic_profiles_base:
   backup_slug: "{{corpusops_services_backup_restic_backup_slug}}"
   #
   restic: "{{restic_profile_name}}-restic"
+  use_sftp: true
+  remote_rclone: true
+  rcloneconf: |-
+    [restic-testclient]
+    type = alias
+    remote = /home/restic
   restic_slug: "{{corpusops_services_backup_restic_restic_slug}}"
   restic_cmd: "{{corpusops_services_backup_restic_cmd}}"
   #
@@ -82,6 +88,11 @@ corpusops_services_backup_restic_profiles_base:
   has_cron: true
   #
   use_ssh: true
-# to be setup in callers (inventory, playbook, etc)
-corpusops_services_backup_restic_profiles: []
-restic_host_profile: "{{restic_host_profiles.get(inventory_hostname, {})}}"
+# to be overriden in callers (inventory, playbook, etc)
+corpusops_services_backup_restic_host_profile: "{{corpusops_services_backup_restic_host_profiles.get(inventory_hostname, {})}}"
+corpusops_services_backup_restic_profiles:
+	storagebox_appendonly: "{{corpusops_services_backup_restic_profiles_storagebox_sftp_appendonly}}"
+corpusops_services_backup_restic_host_profiles: {}
+# exemple:
+# localhost:
+#   backup_dirs: "{{corpusops_services_backup_restic_default_dirs}}"

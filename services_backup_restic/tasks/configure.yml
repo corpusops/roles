@@ -16,6 +16,7 @@
     done;fi
   changed_when: ["'deleted' in rmprofile.stderr"]
   register: rmprofile
+  tags: [restic_rm_unrelated_profiles]
 - include_tasks: profile.yml
   loop_control: {loop_var: restic_profile_name}
   loop: "{{corpusops_services_backup_restic_profiles}}"
