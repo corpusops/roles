@@ -47,7 +47,7 @@ corpusops_services_backup_duplicity_gpg_key_email: "{{corpusops_services_backup_
 corpusops_services_backup_duplicity_gpg_key_password: secretvP9eR3jC8uP9hR8xE2pC8oB7vJ9qG2hN
 
 corpusops_services_backup_duplicity_install_prefix: "{{corpusops_core_apps_path}}/duplicity"
-corpusops_services_backup_duplicity_git: "https://gitlab.com/kiorky/duplicity.git"
+corpusops_services_backup_duplicity_git: "https://github.com/corpusops/duplicity.git"
 corpusops_services_backup_duplicity_git_version: "master"
 corpusops_services_backup_duplicity_prefix: "/etc/duplicity-corpusops"
 corpusops_services_backup_duplicity_cron_prefix: "/etc/cron.d"
