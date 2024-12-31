@@ -1,3 +1,19 @@
+- name: remove unrelated profiles
+  shell: |-
+    set -e
+    {% set c = corpusops_services_backup_duplicity_cron_prefix %}
+    {% set e = '-(backup|backup-full|rclone.conf|cleanup|duplicity|env|probe|wrapper)$' %}
+    {% set cronpref = '^duplicity-(' %}
+    {% set r = '^' + (corpusops_services_backup_duplicity_selected_profiles|join(e+'|^')) + e %}
+    {% set rc = cronpref + (corpusops_services_backup_duplicity_selected_profiles|join('|'))+ ')$' %}
+    if [ ! -e "{{corpusops_services_backup_duplicity_prefix}}" ];then exit 0;fi
+    cd "{{corpusops_services_backup_duplicity_prefix}}"
+    for i in $(ls);do if (echo "$i" | grep -vqE "{{r}}" ) ;then rm -vf $i;echo deleted $i>&2;fi;done
+    if ( ls "{{c}}"/duplicity-* >/dev/null 2>&1 );then for i in "{{c}}"/duplicity-*;do
+      if (basename "$i"|grep -vqE "{{rc}}" );then rm -vf $i;echo crondeleted $i>&2;fi
+    done;fi
+  changed_when: ["'deleted' in rmprofile.stderr"]
+  register: rmprofile
 - include_tasks: profile.yml
   loop_control: {loop_var: duplicity_profile_name}
   loop: "{{corpusops_services_backup_duplicity_selected_profiles}}"
