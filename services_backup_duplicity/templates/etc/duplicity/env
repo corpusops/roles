@@ -30,8 +30,10 @@ kill_backups() {
 
 
 export BACKUP_STATE=/run/duplicity_{{duplicity_profile_name}}.state
+{% if duplicity_profile.use_gpg|default(True) %}
 export GPG_ENC_KEY="$(get_gpg_keyid_by_email {{duplicity_profile.gpg_key_email}})"
 export GPG_SIGN_KEY="{{duplicity_profile.gpg_sign_key}}"
+{% endif %}
 export PASSPHRASE="{{duplicity_profile.gpg_key_password}}"
 export SIGN_PASSPHRASE="{{duplicity_profile.gpg_sign_key_password}}"
 export LOG_DIR="${LOG_DIR:-/var/log/duplicity}"
@@ -40,11 +42,14 @@ export DUPLICITY_DRYRUN=${DUPLICITY_DRYRUN-}
 export DUPLICITY_VERBOSITY=${DUPLICITY_VERBOSITY-9}
 export DUPLICITY_FORCE_FULL=${DUPLICITY_FORCE_FULL-}
 export DUPLICITY_MAX_BACKUP_SECONDS=${DUPLICITY_MAX_BACKUP_SECONDS:-{{duplicity_profile.max_time}}}
+export RCLONE_CONFIG="${RCLONE_CONFIG:-{{duplicity_profile.prefix}}/{{duplicity_profile_name}}-rclone.conf}"
 {{duplicity_profile.env_slug}}
 
+{% if duplicity_profile.use_gpg|default(True) %}
 [[ -n "$GPG_ENC_KEY" ]] || ( die "NO GPG_ENC_KEY"; )
 [[ -n "$PASSPHRASE" ]] || ( die "NO PASSPHRASE"; )
 
 if [[ -n "$GPG_SIGN_KEY" ]];then
     [[ -n "$SIGN_PASSPHRASE" ]] || ( die "NO SIGN_PASSPHRASE"; )
 fi
+{% endif %}

@@ -1,19 +1,47 @@
 corpusops_services_backup_duplicity_gpgcontroller: localhost
 corpusops_services_backup_duplicity_cache_folder: /srv/nobackup/duplicity_cache
-corpusops_services_backup_duplicity_bpackages: [gpg, rng-tools, gettext,
-    python3-pip, python3-swiftclient, python3-boto3, python3-boto, python3-fasteners]
+corpusops_services_backup_duplicity_bpackages: [gpg, rng-tools, gettext]
+corpusops_services_backup_duplicity_boto: [python3-swiftclient, python3-boto3, python3-boto, python3-fasteners]
+corpusops_services_backup_duplicity_sftp: [ssh]
+corpusops_services_backup_duplicity_lftp: [ssh, ftp, lftp]
+corpusops_services_backup_duplicity_rclone: [ssh, ftp, lftp, rsync]
 corpusops_services_backup_duplicity_spackages: |-
-  {{ ((ansible_distribution in ['Ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) > ('18'|copsf_looseversion))) and
-  ['librsync-dev']
-    or
-  ['librsync-dev']
-  )}}
-corpusops_services_backup_duplicity_packages: "{{corpusops_services_backup_duplicity_bpackages + corpusops_services_backup_duplicity_spackages }}"
-corpusops_services_backup_duplicity_packages_local: [gpg, rng-tools]
-
+  {{ ((ansible_distribution in ['Ubuntu'] and ((ansible_distribution_major_version|copsf_looseversion) > ('18'|copsf_looseversion))) and ['librsync-dev'] or ['librsync-dev'])}}
+corpusops_services_backup_duplicity_packages: "{{(
+  corpusops_services_backup_duplicity_bpackages + corpusops_services_backup_duplicity_spackages +
+  (corpusops_services_backup_duplicity_has_lftp   and corpusops_services_backup_duplicity_lftp or []) +
+  (corpusops_services_backup_duplicity_has_rclone and corpusops_services_backup_duplicity_rclone or []) +
+  (corpusops_services_backup_duplicity_has_sftp   and corpusops_services_backup_duplicity_sftp or []) +
+  (corpusops_services_backup_duplicity_has_boto   and corpusops_services_backup_duplicity_boto or [])
+  )}}"
 corpusops_services_backup_duplicity_pythonversion: "3"
-corpusops_services_backup_duplicity_pip: ["boto3>=1.17.94"]
-
+corpusops_services_backup_duplicity_has_rclone: |-
+  {%- set ret = {'r': False} %}{%- for i in corpusops_services_backup_duplicity_selected_profiles %}
+  {%- if i|regex_search(corpusops_services_backup_duplicity_rclone_profiles)%}{%- set _=ret.update({'r': true})%}{%endif%}
+  {%- endfor %}{{- ret.r | to_json }}
+corpusops_services_backup_duplicity_has_lftp: |-
+  {%- set ret = {'r': False} %}{%- for i in corpusops_services_backup_duplicity_selected_profiles %}
+  {%- if i|regex_search(corpusops_services_backup_duplicity_lftp_profiles)%}{%- set _=ret.update({'r': true})%}{%endif%}
+  {%- endfor %}{{- ret.r | to_json }}
+corpusops_services_backup_duplicity_has_sftp: |-
+  {%- set ret = {'r': False} %}{%- for i in corpusops_services_backup_duplicity_selected_profiles %}
+  {%- if i|regex_search(corpusops_services_backup_duplicity_sftp_profiles)%}{%- set _=ret.update({'r': true})%}{%endif%}
+  {%- endfor %}{{- ret.r | to_json }}
+corpusops_services_backup_duplicity_has_boto: |-
+  {%- set ret = {'r': False} %}{%- for i in corpusops_services_backup_duplicity_selected_profiles %}
+  {%- if i|regex_search(corpusops_services_backup_duplicity_boto_profiles) %}{%- set _=ret.update({'r': true})%}{%endif%}
+  {%- endfor %}{{- ret.r | to_json }}
+corpusops_services_backup_duplicity_pip_paramiko: ["paramiko"]
+corpusops_services_backup_duplicity_pip_boto: ["boto3>=1.17.94"]
+corpusops_services_backup_duplicity_boto_profiles: 'openstack|swift|s3|backup_server_'
+corpusops_services_backup_duplicity_sftp_profiles: 'ssh|sftp'
+corpusops_services_backup_duplicity_lftp_profiles: 'lftp'
+corpusops_services_backup_duplicity_rclone_profiles: 'rclone'
+corpusops_services_backup_duplicity_pip: "{{( [] +
+ (corpusops_services_backup_duplicity_has_sftp  and corpusops_services_backup_duplicity_pip_paramiko or []) +
+ (corpusops_services_backup_duplicity_has_boto  and corpusops_services_backup_duplicity_pip_boto     or [])
+ )}}"
+corpusops_services_backup_duplicity_packages_local: [gpg, rng-tools]
 corpusops_services_backup_duplicity_gpg_key_name: "{{inventory_hostname}}-duplicity"
 corpusops_services_backup_duplicity_gpg_key_email: "{{corpusops_services_backup_duplicity_gpg_key_name}}@local"
 corpusops_services_backup_duplicity_gpg_key_password: secretvP9eR3jC8uP9hR8xE2pC8oB7vJ9qG2hN
@@ -23,47 +51,20 @@ corpusops_services_backup_duplicity_git: "https://gitlab.com/kiorky/duplicity.gi
 corpusops_services_backup_duplicity_git_version: "master"
 corpusops_services_backup_duplicity_prefix: "/etc/duplicity-corpusops"
 corpusops_services_backup_duplicity_cron_prefix: "/etc/cron.d"
-
 corpusops_services_backup_duplicity_env_slug: ""
 corpusops_services_backup_duplicity_backup_slug: ""
 corpusops_services_backup_duplicity_duplicity_slug: ""
 corpusops_services_backup_duplicity_wrapper_slug: ""
 corpusops_services_backup_duplicity_extra_args: ""
 corpusops_services_backup_duplicity_cleanup_slug: ""
-#corpusops_services_backup_duplicity_extra_args: "--s3-endpoint-url=\"{{url}}\""
-#       corpusops_services_backup_duplicity_env_slug: |-
-#         {% if duplicity[inventory_hostname].s3_user|default('') |copsf_asbool %}
-#         export BACKUP_DEST="s3://{{duplicity[inventory_hostname].bucket}}"
-#         export AWS_ACCESS_KEY_ID="{{duplicity[inventory_hostname].s3_user}}"
-#         export AWS_SECRET_ACCESS_KEY="{{duplicity[inventory_hostname].s3_password}}"
-#         {% else %}
-#         export BACKUP_DEST="swift://{{duplicity[inventory_hostname].bucket}}"z
-#         export SWIFT_AUTHURL="https://auth.cloud.ovh.net/v3/"
-#         export SWIFT_AUTHVERSION="3"
-#         export SWIFT_PROJECT_DOMAIN_NAME="Default"
-#         export SWIFT_USERNAME="{{duplicity[inventory_hostname].swift_user}}"
-#         export SWIFT_PASSWORD="{{duplicity[inventory_hostname].swift_password}}"
-#         export SWIFT_REGIONNAME="DE"
-#         export SWIFT_TENANTID="7e885449b91f4b63ad9001c9d4b4e3e8"
-#         export OS_AUTH_URL=${SWIFT_AUTHURL}
-#         export OS_IDENTITY_API_VERSION=$SWIFT_AUTHVERSION
-#         export OS_PASSWORD=${SWIFT_PASSWORD}
-#         export OS_PROJECT_DOMAIN_ID=default
-#         export OS_PROJECT_DOMAIN_NAME=${SWIFT_PROJECT_DOMAIN_NAME}
-#         export OS_PROJECT_ID="${SWIFT_TENANTID}"
-#         export OS_PROJECT_NAME=9892686484035682
-#         export OS_REGION_NAME=${SWIFT_REGIONNAME}
-#         export OS_USER_DOMAIN_NAME=Default
-#         export OS_USERNAME=${SWIFT_USERNAME}
-#         {% endif %}
-
-
+corpusops_services_backup_duplicity_profile_secondround_:
+  args: '{%for o in ["filelist", "regexp"]%}{%for i in duplicity_profile.get("include_"+o.replace("-", "_"), [])%} --include-{{o}}="{{i}}"{%endfor%}{%endfor%} {%for o in ["device", "filelist", "if-present", "other-filesystems", "regexp", "older-than"]%}{%for i in duplicity_profile.get("exclude_"+o.replace("-", "_"), [])%} --exclude-{{o}}="{{i}}"{%endfor%}{%endfor%} {%for o in ["include", "exclude"] %}{%for i in duplicity_profile.get(o, [])%} --{{i}}}="{{o}}"{%endfor%}{%endfor%} {{duplicity_profile.args}}'
 corpusops_services_backup_duplicity_sign: ""
 corpusops_services_backup_duplicity_sign_password: ""
 corpusops_services_backup_duplicity_max_time: "$((60*60*24*15))"
 corpusops_services_backup_duplicity_par2: "--par2-redundancy=10"
 corpusops_services_backup_duplicity_volsize: 2000
-corpusops_services_backup_duplicity_args: '--volsize {{corpusops_services_backup_duplicity_volsize}} --num-retries=5 --s3-use-new-style --s3-use-multiprocessing --no-compression --num-retries 3 --asynchronous-upload --verbosity notice --cf-backend swift --encrypt-key="$GPG_ENC_KEY" $( [[ -n "$GPG_SIGN_KEY" ]] && "--sign-key=\"$GPG_SIGN_KEY\""; ) --archive-dir="{{corpusops_services_backup_duplicity_cache_folder}}" {{corpusops_services_backup_duplicity_par2}} {{corpusops_services_backup_duplicity_extra_args}}'
+corpusops_services_backup_duplicity_args: '--volsize {{corpusops_services_backup_duplicity_volsize}} --num-retries=5 --s3-use-new-style --s3-use-multiprocessing --no-compression --num-retries 3 --asynchronous-upload --verbosity notice --cf-backend swift $( if [[ -n $GPG_ENC_KEY ]];then echo "--encrypt-key=$GPG_ENC_KEY";else echo "--no-encryption";fi; )  $( [[ -n "$GPG_SIGN_KEY" ]] && echo "--sign-key=$GPG_SIGN_KEY"; ) --archive-dir="{{corpusops_services_backup_duplicity_cache_folder}}" {{corpusops_services_backup_duplicity_par2}} {{corpusops_services_backup_duplicity_extra_args}}'
 corpusops_services_backup_duplicity_logrotate: "{{3*365}}"
 corpusops_services_backup_duplicity_full_retention: 240M
 corpusops_services_backup_duplicity_full_cmd: "duplicity full"
@@ -79,16 +80,24 @@ corpusops_services_backup_duplicity_cron_periodicity: "0 4 * * *"
 corpusops_services_backup_duplicity_cold_cron_periodicity:  "#0 5 1 1,3,5,7,9,11 *"
 corpusops_services_backup_duplicity_data_cron_periodicity:  "0 5 1 1,5,9 *"
 corpusops_services_backup_duplicity_burp2_cron_periodicity: "0 2 1,4,7,10,13,16,19,22,25,28,31 * *"
+corpusops_services_backup_duplicity_sftp_cron_periodicity: "0 2 1,4,7,10,13,16,19,22,25,28,31 * *"
+corpusops_services_backup_duplicity_lftp_cron_periodicity: "0 2 1,4,7,10,13,16,19,22,25,28,31 * *"
+corpusops_services_backup_duplicity_rclone_cron_periodicity: "{{corpusops_services_backup_duplicity_rclone_cron_periodicity_time}} 1,4,7,10,13,16,19,22,25,28,31 * *"
+corpusops_services_backup_duplicity_rclone_cron_periodicity_time: "0 2"
 corpusops_services_backup_duplicity_cron_cleanup_periodicity: "0 16 * * *"
 #
 corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity: "0 12 * * *"
 corpusops_services_backup_duplicity_data_cron_cleanup_periodicity: "0 16 * * *"
 corpusops_services_backup_duplicity_burp2_cron_cleanup_periodicity: "0 20 * * *"
+corpusops_services_backup_duplicity_sftp_cron_cleanup_periodicity: "0 20 * * *"
+corpusops_services_backup_duplicity_lftp_cron_cleanup_periodicity: "0 20 * * *"
+corpusops_services_backup_duplicity_rclone_cron_cleanup_periodicity: "0 20 * * *"
 corpusops_services_backup_duplicity_cold_full_retention: "{{100*365}}Y"
 #
 corpusops_services_backup_duplicity_selected_profiles: []
 # corpusops_services_backup_duplicity_selected_profiles: [backup_server]
-corpusops_services_backup_duplicity_profiles:
+corpusops_services_backup_duplicity_profiles: "{{corpusops_services_backup_duplicity_profiles_default}}"
+corpusops_services_backup_duplicity_profiles_default:
   backup_server_cold: |-
     {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
     {%- set _=p.update(corpusops_services_backup_duplicity_profiles_cold) %}
@@ -101,7 +110,24 @@ corpusops_services_backup_duplicity_profiles:
     {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
     {%- set _=p.update(corpusops_services_backup_duplicity_profiles_burp2) %}
     {{- p | to_json }}
+  lftp: |-
+   {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+   {%- set _= p.update(corpusops_services_backup_duplicity_profiles_lftp) %}
+   {{- p | to_json }}
+  sftp: |-
+   {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+   {%- set _= p.update(corpusops_services_backup_duplicity_profiles_sftp) %}
+   {{- p | to_json }}
+  rclone: |-
+   {%- set p = (corpusops_services_backup_duplicity_profiles_base|copsf_deepcopy) %}
+   {%- set _= p.update(corpusops_services_backup_duplicity_profiles_rclone) %}
+   {{- p | to_json }}
+corpusops_services_backup_duplicity_ssh_options: "--ssh-options \"-oUserKnownHostsFile=/dev/null -oStrictHostKeyChecking=no\""
+
 corpusops_services_backup_duplicity_incr_cmd: "duplicity incr --full-if-older-than"
+corpusops_services_backup_duplicity_sftp_retention:  "{{1*31}}D"
+corpusops_services_backup_duplicity_lftp_retention:  "{{1*31}}D"
+corpusops_services_backup_duplicity_rclone_retention:  "{{1*31}}D"
 corpusops_services_backup_duplicity_burp2_retention: "{{1*31}}D"
 corpusops_services_backup_duplicity_slow_retention:  "{{3*31}}D"
 corpusops_services_backup_duplicity_data_retention:  "{{corpusops_services_backup_duplicity_slow_retention}}"
@@ -124,6 +150,7 @@ corpusops_services_backup_duplicity_profiles_cold:
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_cold_cron_cleanup_periodicity}}"
 corpusops_services_backup_duplicity_profiles_base:
   use_innerdirs: true
+  use_gpg: true
   periodicity: "{{corpusops_services_backup_duplicity_cron_periodicity}}"
   cleanup_periodicity: "{{corpusops_services_backup_duplicity_cron_cleanup_periodicity}}"
   max_time: "{{corpusops_services_backup_duplicity_max_time}}"
@@ -163,3 +190,72 @@ corpusops_services_backup_duplicity_profiles_base:
   #
   cron: "duplicity-{{duplicity_profile_name|regex_replace('[_]', '-')}}"
   cron_script: etc/cron.d/crontab
+corpusops_services_backup_duplicity_profiles_rclone:
+  use_innerdirs: false
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_rclone_retention}}"
+  dirs: "{{duplicity[inventory_hostname].dirs}}"
+  periodicity: "{{corpusops_services_backup_duplicity_rclone_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_rclone_cron_cleanup_periodicity}}"
+  args: "{{corpusops_services_backup_duplicity_args}} {{corpusops_services_backup_duplicity_ssh_options}}"
+  env_slug: |-
+    export BACKUP_DEST="par2+rclone://duplicity:/"
+  rcloneconf: |-
+    {% set d = duplicity[inventory_hostname] %}
+    [duplicity]
+    type = sftp
+    host = {{d.ssh_host}}
+    user = {{d.ssh_user}}
+    port = {{d.ssh_port|default(23)}}
+    pass = {{d.rclone_obscured_password}}
+corpusops_services_backup_duplicity_profiles_lftp:
+  use_innerdirs: false
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_lftp_retention}}"
+  dirs: "{{duplicity[inventory_hostname].dirs}}"
+  periodicity: "{{corpusops_services_backup_duplicity_lftp_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_lftp_cron_cleanup_periodicity}}"
+  args: "{{corpusops_services_backup_duplicity_args}} {{corpusops_services_backup_duplicity_ssh_options}}"
+  env_slug: |-
+    {% set d = duplicity[inventory_hostname] %}
+    export FTP_PASSWORD="{{d.ssh_password}}"
+    export RSYNC_PASSWORD="{{d.ssh_password}}"
+    export BACKUP_DEST="par2+{{d.lftp_scheme|default('sftp')}}://{{d.ssh_user}}@{{d.ssh_host|default(duplicity_ssh[duplicity_ssh_id].ssh_host)}}:{{d.ssh_port|default(duplicity_ssh[duplicity_ssh_id].ssh_port|default(22))}}"
+corpusops_services_backup_duplicity_profiles_sftp:
+  use_innerdirs: false
+  incr_cmd: "{{corpusops_services_backup_duplicity_incr_cmd}} {{corpusops_services_backup_duplicity_sftp_retention}}"
+  dirs: "{{duplicity[inventory_hostname].dirs}}"
+  periodicity: "{{corpusops_services_backup_duplicity_sftp_cron_periodicity}}"
+  cleanup_periodicity: "{{corpusops_services_backup_duplicity_sftp_cron_cleanup_periodicity}}"
+  env_slug: |-
+    {% set d = duplicity[inventory_hostname] %}
+    export FTP_PASSWORD="{{d.ssh_password}}"
+    export BACKUP_DEST="par2+pexpect+sftp://{{d.ssh_user}}@{{d.ssh_host}}"
+  args: "{{corpusops_services_backup_duplicity_args}} {{corpusops_services_backup_duplicity_ssh_options}}"
+#corpusops_services_backup_duplicity_extra_args: "--s3-endpoint-url=\"{{url}}\""
+#  for ovh swift bucket
+#       corpusops_services_backup_duplicity_env_slug: |-
+#         {% if duplicity[inventory_hostname].s3_user|default('') |copsf_asbool %}
+#         export BACKUP_DEST="s3://{{duplicity[inventory_hostname].bucket}}/"
+#         export AWS_ACCESS_KEY_ID="{{duplicity[inventory_hostname].s3_user}}"
+#         export AWS_SECRET_ACCESS_KEY="{{duplicity[inventory_hostname].s3_password}}"
+#         {% else %}
+#         export BACKUP_DEST="swift://{{duplicity[inventory_hostname].bucket}}/"
+#         export SWIFT_AUTHURL="https://auth.cloud.ovh.net/v3/"
+#         export SWIFT_AUTHVERSION="3"
+#         export SWIFT_PROJECT_DOMAIN_NAME="Default"
+#         export SWIFT_USERNAME="{{duplicity[inventory_hostname].swift_user}}"
+#         export SWIFT_PASSWORD="{{duplicity[inventory_hostname].swift_password}}"
+#         export SWIFT_REGIONNAME="DE"
+#         export SWIFT_TENANTID="7e885449b91f4b63ad9001c9d4b4e3e8"
+#         export OS_AUTH_URL=${SWIFT_AUTHURL}
+#         export OS_IDENTITY_API_VERSION=$SWIFT_AUTHVERSION
+#         export OS_PASSWORD=${SWIFT_PASSWORD}
+#         export OS_PROJECT_DOMAIN_ID=default
+#         export OS_PROJECT_DOMAIN_NAME=${SWIFT_PROJECT_DOMAIN_NAME}
+#         export OS_PROJECT_ID="${SWIFT_TENANTID}"
+#         export OS_PROJECT_NAME=9892686484035682
+#         export OS_REGION_NAME=${SWIFT_REGIONNAME}
+#         export OS_USER_DOMAIN_NAME=Default
+#         export OS_USERNAME=${SWIFT_USERNAME}
+#         {% endif %}
+# for SFTP:
+
