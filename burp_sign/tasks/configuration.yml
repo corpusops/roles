@@ -17,6 +17,9 @@
   tags: [burp_cagen]
   changed_when: "'CHANGED' in burp_sign_configst3.stderr"
   register: burp_sign_configst3
+  retries: 10
+  delay: 3
+  until: "burp_sign_configst3 is not failed"
 - set_fact:
     cacheable: false
     burp_sign_configs_changed: "{{(
