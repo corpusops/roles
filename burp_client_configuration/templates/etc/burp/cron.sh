@@ -32,7 +32,7 @@ else
 fi
 python="$(which $python)"
 if [ ! -x "${python}" ];then echo "nopython";exit 1;fi
-ver=$("${python}" -c "import sys;print sys.version[0:3]")
+ver=$("${python}" -c "sys.stdout.write(sys.version[0:3]+'\n')")
 for i in 2.4 2.5;do
     if [ "x${ver}" = "x${i}" ];then echo "python too old";exit 2;fi
 done
