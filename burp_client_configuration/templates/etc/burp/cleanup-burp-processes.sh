@@ -24,7 +24,8 @@ filter_host_pids() {
 }
 
 burp_client() {
-    filter_host_pids $(${PS} aux|grep burp|grep -- "-a t"|grep -v grep|awk '{print $2}')|wc -w|sed -e "s/ //g"
+    ps_etime|sort -n -k2|grep burp|grep -- "-a t"|grep $W|grep -v grep
+    ps_etime|sort -n -k2|grep cron|grep $W|grep -v grep
 }
 ps_etime() {
     ${PS} -eo pid,comm,etime,args | perl -ane '@t=reverse(split(/[:-]/, $F[2])); $s=$t[0]+$t[1]*60+$t[2]*3600+$t[3]*86400;$cmd=join(" ", @F[3..$#F]);print "$F[0]\t$s\t$F[1]\t$F[2]\t$cmd\n"'
@@ -50,8 +51,8 @@ kill_old_syncs() {
                 todo="y"
             fi
         fi
-    done < <( ps_etime|sort -n -k2|grep burp|grep -- "-a t"|grep $W|grep -v grep )
-    lines="$(filter_host_pids $(ps aux|grep burp|grep $W|grep -- '-a t'|awk '{print $2}')|wc -l|sed 's/ +//g')"
+    done < <( burp_client )
+    lines="$(burp_client|wc -l|sed 's/ +//g')"
     if [ "x${lines}" = "x0" ];then
         if [ -f {{data.pidfile}} ];then
             todo="y"
