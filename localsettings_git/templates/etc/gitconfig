@@ -31,8 +31,8 @@
         llan = config user.email "lla@makina-corpus.com"
         llae = config user.name 'Laurent Laborde'
         lla =  !git llan && git llae
-        mpan = config user.email "mpa@makina-corpus.com"
-        mpae = config user.name 'Mathieu Le Marec - Pasquet'
+        mpan = config user.email "freesoftware@makina-corpus.com"
+        mpae = config user.name 'Makina Corpus'
         mpa =  !git mpan && git mpae
         mstn = config user.email 'makinastates@paas.tld'
         mste = config user.name 'Makina-States'
@@ -42,8 +42,8 @@
         rle =  !git rn && git re
         r = !"f() { git reset $@; git checkout $@; }; f"
         rco= !"f() { echo \"$@\" | while read f;do ( ( git reset -- $f || true ) && ( git checkout -- $f || true ) ) || true;done }; f \"$@\""
-        kn = config user.email "kiorky@cryptelium.net"
-        ke = config user.name 'Mathieu Le Marec - Pasquet'
+        kn = config user.email "freesoftware@makina-corpus.com"
+        ke = config user.name 'Makina Corpus'
         k =  !git kn && git ke
         pt = log --pretty=format:'%C(yellow)%h%Cred%d%Creset - %C(cyan)%an %Creset: %s %Cgreen(%cr)'
         bt = log --pretty=format:'%C(yellow)%h : %Creset%s'
