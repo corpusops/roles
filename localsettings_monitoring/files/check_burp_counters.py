@@ -67,7 +67,7 @@ def get_container(pid):
 class Check(object):
     def __init__(self):
         self._program = "check_burp_counters"
-        self._author = "Mathieu Le Marec - Pasquet (kiorky)"
+        self._author = "Makina Corpus (kiorky)"
         self._nick = self._program.replace('check_', '')
         self._ok = 0
         self._warning = 1

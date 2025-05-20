@@ -410,7 +410,7 @@
 #   Matt McMillan
 #   Jon Schulz
 #   M Spiegle
-#   Mathieu Le Marec - Pasquet
+#   Makina Corpus
 #
 # ============================ START OF PROGRAM CODE =============================
 
