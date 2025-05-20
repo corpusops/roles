@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function)
 
 DOCUMENTATION = """
     lookup: cops_net
-    author: kiorky
+    author: MakinaCorpus
     version_added: "2.5"
     short_description: wrapper for copsf_burp filters in lookup context
     description:

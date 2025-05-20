@@ -3,7 +3,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
     lookup: cops_registry
-    author: kiorky
+    author: MakinaCorpus
     version_added: "2.5"
     short_description: Assemble vars under a common prefix under a namespaced dict of those vars
     description:

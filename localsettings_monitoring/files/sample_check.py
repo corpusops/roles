@@ -74,7 +74,7 @@ def filter_host_pids(pids):
 class BaseCheck(object):
     def __init__(self):
         self._program = self.__class__.__name__
-        self._author = "Mathieu Le Marec - Pasquet (kiorky)"
+        self._author = "Makina Corpus (kiorky)"
         self._nick = self._program.replace('check_', '')
         self._ok = 0
         self._warning = 1

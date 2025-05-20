@@ -6,7 +6,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
     lookup: cops_net
-    author: kiorky
+    author: MakinaCorpus
     version_added: "2.5"
     short_description: wrapper for copsf_net filters in lookup context
     description:

@@ -3,7 +3,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
     lookup: cops_mysql
-    author: kiorky
+    author: MakinaCorpus
     version_added: "2.5"
     short_description: wrapper for copsf_mysql filter in lookup context
     description:

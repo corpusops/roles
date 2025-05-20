@@ -3,7 +3,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
     lookup: jinjarender
-    author: kiorky
+    author: MakinaCorpus
     version_added: "2.5"
     short_description: Template a string without safe/unsafe restrictions
     description:
