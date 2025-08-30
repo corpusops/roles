@@ -1,4 +1,5 @@
 ---
+# XXX: async mode is disabled since a2.17
 - debug:
     msg:
     - path: "{{cops_aconfig_fl_item.prefix|default(cops_configs_prefix)}}{{(
@@ -10,8 +11,8 @@
       group: "{{cops_aconfig_fl_item.dir_group|default(cops_aconfig_fl_item.group|default(omit))}}"
       force: "{{cops_aconfig_fl_item.force|default(cops_aconfig_fl_item.force|default(omit))}}"
   register: floopvar
-- when: ["not cops_configs_is_async_copys"]
-  name: create parent wrapper [file]
-  include: _create_parent.yml
+#- when: ["not cops_configs_is_async_copys"]
+- name: create parent wrapper [file]
+  include_tasks: _create_parent.yml
   loop_control: {loop_var: subitem}
   loop: "{{floopvar.msg}}"
